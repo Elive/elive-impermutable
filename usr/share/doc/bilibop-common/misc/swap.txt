@@ -1,0 +1,107 @@
+The goal of this document is to give some tips and tricks about the SWAP
+configuration for systems installed on external media.
+
+
+1. Systems on Flash memory
+--------------------------
+
+By "flash memory", we say USB keys, MMC or SD/SDHC cards, SSDs and all what
+is not a rotating Hard Disk Drive.
+
+Due to the low limits of rewrites allowed on such devices (commonly some
+tens of thousands, sometimes even less), it seems to not be a very good idea
+to setup and enable swap areas (block devices or regular files) on them.
+If you do it, you have to know that it can dramatically decrease the lifetime
+of your drive.
+
+If you have performed an automated install and a swap device is enabled on
+your system, you can disable it by at least two ways:
+
+1.1. /etc/fstab and /etc/crypttab
+
+You can delete (or comment) the lines concerning swap devices, or add the
+'noauto' option.
+
+1.2. boot commandline
+
+You can add the 'noswap' kernel parameter to your bootloader configuration
+file (see grub2.txt).
+
+
+2. Systems on External HDDs
+---------------------------
+
+Such devices have the same rewrites limits than the Internal HDDs. So you can
+enable swap areas on them without restriction in terms of lifetime of your
+drive. That said, you have to take care about the swap device name in your
+configuration files. A good practice is to name devices by the UUID of the
+filesystem they content; but it seems some programs don't affect an UUID to
+swap filesystems when they create them. Partman, the partitionning tool used
+by the Debian Installer, is one of them. To affect an UUID to a swap device,
+you can use swaplabel(8) with uuidgen(1), or just recreate the swap filesystem
+with mkswap(8) after it has been disabled with swapoff(8).
+
+2.1. Plain text or clear swap (not recommended)
+
+In /etc/fstab, you should have something like:
+UUID=12345678-9abc-def0-1234-56789abcdef0 none swap sw 0 0
+
+2.2. Encrypted swap
+
+* In /etc/crypttab, you should have something like:
+crypt_swap UUID=12345678-9abc-def0-1234-56789abcdef0 /dev/random swap,offset=8
+
+The "offset=8" option is added to not modify the height first sectors of the
+filesystem: 512*8=4096 is the size of the first page of the swap fs, where
+the UUID and LABEL are stored. The string 'SWAPSPACE2' is at the end of this
+first page. Install the 'haveged' package to use /dev/random as the key,
+otherwise use /dev/urandom.
+
+* In /etc/fstab, you should have something like:
+/dev/mapper/crypt_swap none swap sw 0 0
+
+
+3. Use the swap partition of the host computer
+----------------------------------------------
+
+It can be useful to set an existing swap partition of the host computer. For
+example, if the running system is on a USB stick without swap device on it,
+and you absolutely need additional memory for a certain task (unsquashfs a
+big file always fails with only 512MB of RAM).
+
+In a such case, the policy should be the following:
+A - Use an encrypted swap device to not let easily readable traces of your
+    activity on the host computer.
+B - Don't modify the swap device in a way that it will be unusable by the
+    system installed on the computer.
+
+In the following example, we assume /dev/sda and /dev/sdb are internal HDD,
+and /dev/sdc is your pendrive:
+
+# drivemap -d /
+/dev/sdc
+# blkid -t TYPE=swap -o device
+/dev/sdb5
+# sfdisk --print-id /dev/sdb 5
+82
+# dd if=/dev/urandom of=/dev/sdb5 bs=512 seek=8
+dd: writing `/dev/sdb5': No space left on device
+3906243+0 records in
+3906242+0 records out
+1999995904 bytes (2.0 GB) 1276.3 s, 1.6 MB/s
+# cryptsetup --key-file=/dev/random --offset=8 create encswap /dev/sdb5
+# mkswap -f /dev/mapper/encswap
+Setting up swapspace version 1, size = 1953116 KiB
+no label, UUID=0154016f-1fba-4961-a471-0856d06e6c0a
+# swapon /dev/mapper/encswap
+
+To properly disable the swap device:
+
+# swapoff /dev/mapper/encswap
+# cryptsetup remove encswap
+
+Don't forget the 'seek=8' and '--offset=8' options with dd and cryptsetup
+respectively, otherwise the firsts sectors will be overwritten, the UUID
+deleted, and if this UUID is used in a configuration file of a system
+installed on the computer, unexpetced errors can occur.
+

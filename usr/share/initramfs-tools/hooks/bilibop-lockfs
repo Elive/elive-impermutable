@@ -1,0 +1,32 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+# Add bilibop functions and needed commands to use them.
+
+### BEGIN ###
+. /usr/share/initramfs-tools/hook-functions
+
+# Copy the needed bilibop functions file:
+cp --parents /lib/bilibop/lockfs.sh ${DESTDIR}
+
+# Copy an additional command to harden the lock policy:
+copy_exec /sbin/blockdev	/sbin
+
+# Copy the needed module:
+manual_add_modules aufs
+
+:
+### END ###

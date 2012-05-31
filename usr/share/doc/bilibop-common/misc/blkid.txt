@@ -1,0 +1,64 @@
+The goal of this document is to give some tips and tricks about the BLKID
+configuration for systems installed on external media.
+
+
+1. /etc/blkid.tab
+-----------------
+
+This file is updated each time the blkid command is run without '-c' or '-p'
+options. If it already exists, then the existing table is saved in the same
+directory with the name 'blkid.tab.old', after what the table is updated.
+Maybe it should be placed somewhere in /var instead. And for systems running
+from an external media, maybe this file should be placed somewhere in /run,
+to not collect informations that will surely be obsolete after next boot.
+
+Additionally, the blkid tables could be used to track people, by easily
+controling that the removable drive hosting the system was plugged on an
+already identified computer the last time the system has run: the UUIDs of
+the computer's disks match the blkid table on the removable system. Arggh!
+
+Note that /etc/blkid.tab and /etc/blkid.tab.old cannot just be replaced by
+symlinks to files located in a temporary directory, because the blkid program
+has the following behaviour:
+- If the table don't already exists, it is just written. This means if
+  /etc/blkid.tab is a broken symlink to /tmp/blkid.tab, the program will
+  create /tmp/blkid.tab by writing into /etc/blkid.tab
+- If the table already exists, it is removed before to be rewritten. This
+  means if /etc/blkid.tab is a symlink to /tmp/blkid.tab, which exists,
+  /etc/blkid.tab will be removed and then rewritten: the symlink is replaced
+  by a regular file the second time the command is run during a session.
+
+So, use 'CACHE_FILE' or 'BLKID_FILE' settings instead (see below).
+
+
+2. CACHE_FILE
+-------------
+
+/etc/blkid.conf is the blkid configuration file. By default, it don't exist
+on Debian systems. This file can contain the 'CACHE_FILE' variable assignment,
+allowing the admin to write new and old blkid tables elsewhere. On a bilibop
+system, you can have:
+CACHE_FILE=/run/bilibop/blkid.tab
+
+
+3. BLKID_FILE
+-------------
+
+If set in /etc/environment, this variable will override the 'CACHE_FILE'
+variable, if set in /etc/blkid.conf. On a bilibop system, you can have:
+BLKID_FILE=/run/bilibop/blkid.tab
+
+
+4. IMPORTANT
+------------
+
+You should not use /run/bilibop as a location for the blkid tables in the
+following cases:
+- bilibop-rules package is not installed (and then /run/bilibop is not
+  created by the bilibop-rules initramfs script).
+- bilibop-lockfs is not enabled (and then /run/bilibop is not created by the
+  bilibop-lockfs initramfs script).
+- the value of BILIBOP_COMMON_BASENAME has been modified in bilibop.conf(5).
+  (and the directory created by one of the initramfs scripts is not
+  /run/bilibop, but /run/${BILIBOP_COMMON_BASENAME})
+

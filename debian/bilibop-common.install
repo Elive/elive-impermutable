@@ -1,0 +1,3 @@
+lib/bilibop/common.sh	lib/bilibop
+lib/bilibop/drivemap.sh	lib/bilibop
+usr/bin/drivemap	usr/bin

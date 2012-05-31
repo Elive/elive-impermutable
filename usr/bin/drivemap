@@ -1,0 +1,222 @@
+#!/bin/sh
+
+# /usr/bin/drivemap
+# Show block devices in a tree of dependencies.
+
+# Works fine with:
+#!/bin/bash
+#!/bin/dash
+#!/bin/busybox sh
+#!/usr/lib/klibc/bin/sh.shared
+# So, /bin/sh can be a link to /bin/bash, /bin/dash, /bin/busybox or even
+# /usr/lib/klibc/bin/sh.shared
+
+PATH="/bin:/usr/bin"
+
+DEBUG="false"
+
+_drive_="false"
+_backing_file_="false"
+_info_="false"
+_mark_="false"
+_dm_name_="false"
+FILE=""
+
+ALREADY_DONE=""
+_opts_=""
+
+. /lib/bilibop/drivemap.sh
+_drivemap_initial_indent
+
+short_usage() {
+	cat <<EOF
+usage:
+  ${0##*/} -h|--help
+  ${0##*/} [--debug] [-i|--info] [-d|--drive] [FILE]
+  ${0##*/} [--debug] [-i|--info] [-f|--backing-file] [-n|--dm-name] [-m|--mark] [FILE]
+EOF
+}
+
+usage() {
+	cat <<EOF
+${0##*/}: show block devices in a tree of dependencies
+usage:
+  ${0##*/} [OPTIONS] [FILE]
+options:
+  --debug		Output debug informations on stderr.
+  -d, --drive		Display only physical disk names.
+  -f, --backing-file	Replace each loop device by its backing file.
+  -h, --help		Print this message on stdout and exit.
+  -i, --info		Give more informations about devices.
+  -m, --mark		Mark the device hosting the FILE given as argument.
+  -n, --dm-name		Replace each device-mapper node by its name.
+
+FILE can be either a regular file, a directory or a block device. If FILE
+is not specified, then ${0##*/} will display informations about the disk
+hosting the root filesystem of the running system. The use of -a or --all
+overrides the FILE argument.
+EOF
+}
+
+
+# Parse options with getopt.
+ARGS="$(getopt -o dfhimn --long backing-file,debug,dm-name,drive,help,info,mark -n "${0##*/}" -- "${@}")"
+if	[ "${?}" = "0" ]
+then	eval set -- "$ARGS"
+else	short_usage >&2
+	exit 1
+fi
+
+# Now we can analyse the result. Some options will be stored into the '_opts_'
+# variable, for the case we have to run this script from inside itself (this
+# will be the case if the -a or --all option is invoked; see below).
+while	true
+do
+	case "${1}" in
+		--debug)
+			DEBUG="true"
+			_opts_="${_opts_:+${_opts_} }${1}"
+			shift
+			;;
+		-d|--drive)
+			_drive_="true"
+			_opts_="${_opts_:+${_opts_} }${1}"
+			shift
+			;;
+		-f|--backing-file)
+			_backing_file_="true"
+			_opts_="${_opts_:+${_opts_} }${1}"
+			shift
+			;;
+		-h|--help)
+			usage
+			exit 0
+			;;
+		-i|--info)
+			_info_="true"
+			_opts_="${_opts_:+${_opts_} }${1}"
+			shift
+			;;
+		-m|--mark)
+			_mark_="true"
+			_opts_="${_opts_:+${_opts_} }${1}"
+			shift
+			;;
+		-n|--dm-name)
+			_dm_name_="true"
+			_opts_="${_opts_:+${_opts_} }${1}"
+			shift
+			;;
+		--)
+			shift
+			break
+			;;
+		*)
+			unknown_argument "${1}" >&2
+			short_usage >&2
+			exit 1
+			;;
+	esac
+done
+
+${DEBUG} && set -x
+
+# Now we can analyse argument(s) that are not options (not beginning with a
+# dash '-').
+for	arg
+do
+	if	[ -e "${arg}" ]
+	then	FILE="${arg}"
+		[ -b "${DEVICE}" ] && break
+		if	[ -b "${FILE}" ]
+		then	DEVICE="$(readlink -f ${FILE})"
+		else	DEVICE="$(underlying_device_from_file ${FILE})"
+		fi
+		# We use the first existing argument. All others (previous
+		# bad arguments and next arguments) are silently discarded
+		break
+	fi
+done
+
+# Now, if there was at least one argument but all were rejected as non
+# existing, display an error message about each bad argument and exit.
+if	[ ! -e "${FILE}" -a -n "$*" ]
+then
+	for	arg
+	do
+		unknown_argument "${arg}" >&2
+	done
+	echo "Nothing to do. Exit." >&2
+	exit 1
+fi
+
+# If the --mark option is invoked but no FILE is given as argument, mark
+# the device of the current working directory:
+if	[ "${_mark_}" = "true" ]
+then
+	[ -e "${FILE}" ] ||
+	export DEVICE="$(underlying_device_from_file ${PWD})"
+fi
+
+# If no DEVICE, DIR or FILE has been given as argument, process on all known
+# disks:
+if	[ ! -e "${FILE}" ]
+then
+	for	dev in /sys/block/*
+	do
+		node="${dev##*/}"
+		case "${node}" in
+			loop*|dm-*)
+				# Avoid duplicates: all associated loop devices
+				# and each dm device are underlyed by a disk
+				# node in last instance.
+				continue
+				;;
+		esac
+
+		# For each whole disk, run the same command with the same
+		# options.
+		${0} ${_opts_} "${udev_root}/${node}"
+		[ "${_drive_}" = "true" ] || echo
+	done
+	exit $?
+fi
+
+# Begin by finding the base device, i.e the disk hosting the file (or '/' if
+# $file is empty).
+readonly DRIVE="$(physical_hard_disk ${FILE})"
+[ -b "${DRIVE}" ] || exit 127
+
+# Output the name of the disk hosting the file given as argument, and
+# optionally some extra information (disk identifier and size) on the
+# same line:
+_drivemap_whole_disk "${DRIVE}"
+
+# Otherwise, for the case there is a CD into the CD drive, and for the
+# case the whole disk is used as container for a filesystem, RAID array,
+# PhysicalVolume, etc.
+[ -n "${ID_FS_USAGE}" ] &&
+_drivemap_whole_disk_fs "${1}"
+
+# If we have not explicitly asked to show how the disk is divided, nothing
+# else to do.
+[ "${_drive_}" = "true" ] && exit 0
+
+# If the disk is associated to a loop device:
+_drivemap_loopback_device "${DRIVE##*/}"
+
+# Otherwise, verify if the whole disk is not a LUKS, RAID or LVM
+# container:
+_drivemap_dmdevice_holder "${DRIVE##*/}"
+
+# If the disk is not partitioned (this is the case for optical media, and
+# sometimes for USB sticks), nothing else to do:
+[ "$(echo ${DRIVE}?*)" != "${DRIVE}?*" ] || exit 0
+
+# Now we can process with the primary partitions. If we encounter logical
+# partitions, they will be treated as subdevices of the extended one, and
+# so they can appear differently from their numerical order. This can give:
+# part1, part2(part5, part6, part7), part3...
+_drivemap_primary_partitions "${DRIVE}"
+
+# That's all

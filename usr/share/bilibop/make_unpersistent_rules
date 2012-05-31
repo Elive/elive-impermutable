@@ -1,0 +1,170 @@
+#!/bin/sh
+
+# /usr/share/bilibop/make_unpersistent_rules
+
+# Remove some persistent udev rules files (cd & net) and replace them by links
+# to unpersistent files (in /run/bilibop); ...or restore them.
+# This is made because these persistent rules files are cumulative, and so are
+# not very adapted for an operating system on external hard disk or usb key.
+
+### BEGIN ###
+
+PATH="/sbin:/bin:/usr/bin"
+
+. /lib/bilibop/common.sh
+
+#get_udev_root
+get_bilibop_variables
+
+ETC_RULES_DIR="/etc/udev/rules.d"
+restore=""
+verbose=""
+skip=""
+TYPE=""
+
+usage() {
+	cat <<EOF
+${0##*/} replaces some persistent udev rules files by
+links to unpersistent files (in ${BILIBOP_RUNDIR}).
+This is done to avoid cumulative informations about optical drives
+and network interfaces.
+
+Usage: ${0##*/} [OPTIONS]
+
+OPTIONS:
+  -h, --help
+      Display this help and exit.
+
+  -r, --restore, --reverse
+      Remove links to unpersistent rules files and restore persistent
+      udev rules files.
+
+  -s TYPE, --skip TYPE
+      Do not apply actions for the selected TYPE of rules (cd or net).
+
+  -v, --verbose
+      Be verbose.
+EOF
+}
+
+execute() {
+	if	[ -n "${verbose}" ]
+	then	echo "> ${@}"
+	fi
+	"${@}"
+}
+
+
+# Parse options.
+ARGS="$(getopt -o hrs:v --long help,restore,reverse,skip:,verbose -n "${0##*/}" -- "${@}")"
+
+if	[ "${?}" != "0" ]
+then
+	usage >&2
+	exit 1
+fi
+
+eval set -- "${ARGS}"
+
+while	true
+do
+	case	"${1}" in
+		-h|--help)
+			usage
+			exit 0
+			;;
+		-r|--restore|--reverse)
+			restore="true"
+			shift
+			;;
+		-s|--skip)
+			skip="${2}"
+			shift 2
+			;;
+		-v|--verbose)
+			verbose="-v"
+			shift
+			;;
+		--)
+			shift
+			break
+			;;
+		*)
+			unknown_argument "${1}" >&2
+			usage >&2
+			exit 1
+			;;
+	esac
+done
+
+# Now, analyse the results.
+case	"${skip}" in
+	cd)
+		TYPE="net"
+		;;
+	net)
+		TYPE="cd"
+		;;
+	"")
+		TYPE="cd net"
+		;;
+	*)
+		unknown_argument "${skip}" >&2
+		exit 1
+		;;
+esac
+
+# And run...
+if	[ "${restore}" = "true" ]
+then
+	for	i in ${TYPE}
+	do
+		persistent="${ETC_RULES_DIR}/70-persistent-${i}.rules"
+		if	[ -h "${persistent}" ]
+		then
+			unpersistent="$(readlink -f ${persistent})"
+			execute rm ${verbose} ${persistent}
+			if	[ -f "${unpersistent}" ]
+			then	execute mv ${verbose} ${unpersistent} ${persistent}
+			else	execute touch ${persistent}
+			fi
+
+		elif	[ ! -f "${persistent}" ]
+		then
+			unpersistent="${BILIBOP_RUNDIR}/unpersistent-${i}.rules"
+			if	[ -f "${unpersistent}" ]
+			then	execute mv ${verbose} ${unpersistent} ${persistent}
+			else	execute touch ${persistent}
+			fi
+		fi
+	done
+
+else
+	if	[ ! -d "${BILIBOP_RUNDIR}" ]
+	then	execute mkdir -p ${BILIBOP_RUNDIR}
+	fi
+	for	i in ${TYPE}
+	do
+		persistent="${ETC_RULES_DIR}/70-persistent-${i}.rules"
+		unpersistent="${BILIBOP_RUNDIR}/unpersistent-${i}.rules"
+		if	[ -h "${persistent}" ]
+		then
+			target="$(readlink -f ${persistent})"
+			if	[ "${target}" = "${unpersistent}" ]
+			then	[ -f "${target}" ] || execute touch ${target}
+				# nothing else to do:
+				continue
+			else	[ -f "${target}" ] && execute mv ${verbose} ${target} ${unpersistent}
+			fi
+
+		elif	[ -f "${persistent}" ]
+		then	execute mv ${verbose} ${persistent} ${unpersistent}
+		fi
+
+		[ -e "${persistent}" ] && execute rm ${verbose} ${persistent}
+		[ -e "${unpersistent}" ] || execute touch ${unpersistent}
+		execute ln -s ${verbose} ${unpersistent} ${persistent}
+	done
+fi
+
+### END ###

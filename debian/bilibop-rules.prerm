@@ -1,0 +1,31 @@
+#!/bin/sh
+
+set -e
+
+PATH="${PATH}:"
+
+case "${1}" in
+	remove)
+		# Restore /etc/udev/rules.d/70-persistent-*.rules as regular
+		# files:
+		/usr/share/bilibop/make_unpersistent_rules --restore
+
+		# GRUB device.map management:
+		DEVICE_MAP="/boot/grub/device.map"
+		[ -h "${DEVICE_MAP}" ] || exit 0
+
+		if	[ -f "/etc/bilibop/bilibop.conf" ]
+		then	. /etc/bilibop/bilibop.conf
+		fi
+
+		case	"$(readlink -f ${DEVICE_MAP})" in
+			/run/${BILIBOP_COMMON_BASENAME:-bilibop}/*|"")
+				rm -f ${DEVICE_MAP}
+				ln -s /run/grub-device.map ${DEVICE_MAP}
+				;;
+		esac
+		;;
+esac
+
+#DEBHELPER#
+:

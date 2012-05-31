@@ -1,0 +1,113 @@
+#!/bin/sh
+
+# /bin/lsbilibop
+# List or update BILIBOP tagged devices.
+
+PATH="/sbin:/bin"
+
+info="false"
+update="false"
+
+usage() {
+	cat <<EOF
+${0##*/}: list BILIBOP tagged devices or update their udev properties.
+Usage:
+  ${0##*/} [-h|-u]
+  ${0##*/} -i [DEVICE [DEVICE [...]]]
+Options:
+  -h	Print this help on stdout and exit.
+  -i    Display some udev properties of BILIBOP tagged devices.
+  -u	Trigger udev rules to apply to the BILIBOP tagged devices.
+EOF
+}
+
+infos() {
+	echo "DEVNAME='${1}'"
+	udevadm info --query property --export --name ${1} |
+	grep '^\(BILIBOP_\(DISK\|\(UNDERLYING_\)\?PARTITION\)\|UDISKS_\(SYSTEM_INTERNAL\|PRESENTATION_\(HIDE\|\(ICON_\)\?NAME\)\)\|ID_FS_\(UUID\|LABEL\|TYPE\|USAGE\)\)='
+	echo
+}
+
+while	getopts :hiu opt
+do
+	case	"${opt}" in
+		h)
+			usage
+			exit 0
+			;;
+		i)
+			info="true"
+			;;
+		u)
+			update="true"
+			;;
+		*)
+			echo "${0##*/}: unrecognized option '-${OPTARG}'." >&2
+			usage >&2
+			exit 1
+			;;
+	esac
+done
+
+
+# Update:
+if	[ "${update}" = "true" ]
+then
+	# id, whoami and others are in /usr/bin. So, we use a poor control,
+	# but we don't really need it. When run by unprivileged user,
+	# 'udevadm trigger' don't fail (exit code is 0) but does nothing,
+	# silently.
+	[ "${HOME}" != "/root" -o "${USER}" != "root" ] &&
+		echo "${0##*/}: only root can use the '-u' (update) option." >&2 &&
+		exit 2
+
+	udevadm trigger --tag-match="BILIBOP" --action="add"
+	udevadm trigger --tag-match="BILIBOP" --action="change"
+	exit 0
+fi
+
+# List and Info:
+if	[ -f /etc/udev/udev.conf ]
+then	. /etc/udev/udev.conf
+fi
+udev_root="${udev_root:-/dev}"
+udev_root="${udev_root%/}"
+
+# Store devices given as arguments:
+for	arg
+do
+	case	"${arg}" in
+		${udev_root}/*)
+			DEVICE="${DEVICE:+${DEVICE} }${arg}"
+			;;
+	esac
+done
+
+
+grep '[[:digit:]]' /proc/partitions |
+while read major minor size node
+do
+	# Skip devices that are not tagged 'BILIBOP':
+	[ ! -e "/run/udev/tags/BILIBOP/b${major}:${minor}" ] &&
+		continue
+
+	# Display the device node:
+	[ "${info}" != "true" ] &&
+		echo "${udev_root}/${node}" &&
+		continue
+
+	# Display some udev properties for all devices or only those given
+	# as arguments:
+	if	[ -n "${DEVICE}" ]
+	then
+		for	device in ${DEVICE}
+		do
+			[ "${device}" != "${udev_root}/${node}" ] &&
+				continue
+			infos "${udev_root}/${node}"
+		done
+	else
+		infos "${udev_root}/${node}"
+	fi
+done
+

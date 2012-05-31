@@ -1,0 +1,322 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+	prereqs)
+		prereqs
+		exit 0
+	;;
+esac
+
+# Lock root filesystem by mounting it readonly with aufs, and modify fstab on
+# the fly to prepare to automatically lock other filesystems later in the boot
+# process.
+# We assume that /proc, /sys and /dev are correctly mounted.
+
+# /proc/cmdline will be parsed several times. We call 'cat' only one time:
+readonly CMDLINE="$(cat /proc/cmdline)"
+
+# Set verbosity from boot commandline:
+for	param in ${CMDLINE}
+do
+	case	"${param}" in
+		quiet)
+			quiet="y"
+			break
+			;;
+	esac
+done
+
+# Load functions:
+. /scripts/functions
+. /lib/bilibop/lockfs.sh
+
+
+# The bilibop functions assume that udev_root can be different from /dev; but
+# this applies only for the running system, not for the initramfs. So, we have
+# to fix it here:
+get_udev_root
+UDEV_ROOT="${udev_root}"
+udev_root="/dev"
+
+
+# Check if BILIBOP_LOCKFS is overridden from the boot commandline. To use
+# lockfs in single-user mode, it is necessary to use 'lockfs=force'.
+for	param in ${CMDLINE}
+do
+	case	"${param}" in
+		single|S|1)
+			single="true"
+			;;
+		lockfs=force)
+			_force="true"
+			;;
+		nolockfs)
+			BILIBOP_LOCKFS="false"
+			;;
+		lockfs|lockfs=*)
+			BILIBOP_LOCKFS="true"
+			;;
+	esac
+done
+[ "${single}" = "true" ] && BILIBOP_LOCKFS="false"
+[ "${_force}" = "true" ] && BILIBOP_LOCKFS="true"
+
+
+# Now, if BILIBOP_LOCKFS is not explicitly set to "true" or "false", then
+# check the sysfs 'removable' flag to know what to do.
+case	"${BILIBOP_LOCKFS}" in
+	true)
+		log_warning_msg "${0##*/}: Locking filesystem."
+		;;
+	false)
+		log_warning_msg "${0##*/}: Nothing to do."
+		exit 0
+		;;
+	*)
+		if	is_removable $(physical_hard_disk ${rootmnt})
+		then	log_warning_msg "${0##*/}: Locking filesystem."
+		else	log_warning_msg "${0##*/}: Nothing to do."
+			exit 0
+		fi
+		;;
+esac
+
+
+# Exit if ${rootmnt} is already mounted as an aufs branch (by fsprotect?):
+if	is_aufs_mountpoint -q "${rootmnt}"
+then	log_warning_msg "${0##*/}: Root filesystem is already mounted as aufs..."
+	log_failure_msg "${0##*/}: Exit."
+	exit 0
+fi
+
+
+# Load the aufs module:
+modprobe aufs >/dev/null 2>&1
+
+# Check if the aufs filesystem is now supported:
+if	! grep -q '\<aufs\>' /proc/filesystems
+then
+	log_failure_msg "${0##*/}: No aufs kernel support."
+	log_failure_msg "${0##*/}: Exit."
+	exit 1
+fi
+
+# Now we can work. At first, we have to collect some informations tu use them
+# later:
+BILIBOP_ROOT="$(underlying_device_from_file ${rootmnt})"
+BILIBOP_DISK="$(physical_hard_disk ${BILIBOP_ROOT})"
+
+# If BILIBOP_LOCKFS_POLICY is not explicitly set to 'soft', then apply a hard
+# policy: set readonly branch as 'rr' (real readonly) instead of just 'ro' and
+# set the root device and all its parent devices until the whole disk itself
+# as readonly, with blockdev(8):
+if	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ]
+then	RO="ro"
+else	RO="rr"
+	blockdev_rootdev_tree ro ${BILIBOP_ROOT} ${BILIBOP_DISK}
+fi
+
+# Determine tmpfs size for the aufs writable branch:
+SIZE=
+for	size in ${BILIBOP_LOCKFS_SIZE}
+do
+	case	"${size}" in
+		/=[1-9]*[0-9KkMmGg%])
+			SIZE="${size#/=}"
+			break
+			;;
+	esac
+done
+
+# Check if the size has been overridden from the boot commandline:
+for	param in ${CMDLINE}
+do
+	case	"${param}" in
+		lockfs=[1-9]*[0-9KkMmGg%])
+			SIZE="${param#lockfs=}"
+			;;
+	esac
+done
+
+log_begin_msg "${0##*/}: Setting up aufs branches"
+
+# Prepare directories:
+BASEDIR="/aufs"
+HOSTDIR="${BASEDIR}/ro"
+TEMPDIR="${BASEDIR}/rw"
+AUFSDIR="${BASEDIR}/aufs"
+
+[ -d "${BASEDIR}" ] || mkdir "${BASEDIR}"
+[ -d "${HOSTDIR}" ] || mkdir "${HOSTDIR}"
+[ -d "${TEMPDIR}" ] || mkdir "${TEMPDIR}"
+[ -d "${AUFSDIR}" ] || mkdir "${AUFSDIR}"
+
+mount -o bind ${rootmnt} ${HOSTDIR}
+
+if	! mount -t tmpfs -o mode=0755${SIZE:+,size=${SIZE}} tmpfs ${TEMPDIR}
+then
+	# Don't forget to undo what has been done before !
+	umount ${HOSTDIR}
+	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ] ||
+	blockdev_rootdev_tree rw ${BILIBOP_ROOT} ${BILIBOP_DISK}
+
+	log_failure_msg "${0##*/}: Error occured when setting aufs writable branch."
+	log_failure_msg "${0##*/}: Exit."
+	exit 1
+fi
+
+# Now do the job:
+if	mount -t aufs -o br:${TEMPDIR}=rw:${HOSTDIR}=${RO} none ${AUFSDIR}
+then
+	umount ${rootmnt}
+	mount -o move ${AUFSDIR} ${rootmnt}
+	mkdir ${rootmnt}${BASEDIR}
+	mkdir ${rootmnt}${HOSTDIR}
+	mkdir ${rootmnt}${TEMPDIR}
+	mount -o move ${HOSTDIR} ${rootmnt}${HOSTDIR}
+	mount -o move ${TEMPDIR} ${rootmnt}${TEMPDIR}
+else
+	# Again, don't forget to undo what has been done before:
+	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ] ||
+	blockdev_rootdev_tree rw ${BILIBOP_ROOT} ${BILIBOP_DISK}
+	umount ${HOSTDIR}
+	umount ${TEMPDIR}
+
+	_log_msg "failed.\n"
+	log_failure_msg "${0##*/}: Persistent root filesystem is writable."
+	exit 1
+fi
+
+# Create a file to say the root filesystem is locked:
+[ -d "${BILIBOP_RUNDIR}" ] || mkdir "${BILIBOP_RUNDIR}"
+>${BILIBOP_RUNDIR}/lock
+
+log_end_msg
+log_success_msg "${0##*/}: Root filesystem is now locked."
+
+# Avoid filesystems check:
+>${rootmnt}/fastboot
+
+# Rebuild fstab to automatically mount other filesystems as readonly aufs
+# branches:
+log_warning_msg "${0##*/}: Modifying temporary static filesystem table (fstab)."
+FSTAB="${rootmnt}/etc/fstab"
+>>${FSTAB}			# touch the file
+
+comment="# Original line commented by ${0##*/}:"
+replace="# ...and replaced by:"
+
+# Comment the line about the root filesystem, which must not be managed later
+# by initscripts or whatever:
+sed -i "s|^\s*[^[:blank:]]\+\s\+/\s.*|\n${comment}\n#&\n|" ${FSTAB}
+
+# Add /etc/fstab to the list of files that have been modified. This is not
+# needed now, but will be used by further purposes (as the ability to sync
+# on the readonly branch the files that have been modified on the writable
+# branch):
+lock_file "/etc/fstab"
+
+# Canonize field separators ?
+#sed -i 's|\s\+| |g' ${FSTAB}
+
+# Now parse fstab and modify some entries:
+grep -v '^\s*\(#\|$\)' ${FSTAB} |
+while	read device mntpnt fstype option dump pass
+do
+	# Due to the pipe (|) before the 'while' loop, we are now in a
+	# subshell. The variables just previously set (device, mntpnt,
+	# fstype, option, dump, pass) have no sense outside of this loop.
+	# Don't use them later (after the 'done').
+
+	case	"${fstype}" in
+		swap)
+			# Special settings for swap devices
+			apply_swap_policy "${device}"
+			continue
+			;;
+		none|ignore|tmpfs)
+			# Don't modify some entries
+			continue
+			;;
+	esac
+
+	# Don't modify the "noauto" mount lines:
+	echo "${option}" | grep -q '\<noauto\>' && continue
+
+	# Skip what we are sure that it is not a block device:
+	case	"${device}" in
+		UUID=*|LABEL=*|${UDEV_ROOT}/*)
+			;;
+		*)
+			continue
+			;;
+	esac
+
+	# Skip locking device if whitelisted by the sysadmin. Two forms are
+	# accepted: the mountpoint itself, or a metadata about the filesystem
+	# (allowing to use something like TYPE=vfat for any mountpoint).
+	for	skip in ${BILIBOP_LOCKFS_WHITELIST}
+	do
+		case	"${skip}" in
+			${device})
+				continue 2
+				;;
+			${mntpnt})
+				continue 2
+				;;
+			TYPE=${fstype})
+				continue 2
+				;;
+		esac
+	done
+
+	# For each filesystem to lock, modify the line in fstab. A mount helper
+	# script will manage it later:
+	#log_warning_msg "${0##*/}: Preparing to lock: ${mntpnt}."
+
+	sed -i "s|^\s*${device}\s\+${mntpnt}\s.*|${comment}\n#&\n${replace}\n${device} ${mntpnt} lockfs fstype=${fstype},${option} ${dump} ${pass}\n|" ${FSTAB}
+
+done
+
+
+# Be sure the lockfs mount helper script will be executed when needed:
+grep -q '\slockfs\s' ${FSTAB} &&
+check_mount_lockfs "${rootmnt}"
+
+
+# Now modify some other files, or execute specific actions if wanted by the
+# sysadmin (set the hostname, modify MAC addresses, set autologin, and so on):
+# TODO: this is Still In Development
+# Maybe we have to provide a sample file (skeleton) including instructions to
+# write a script that can be executed both from the initramfs environment or
+# from the running system.
+# XXX: is it standards compliant ?
+for	param in ${CMDLINE}
+do
+	case	"${param}" in
+		config)
+			BILIBOP_LOCKFS_RUN_SCRIPTS="true"
+			;;
+		noconfig)
+			BILIBOP_LOCKFS_RUN_SCRIPTS="false"
+			;;
+	esac
+done
+
+[ "${BILIBOP_LOCKFS_RUN_SCRIPTS}" = "true" ] &&
+if	[ -d "${rootmnt}/etc/bilibop/lockfs.d" ]
+then
+	for	exe in ${rootmnt}/etc/bilibop/lockfs.d/[0-9][0-9]_[a-z]*[a-z].sh
+	do
+		[ -x "${exe}" ] && ${exe} ${rootmnt}
+	done
+fi
+
+:

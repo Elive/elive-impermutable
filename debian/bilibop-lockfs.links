@@ -1,0 +1,2 @@
+usr/share/man/man8/lockfs_mount_helper.8.gz	usr/share/man/man8/mount.lockfs.8.gz
+lib/bilibop/lockfs_mount_helper			sbin/mount.lockfs

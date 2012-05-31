@@ -1,0 +1,128 @@
+.TH LOCKFS_MOUNT_HELPER 8 2012\-05\-29 bilibop "System Administration"
+
+.SH NAME
+mount.lockfs \- helper script for the mount command
+
+.SH SYNOPSIS
+.B mount.lockfs
+.I FILESYSTEM
+.I MOUNTPOINT
+.B \-o
+.I MOUNTOPTIONS
+
+.SH DESCRIPTION
+.B /sbin/mount.lockfs
+is a symlink to
+.IR /lib/bilibop/lockfs_mount_helper .
+It is used as an helper program by the
+.BR mount (8)
+command for the
+.RB \' lockfs \'
+filesystem type entries in
+.IR /etc/fstab .
+This script cannot be run manually, and fails if the root filesystem is not
+already managed by
+.BR bilibop-lockfs .
+The expected way to run it and how it does its job are the followings:
+.IP 1. 3
+Enable
+.BR bilibop\-lockfs :
+set the BILIBOP_LOCKFS variable to
+.I true
+in
+.BR bilibop.conf (5)
+and reboot the computer; or reboot the computer and append the
+.RB \' lockfs \'
+kernel parameter to the boot commandline.
+.IP 2.
+One time the future \'/\' is set as an
+.BR aufs (5)
+mountpoint from into the initramfs environment, the temporary and writable
+.BR fstab (5)
+on it is modified to replace filesystem types of some entries by
+.RB \' lockfs \'.
+Options are also modified to remember the original fstype.
+.IP 3.
+One time the aufs mountpoint is the new root filesystem, initscripts are
+executed:
+.BR fstab (5)
+is parsed by
+.RB \' mount
+.BR \-a \',
+and then
+.BR mount (8)
+calls
+.I mount.lockfs
+with the proper arguments when a
+.RB \' lockfs \'
+fstype is encountered.
+.IP 4.
+.B mount.lockfs
+parses arguments and checks if the filesystem has been whitelisted in
+.BR bilibop.conf (5),
+or not. If it is the case, the filesystem is mounted normally and the
+fstab entry is modified to reflect the actual mount call. If neither
+the filesystem nor the mountpoint have been whitelisted, then the
+filesystem is mounted elsewhere and readonly, a temporary filesystem
+is mounted with proper options, size, permissions and ownership, and an
+aufs is mounted on the
+.I MOUNTPOINT
+given as argument with the lower/readonly and upper/writable branches
+previously set. The fstab entry is replaced by three lines reflecting
+the actual mount calls. If something fails,
+.B mount.lockfs
+acts as if the filesystem was whitelisted. See
+.I /usr/share/doc/bilibop\-lockfs/README.Debian
+for details.
+
+.SH OPTIONS
+.B lockfs_mount_helper
+uses options and arguments as they are given by
+.BR mount (8)
+after it has parsed the corresponding
+.BR fstab (5)
+entry. So, options and arguments are mandatory and come in the following
+order:
+.TP
+.I FILESYSTEM
+Corresponding to the first field in fstab. This must be a block device,
+or a symlink to a block device. If this field is given with one of the
+.B UUID=*
+or
+.B LABEL=*
+formats, then the mount command translates it to the corresponding device
+name before to call the helper program.
+.TP
+.I MOUNTPOINT
+Corresponding to the second field in fstab.
+.TP
+.I \-o MOUNTOPTIONS
+Corresponding to the fourth field in fstab. The mount options are parsed
+by the helper script: if
+.B fstype=*
+is encountered, it is removed from the options and used to mount the
+readonly branch with this filesystem type. If
+.BR ro ,
+.BR noexec ,
+.B nosuid
+or
+.B nodev
+options are encountered, they are added to the list of mount options of
+the writable branch.
+
+.SH FILES
+/etc/fstab
+.br
+/lib/bilibop/lockfs_mount_helper
+.br
+/usr/share/doc/bilibop\-lockfs/README.Debian
+
+.SH SEE ALSO
+.BR aufs (5),
+.BR bilibop (7),
+.BR bilibop.conf (5),
+.BR fstab (5),
+.BR mount (8)
+
+.SH AUTHOR
+This manual page has been written by « bilibop project » <quidame@poivron.org>.

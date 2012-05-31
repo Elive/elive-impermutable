@@ -1,0 +1,89 @@
+bilibop-common
+--------------
+
+This package mainly provides shell functions that can be called by any user,
+either manually or from a shell script. One of the main goals of these
+functions is to easily find the device name of the disk hosting the running
+system.
+
+We assume that the commands in /usr/bin (awk, cut, tail, and others) can be
+unavailable, and then are replaced by grep and sed heuristics.
+
+We assume, even if it is not often, that /etc/udev/udev.conf can have been
+modified and that 'udev_root' can be something else than '/dev'.
+
+dm-crypt/LUKS, LVM, loopback and aufs root filesystems (and combinations of
+them) are now _fully_ supported, with the following limitations: these
+functions are intended to be used on a system hosted by an external and
+writable device (USB, FireWire, eSATA, MMC and maybe more); this means all
+filesystems used by the system must be either hosted by the same disk or
+in RAM.
+
+So, the main limitations for _full_ LVM support is that a Volume Group can
+contain several Logical Volumes, but never more than one Physical Volume:
+we assume there is no sense to use two partitions of the same disk to
+create a Volume Group. For the same reason, RAID is not supported at all.
+The limitations for _full_ aufs support are the sames than for some of the
+aufs-tools programs: we assume two branches, the lower being readonly (on
+disk) and the upper writable (in RAM).
+
+For loop devices, there is a small limitation, concerning the fact that in
+some cases, some functions cannot be run by any unprivileged user: if the
+loop device has been associated from into the initramdisk environment, then
+the filename stored in /sys/block/loop?/loop/backing_file is obsolete in the
+system environment, and a call to losetup is needed to access relevant
+information about the filesystem the backing file resides on.
+
+The bilibop common shell functions have been tested - and work - with the
+following shells:
+- /bin/bash
+- /bin/dash
+- /bin/busybox sh
+- /usr/lib/klibc/bin/sh.shared
+- /bin/ksh93
+- /bin/mksh
+- /bin/zsh4
+
+They don't work with /bin/pdksh (the Public Domain Korn Shell, which has
+even no 'printf' builtin!)
+
+To run correctly, the bilibop functions need to read information into some
+virtual files or directories, especially:
+
+/dev/* (or ${udev_root}/*)
+/dev/block/*
+/proc/cmdline
+/proc/filesystems
+/proc/mounts
+/proc/partitions
+/sys/block/sd?/removable
+/sys/block/dm-?/slaves
+/sys/block/loop?/loop/backing_file
+/sys/class/block/*/dev
+/sys/class/block/*/holders
+/sys/fs/aufs/si_*/br?
+and maybe others
+
+So we assume that /dev, /proc and /sys are mounted. If you have to use the
+bilibop common functions from into a chrooted environment, you have to do
+something like that (as root).
+
+# mount DEVICE /mnt
+# mount -t sysfs -o nodev,noexec,nosuid sysfs /mnt/sys
+# mount -t proc -o nodev,noexec,nosuid proc /mnt/proc
+# mount -t devtmpfs -o mode=0755 udev /mnt/dev
+
+and optionally:
+
+# mount -t tmpfs -o nosuid,nodev tmpfs /mnt/tmp
+# mount -t tmpfs -o nosuid,size=10%,mode=0755 tmpfs /mnt/run
+# mkdir -p /mnt/dev/pts /mnt/run/lock /mnt/run/shm
+# mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /mnt/dev/pts
+# mount -t tmpfs -o noexec,nodev,nosuid,size=10% tmpfs /mnt/run/lock
+# mount -t tmpfs -o nosuid,nodev tmpfs /mnt/run/shm
+
+and finally:
+# chroot /mnt
+
+
+ -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200

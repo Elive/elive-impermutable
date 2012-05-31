@@ -1,0 +1,62 @@
+The goal of this document is to give some tips and tricks about the UDEV
+configuration for systems installed on external media.
+
+
+1. /etc/udev/rules.d/70-persistent-*.rules
+------------------------------------------
+
+As said by their names, 70-persistent-cd.rules and 70-persistent-net.rules
+store persistent informations about cd/dvd drives and network interfaces.
+These files are cumulative. It means that each time you run your system on
+a new computer, some informations are collected and appended to the content
+of these files.
+
+For example: 70-persistent-net.rules
+
+When a network interface is discovered by the system, and its MAC address
+don't match those stored in the existing rules, a new rule is created and
+appended to the file. A new name is created for this interface, by
+incrementation: if 'eth0' and 'eth1' already exist in the file, then the
+new name will be 'eth2' (the most common names being 'eth*', 'wlan*' and
+'ath*'). Two months later, if the system has been used on ten different
+computers, it is possible this file contains rules for more or less twenty
+interfaces, from 'eth0' to 'eth13', 'wlan0' to 'wlan3', 'ath0' and 'ath1',
+with as many MAC addresses able to proof which computers your system was
+plugged on. And some network managers cannot easily deal with that: the
+problem is that the interface name to use for a wired connection can be
+hard coded in a configuration file, etc.
+
+So, a good thing is to make these persistent data unpersistent, by replacing
+the files by symlinks to files in temporary directories (as /run or /tmp).
+This works as expected, except udev complaints about this situation during
+the second stage of the boot process (the initramfs being the first stage).
+It is possible to avoid udev trouble by creating the (non empty) target
+of the symlink before udev initscript runs. This is what bilibop-rules does.
+
+
+2. /dev/sd?*
+------------
+
+When the operating system is running from a removable media, the udev rules
+file /lib/udev/rules.d/91-permissions.rules set this media and all its
+partitions as members of the 'floppy' group (unlike internal drives and
+their partitions, that are set as members of the 'disk' group).
+See bug #645466.
+
+The main difference between these two groups is that a lot of users are
+members of the floppy group, to allow them to do what they want with their
+floppies, USB keys, and others. 'What they want' includes low-level writes.
+So, only privileged users should be members of the 'disk' group, to avoid
+this low-level write access on drives which the system is installed on.
+In conclusion, on systems embedded on USB keys, a normal user can erase all
+(blank the entire disk) with one of the following commands:
+
+$ shred -zn0 /dev/sdb
+$ dd if=/dev/zero of=/dev/sdb
+
+Knowing that, one of the first things to do when the system is on a
+removable media, is to override 91-permissions.rules, and set the drive
+hosting the system and all its partitions (including the extended one)
+as members of the 'disk' group. This is what bilibop-rules is mainly
+designed to do.
+

@@ -1,0 +1,171 @@
+#!/bin/sh
+
+# /usr/share/bilibop/grub_device_map_manager
+
+# Replace /boot/grub/device.map by a symlink to /run/bilibop/grub-device.map
+# is a way to always keep the file up to date. Or create a persistent fake
+# device map.
+#
+# Options:
+# -h, --help	Print help message on stdout and exit
+# -f, --fake	Replace device map content by a fake
+# -l, --link	Link grub device map to /run/bilibop/grub-device.map
+# -r, --remove	Remove /boot/grub/device.map
+# -s, --show	Display grub device map location and content
+# -u, --update	Run grub-mkdevicemap
+
+
+### BEGIN ###
+
+PATH="/bin:/usr/bin"
+
+. /lib/bilibop/common.sh
+get_udev_root
+get_bilibop_variables
+
+GRUB_DEVICE_MAP="/boot/grub/device.map"
+
+short_usage() {
+	cat <<EOF
+Usage:
+  ${0##*/} -h|--help
+  ${0##*/} [-l|--link] [-r|--remove] [[-f|--fake]|[-u|--update]] [-s|--show]
+EOF
+}
+
+usage() {
+	cat <<EOF
+${0##*/}: modify grub device map location and content.
+Usage:
+  ${0##*/} OPTION
+
+Options:
+  -f, --fake	Replace device map content by a fake
+  -h, --help	Print this help on stdout and exit
+  -l, --link	Link grub device map to ${BILIBOP_RUNDIR}/grub-device.map
+  -r, --remove	Remove /boot/grub/device.map
+  -s, --show	Display grub device map location and content
+  -u, --update	Run grub-mkdevicemap
+
+For your system, a fake device map content should be:
+$(fake_device_map)
+EOF
+}
+
+fake_device_map() {
+	eval $(query_udev_envvar "$(physical_hard_disk /boot)")
+	for	link in ${DEVLINKS}
+	do
+		case	"${link}" in
+			/dev/disk/by-id/*)
+				echo "(hd0)	${link}"
+				break
+				;;
+		esac
+	done
+}
+
+show_device_map() {
+	if	[ -h "${1}" -o -f "${1}" ]
+	then	printf "GRUB device map location:\n\t$(readlink -f ${1})\n\n"
+	else	echo "${1} don't exist."
+		return 1
+	fi
+
+	if	[ -s "${1}" ]
+	then	echo "GRUB device map contents:"
+		echo "========================="
+		cat ${1}
+		echo "========================="
+	elif	[ -f "${1}" ]
+	then	echo "${1} is empty."
+	else	echo "${1} is a broken symlink: the target don't exist yet."
+	fi
+}
+
+remove="false"
+update="false"
+fake="false"
+link="false"
+show="false"
+
+### Parse options ##############################################################
+ARGS="$(getopt -o fhlrsu --long fake,help,link,remove,show,update -n "${0##*/}" -- "${@}")"
+if	[ "${?}" != "0" ]
+then	short_usage >&2
+	exit 1
+else	eval set -- "$ARGS"
+fi
+################################################################################
+
+[ "$1" = "--" ] && show="true"
+
+while	true
+do
+	case	"${1}" in
+		-f|--fake)
+			fake="true"
+			shift
+			;;
+		-h|--help)
+			usage
+			exit 0
+			;;
+		-l|--link)
+			link="true"
+			remove="true"
+			shift
+			;;
+		-r|--remove)
+			remove="true"
+			shift
+			;;
+		-s|--show)
+			show="true"
+			shift
+			;;
+		-u|--update)
+			update="true"
+			shift
+			;;
+		--)
+			shift
+			break
+			;;
+		*)
+			unknown_argument "${arg}" >&2
+			short_usage >&2
+			exit 1
+			;;
+	esac
+done
+
+if	[ ! -d "/boot/grub" ]
+then	echo "${0##*/}: /boot/grub directory don't exist." >&2
+	exit 3
+fi
+
+if	[ "${fake}" = "true" -a "${update}" = "true" ]
+then	echo "${0##*/}: --fake and --update options are not compatible." >&2
+	exit 1
+fi
+
+
+[ "${remove}" = "true" ] &&
+	rm -f ${GRUB_DEVICE_MAP}
+
+[ "${link}" = "true" ] &&
+	mkdir -p ${BILIBOP_RUNDIR} &&
+	ln -s ${BILIBOP_RUNDIR}/grub-device.map ${GRUB_DEVICE_MAP}
+
+[ "${update}" = "true" ] &&
+	/usr/sbin/grub-mkdevicemap
+
+[ "${fake}" = "true" ] &&
+	fake_device_map >${GRUB_DEVICE_MAP}
+
+[ "${show}" = "true" ] &&
+	show_device_map ${GRUB_DEVICE_MAP}
+
+
+### END ###

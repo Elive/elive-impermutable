@@ -1,0 +1,203 @@
+.TH DRIVEMAP 1 2012\-05\-22 bilibop "User commands"
+
+.SH NAME
+drivemap \- show block devices in a tree of dependencies
+
+.SH SYNOPSIS
+.BR drivemap
+.RI [ \-\-debug ]
+.RI [ \-i | \-\-info ]
+.RI [ \-d | \-\-drive ]
+.RI [ FILE ]
+.br
+.BR drivemap
+.RI [ \-\-debug ]
+.RI [ \-i | \-\-info ]
+.RI [ \-f | \-\-backing\-file ]
+.RI [ \-n | \-\-dm\-name ]
+.RI [ \-m | \-\-mark ]
+.RI [ FILE ]
+.PP
+.BR drivemap
+.IR \-h | \-\-help
+
+.SH DESCRIPTION
+.B drivemap
+is a shell script using the
+.IR proc ,
+.I sysfs
+and
+.I udev
+databases to display block devices in a tree of dependencies.
+It is based on
+.B bilibop\-common
+shell functions and supports
+.B device\-mapper
+(including dm\-crypt and LVM) and
+.B loop
+devices, with some limitations.
+.B RAID
+devices and
+.B mhddfs
+filesystems are not supported. See the
+.B ENHANCEMENTS AND LIMITATIONS
+section below.
+
+.SH OPTIONS
+When no
+.I FILE
+argument is invoked, the command is applied to all drives. If a
+.I FILE
+is given as argument and exists, then the command applies to the drive
+hosting it. FILE can be a regular file, a directory or a block device.
+.PP
+.B \-\-debug
+.RS
+Display debug informations on stderr.
+.RE
+.PP
+.BR \-d ,
+.B \-\-drive
+.RS
+Only show the drive node instead of its tree.
+.RE
+.PP
+.BR \-f ,
+.B \-\-backing\-file
+.RS
+Try to replace each loop device in the tree by its backing file. This can
+fail in some cases: for example on DebianLive systems, a loop device is
+associated to
+.I filesystem.squashfs
+from into the initramfs environment; the path of the backing file in
+.I /sys
+is not updated when the squashfs itself becomes the new root filesystem.
+And so the filename stored in
+.I backing_file
+is obsolete, and will not be displayed here.
+.RE
+.PP
+.BR \-h ,
+.B \-\-help
+.RS
+Print a summary of options on stdout and exit.
+.RE
+.PP
+.BR \-i ,
+.B \-\-info
+.RS
+Display additional informations about block devices. For drives, this
+includes the ID (as found in
+.IR /dev/disk/by-id ),
+and the size (human readable). For other devices (partitions and virtual
+block devices), this includes filesystem type, size and mountpoint if
+it exists.
+.RE
+.PP
+.BR \-m ,
+.B \-\-mark
+.RS
+If a
+.I FILE
+is given as argument, append a mark (a star between parenthesis:
+.IR (*) )
+to the name of the device hosting this FILE. Otherwise, append a mark to
+the name of the device hosting the current working directory.
+.RE
+.PP
+.BR \-n ,
+.B \-\-dm\-name
+.RS
+Replace device\-mapper nodes
+.RI ( /dev/dm\-* )
+by device\-mapper names
+.RI ( /dev/mapper/* ),
+which are statically attributed and generally easier to understand.
+.RE
+
+.SH ENHANCEMENTS AND LIMITATIONS
+.B drivemap
+is a part of the
+.BR bilibop (7)
+project. It has initially been written to be applied to the external drive
+hosting the running system. By design, it don't support
+.B RAID
+devices, and will never support them. Another design issue is that
+.BR lvm (8)
+Volume Groups should contain only one Physical Volume. We assume that there
+is no sense to use several Physical Volumes on the same drive for the same
+Volume Group. Adopting a parent/child mindview, we say that each device can
+have at most one parent but zero to several childs. Since the script has
+been extended to be applied to all drives connected to the computer, this
+sounds like a bug.
+.PP
+Unlike the
+.BR lsblk (1)
+command,
+.B drivemap
+integrates loopback devices in the tree of dependencies. In fact, the
+question that can be asked is the following:
+.br
+« What will happen to the content of other physical or virtual block devices
+if I
+.BR dd (1),
+.BR shred (1)
+or
+.BR wipe (1)
+this one or this one ? »
+.br
+And then it appears that
+.I slaves
+and
+.I holders
+informations in sysfs are not sufficient to organize block devices in a
+tree, or should be extended. For the same reason, logical partitions are
+shown as subdevices of primary extended partitions.
+.PP
+Only block devices whose contents is hosted by a physical disk are shown:
+this means if a loop device is associated to a file residing on a temporary
+filesystem (tmpfs, i.e. the RAM), this device will not be shown. This is
+.B NOT
+a bug: as said by its name,
+.B drivemap
+builts and displays a
+.RB \' map
+.B of
+.BR drive (s)\'.
+
+.SH EXAMPLES
+List the physical drives actually known by the kernel:
+.IP
+.B drivemap \-d
+.PP
+Find the drive hosting the running system, and display its ID and size:
+.IP
+.B drivemap \-id /
+.PP
+Show where is my current working directory on a disk with a complex
+partition scheme (LVM + LUKS + LVM):
+.IP
+.B drivemap \-min .
+
+.SH BUGS
+See the
+.B ENHANCEMENTS AND LIMITATIONS
+section above.
+
+.SH FILES
+/sys/class/block/*/holders
+.br
+/sys/class/block/*/slaves
+.br
+/sys/class/block/loop?/loop/backing_file
+
+.SH SEE ALSO
+.BR bilibop (7),
+.BR lsbilibop (8),
+.BR lsblk (1),
+.BR lvm (8),
+.BR udev (7),
+.BR udevadm (8)
+
+.SH AUTHOR
+This manual page has been written by « bilibop project » <quidame@poivron.org>.

@@ -1,0 +1,116 @@
+.TH LSBILIBOP 8 2012\-05\-15 bilibop "System Administration"
+
+.SH NAME
+lsbilibop \- list BILIBOP tagged devices or update their udev properties
+
+.SH SYNOPSIS
+.B lsbilibop
+.RB [ \-h | \-u ]
+.br
+.B lsbilibop
+.B \-i
+.RI [ DEVICE
+.RI [ DEVICE
+.RI [ ... ]]]
+
+
+.SH DESCRIPTION
+.B lsbilibop
+is a short and simple shell script that ouputs the list of
+.I BILIBOP
+tagged block devices and some of their
+.BR udev (7)
+properties, or triggers udev rules that can be applied to these devices.
+If the operating system is running from an external and writable support,
+then the
+.I BILIBOP
+tagged devices are the block devices whose contents are on the same
+physical disk than the root filesystem. This includes
+.B device\-mapper
+and
+.B loopback
+devices. The rules file
+.I /lib/udev/rules.d/66\-bilibop.rules
+is used to find and tag such devices.
+
+.SH OPTIONS
+When invoked without option,
+.B lsbilibop
+just lists the
+.I BILIBOP
+tagged block devices in the same order than in
+.IR /proc/partitions ,
+i.e. in the order they have been discovered by the kernel.
+.TP 4
+.B \-h
+Print a help page on standard output and exit.
+.TP
+.B \-i
+Display some useful
+.BR udev (7)
+properties of the device(s) given as arguments (if they are
+.I BILIBOP
+tagged block devices), or of all
+.I BILIBOP
+tagged block devices if none is specified.
+The following properties are only informative:
+.IP
+DEVNAME
+.br
+BILIBOP_DISK
+.br
+BILIBOP_PARTITION
+.br
+BILIBOP_UNDERLYING_PARTITION
+.IP
+The following properties can be used to set BILIBOP_RULES_*_WHITELIST and
+other variables in
+.BR bilibop.conf (5):
+.IP
+ID_FS_LABEL
+.br
+ID_FS_TYPE
+.br
+ID_FS_USAGE
+.br
+ID_FS_UUID
+.IP
+The following properties can be modified by changing the corresponding
+BILIBOP_RULES_* variables in
+.BR bilibop.conf (5):
+.IP
+UDISKS_PRESENTATION_HIDE
+.br
+UDISKS_PRESENTATION_ICON_NAME
+.br
+UDISKS_PRESENTATION_NAME
+.br
+UDISKS_SYSTEM_INTERNAL
+.TP
+.B \-u
+Trigger udev rules for the
+.I BILIBOP
+tagged block devices to update their properties. This should be used each
+time the corresponding BILIBOP_RULES_* variables are modified in
+.BR bilibop.conf (5),
+to apply the new settings without need to reboot the system.
+
+.SH FILES
+/etc/bilibop/bilibop.conf
+.br
+/usr/share/doc/bilibop\-rules/examples/bilibop.conf
+.br
+/usr/share/bilibop/bilibop_rules_generator
+.br
+/lib/udev/rules.d/66\-bilibop.rules
+
+.SH SEE ALSO
+.BR bilibop (7),
+.BR bilibop.conf (5),
+.BR drivemap (1),
+.BR udev (7),
+.BR udevadm (8),
+.BR udisks (7)
+
+.SH AUTHOR
+This manual page has been written by « bilibop project » <quidame@poivron.org>.

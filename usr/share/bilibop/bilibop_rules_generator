@@ -1,0 +1,508 @@
+#!/bin/sh
+
+# /usr/share/bilibop/bilibop_rules_generator
+
+# Produce an udev rules file to:
+# - create a symlink to the physical hard disk (or usb key, memstick, etc)
+#   on which the system is installed.
+# - fix this disk and its partitions as members of group « disk » instead of
+#   « floppy », to forbid low-level write access on this disk by normal users.
+# - hide the partitions of this disk for the desktop applications, or rename
+#   them, set their icon, etc. depending if udisks is installed and also
+#   depending on the bilibop config file.
+#
+# The generated (specific) rules file is placed into /etc/udev/rules.d and
+# overrides the (generic) rules file placed into /lib/udev/rules.d, with the
+# same name. This can be done to decrease boot time, or if the shell script
+# called from the generic rules file fails to find the underlying hard disk
+# of the running system - or if the system to set has been chrooted, etc.
+#
+# We assume the system can be booted from USB, FireWire or SD-Card
+# TODO: add support for eSATA devices.
+
+### BEGIN ###
+
+PATH="/bin:/usr/bin"
+
+ETC_RULES_DIR="/etc/udev/rules.d"
+LIB_RULES_DIR="/lib/udev/rules.d"
+
+# If an udev rules file exists in /lib/udev/rules.d, it can be overridden by
+# an other file with the same name in /etc/udev/rules.d. If the file don't
+# exist in /lib, then we can write a rules file in /etc to be executed very
+# early.
+RULE="$(ls ${LIB_RULES_DIR}/??-bilibop.rules 2>/dev/null || echo 20-bilibop.rules)"
+RULE="${RULE##*/}"
+
+. /lib/bilibop/common.sh
+
+get_udev_root
+get_bilibop_variables
+
+# Other variables
+NODE=""		# the device node (/dev/sda, /dev/sdb)
+KEY=""		# the type of udev key (ENV, ATTRS)
+CLASS=""	# the sysfs attribute class (serial, model, vendor...) or the
+		# udev environment variable name (ID_SERIAL, ID_MODEL...)
+VALUE=""	# the value of the attribute or environment variable
+
+attrib=""
+envvar=""
+header=""
+output=""
+target=""
+rules=0
+
+
+short_usage() {
+	cat <<EOF
+Usage:
+  ${0##*/} -h|--help
+  ${0##*/} [-a ATTR] [-e ENV] [-n HEADER] [-o FILE] [-t TARGET]
+EOF
+}
+
+usage() {
+	cat <<EOF
+${0##*/} writes an udev rules file to forbid low-level
+write access - for unprivileged users - to the removable media on which
+the system is installed, and to do other optional things.
+Default rules file is ${ETC_RULES_DIR}/${RULE}.
+
+Usage: ${0##*/} [OPTIONS]
+
+OPTIONS:
+  -a ATTR, --attibute ATTR
+      Write rules using the specified sysfs attribute(s).
+      Possible attributes are: vendor and model, or manufacturer,
+      product and serial (the default). The argument can be a
+      list of several attributes, separated by commas.
+
+  -e ENV, --environment ENV
+      Write rules using the specified udev environment
+      variable(s). Possible variables are: ID_SERIAL,
+      ID_SERIAL_SHORT, ID_MODEL, ID_VENDOR. The argument
+      can be a list of several variables, separated by
+      commas.
+
+  -h, --help
+      Display this help and exit.
+
+  -n HEADER, --name HEADER
+      Name of the file (or line of text) to add as a commented
+      header of the generated rules file. If the argument contains
+      special characters (as white spaces), it must be quoted.
+
+  -o FILE, --output FILE
+      Write in FILE instead of the default one.
+      If FILE is '-' then write on standard output.
+
+  -t TARGET, --target TARGET
+      Write a rules file for the given TARGET, instead
+      of the physical hard disk of the running system.
+      TARGET can be a block device or a mount point.
+
+Note that if you use the '--environment' option, the generated rules file must
+be executed AFTER '60-persistent-storage.rules', i.e after the udev environment
+variables have been initialized.
+EOF
+}
+
+
+uncompatible_attributes() {
+	cat <<EOF
+${0}: Uncompatible sysfs attributes (${1},${2}).
+Possible arguments are:
+	vendor,model
+	manufacturer,product,serial
+EOF
+}
+
+# usage: sysfs_attribute_match_udev_envvar "${NODE}" "${CLASS}" "${VALUE}"
+sysfs_attribute_match_udev_envvar() {
+	query_sysfs_attrs "${1}" | grep -q "ATTRS{${2}}==\"${3} *\""
+}
+
+# usage: udev_envvar_rule ID_SERIAL|ID_SERIAL_SHORT|ID_MODEL|ID_VENDOR
+udev_envvar_rule() {
+	if	[ -n "$(eval printf "\$${1}")" ]
+	then
+		KEY="ENV"
+		CLASS="${1}"
+		VALUE="$(eval printf "\$${1}" | sed 's, *$,,')"
+		ALL_RULES="${ALL_RULES:+${ALL_RULES}, \\
+	}${KEY}{${CLASS}}==\"${VALUE}\""
+		rules=$((rules+1))
+	else
+		return 1
+	fi
+}
+
+# usage: sysfs_attrs_rule vendor|model|manufacturer|product|serial
+sysfs_attrs_rule() {
+	case	"${1}" in
+		vendor|model)
+			VALUE="$(query_sysfs_attrs "${NODE}" | grep "ATTRS{${1}}==" | grep -v '=="0x' | sed -e 's,.*=="\(.*\)"$,\1, ; s, *$,,')"
+			[ -n "${VALUE}" ] || return 1
+			;;
+		manufacturer)
+			VALUE="$(query_sysfs_attrs "${NODE}" | grep "ATTRS{${1}}==" | grep -v "$(uname -sr)\|==\"0x" | sed -e 's,.*=="\(.*\)"$,\1, ; s, *$,,')"
+			[ -n "${VALUE}" ] || return 1
+			;;
+		product)
+			VALUE="$(query_sysfs_attrs "${NODE}" | grep "ATTRS{${1}}==" | grep -v 'Host Controller\|=="0x' | sed -e 's,.*=="\(.*\)"$,\1, ; s, *$,,')"
+			[ -n "${VALUE}" ] || return 1
+			;;
+		serial)
+			if	[ -n "${ID_SERIAL_SHORT}" ]
+			then	VALUE="$(echo "${ID_SERIAL_SHORT}" | sed -e 's, *$,,')"
+			fi
+			[ -n "${VALUE}" ] || return 1
+			sysfs_attribute_match_udev_envvar "${NODE}" "${1}" "${VALUE}" ||
+			return 1
+			;;
+		*)
+			return 1
+			;;
+	esac
+
+	KEY="ATTRS"
+	CLASS="${1}"
+	ALL_RULES="${ALL_RULES:+${ALL_RULES}, \\
+	}${KEY}{${CLASS}}==\"${VALUE}\""
+	rules=$((rules+1))
+}
+
+
+### Parse options ##############################################################
+ARGS="$(getopt -o a:e:hn:o:t: --long attribute:,environment:,help,name:,output:,target: -n "${0##*/}" -- "${@}")"
+if	[ "${?}" != "0" ]
+then	short_usage >&2
+	exit 1
+else	eval set -- "$ARGS"
+fi
+################################################################################
+
+while	true
+do
+	case	"${1}" in
+		-h|--help)
+			usage
+			exit 0
+			;;
+		-a|--attribute)
+			attrib="${2}"
+			shift 2
+			;;
+		-e|--environment)
+			envvar="${2}"
+			shift 2
+			;;
+		-n|--name)
+			header="${2}"
+			shift 2
+			;;
+		-o|--output)
+			output="${2}"
+			shift 2
+			;;
+		-t|--target)
+			target="${2}"
+			shift 2
+			;;
+		--)
+			shift
+			break
+			;;
+		*)
+			unknown_argument "${1}" >&2
+			short_usage >&2
+			exit 1
+			;;
+	esac
+done
+
+# Now, analyse the results.
+# 1. Redirect stdout.
+if	[ -n "${output}" ]
+then
+	case	"${output}" in
+		-)
+			output="stdout"
+			;;
+		-*)
+			unknown_argument "${output}" >&2
+			usage >&2
+			exit 1
+			;;
+		*)
+			if	[ ! -d "$(dirname "${output}")" ]
+			then
+				cat >&2 <<EOF
+${0}: $(dirname "${output}") directory don't exist.
+EOF
+				exit 2
+			else
+				exec 1>"${output}"
+			fi
+			;;
+	esac
+else
+	exec 1>"${ETC_RULES_DIR}/${RULE}"
+fi
+
+# 2. Set target.
+if	[ -n "${target}" ]
+then
+	if	! [ -b "${target}" -o -d "${target}" -o -f "${target}" ]
+	then
+		cat >&2 <<EOF
+${0}: target ${target} don't exist.
+EOF
+		exit 3
+	fi
+else
+	target="/"
+fi
+
+case	"${target}" in
+	${udev_root}/sd[a-z])
+		NODE="${target}"
+		;;
+	*)
+		NODE="$(physical_hard_disk "${target}")"
+		;;
+esac
+
+case	"${NODE}" in
+	${udev_root}/sd*)
+		KERN="sd"
+		;;
+	${udev_root}/mmcblk*)
+		KERN="mmcblk"
+		;;
+	${udev_root}/mspblk*)
+		KERN="mspblk"
+		;;
+	*)
+		cat >&2 <<EOF
+${0}: unable to define a target node.
+EOF
+		exit 3
+		;;
+esac
+
+# 3. Set header.
+if	[ -z "${header}" ]
+then
+	[ -z "${output}" -o "${output}" = "stdout" ] &&
+	header="${ETC_RULES_DIR}/${RULE}" ||
+	header="${output}"
+fi
+
+# 4. Get sysfs attribute classes.
+if	[ -n "${attrib}" ]
+then
+	attrib="$(echo ${attrib} | tr ',' ' ')"
+	for	x in ${attrib}
+	do
+		case	"${x}" in
+			vendor|model)
+				;;
+			manufacturer|product|serial)
+				if	echo "${attrib}" | grep -q "\<model\>"
+				then	noway="model"
+				elif	echo "${attrib}" | grep -q '\<vendor\>'
+				then	noway="vendor"
+				fi
+				if	[ -n "${noway}" ]
+				then
+					uncompatible_attributes "${x}" "${noway}" >&2
+					exit 1
+				fi
+				;;
+			*)
+				unknown_argument "${x}" >&2
+				exit 1
+				;;
+		esac
+	done
+fi
+
+# 5. Get udev environment variables names.
+if	[ -n "${envvar}" ]
+then
+	envvar="$(echo ${envvar} | tr ',' ' ')"
+	for	x in ${envvar}
+	do
+		case	"${x}" in
+			ID_SERIAL|ID_SERIAL_SHORT|ID_MODEL|ID_VENDOR)
+				;;
+			*)
+				unknown_argument "${x}" >&2
+				exit 1
+				;;
+		esac
+	done
+fi
+
+# 6. Query udev environment variables.
+eval $(query_udev_envvar ${NODE})
+
+
+# Run now...
+
+if	[ -z "${attrib}" -a -z "${envvar}" ]
+then
+	if	[ ${rules} -eq 0 ]
+	then
+		sysfs_attrs_rule manufacturer
+		sysfs_attrs_rule product
+		sysfs_attrs_rule serial
+	fi
+
+	if	[ ${rules} -eq 0 ]
+	then
+		# Use this for an external HDD you can boot from both USB or
+		# FireWire.
+		sysfs_attrs_rule vendor
+		sysfs_attrs_rule model
+	fi
+
+	if	[ ${rules} -eq 0 ]
+	then
+		# It seems ID_SERIAL is a good fallback (exists in almost all
+		# cases)
+		udev_envvar_rule ID_SERIAL
+	fi
+
+else
+	for	a in ${attrib}
+	do	sysfs_attrs_rule "${a}"
+	done
+
+	for	e in ${envvar}
+	do	udev_envvar_rule "${e}"
+	done
+fi
+
+# XXX:
+if	[ ${rules} -eq 0 ]
+then
+	for	x in ${attrib}
+	do	attrib_not_found="${attrib_not_found:+${attrib_not_found}, }'${x}'"
+	done
+	attrib_not_found="${attrib_not_found:+${attrib_not_found} sysfs attribute(s)}"
+
+	for	x in ${envvar}
+	do	envvar_not_found="${envvar_not_found:+${envvar_not_found}, }'${x}'"
+	done
+	envvar_not_found="${envvar_not_found:+${envvar_not_found} udev environment variable(s)}"
+
+	if	[ -z "${attrib}" -a -z "${envvar}" ]
+	then	not_found="for"
+	elif	[ -n "${attrib_not_found}" -a -n "${envvar_not_found}" ]
+	then	not_found="from ${attrib_not_found} or ${envvar_not_found} for"
+	else	not_found="from ${attrib_not_found}${envvar_not_found} for"
+	fi
+
+	cat >&2 <<EOF
+${0}:
+Unable to build rules ${not_found} the device ${NODE}.
+EOF
+	exit 10
+fi
+
+
+# Finally generate the rules file. It is a little bit different from the rules
+# file in /lib:
+cat <<EOF
+# ${header}
+#
+# This file has been generated by:
+#	$(readlink -e ${0})
+#
+# and overrides ${LIB_RULES_DIR}/${RULE}.
+#
+# You can write your own rules using the output of udevadm(8):
+# $ udevadm info --attribute-walk --name <DEVICE>
+# $ udevadm info --query property --name <DEVICE>
+# See udev(7) for details.
+
+SUBSYSTEM!="block", GOTO="bilibop_end"
+KERNEL=="dm-?*|loop?", GOTO="bilibop_virtual_block"
+KERNEL!="${KERN}?*", GOTO="bilibop_end"
+
+ACTION=="add|change", \\
+	${ALL_RULES}, \\
+	GROUP:="disk", \\
+	TAG+="BILIBOP", \\
+	GOTO="bilibop_rules"
+
+GOTO="bilibop_end"
+LABEL="bilibop_rules"
+
+ACTION=="add|change", \\
+	KERNEL=="${KERN}?", \\
+	SYMLINK+="${BILIBOP_COMMON_BASENAME}/disk", \\
+	ENV{BILIBOP_DISK}="%r/%k", \\
+	GOTO="bilibop_end"
+
+ACTION=="add|change", \\
+	ATTR{partition}=="?*", \\
+	ENV{BILIBOP_PARTITION}="%r/%k"
+
+LABEL="bilibop_virtual_block"
+
+ACTION=="add|change", \\
+	KERNEL=="loop?", \\
+	ENV{BACKING_FILE}=="?*", \\
+	PROGRAM=="bilibop_disk --test %r/%k", \\
+	PROGRAM=="bilibop_disk --part %r/%k", \\
+	ENV{BILIBOP_UNDERLYING_PARTITION}="%c", \\
+	TAG+="BILIBOP"
+
+ACTION=="add|change", \\
+	KERNEL=="dm-?*", \\
+	PROGRAM=="bilibop_disk --test %r/%k", \\
+	PROGRAM=="bilibop_disk --part %r/%k", \\
+	ENV{BILIBOP_UNDERLYING_PARTITION}="%c", \\
+	TAG+="BILIBOP"
+
+ACTION=="add|change", \\
+	TAG=="BILIBOP", \\
+	PROGRAM=="bilibop_disk --root %r/%k", \\
+	SYMLINK+="%c"
+
+TAG=="BILIBOP", \\
+	TEST=="/lib/udev/rules.d/80-udisks.rules", \\
+	GOTO="bilibop_udisks"
+
+GOTO="bilibop_end"
+LABEL="bilibop_udisks"
+
+ACTION=="add|change", \\
+	ENV{ID_FS_USAGE}=="", \\
+	IMPORT{program}="/sbin/blkid -o udev -p %r/%k"
+
+ACTION=="add|change", \\
+	PROGRAM=="bilibop_disk --lock %r/%k", \\
+	ENV{UDISKS_SYSTEM_INTERNAL}:="1"
+
+ACTION=="add|change", \\
+	PROGRAM=="bilibop_disk --hide %r/%k", \\
+	ENV{UDISKS_PRESENTATION_HIDE}:="1", \\
+	GOTO="bilibop_end"
+
+ACTION=="add|change", \\
+	PROGRAM=="bilibop_disk --icon %r/%k", \\
+	ENV{UDISKS_PRESENTATION_ICON_NAME}:="%c"
+
+ACTION=="add|change", \\
+	PROGRAM=="bilibop_disk --name %r/%k", \\
+	ENV{UDISKS_PRESENTATION_NAME}:="%c"
+
+LABEL="bilibop_end"
+EOF
+
+### END ###

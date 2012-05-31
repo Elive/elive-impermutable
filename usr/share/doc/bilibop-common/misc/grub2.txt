@@ -1,0 +1,149 @@
+The goal of this document is to give some tips and tricks about the GRUB2
+configuration for systems installed on external media.
+
+
+1. /boot/grub/device.map
+------------------------
+
+This file is used each time the GRUB menu (/boot/grub/grub.cfg) is updated.
+If the content of the file does not match the block devices actually available
+on the system, 'update-grub' can fail. It is possible to update the device.map
+with 'grub-mkdevicemap'. If the device.map don't exist, it is automatically
+created when 'update-grub' (in fact 'grub-mkconfig') is invoked.
+
+So, a good way to always use an updated device.map is to replace the file by a
+symlink to a (non existing) file in a temporary directory (usually somewhere
+in /run or /tmp).
+
+Another way is to use a fake device.map, in wich the first and only one disk
+that is listed - said (hd0) in grub terminology - refers to the disk hosting
+the running system. This can be hard coded in /boot/grub/device.map by using
+a /dev/disk/by-id/* link, or updated at each boot in a temporary file (this
+is what bilibop-rules does by default).
+
+Bilibop-rules provides an helper script:
+
+	/usr/share/bilibop/grub_device_map_manager
+
+Run it with the --help option or read the bilibop-rules documentation to know
+more.
+
+
+2. /etc/default/grub
+--------------------
+
+This is the main configuration file. 'update-grub' must be run each time this
+file is modified.
+
+- There is no need to hard code obsolete informations about the OS hosted
+  by the computer we have used when the last 'update-grub' occured. So, we
+  can/must disable os-prober:
+  GRUB_DISABLE_OS_PROBER="true"
+
+- It can be nice to use the native resolution of the monitor to display the
+  GRUB menu, and keep it for the session:
+  GRUB_GFXMODE="auto"
+  GRUB_GFXPAYLOAD_LINUX="keep"
+
+- Since it is possible to use non-default keymap in GRUB (see below for details
+  on how to build and load a such keymap), you have to use a specific setting
+  to enable it:
+  GRUB_TERMINAL_INPUT="at_keyboard"
+
+- With some partition schemes, it can be necessary to add a delay, even short,
+  in the boot commandline. This is often the case with LUKS and/or LVM.
+  GRUB_CMDLINE_LINUX="${GRUB_CMDLINE_LINUX} rootdelay=1"
+
+- If your system is running from flash memory (USB stick, MMC, SSD), a good
+  thing is to not use swap devices on your media, because of its limitations
+  (each sector can be rewritten only some thousands times).
+  GRUB_CMDLINE_LINUX="${GRUB_CMDLINE_LINUX} noswap"
+
+- For the moment (follow bug #671734), the 'recovery mode' only adds the
+  'single' kernel parameter to the boot commandline. To use other useful
+  parameters, it is possible to create a new variable in the configuration
+  file, and export it to be used in /etc/grub.d/10_linux, if modified.
+  Here is the list of parameters used by DebianLive 'failsafe' session:
+  GRUB_CMDLINE_LINUX_RECOVERY="noapic noapm nodma nomce nolapic nomodeset nosmp"
+  export GRUB_CMDLINE_LINUX_RECOVERY
+
+
+3. /etc/grub.d/10_linux
+-----------------------
+
+If you want to add some useful parameters in the 'recovery mode' menu entry, as
+described above, replace the line (near the end of the script):
+
+        "single ${GRUB_CMDLINE_LINUX}"
+by:
+        "single ${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_RECOVERY}"
+
+
+4. /boot/grub/layouts/*.gkb
+---------------------------
+
+It is now possible to use different keyboard settings, not only the default one
+(en_US). To be able to use a custom keymap in GRUB, this keymap must be added
+in /boot/grub/layouts, with the 'gkb' extension (Grub KeyBoard). If you want
+to build your own keymap, do as follows (see bug #623975):
+
+# mkdir -p /boot/grub/layouts
+# ckbcomp fr | grub-mklayout -o /boot/grub/layouts/fr.gkb
+
+NOTE: the ckbcomp follows the syntax of setxkbmap(1); for a complete list of
+available layouts, see /usr/share/X11/xkb/symbols/*
+
+
+5. /etc/grub.d/4[01]_custom
+---------------------------
+
+5.1. 40_custom
+--------------
+This file provides a very simple way to put custom entries or settings in the
+main /boot/grub/grub.cfg: except its two first lines, all the content of
+40_custom is copied as is in grub.cfg. But it is needed to run 'update-grub'
+each time 40_custom is modified.
+
+5.2. 41_custom
+--------------
+This file provides another simple way to customize grub menu: the difference
+with 40_custom is that there is no need to modify this file. What is added to
+/boot/grub/grub.cfg just says: "if the file /boot/grub/custom.cfg exists, then
+load it".
+
+
+6. /boot/grub/custom.cfg
+------------------------
+
+If this file exists (this is not the case by default), it will be loaded on
+the fly by /boot/grub/grub.cfg and its content will be merged to the content
+of grub.cfg. It is of the responsibility of the admin to create and maintain
+this file. The main differences between this 'custom' feature (provided by
+/etc/grub.d/41_custom) and the other (provided by /etc/grub.d/40_custom) are
+that the content of custom.cfg is not hard coded into grub.cfg, and so there
+is no need to run 'update-grub' when custom.cfg is modified. We give here an
+example of content of custom.cfg, knowing that the following lines could be
+put into /etc/grub.d/40_custom as well:
+
+# Enable the pager to ease the read of long files:
+set pager=1
+
+# Enable custom keymap (needs GRUB_TERMINAL_INPUT="at_keyboard" in
+# /etc/default/grub):
+keymap fr
+
+
+7. /boot/grub/unicode.pf2
+-------------------------
+
+Due to its design, it is highly recommended to install bilibop as a full
+encrypted system, or at least with an encrypted /home or /home/*user*
+directory (otherwise, what do you think it can happen if you loose or
+forget your USB stick somewhere?). And so, if the root filesystem is
+encrypted, grub can not access files elsewhere than in the boot partition.
+This means that if you need a font file, a background image or whatever
+you want, you have to copy them into /boot/grub. The unicode.pf2 is useful
+to render accented letters (french, german, spanish, italian and more) in
+the grub menu. It is provided by the grub-common package in /usr/share/grub.
+Just copy it into /boot/grub, and 'update-grub' will do the rest.
+

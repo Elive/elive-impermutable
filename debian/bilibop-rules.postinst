@@ -1,0 +1,40 @@
+#!/bin/sh
+
+set -e
+
+case "${1}" in
+	configure)
+		# Add a new script in the initramfs:
+		if [ -x /usr/sbin/update-initramfs ]
+		then
+			update-initramfs -u
+		fi
+
+		# Replace /etc/udev/rules.d/70-persistent-*.rules by
+		# symlinks to temporary files:
+		/usr/share/bilibop/make_unpersistent_rules
+
+		# GRUB device.map management:
+		[ -d "/boot/grub" ] || exit 0
+
+		DEVICE_MAP="/boot/grub/device.map"
+
+		if	[ -h "${DEVICE_MAP}" ]
+		then
+			# Replace the symlink if it cannot be resolved:
+			DEVICE_MAP="$(readlink -f ${DEVICE_MAP})" ||
+			/usr/share/bilibop/grub_device_map_manager --link
+		fi
+
+		if	[ -f "/etc/bilibop/bilibop.conf" ]
+		then	. /etc/bilibop/bilibop.conf
+		fi
+
+		# Build a fake device map:
+		[ "${BILIBOP_RULES_FAKE_DEVICE_MAP}" = "false" ] ||
+		/usr/share/bilibop/grub_device_map_manager --fake
+		;;
+esac
+
+#DEBHELPER#
+:

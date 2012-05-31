@@ -1,0 +1,50 @@
+The goal of this document is to give some tips and tricks about the KEYMAP
+configuration for systems installed on external media.
+
+
+1. /boot/grub/layouts/*.gkb
+---------------------------
+
+It may be convenient, especially with an interactive bootloader like GRUB,
+to be able to use keyboard settings corresponding to the keyboard of the
+machine, or relative to the natural language of the user. first, you have
+to know that it is possible, and not too complicated. Then, refer to the
+document named 'grub2.txt' to know how to do.
+
+
+2. /etc/default/keyboard
+------------------------
+
+This file is used to set the keyboard for both console and X. It is composed
+of XKB* variables assignments and some others. This file is created and
+maintained by the 'keyboard-configuration' package. In most cases, it can
+be modified with 'dpkg-reconfigure keyboard-configuration', but debconf can
+not do all. So, there are cases where /etc/default/keyboard must be modified
+by hand.
+
+Here is an example:
+_________________________________
+
+XKBMODEL="pc105"
+XKBLAYOUT="fr-latin9,en_US"
+XKBOPTIONS="grp:alt_shift_toggle"
+_________________________________
+
+The result is the same than if you run (under X):
+setxkbmap -layout fr-latin9,en_US -model pc105 -option grp:alt_shift_toggle
+
+except that with keyboard-configuration, the keymap is shared between X and
+the console.
+
+In the previous example, the 'fr-latin9' layout is the default, and 'en_US'
+is a secondary layout. Type <Alt+Shift> allows to toggle between them. This
+toggle action only applies on the current/active console (or X if you do it
+under X).
+
+This kind of settings may be very convenient for a system intended to be
+used on different computers, with different keyboards. It can also be useful
+for people who need to translate documents between languages using different
+alphabets: russian, greek, arabian, hebrew, japanese, etc. See setxkbmap(1)
+and play with it will help you to win time if you think you need a complex
+keyboard configuration.
+

@@ -1,0 +1,113 @@
+bilibop-rules
+-------------
+
+1. OVERVIEW
+===========
+
+This package mainly provides an udev rules file to be applied on operating
+systems running from external media (USB stick, USB HDD, FireWire, Flash
+Memory stick, eSATA HDD). Its goal is to adapt some system behaviours to
+its particular situation, like an organ outside of the body.
+
+The running system being hosted on a removable device, the common udev
+rules (91-permissions.rules) will set it as a member of the 'floppy' group,
+allowing any other member of this group to damage it, even by mistake, with
+a simple 'shred <DEVICE>' command. So the bilibop rules fix the disk hosting
+the operating system and all its partitions as members of the 'disk' group,
+as it was an internal disk. This is the main. Other rules are optional and
+can be disabled. See the bilibop.conf(5) manual page and
+/usr/share/doc/bilibop-rules/examples/bilibop.conf for detailed information
+about default or custom settings.
+
+
+2. HELPER SCRIPTS
+=================
+
+bilibop-rules provides helper scripts (in /usr/share/bilibop). Two of them
+are run from the maintainer scripts (postinst and prerm) but all can be
+ran manually by the admin. Each of them accepts the '--help' option, to know
+how to use it.
+
+If BILIBOP_COMMON_BASENAME is modified in bilibop.conf(5), then at least
+'make_unpersistent_rules' and 'grub_device_map_manager' must be executed
+to make some symlinks to reflect the new setting. 'bilibop_rules_generator'
+must be executed again, if it has been used previously to generate a custom
+rules file.
+
+
+2.1. bilibop_rules_generator
+----------------------------
+
+This program generates an udev rules file /etc/udev/rules.d/66-bilibop.rules
+doing the same things than the file with the same name in /lib/udev/rules.d.
+The main difference is that rules in /lib are generic and can take more time
+if a lot of removable devices are plugged onto the computer. Rules in /etc
+use the sysfs attributes of the device hosting the system and run faster.
+
+Take care that if your device is able to be plugged on several port types
+(i.e. can be used both as USB and FireWire, or USB and eSATA, or MMC and USB
+- by using an adapter) the generated rules will work only for the interface
+type on which it was plugged when the rules have been generated. As example,
+for a 'LaCie Rugged FW/USB' external HDD:
+
+2.1.a. When booted as USB device
+
+The sysfs attributes possibly managed by the script are:
+ATTRS{vendor}=="LaCie   "
+ATTRS{model}=="Rugged FW/USB   "
+...
+ATTRS{manufacturer}=="LaCie"
+ATTRS{product}=="LaCie Rugged FW/USB"
+ATTRS{serial}=="00D04B9A0506232D"
+
+2.1.b. When booted as FireWire device
+
+The sysfs attributes possibly managed by the script are:
+ATTRS{vendor}=="LaCie   "
+ATTRS{model}=="Rugged FW/USB   "
+
+2.1.c. Generate the proper rules file:
+
+To generate a rules files matching sysfs attributes both for USB and FireWire
+usage, you have to force 'vendor' and 'model' sysfs attributes, because the
+default being to use 'manufacturer', 'product' and 'serial' if they exist, as
+they don't exist when the disk is plugged on FireWire, the rules working fine
+for USB will not work for FireWire. So, use this command:
+
+/usr/share/bilibop/bilibop_rules_generator --attribute vendor,model
+
+
+2.2. grub_device_map_manager
+----------------------------
+
+This program can be used in association with BILIBOP_RULES_FAKE_DEVICE_MAP
+variable to set the location and contents of the GRUB device.map. The
+standard path of this file is /boot/grub/device.map; its content is
+generally written the first time 'update-grub' is run. After what it can
+be considered as a static file with a static content. But when the system
+runs from a removable drive on a different computer than during its
+installation, update-grub can complain and fail because the drives actually
+connected to the computer don't match the device map created in other
+conditions.
+
+To avoid that, it is possible - and highly recommended - to use either an
+always-up-to-date device map, or a fake one. It is the goal of this helper
+script. It is run when the package is installed to replace the device.map
+file by a symlink to /run/bilibop/grub-device.map, and when the package is
+removed to remove the symlink.
+
+As for 'bilibop_rules_generator', if you plan to plug the drive hosting
+your system on diffent interfaces (USB, FireWire, etc.), it is not
+recommended to use a static fake device map.
+
+
+2.3. make_unpersistent_rules
+----------------------------
+
+This program replaces some persistent and cumulative rules files in
+/etc/udev/rules.d by symlinks to unpersistent and always-up-to-date files
+in /run/bilibop. It is run during the installation of the package to do
+that, and when it is removed, to undo that.
+
+
+ -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200

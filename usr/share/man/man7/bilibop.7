@@ -1,0 +1,229 @@
+.TH BILIBOP 7 2012\-05\-31 bilibop "Bilibop Project"
+
+.SH NAME
+bilibop \- run Debian GNU/Linux from an external media
+
+.SH DESCRIPTION
+A lot of GNU/Linux distributions \- at least the most popular of
+them \- provide downloadable
+.I .iso
+or
+.I .img
+disk images that can be copied on a USB memory stick (sometimes with just
+.BR cat (1)
+or
+.BR dd (1),
+sometimes in a more complicated way) and immediatly usable \'as is\'.
+.PP
+But such operating systems are not designed to be modified;
+they are read-only, and even when they provide a \'persistent\' feature,
+it is limited. Additionally, they are currently unmaintainable, in the
+sense that rebuild the complete image of the root filesystem is the only
+way to update the system or modify its settings in depth. This is often
+a hard or heavy task that cannot be done from the system itself: this
+needs a dedicated work space, outside of the running system, and this
+often needs another operating system to replace the disk image by the
+new one; and some of these tasks can be done only by experienced users.
+Others have to wait for the next release, if it comes a day.
+.PP
+.B Bilibop
+stands for «
+.BR B ilibop
+.BR I s
+.BR L ive
+.BR I nstall
+.BR B oot
+.BR O n
+.BR P endrive
+». This acronym is now obsolete, but the name has been kept. The
+.B bilibop project
+is born as an alternative to the
+.B LiveUSB
+systems.
+.PP
+By performing a standard installation of Debian directly on a removable
+media \(em currently a USB key or an external HDD \(em it is possible to
+use it as a LiveUSB system, with the big difference that it behaves like
+any installed Debian OS: it can be maintained, modified, updated, or even
+broken by the root user at any time. In fact, without specific settings,
+it can be broken by an unprivileged user at any time; but this is also
+the case of LiveUSB systems.
+.PP
+So,
+.B bilibop
+is a collection of scripts using or used by other programs
+.RB ( initramfs\-tools (7),
+.BR udev (7),
+.BR aufs (5),
+or
+.BR GRUB2 )
+to help admins to maintain a
+.B Debian GNU/Linux
+operating system installed on a removable and writable media, even if some
+of these scripts may also be used in other contexts. One of its main goals
+is to fix security issues or harden standard rules and policies, to make
+the system more robust in this particular situation. Instead of yet
+another new, living fast and dying young, Debian based distribution,
+bilibop has been designed as a set of few debian packages.
+.B bilibop\-lockfs
+may also be installed on a laptop or on a public computer as an
+alternative to
+.B fsprotect,
+and
+.B bilibop\-rules
+.I should
+also be installed on a LiveUSB.
+
+.SH BILIBOP PACKAGES
+.TP 2
+.I bilibop
+This is a meta package, depending on all other binary packages from the
+same
+.B bilibop
+source package.
+.TP
+.I bilibop\-common
+It mainly provides shell functions and documentation. See
+.I README.Debian
+in the documentation of the package for details about these functions.
+It also includes the
+.BR drivemap (1)
+command.
+.TP
+.I bilibop\-rules
+This package provides udev rules and helper scripts. Its main purpose is
+to fix the external drive hosting the running system, and all its
+partitions, as members of the
+.RI \' disk \'
+group instead of
+.RI \' floppy \',
+as done by the common udev rules. This fixes bug
+.BR #645466 .
+The udev rules provided by this package work even when the root filesystem
+is on a
+.B LUKS
+device, a
+.B LVM
+Logical Volume, a
+.B loop
+device or is an
+.BR aufs (5)
+mountpoint.
+.B bilibop\-rules
+also includes the
+.BR lsbilibop (8)
+command, and some helper scripts in
+.IR /usr/share/bilibop\-rules ,
+that can be executed manually. See
+.I README.Debian
+in the documentation of the package for details.
+.TP
+.I bilibop\-lockfs
+By using an initramfs script and a
+.BR mount (8)
+helper script, filesystems are mounted as readonly branches of
+.BR aufs (5),
+the corresponding writable branches being on temporary filesystems.
+Additionally, block devices are set readonly too, avoiding low\-level
+write access on them, even by root. All this makes the operating
+system unbreakable, unless with a hammer. See
+.I README.Debian
+in the documentation of the package for details.
+
+.SH INSTALLATION
+.B Debian
+can be installed on a removable drive as it is on an internal one, except:
+.IP \(bu 2
+It is highly recommended to install a full encrypted system. Otherwise,
+what can happen if the USB stick or the external HDD has been lost or
+forgotten somewhere, or even thieft ? Unfortunately (but there are evident
+security reasons), this can not be preseeded.
+.IP \(bu
+Due to the rewrites limits on flash memory, it is not recommended to use
+a swap area on them: this can dramatically decrease the lifetime of the
+drive.
+.IP \(bu
+Even if the
+.B amd64
+is now the most common architecture on modern
+.BR P ersonal
+.BR C omputers,
+installation of a
+.B x86
+system will make it more versatile and work both on amd64 and i386
+architectures (and even on ia32, but this needs at least a specific
+partition scheme).
+.IP \(bu
+Take care, near the end of the installation, that the bootloader will be
+installed on the MBR of the drive where the system has been freshly
+installed: choosing the default \'install on MBR\' will install it on
+the Master Boot Record of the first disk !
+.IP \(bu
+Taking previous recommendations into account, choose
+.RB \' Expert
+.BR Install \'
+or
+.RB \' Expert
+.B Graphical
+.BR Install \'
+in the installer boot menu. if you have to install Debian on several
+devices, don't perform an automated installation via the
+.RB \' Auto
+.BR Install \'
+option in the installer boot menu. If you really need to automate this
+process to win time, use a
+.B preseed
+file instead.
+
+.SH SETTINGS AND CONFIGURATION
+The main advantage of a standard installation over a Live system is that
+the installed one can exactly answer your needs: if the needs change, the
+system can be easily modified. It can be installed and configured to be
+used as/for:
+.PP
+\(bu daily usage (this is my case)
+.br
+\(bu router and/or firewall for a LAN
+.br
+\(bu ftp and/or http server (this is my case)
+.br
+\(bu forensics and rescue system (this is may case)
+.br
+\(bu embedded Debian repository (this is my case)
+.br
+\(bu testing system
+.br
+\(bu educational purposes
+.br
+\(bu others
+.PP
+Because an operating system running from an external device is generally
+used on different computers, with potentially different keyboards,
+architectures, monitors, and so on, it could need some special settings
+to be as versatile as possible. Maybe the field is too large to be covered
+into a single manual page: see
+.I /usr/share/doc/bilibop\-common/misc/*
+for some tips and tricks, details and suggestions about possible settings.
+
+.SH FILES
+/usr/share/bilibop\-common/README.Debian
+.br
+/usr/share/bilibop\-common/examples/bilibop.conf
+.br
+/usr/share/bilibop\-common/misc/*
+.br
+/usr/share/bilibop\-lockfs/README.Debian
+.br
+/usr/share/bilibop\-lockfs/examples/bilibop.conf
+.br
+/usr/share/bilibop\-rules/README.Debian
+.br
+/usr/share/bilibop\-rules/examples/bilibop.conf
+
+.SH SEE ALSO
+.BR bilibop.conf (5),
+.BR drivemap (1),
+.BR lsbilibop (8)
+
+.SH AUTHOR
+This manual page has been written by « bilibop project » <quidame@poivron.org>.

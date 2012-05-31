@@ -1,0 +1,96 @@
+.TH LOCKFS\-NOTIFY 1 2012\-05\-22 bilibop "User Commands"
+
+.SH NAME
+lockfs\-notify \- notify user about temporary or permanent changes on fs
+
+.SH SYNOPSIS
+.B lockfs\-notify
+.RI [ \-a | \-\-always | \-l | \-\-lockfs | \-n | \-\-nolockfs ]
+.RI [ \-t | \-\-expire\-time ]
+.br
+.B lockfs\-notify
+.IR \-h | \-\-help
+
+.SH DESCRIPTION
+.B lockfs\-notify
+is a wrapper around
+.BR notify\-send (1).
+It is used to send a notification to users at the beginning of a session,
+to say if temporary or permanent changes are allowed on which filesystems
+(or more precisely on which mountpoints).
+
+.SH OPTIONS
+If several of the
+.IR \-a ,
+.I \-l
+or
+.I \-n
+options are invoked (or their long forms, respectively
+.IR \-\-always ,
+.I \-\-lockfs
+or
+.IR \-\-nolockfs ),
+the last overrides the previous ones. The invocation of these options also
+overrides the variable \'BILIBOP_LOCKFS_NOTIFY_POLICY\' that can be set in
+.BR bilibop.conf (5).
+.PP
+.BR \-a ,
+.B \-\-always
+.RS
+Always send a notification: about filesystems on which permanent changes
+are allowed, and about filesystems on which temporary changes are allowed.
+So, if the
+.B bilibop\-lockfs
+feature is enabled, and one or more mountpoints have been whitelisted in
+.IR /etc/bilibop/bilibop.conf ,
+then two notifications are send to the user.
+.RE
+.PP
+.BR \-h ,
+.B \-\-help
+.RS
+Print a short help message on stdout and exit.
+.RE
+.PP
+.BR \-l ,
+.B \-\-lockfs
+.RS
+Send a notification only about filesystems for which the \'lockfs\' feature
+has been enabled, i.e. about mountpoints for which only temporary changes
+are allowed. All these changes will be lost at next shutdown of the
+computer.
+.RE
+.PP
+.BR \-n ,
+.B \-\-nolockfs
+.RS
+Send a notification only about filesystems for which the \'lockfs\' feature
+has been disabled, i.e. about mountpoints for which permanent changes are
+allowed. All these changes will be kept after the shutdown of the computer.
+.RE
+.PP
+.B \-t
+.IR TIME ,
+.BI \-\-expire\-time= TIME
+.RS
+Specifies the timeout in milliseconds at which to expire the notification.
+Values of
+.I TIME
+less than
+.BI \' 1000 \'
+(1 second) make the timeout is disabled and the notification never expires.
+If
+.I TIME
+is not a number, this option is silently ignored.
+.RE
+
+.SH FILES
+/etc/xdg/autostart/lockfs\-notify.desktop
+
+.SH SEE ALSO
+.BR bilibop (7),
+.BR bilibop.conf (5),
+.BR notify\-send (1)
+
+.SH AUTHOR
+This manual page has been written by « bilibop project » <quidame@poivron.org>.

@@ -1,0 +1,54 @@
+# /usr/share/doc/bilibop-rules/examples/90-internal-drives.rules
+
+# This file may be copied in /etc/udev/rules.d
+# It can be used to manage internal drives when the running system is on a
+# removable device.
+
+# 1. Filters:
+SUBSYSTEM!="block",		GOTO="end_internal-drives_rules"
+KERNEL!="sd*",			GOTO="end_internal-drives_rules"
+SUBSYSTEMS=="usb|firewire",	GOTO="end_internal-drives_rules"
+
+# At this step, following rules should be applied only on block devices
+# hosted by internal drives of the computer.
+
+# Those internal drives cannot be removed:
+KERNEL=="sd?", ACTION=="remove",	GOTO="end_internal-drives_rules"
+
+# If this rules file is orphaned, go away:
+TEST!="/lib/udev/bilibop_disk",		GOTO="end_internal-drives_rules"
+
+# If bilibop-rules is installed on an internal drive, skip it too:
+PROGRAM=="bilibop_disk --test %r/%k",	GOTO="end_internal-drives_rules"
+
+# 2. Tag the device.
+#    This is a convenient way to update its udev properties with:
+#    'udevadm trigger --tag-match=INTERNAL --action=add'
+#    'udevadm trigger --tag-match=INTERNAL --action=change'
+#    after this file has been modified.
+TAG+="INTERNAL"
+
+# 3. Examples
+#    Here are some examples of actions to perform, or properties to set.
+
+# A. Uncomment the following line if you want to set the whole disk and
+#    each of its partitions as read-only. This can avoid big mistakes.
+#ACTION=="add|change", RUN+="/sbin/blockdev --setro %r/%k"
+
+# B. Uncomment the following line if you want the disk and its partitions
+#    to be hidden to the user (works only for udisks-based applications):
+#ACTION=="add|change", TEST=="/lib/udev/rules.d/80-udisks.rules", ENV{UDISKS_PRESENTATION_HIDE}:="1"
+
+# C. This is a variant of A and B:
+#ACTION=="add|change", PROGRAM=="/sbin/blockdev --setro %r/%k", KERNEL!="sd?", TEST=="/lib/udev/rules.d/80-udisks.rules", ENV{UDISKS_PRESENTATION_HIDE}:="1"
+
+# D. Uncomment the following line if you want that the user be able to
+#    mount the partitions. Dangerous, and not compatible with the previous
+#    rules.
+#ACTION=="add|change", ATTR{partition}=="?*", TEST=="/lib/udev/rules.d/80-udisks.rules", ENV{UDISKS_SYSTEM_INTERNAL}:="0"
+
+# E. Uncomment the following line if you want to automatically setup encrypted
+#    swap devices from internal partitions. Experimental: use with care.
+#ACTION=="add", PROGRAM!="/bin/grep -q '\snoswap\(\s\|$\)' /proc/cmdline", ENV{ID_FS_TYPE}=="swap", ENV{ID_PART_ENTRY_TYPE}=="0x82", PROGRAM=="/sbin/blockdev --setrw %r/%k", TEST!="%r/mapper/encswap_%k", PROGRAM=="/sbin/cryptsetup --key-file=%r/urandom --offset=8 create encswap_%k %r/%k", RUN+="/sbin/mkswap -f %r/mapper/encswap_%k", RUN+="/sbin/swapon %r/mapper/encswap_%k"
+
+LABEL="end_internal-drives_rules"

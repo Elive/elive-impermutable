@@ -1,0 +1,213 @@
+#!/bin/sh
+
+# /usr/bin/lockfs-notify
+#
+# Notify the user that changes on filesystems are allowed or not. This script
+# should be called from /etc/xdg/autostart/bilibop-lockfs.desktop or something
+# like, but can be run manually too.
+# TODO: translations and gettext support.
+
+PATH="/bin:/usr/bin"
+
+short_usage() {
+	cat <<EOF
+Usage: ${0##*/} --help
+EOF
+}
+
+usage() {
+	cat <<EOF
+${0##*/}: send a notification on the desktop to show, for each local
+mountpoint, if changes will be lost or kept at shutdown.
+OPTIONS:
+  -a, --always	 Show status of both locked and no-locked filesystems.
+  -h, --help	 Print this message on standard output and exit.
+  -l, --lockfs	 Show status of locked filesystems only.
+  -n, --nolockfs Show status of non-locked filesystems only.
+EOF
+}
+
+
+# Load functions and get other variables:
+. /lib/bilibop/lockfs.sh
+get_udev_root
+
+
+# The behaviour of this script depends on the admin settings:
+case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
+	never)
+		exit 0
+		;;
+	lockfs|nolockfs)
+		;;
+	*)
+		# This is the default and the fallback:
+		BILIBOP_LOCKFS_NOTIFY_POLICY="always"
+		;;
+esac
+
+
+# Parse options with getopt.
+ARGS="$(getopt -o ahlnt: --long always,help,lockfs,nolockfs,expire-time: -n "${0##*/}" -- "${@}")"
+if	[ "${?}" = "0" ]
+then	eval set -- "$ARGS"
+else	short_usage >&2
+	exit 1
+fi
+
+# This admin's defined behaviour can be overriden from the commandline.
+# This can be useful for the user (by copying lockfs-notify.desktop from
+# /etc/xdg/autostart to ~/.config/autostart, and modifying the 'Exec='
+# line, or setting 'Hidden=true')
+while	true
+do
+	case	"${1}" in
+		-a|always)
+			BILIBOP_LOCKFS_NOTIFY_POLICY="always"
+			shift
+			;;
+		-h|--help)
+			usage
+			exit 0
+			;;
+		-l|--lockfs)
+			BILIBOP_LOCKFS_NOTIFY_POLICY="lockfs"
+			shift
+			;;
+		-n|--nolockfs)
+			BILIBOP_LOCKFS_NOTIFY_POLICY="nolockfs"
+			shift
+			;;
+		-t|--expire-time)
+			if	echo "${2}" | grep -q '^[0-9]\+$'
+			then	EXPIRE_TIME="${2}"
+				[ ${2} -lt 1000 ] &&
+				EXPIRE_TIME="0"
+			else	EXPIRE_TIME="-1"
+			fi
+			shift 2
+			;;
+		--)
+			break
+			;;
+		*)
+			unknown_argument "${arg}" >&2
+			short_usage >&2
+			exit 1
+			;;
+	esac
+done
+
+
+# If this script is not called in a graphical environment, nothing to do:
+if	[ -z "${DISPLAY}" ]
+then	echo "${0##*/}: no DISPLAY found." >&2
+	exit 99
+else
+	case	"$(tty)" in
+		${udev_root}/console|${udev_root}/tty?*)
+			echo "${0##*/}: must be run from X." >&2
+			exit 99
+			;;
+	esac
+fi
+
+# If the tool to send notification is missing, nothing else to do:
+if	[ ! -x /usr/bin/notify-send ]
+then	echo "${0##*/}: '/usr/bin/notify-send' not found: you should install 'libnotify-bin'." >&2
+	exit 2
+fi
+
+locked=
+unlocked=
+perm_or_temp_fs=
+this_fs=
+
+# 1. bilibop-lockfs is disabled:
+if	! is_aufs_mountpoint -q / &&
+	[ ! -f "${BILIBOP_RUNDIR}/lock" ]
+then
+	case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
+		always|nolockfs)
+			notify-send ${EXPIRE_TIME:+--expire-time=${EXPIRE_TIME}} \
+				--urgency="normal" \
+				--icon="changes-allow" \
+				"bilibop-lockfs is disabled" \
+				"All informations about the actual\nsession can be written on the disk."
+			;;
+	esac
+	# Nothing else to do:
+	exit 0
+fi
+
+# 2. bilibop-lockfs is enabled
+# 2.1. Send notification for locked fs:
+case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
+	always|lockfs)
+		for	fs in $(aufs_mountpoints)
+		do
+			locked="${locked:+${locked}, }« ${fs} »"
+		done
+
+		if	[ -z "${locked}" ]
+		then
+			notify-send \
+				--urgency="critical" \
+				--icon="error" \
+				"*** BILIBOP LOCKFS - ERROR ***" \
+				"Unknown error"
+			exit 3
+
+		elif	echo "${locked}" | grep -q ', '
+		then
+			locked="$(echo ${locked} | sed 's;, \(« /[^, «»]\+ »\)$; and \1 are;')"
+			perm_or_temp_fs="temporary filesystems"
+			this_fs="these filesystems"
+		else
+			locked="${locked} is"
+			perm_or_temp_fs="a temporary filesystem"
+			this_fs="this filesystem"
+		fi
+
+		notify-send ${EXPIRE_TIME:+--expire-time=${EXPIRE_TIME}} \
+			--urgency="normal" \
+			--icon="changes-prevent" \
+			"bilibop-lockfs is enabled" \
+			"${locked} mounted as ${perm_or_temp_fs} (aufs).\nAll changes on ${this_fs} will be lost at shutdown."
+		;;
+esac
+
+
+# 2.1. Send notification for non-locked fs:
+case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
+	always|nolockfs)
+		BILIBOP_DISK="$(physical_hard_disk /)"
+		for	fs in $(grep '^/' /proc/mounts | grep -v '^[^ ]\+\s/aufs/' | sed 's;^[^ ]\+\s\(/[^ ]*\)\s.*;\1;')
+		do
+			[ "$(physical_hard_disk ${fs})" = "${BILIBOP_DISK}" ] &&
+			unlocked="${unlocked:+${unlocked}, }« ${fs} »"
+		done
+
+		if	[ -z "${unlocked}" ]
+		then	exit 0
+
+		elif	echo "${unlocked}" | grep -q ', '
+		then
+			unlocked="$(echo ${unlocked} | sed 's;, \(« /[^, «»]\+ »\)$; and \1 are;')"
+			perm_or_temp_fs="permanent filesystems"
+			this_fs="these filesystems"
+		else
+			unlocked="${unlocked} is"
+			perm_or_temp_fs="a permanent filesystem"
+			this_fs="this filesystem"
+		fi
+
+		notify-send ${EXPIRE_TIME:+--expire-time=${EXPIRE_TIME}} \
+			--urgency="normal" \
+			--icon="changes-allow" \
+			"bilibop-lockfs whitelist" \
+			"${unlocked} mounted as ${perm_or_temp_fs}.\nAll changes on ${this_fs} will be kept at shutdown."
+
+esac
+
+
