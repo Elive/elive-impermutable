@@ -24,7 +24,7 @@ _drivemap_initial_indent() {
     indent=""
 }
 # ===========================================================================}}}
-# _drivemap_volume_size() ===================================================={{{
+# _drivemap_volume_size() ==================================================={{{
 # What we want is: output the size of a device given as argument. This size
 # will be added to the informations about the device, and must be human
 # readable. To avoid some kind of confusion, we use the same units than the
@@ -192,7 +192,7 @@ _drivemap_dotline() {
     sed "s;^\(\.\{$((68-${1}-${2}))\}\).*;\1;"
 }
 # ===========================================================================}}}
-# _drivemap_print_line() ================================================{{{
+# _drivemap_print_line() ===================================================={{{
 # What we want is: output a device name and optionally information about
 # it. The line can be indented, formated for 70 columns, and filled with
 # dots to make it more readable. The first argument is the indentation
@@ -234,6 +234,7 @@ _drivemap_loopback_device() {
     do
         # Reset dev - this is mandatory:
         dev=
+        lofile=
 
         # Avoid infinite loops between loopback and dm devices, because each
         # of _drivemap_loopback_device and _drivemap_dmdevice_holder calls the
@@ -272,7 +273,7 @@ _drivemap_loopback_device() {
     done
 }
 # ===========================================================================}}}
-# _drivemap_dmdevice_holder() =============================================={{{
+# _drivemap_dmdevice_holder() ==============================================={{{
 # What we want is: find the dm devices hosted by the dm device or the partition
 # given as argument, query informations about it (optional), output the result
 # and continue by calling this function from inside itself.
@@ -372,7 +373,7 @@ _drivemap_primary_partitions() {
 done
 }
 # ===========================================================================}}}
-# _drivemap_logical_partitions() ============================================={{{
+# _drivemap_logical_partitions() ============================================{{{
 # What we want is: the same than in the previous function, except that this one
 # is called only if it exists an extended partition. In that case, partition
 # with a number greater than 4 will be treated as logical partitions, and so

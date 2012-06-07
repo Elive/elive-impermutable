@@ -2,9 +2,9 @@ bilibop-common
 --------------
 
 This package mainly provides shell functions that can be called by any user,
-either manually or from a shell script. One of the main goals of these
-functions is to easily find the device name of the disk hosting the running
-system.
+either manually or from a shell script. Some of them require Linux kernel
+2.6.37 or higher to work properly. One of the main goals of these functions
+is to easily find the device name of the disk hosting the running system.
 
 We assume that the commands in /usr/bin (awk, cut, tail, and others) can be
 unavailable, and then are replaced by grep and sed heuristics.
@@ -50,8 +50,7 @@ even no 'printf' builtin!)
 To run correctly, the bilibop functions need to read information into some
 virtual files or directories, especially:
 
-/dev/* (or ${udev_root}/*)
-/dev/block/*
+${udev_root}/* (commonly /dev/*)
 /proc/cmdline
 /proc/filesystems
 /proc/mounts
@@ -87,3 +86,4 @@ and finally:
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
+ -- bilibop project <quidame@poivron.org>  Fri, 07 Jun 2012 23:53:52 +0200

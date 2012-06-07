@@ -1,10 +1,4 @@
 #!/usr/bin/make -f
-# -*- makefile -*-
-# Sample debian/rules that uses debhelper.
-# This file was originally written by Joey Hess and Craig Small.
-# As a special exception, when this file is copied by dh-make into a
-# dh-make output file, you may use that output file without restriction.
-# This special exception was added by Craig Small in version 0.37 of dh-make.
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
@@ -12,11 +6,13 @@
 %:
 	dh $@
 
-# dh_pysupport is deprecated, and we don't use python:
-override_dh_pysupport:
-
 # The first rules (loopback) should be included in udev (see bug #671546).
 # Others (bilibop) must be triggered after 60-persistent-*storage.rules.
 override_dh_installudev:
 	dh_installudev -n --name=loopback
 	dh_installudev -n --priority=66 --name=bilibop
+
+# Include the same text at the beginning of the extended description of
+# each package, and the same requirement at the end.
+override_dh_gencontrol:
+	dh_gencontrol -- -Tdebian/substvars

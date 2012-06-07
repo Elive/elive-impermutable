@@ -321,7 +321,7 @@ underlying_device_from_aufs() {
     local   dir dev
     for dir in $(aufs_dirs "${1}")
     do
-        dev="$(grep "^/[^ ]\+ ${dir%=r?} " /proc/mounts | sed -e 's,^\(/[^ ]\+\) .*,\1,')"
+        dev="$(grep "^/[^ ]\+ ${dir%=r?*} " /proc/mounts | sed -e 's,^\(/[^ ]\+\) .*,\1,')"
         if      [ -b "${dev}" ]
         then    readlink -f "${dev}"
                 return 0
@@ -599,11 +599,11 @@ aufs_readonly_branch() {
     local   br
     for br in $(aufs_si_directory "${1}")/br*
     do
-        grep '=r[or]$' ${br} | sed -e 's,=r[or],,'
+        grep '=r[or]\(+wh\)\?$' ${br} | sed -e 's,=r[or].*,,'
     done
 }
 # ===========================================================================}}}
-# aufs_writable_branch() ==================================================={{{
+# aufs_writable_branch() ===================================================={{{
 # What we want is: output the upper (read-write) branch of an aufs mount point
 # given as argument.
 aufs_writable_branch() {
@@ -611,7 +611,7 @@ aufs_writable_branch() {
     local   br
     for br in $(aufs_si_directory "${1}")/br*
     do
-        grep '=rw$' ${br} | sed -e 's,=rw,,'
+        grep '=rw\(+nolwh\)\?$' ${br} | sed -e 's,=rw.*,,'
     done
 }
 # ===========================================================================}}}

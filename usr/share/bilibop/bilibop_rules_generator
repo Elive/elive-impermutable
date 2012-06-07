@@ -5,8 +5,9 @@
 # Produce an udev rules file to:
 # - create a symlink to the physical hard disk (or usb key, memstick, etc)
 #   on which the system is installed.
-# - fix this disk and its partitions as members of group « disk » instead of
-#   « floppy », to forbid low-level write access on this disk by normal users.
+# - force this disk and its partitions to be owned by the 'disk' group
+#   instead of the 'floppy' group, to forbid low-level write access on this
+#   disk by normal users.
 # - hide the partitions of this disk for the desktop applications, or rename
 #   them, set their icon, etc. depending if udisks is installed and also
 #   depending on the bilibop config file.

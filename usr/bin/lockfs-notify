@@ -146,7 +146,7 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 	always|lockfs)
 		for	fs in $(aufs_mountpoints)
 		do
-			locked="${locked:+${locked}, }« ${fs} »"
+			locked="${locked:+${locked}, }'${fs}'"
 		done
 
 		if	[ -z "${locked}" ]
@@ -160,7 +160,7 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 
 		elif	echo "${locked}" | grep -q ', '
 		then
-			locked="$(echo ${locked} | sed 's;, \(« /[^, «»]\+ »\)$; and \1 are;')"
+			locked="$(echo ${locked} | sed "s;, \('/[^,' ]\+'\)$; and \1 are;")"
 			perm_or_temp_fs="temporary filesystems"
 			this_fs="these filesystems"
 		else
@@ -185,7 +185,7 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 		for	fs in $(grep '^/' /proc/mounts | grep -v '^[^ ]\+\s/aufs/' | sed 's;^[^ ]\+\s\(/[^ ]*\)\s.*;\1;')
 		do
 			[ "$(physical_hard_disk ${fs})" = "${BILIBOP_DISK}" ] &&
-			unlocked="${unlocked:+${unlocked}, }« ${fs} »"
+			unlocked="${unlocked:+${unlocked}, }'${fs}'"
 		done
 
 		if	[ -z "${unlocked}" ]
@@ -193,7 +193,7 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 
 		elif	echo "${unlocked}" | grep -q ', '
 		then
-			unlocked="$(echo ${unlocked} | sed 's;, \(« /[^, «»]\+ »\)$; and \1 are;')"
+			unlocked="$(echo ${unlocked} | sed "s;, \('/[^,' ]\+'\)$; and \1 are;")"
 			perm_or_temp_fs="permanent filesystems"
 			this_fs="these filesystems"
 		else

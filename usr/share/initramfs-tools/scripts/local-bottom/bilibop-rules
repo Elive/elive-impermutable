@@ -18,15 +18,22 @@ esac
 
 ### BEGIN ###
 
-. /lib/bilibop/common.sh
-get_bilibop_variables ${rootmnt}
-udev_root="/dev"
+if	[ /etc/udev/udev.conf ]
+then	. /etc/udev/udev.conf
+fi
+udev_root="${udev_root:-/dev}"
+udev_root="${udev_root%/}"
+
+if	[ ${rootmnt}/etc/bilibop/bilibop.conf ]
+then	. ${rootmnt}/etc/bilibop/bilibop.conf
+fi
+BILIBOP_RUNDIR="/run/${BILIBOP_COMMON_BASENAME:=bilibop}"
 
 mkdir -p "${BILIBOP_RUNDIR}"
 
 # Create a fake device map (optional, but enabled by default):
 [ "${BILIBOP_RULES_FAKE_DEVICE_MAP}" = "false" ] ||
-echo "(hd0)	$(physical_hard_disk ${rootmnt})" >${BILIBOP_RUNDIR}/grub-device.map
+echo "(hd0)	${udev_root}/${BILIBOP_COMMON_BASENAME}/disk" >${BILIBOP_RUNDIR}/grub-device.map
 
 # Create two non-empty files. This last action is not absolutely necessary,
 # but avoids some udev complaints.

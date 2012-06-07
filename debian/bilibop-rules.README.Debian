@@ -7,17 +7,21 @@ bilibop-rules
 This package mainly provides an udev rules file to be applied on operating
 systems running from external media (USB stick, USB HDD, FireWire, Flash
 Memory stick, eSATA HDD). Its goal is to adapt some system behaviours to
-its particular situation, like an organ outside of the body.
+its particular situation, like an organ outside of the body. Bilibop-rules
+is based on the bilibop-common functions and need Linux kernel 2.6.37 or
+higher to work properly.
 
 The running system being hosted on a removable device, the common udev
-rules (91-permissions.rules) will set it as a member of the 'floppy' group,
-allowing any other member of this group to damage it, even by mistake, with
-a simple 'shred <DEVICE>' command. So the bilibop rules fix the disk hosting
-the operating system and all its partitions as members of the 'disk' group,
-as it was an internal disk. This is the main. Other rules are optional and
-can be disabled. See the bilibop.conf(5) manual page and
-/usr/share/doc/bilibop-rules/examples/bilibop.conf for detailed information
-about default or custom settings.
+rules (91-permissions.rules) will set it as owned by the 'floppy' group,
+allowing any member of this group to damage it, even by mistake, with a
+simple 'shred DEVICE' or 'cat /dev/zero >DEVICE' command. So the bilibop
+rules fix the disk hosting the operating system and all its partitions as
+owned by the 'disk' group, as it was an internal disk. This is the main,
+and this is not optional. Other rules are optional and can be disabled.
+
+See the bilibop.conf(5) manual page and
+/usr/share/doc/bilibop-rules/examples/bilibop.conf
+for detailed information about default or custom settings.
 
 
 2. HELPER SCRIPTS
@@ -110,4 +114,11 @@ in /run/bilibop. It is run during the installation of the package to do
 that, and when it is removed, to undo that.
 
 
+3. MORE INFO
+============
+
+See /usr/share/doc/bilibop-common/misc/*
+
+
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
+ -- bilibop project <quidame@poivron.org>  Fri, 07 Jun 2012 23:53:52 +0200

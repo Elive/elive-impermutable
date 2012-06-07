@@ -1,5 +1,31 @@
+bilibop (0.2) unstable; urgency=low
+
+  * New OpenPGP key.
+  * debian/control: change 'Achitecture: all' to 'Architecture: linux-any' for
+    all binaries.
+  * debian/control: more precise description of the packages, their purposes
+    and features. Add a statement about the required kernel version.
+  * debian/copyright: modify Format field to:
+    http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/ (Fixes
+    lintian pedantic message).
+  * debian/copyright: change copyright date from 2012 to 2011-2012 for all
+    files except debian/*.
+  * Clean debian/rules.
+  * Add debian/substvars.
+  * bilibop-common: modify functions relative to loop devices and aufs to
+    improve compatibility with LiveUSB systems.
+  * bilibop-lockfs: set the primary extended partition as readonly when the
+    root filesystem is contained into a logical partition that has been set
+    readonly.
+  * bilibop-rules: rewrite initramfs-tools script to not depend on
+    bilibop-common functions.
+  * Rewrite unclear or ambiguous parts of the documentation, and fix typos.
+  * Remove unneeded files from the source.
+
+ -- bilibop project <quidame@poivron.org>  Fri, 08 Jun 2012 01:48:59 +0200
+
 bilibop (0.1) unstable; urgency=low
 
-  * Initial Release.
+  * Initial Release (Closes #675467).
 
  -- bilibop project <quidame@poivron.org>  Fri, 01 Jun 2012 00:06:51 +0200

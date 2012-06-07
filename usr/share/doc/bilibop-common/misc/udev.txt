@@ -39,9 +39,8 @@ of the symlink before udev initscript runs. This is what bilibop-rules does.
 
 When the operating system is running from a removable media, the udev rules
 file /lib/udev/rules.d/91-permissions.rules set this media and all its
-partitions as members of the 'floppy' group (unlike internal drives and
-their partitions, that are set as members of the 'disk' group).
-See bug #645466.
+partitions as owned by the 'floppy' group (unlike internal drives and
+their partitions, that are owned by the 'disk' group). See bug #645466.
 
 The main difference between these two groups is that a lot of users are
 members of the floppy group, to allow them to do what they want with their
@@ -57,6 +56,6 @@ $ dd if=/dev/zero of=/dev/sdb
 Knowing that, one of the first things to do when the system is on a
 removable media, is to override 91-permissions.rules, and set the drive
 hosting the system and all its partitions (including the extended one)
-as members of the 'disk' group. This is what bilibop-rules is mainly
+to be owned by the 'disk' group. This is what bilibop-rules is mainly
 designed to do.
 

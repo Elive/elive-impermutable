@@ -27,15 +27,15 @@ new one; and some of these tasks can be done only by experienced users.
 Others have to wait for the next release, if it comes a day.
 .PP
 .B Bilibop
-stands for «
-.BR B ilibop
+stands for
+.RB \' B ilibop
 .BR I s
 .BR L ive
 .BR I nstall
 .BR B oot
 .BR O n
-.BR P endrive
-». This acronym is now obsolete, but the name has been kept. The
+.BR P endrive\'.
+This acronym is now obsolete, but the name has been kept. The
 .B bilibop project
 is born as an alternative to the
 .B LiveUSB
@@ -93,11 +93,11 @@ command.
 .I bilibop\-rules
 This package provides udev rules and helper scripts. Its main purpose is
 to fix the external drive hosting the running system, and all its
-partitions, as members of the
+partitions, as owned by the
 .RI \' disk \'
 group instead of
 .RI \' floppy \',
-as done by the common udev rules. This fixes bug
+as done by the common udev rules. This is a workaround of the bug
 .BR #645466 .
 The udev rules provided by this package work even when the root filesystem
 is on a
@@ -226,4 +226,4 @@ for some tips and tricks, details and suggestions about possible settings.
 .BR lsbilibop (8)
 
 .SH AUTHOR
-This manual page has been written by « bilibop project » <quidame@poivron.org>.
+This manual page has been written by Bilibop Project <quidame@poivron.org>.

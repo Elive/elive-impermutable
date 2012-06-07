@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PREREQ=""
+PREREQ="klibc"
 
 prereqs()
 {
@@ -19,14 +19,32 @@ esac
 ### BEGIN ###
 . /usr/share/initramfs-tools/hook-functions
 
-# Copy the needed bilibop functions file:
+# Copy the needed bilibop functions files:
+cp --parents /lib/bilibop/common.sh ${DESTDIR}
 cp --parents /lib/bilibop/lockfs.sh ${DESTDIR}
 
-# Copy an additional command to harden the lock policy:
+# Add commands needed by the bilibop functions. This depends if busybox is
+# added too or not.
+if	[ "${BUSYBOX}" = "n" -o ! -e ${BUSYBOXDIR}/busybox ]
+then
+	copy_exec /bin/df	/bin
+	copy_exec /bin/grep	/bin
+	copy_exec /bin/sed	/bin
+	# replace klibc's 'readlink':
+	rm -f ${DESTDIR}/bin/readlink
+	copy_exec /bin/readlink	/bin
+fi
+
+# Copy an additional command to harden the locking policy:
 copy_exec /sbin/blockdev	/sbin
 
 # Copy the needed module:
 manual_add_modules aufs
+
+# Be sure the removable media hosting the system can be managed:
+force_load usb-storage
+force_load firewire-sbp2
+force_load mmc_block
 
 :
 ### END ###

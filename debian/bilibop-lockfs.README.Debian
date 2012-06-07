@@ -20,6 +20,10 @@ means no log files, no cookies, no timestamp or data changes, but also
 no modification of the boot sectors or partition table, no changes of
 the LUKS headers, etc.
 
+NOTE that the bilibop-lockfs scripts depend on the bilibop-common
+functions, which require Linux kernel 2.6.37 or higher to work
+properly.
+
 
 2. CONFIGURATION
 ================
@@ -39,7 +43,9 @@ manual page. They allow to:
   enable them manually; don't use them at all; or enable only encrypted
   swap devices.
 - Send a notification to the user about what filesystems/mountpoints are
-  locked or not.
+  locked or not. More exactly, the notifications say that changes under
+  such or such directories will be kept or lost at shutdown. See the
+  lockfs-notify(1) manpage for details.
 
 
 3. HOW IT WORKS
@@ -132,8 +138,8 @@ f. ${rootmnt}/etc/fstab is modified:
    - Entries about swap devices are kept as is, commented, or modified,
      depending on the policy to apply (soft, noauto, crypt, hard).
    - Entries about mountpoints that have not been whitelisted in
-     bilibop.conf(5) are modified: the fstype (third field) is replaced
-     by 'lockfs', and options are modified to remember the real fstype
+     bilibop.conf(5) are modified: the fstype (third field) is replaced by
+     'lockfs', and options are also modified to remember the real fstype
      to use.
 
    This makes the original line:
@@ -143,9 +149,14 @@ f. ${rootmnt}/etc/fstab is modified:
    UUID=a82267c0-fe18-6c44-0acf-d11a5904d7ae /boot lockfs fstype=ext3,noatime,nodev,noexec,nosuid 0 0
 
    NOTE that because some filesystems may not exist at this time,
-   filesystem metadata such as LABEL or UUID cannot be used to know if a
-   filesystem is whitelisted or not. Only mountpoints are checked at this
-   step.
+   filesystem metadata such as LABEL, UUID or TYPE cannot be queried
+   to know if a filesystem is whitelisted or not. Only mountpoints,
+   devices and metadata matching the fstab entries are checked at this
+   step. This means, with the previous example, that if you don't want
+   to modify the /boot entry in fstab, you should use '/boot' or
+   'UUID=a82267c0-fe18-6c44-0acf-d11a5904d7ae'. '/dev/mapper/xporter-boot'
+   or 'LABEL=boot' will not work here. 'TYPE=ext3' is too generic and can
+   match other mountpoints.
 
 
 3.2. Second stage
@@ -172,7 +183,7 @@ b. It checks if:
 
    If one of these tests fails, then a normal mount is executed and the
    corresponding entry in /etc/fstab is replaced by something very close
-   to the original one, to reflect the actual mount. Here, we call that
+   to the original one, to reflect the actual mount. Here, we call that:
    'mount_fallback'.
 
    'very close' ?
@@ -190,8 +201,9 @@ b. It checks if:
    the new one is:
    /dev/mapper/xporter-boot /boot ext3 noexec,nosuid,nodev,noatime 0 0
 
-   This can happen if 'UUID=a82267c0-fe18-6c44-0acf-d11a5904d7ae' has been
-   whitelisted instead of '/boot'.
+   This can happen if '/dev/mapper/xporter-boot' or 'LABEL=boot' has been
+   whitelisted instead of 'UUID=a82267c0-fe18-6c44-0acf-d11a5904d7ae' or
+   simply '/boot'.
 
    NOTE that the replacement of the last field (here '2') by '0' is less
    than minor: the /fastboot file created by the initramfs script already
@@ -233,7 +245,8 @@ e. The aufs is mounted. If the global lockfs policy is 'hard', then
 f. The last step is to modify /etc/fstab to make it matches /proc/mounts:
    this can be important for clean unmounts at shutdown, for the case a
    readonly filesystem is remounted 'rw' during a session. This needs the
-   global policy (BILIBOP_LOCKFS_POLICY) set to 'soft'.
+   global policy (BILIBOP_LOCKFS_POLICY) set to 'soft', or run blockdev(8)
+   manually to set the block device as writable.
 
    The entry corresponding to the target mountpoint is replaced by a block
    of three lines: readonly branch, writable branch and the aufs itself.
@@ -264,8 +277,9 @@ $ for i in /dev/sdb* /dev/dm-[0-4] ; do printf "$i\tro=" ; cat /sys/class/block/
 /dev/dm-3	ro=1
 /dev/dm-4	ro=1
 
-This last command line says /dev/sdb2 is writable, other block devices
-are read-only.
+This last command line says /dev/sdb2 (vfat fs, and not listed in fstab)
+is writable, other block devices are read-only.
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
+ -- bilibop project <quidame@poivron.org>  Fri, 07 Jun 2012 23:53:52 +0200

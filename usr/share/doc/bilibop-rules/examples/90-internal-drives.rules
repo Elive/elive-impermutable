@@ -32,7 +32,8 @@ TAG+="INTERNAL"
 #    Here are some examples of actions to perform, or properties to set.
 
 # A. Uncomment the following line if you want to set the whole disk and
-#    each of its partitions as read-only. This can avoid big mistakes.
+#    each of its partitions as read-only. This can avoid big mistakes
+#    on your friend's computer.
 #ACTION=="add|change", RUN+="/sbin/blockdev --setro %r/%k"
 
 # B. Uncomment the following line if you want the disk and its partitions

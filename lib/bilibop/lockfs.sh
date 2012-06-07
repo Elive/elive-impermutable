@@ -32,15 +32,31 @@ remount_rw() {
     mount -o remount,rw $(aufs_readonly_branch "${1}")
 }
 # ===========================================================================}}}
-# blockdev_rootdev_tree() ==================================================={{{
+# extended_partition() ======================================================{{{
+# What we want is:
+extended_partition() {
+    ${DEBUG} && echo "> extended_partition $@" >&2
+    local   PART
+    for     PART in ${1}*
+    do
+            # Extended partitions can be of type 0x5, 0xf and 0x85.
+            blkid -o export -p ${PART} |
+            grep -q '^PART_ENTRY_TYPE=0x\(f\|8\?5\)$' &&
+            echo "${PART}" &&
+            return 0
+    done
+    return 1
+}
+# ===========================================================================}}}
+# lockdev_rootdev_tree() ===================================================={{{
 # What we want is: set 'ro' or 'rw' the filesystem and its hosting disk given
 # as arguments, and all other devices between them. For example, if the first
 # one is a Logical Volume (/dev/dm-3) onto a LUKS partition (/dev/sdb1), this
 # will modify settings for /dev/dm-3, /dev/sdb, /dev/dm-0 and /dev/sdb1. The
 # main option (--setro or --setrw) must be the first argument, and the disk
 # node the last one.
-blockdev_rootdev_tree() {
-    ${DEBUG} && echo "> blockdev_rootdev_tree $@" >&2
+lockdev_rootdev_tree() {
+    ${DEBUG} && echo "> lockdev_rootdev_tree $@" >&2
     local   dev="${2}"
     # I don't know why, but here blockdev must be called two times (give the
     # two arguments in the same command line seem to not work in initramfs).
@@ -56,6 +72,16 @@ blockdev_rootdev_tree() {
                     dev="$(underlying_device_from_loop "${dev}")"
                     ;;
                 *)
+                    # If a logical partition has to be locked, lock the
+                    # primary extended partition too. Only for ms-dos
+                    # partition tables.
+                    blkid -o export -p "${3}" |
+                    grep -q '^PTTYPE=dos' ||
+                    return 0
+                    blkid -o export -p "${dev}" |
+                    grep -q '^PART_ENTRY_NUMBER=[1-4]$' &&
+                    return 0
+                    dev="$(extended_partition "${3}")" ||
                     return 0
                     ;;
         esac

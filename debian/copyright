@@ -1,9 +1,10 @@
-Format: http://dep.debian.net/deps/dep5
-Upstream-Name: bilibop
-Source: <https://poivron.org/~quidame/debian_packages>
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: bilibop project
+Upstream-Contact: <quidame@poivron.org>
+Source: <https://poivron.org/~quidame/bilibop_project/download/>
 
 Files: *
-Copyright: 2012 bilibop project <quidame@poivron.org>
+Copyright: 2011-2012 bilibop project <quidame@poivron.org>
 License: GPL-3.0+
 
 Files: debian/*

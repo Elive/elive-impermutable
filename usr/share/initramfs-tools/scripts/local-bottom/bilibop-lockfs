@@ -120,7 +120,7 @@ BILIBOP_DISK="$(physical_hard_disk ${BILIBOP_ROOT})"
 if	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ]
 then	RO="ro"
 else	RO="rr"
-	blockdev_rootdev_tree ro ${BILIBOP_ROOT} ${BILIBOP_DISK}
+	lockdev_rootdev_tree ro ${BILIBOP_ROOT} ${BILIBOP_DISK}
 fi
 
 # Determine tmpfs size for the aufs writable branch:
@@ -165,7 +165,7 @@ then
 	# Don't forget to undo what has been done before !
 	umount ${HOSTDIR}
 	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ] ||
-	blockdev_rootdev_tree rw ${BILIBOP_ROOT} ${BILIBOP_DISK}
+	lockdev_rootdev_tree rw ${BILIBOP_ROOT} ${BILIBOP_DISK}
 
 	log_failure_msg "${0##*/}: Error occured when setting aufs writable branch."
 	log_failure_msg "${0##*/}: Exit."
@@ -185,7 +185,7 @@ then
 else
 	# Again, don't forget to undo what has been done before:
 	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ] ||
-	blockdev_rootdev_tree rw ${BILIBOP_ROOT} ${BILIBOP_DISK}
+	lockdev_rootdev_tree rw ${BILIBOP_ROOT} ${BILIBOP_DISK}
 	umount ${HOSTDIR}
 	umount ${TEMPDIR}
 
