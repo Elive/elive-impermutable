@@ -5,14 +5,17 @@ drivemap \- show block devices in a tree of dependencies
 
 .SH SYNOPSIS
 .BR drivemap
-.RI [ \-\-debug ]
-.RI [ \-i | \-\-info ]
+.RI [ \-i | \-\-info
+.RI [ \-w | \-\-width
+.BR N ]]
 .RI [ \-d | \-\-drive ]
 .RI [ FILE ]
 .br
 .BR drivemap
-.RI [ \-\-debug ]
-.RI [ \-i | \-\-info ]
+.RI [ \-i | \-\-info
+.RI [ \-w | \-\-width
+.BR N ]]
+.RI [ \-p | \-\-mountpoint ]
 .RI [ \-f | \-\-backing\-file ]
 .RI [ \-n | \-\-dm\-name ]
 .RI [ \-m | \-\-mark ]
@@ -20,6 +23,12 @@ drivemap \- show block devices in a tree of dependencies
 .PP
 .BR drivemap
 .IR \-h | \-\-help
+.br
+.BR drivemap
+.RI [ \-\-debug ]
+.RI [ \-x | \-\-set\-x ]
+.RI [ OPTIONS ]
+.RI [ FILE ]
 
 .SH DESCRIPTION
 .B drivemap
@@ -53,7 +62,9 @@ hosting it. FILE can be a regular file, a directory or a block device.
 .PP
 .B \-\-debug
 .RS
-Display debug informations on stderr.
+Display debug informations on stderr. When this option is invoked, each
+called function prints its name. See also
+.RB \' \-\-set\-x \'.
 .RE
 .PP
 .BR \-d ,
@@ -113,6 +124,38 @@ Replace device\-mapper nodes
 by device\-mapper names
 .RI ( /dev/mapper/* ),
 which are statically attributed and generally easier to understand.
+.RE
+.PP
+.BR \-p ,
+.B \-\-mountpoint
+.RS
+Show the mountpoints of mounted devices, and show swap devices in use.
+.RE
+.PP
+.B \-w
+.BR N ,
+.BR \-\-width = N
+.RS
+Format the output on
+.B N
+columns. Can be used with
+.RB \' \-\-info \'
+and/or
+.RB \' \-\-mountpoint \'.
+If N is not a number or is greater than the number of columns of the screen,
+then the output will use the full width of the screen. If this option is not
+used, then the default is to display the result on 70 columns.
+
+.RE
+.PP
+.BR \-x ,
+.B \-\-set\-x
+.RS
+Display debug informations on stderr. When this option is invoked, the
+shell script is set as
+.BR \-x ,
+for more debug details. See also
+.RB \' \-\-debug \'.
 .RE
 
 .SH ENHANCEMENTS AND LIMITATIONS

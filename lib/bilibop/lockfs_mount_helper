@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# /lib/bilibop/lockfs_mount_helper
+# /lib/bilibop/lockfs_mount_helper {{{
 # Mount helper script for 'lockfs' filesystem type entries in /etc/fstab.
 # This script cannot be run manually. The expected way to run it is the
 # following:
@@ -18,6 +18,7 @@
 #    poor fallback to call mount normally.
 # 4. /etc/fstab is parsed by 'mount -a', and then mount calls mount.lockfs
 #    with the proper arguments when a 'lockfs' fstype is encountered.
+# }}}
 
 PATH="/sbin:/bin"
 
@@ -200,8 +201,8 @@ fi
 # Fix permissions and ownership of the writable branch (and catch the values;
 # they will be reused later):
 
-mod="$(chmod -v --reference="${robr}" "${rwbr}" | sed 's;.* \([0-7]\{4\}\) (.\+);\1;')"
-own="$(chown -v --reference="${robr}" "${rwbr}" | sed 's;.* \([^: ]\+:[^: ]\+\)$;\1;')"
+mod="$(LC_ALL=C chmod -v --reference="${robr}" "${rwbr}" | sed 's;.* \([0-7]\{4\}\) (.\+)$;\1;')"
+own="$(LC_ALL=C chown -v --reference="${robr}" "${rwbr}" | sed 's;.* \([^:]\+:[^:]\+\)$;\1;')"
 
 owner="${own%:*}"
 if	[ "${owner}" != "root" ]
@@ -225,14 +226,30 @@ then
 	exit 3
 fi
 
+# Special case for 'crypt', 'crypt_LUKS' and 'crypto_LUKS' fstypes, when
+# BILIBOP_LOCKFS_POLICY is hard: two block devices have to be set readonly:
+# the second one is created by mount.crypt by using dm-crypt, and its dm
+# name is the full path of the underlying device, whose the '/' have been
+# replaced by '_'.
+if	[ "${BILIBOP_LOCKFS_POLICY}" != "soft" ]
+then
+	case	"${fstype}" in
+		crypt|crypt_LUKS|crypto_LUKS)
+			DM_NAME="$(echo "${device}" | sed 's,/,_,g')"
+			[ -b "${udev_root}/mapper/${DM_NAME}" ] ||
+			DM_NAME="$(readlink -f "${device}" | sed 's,/,_,g')"
+			[ -b "${udev_root}/mapper/${DM_NAME}" ] &&
+			blockdev --setro $(readlink -f "${udev_root}/mapper/${DM_NAME}")
+			;;
+	esac
+fi
 
 # All is OK. So we can rewrite fstab entry to reflect the real mounts. This
 # can be important for clean unmounts at shutdown (for the case a filesystem
 # is remounted rw during a session).
 robr_line="${device} ${robr} ${fstype:-auto} ${robr_opts:+${robr_opts},}ro 0 0"
-rwbr_line="tmpfs ${rwbr} tmpfs ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},}${uid:+${uid},}${gid:+${gid},}mode=${mod} 0 0"
+rwbr_line="tmpfs ${rwbr} tmpfs ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},}${uid:+uid=${uid},}${gid:+gid=${gid},}mode=${mod} 0 0"
 aufs_line="none ${mntpnt} aufs br:${rwbr}=rw:${robr}=${RO} 0 0"
 
-sed -i "s;^\s*[^#][^ ]\+\s\+${mntpnt}\s\+lockfs\s.*;${rwbr_line}\n${robr_line}\n${aufs_line};" /etc/fstab
-
+sed -i "s;^\s*[^#][^ ]\+\s\+${mntpnt}\s\+lockfs\s.*;${robr_line}\n${rwbr_line}\n${aufs_line};" /etc/fstab
 

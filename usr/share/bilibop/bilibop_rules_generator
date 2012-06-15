@@ -2,12 +2,12 @@
 
 # /usr/share/bilibop/bilibop_rules_generator
 
-# Produce an udev rules file to:
+# Produce a udev rules file to:
 # - create a symlink to the physical hard disk (or usb key, memstick, etc)
 #   on which the system is installed.
 # - force this disk and its partitions to be owned by the 'disk' group
 #   instead of the 'floppy' group, to forbid low-level write access on this
-#   disk by normal users.
+#   disk by unprivileged users.
 # - hide the partitions of this disk for the desktop applications, or rename
 #   them, set their icon, etc. depending if udisks is installed and also
 #   depending on the bilibop config file.
@@ -28,7 +28,7 @@ PATH="/bin:/usr/bin"
 ETC_RULES_DIR="/etc/udev/rules.d"
 LIB_RULES_DIR="/lib/udev/rules.d"
 
-# If an udev rules file exists in /lib/udev/rules.d, it can be overridden by
+# If a udev rules file exists in /lib/udev/rules.d, it can be overridden by
 # an other file with the same name in /etc/udev/rules.d. If the file don't
 # exist in /lib, then we can write a rules file in /etc to be executed very
 # early.
@@ -65,7 +65,7 @@ EOF
 
 usage() {
 	cat <<EOF
-${0##*/} writes an udev rules file to forbid low-level
+${0##*/} writes a udev rules file to forbid low-level
 write access - for unprivileged users - to the removable media on which
 the system is installed, and to do other optional things.
 Default rules file is ${ETC_RULES_DIR}/${RULE}.

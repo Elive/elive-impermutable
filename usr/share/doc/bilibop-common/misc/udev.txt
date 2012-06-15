@@ -47,10 +47,11 @@ members of the floppy group, to allow them to do what they want with their
 floppies, USB keys, and others. 'What they want' includes low-level writes.
 So, only privileged users should be members of the 'disk' group, to avoid
 this low-level write access on drives which the system is installed on.
-In conclusion, on systems embedded on USB keys, a normal user can erase all
-(blank the entire disk) with one of the following commands:
+In conclusion, on systems embedded on USB keys, a unprivileged user can
+erase all (blank the entire disk) with one of the following commands:
 
 $ shred -zn0 /dev/sdb
+$ cat /dev/zero >/dev/sdb
 $ dd if=/dev/zero of=/dev/sdb
 
 Knowing that, one of the first things to do when the system is on a

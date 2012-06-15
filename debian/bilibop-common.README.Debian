@@ -34,6 +34,10 @@ the filename stored in /sys/block/loop?/loop/backing_file is obsolete in the
 system environment, and a call to losetup is needed to access relevant
 information about the filesystem the backing file resides on.
 
+People who are interested by issues concerning multilayered block devices
+systems can read:
+http://wiki.debian.org/AdvancedStartupShutdownWithMultilayeredBlockDevices
+
 The bilibop common shell functions have been tested - and work - with the
 following shells:
 - /bin/bash
@@ -86,4 +90,5 @@ and finally:
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
- -- bilibop project <quidame@poivron.org>  Fri, 07 Jun 2012 23:53:52 +0200
+ -- bilibop project <quidame@poivron.org>  Fri, 08 Jun 2012 23:53:52 +0200
+ -- bilibop project <quidame@poivron.org>  Fri, 15 Jun 2012 22:07:17 +0200

@@ -7,7 +7,7 @@ DEBUG="false"
 # README {{{
 #
 #> We assume that the commands in /usr/bin are not available (awk, cut, tail,
-#  and others), and then are replaced by grep and sed euristics.
+#  and others), and then are replaced by grep and sed heuristics.
 #> We assume, even if it is not often, that /etc/udev/udev.conf can have been
 #  modified and that 'udev_root' can be something else than '/dev'.
 #> dm-crypt/LUKS, LVM, loopback and aufs root filesystems (and combinations
@@ -226,11 +226,11 @@ device_node_from_major_minor() {
 # device_id_of_file() ======================================================={{{
 # What we want is: output the major:minor of the filesystem containing the
 # file or directory given as argument. Here we use the full path of the command
-# for the case this function is called by a normal user without /sbin in its
-# PATH. Since the bilibop functions do not depend on blkid, blockdev, losetup
-# or dmsetup to query informations about devices/filesystems, anyone can run
-# them without special privileges. Formely, this uses udev and sysfs databases
-# instead of direct access to the devices.
+# for the case this function is called by a unprivileged user without /sbin in
+# its PATH. Since the bilibop functions do not depend on blkid, blockdev,
+# losetup or dmsetup to query information about devices/filesystems, anyone can
+# run them without special privileges. Formally, this uses udev and sysfs
+# databases instead of direct access to the devices.
 device_id_of_file() {
     ${DEBUG} && echo "> device_id_of_file $@" >&2
     /sbin/udevadm info --device-id-of-file "${1}"
@@ -305,7 +305,7 @@ underlying_device_from_loop() {
             # For some cases, when the loop device is set from inside the
             # initramfs (Live Systems)
             local dev="$(/sbin/losetup ${1} | sed "s;^${1}: \[\([0-9a-f]\{4\}\)\].*;\1;")"
-            device_node_from_major_minor $(echo "$((0x${dev}/256)):$((0x${dev}%256))")
+            device_node_from_major_minor "$((0x${dev}/256)):$((0x${dev}%256))"
     else
             return 1
     fi
@@ -475,9 +475,8 @@ underlying_partition() {
 # of MMC/SD/SDHC memsticks are of the form /dev/mmcblk0p1, and the whole
 # device name is /dev/mmcblk0. What to do whith the 'p'? A circle? We prefer
 # a loop. This seems to be best than a lot of exceptions (how to track them
-# to build a poor function?) For that, of course, we assume that in
-# /proc/partitions, nodes are sorted in alphanumeric order, and the whole disk
-# node always comes before its partitions.
+# to build a poor function?). For that, of course, we assume that in
+# /proc/partitions, the whole disk node always comes before its partitions.
 physical_hard_disk() {
     ${DEBUG} && echo "> physical_hard_disk $@" >&2
     [ -z "${1}" ] && eval set -- /
@@ -633,6 +632,36 @@ is_readonly() {
 }
 # ===========================================================================}}}
 
+# extended_partition() ======================================================{{{
+# What we want is: output the primary extended partition device node of a drive
+# given as argument.
+extended_partition() {
+    ${DEBUG} && echo "> extended_partition $@" >&2
+    local   part
+    for     part in ${1}?*
+    do
+            case    "$(cat /sys/class/block/${part##*/}/partition)" in
+                [1-4])
+                    ID_PART_ENTRY_TYPE=
+                    eval "$(query_udev_envvar ${part})"
+                    case    "${ID_PART_ENTRY_TYPE}" in
+                        0x5|0xf|0x85)
+                            echo "${part}"
+                            return 0
+                            ;;
+                        *)
+                            continue
+                            ;;
+                    esac
+                    ;;
+                *)
+                    return 1
+                    ;;
+            esac
+    done
+    return 1
+}
+# ===========================================================================}}}
 # parent_device_from_dm() ==================================================={{{
 # What we want is: output the direct parent device (slave) of a dm device given
 # as argument.

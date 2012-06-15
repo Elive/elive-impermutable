@@ -108,7 +108,7 @@ then
 	exit 1
 fi
 
-# Now we can work. At first, we have to collect some informations tu use them
+# Now we can work. At first, we have to collect some informations to use them
 # later:
 BILIBOP_ROOT="$(underlying_device_from_file ${rootmnt})"
 BILIBOP_DISK="$(physical_hard_disk ${BILIBOP_ROOT})"
@@ -120,7 +120,7 @@ BILIBOP_DISK="$(physical_hard_disk ${BILIBOP_ROOT})"
 if	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ]
 then	RO="ro"
 else	RO="rr"
-	lockdev_rootdev_tree ro ${BILIBOP_ROOT} ${BILIBOP_DISK}
+	blockdev_root_subtree ro ${BILIBOP_ROOT} ${BILIBOP_DISK}
 fi
 
 # Determine tmpfs size for the aufs writable branch:
@@ -165,7 +165,7 @@ then
 	# Don't forget to undo what has been done before !
 	umount ${HOSTDIR}
 	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ] ||
-	lockdev_rootdev_tree rw ${BILIBOP_ROOT} ${BILIBOP_DISK}
+	blockdev_root_subtree rw ${BILIBOP_ROOT} ${BILIBOP_DISK}
 
 	log_failure_msg "${0##*/}: Error occured when setting aufs writable branch."
 	log_failure_msg "${0##*/}: Exit."
@@ -185,7 +185,7 @@ then
 else
 	# Again, don't forget to undo what has been done before:
 	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ] ||
-	lockdev_rootdev_tree rw ${BILIBOP_ROOT} ${BILIBOP_DISK}
+	blockdev_root_subtree rw ${BILIBOP_ROOT} ${BILIBOP_DISK}
 	umount ${HOSTDIR}
 	umount ${TEMPDIR}
 
@@ -220,79 +220,32 @@ sed -i "s|^\s*[^[:blank:]]\+\s\+/\s.*|\n${comment}\n#&\n|" ${FSTAB}
 # Add /etc/fstab to the list of files that have been modified. This is not
 # needed now, but will be used by further purposes (as the ability to sync
 # on the readonly branch the files that have been modified on the writable
-# branch):
+# branch, but those listed in ${BILIBOP_RUNDIR}/lock):
 lock_file "/etc/fstab"
 
-# Canonize field separators ?
-#sed -i 's|\s\+| |g' ${FSTAB}
-
-# Now parse fstab and modify some entries:
-grep -v '^\s*\(#\|$\)' ${FSTAB} |
-while	read device mntpnt fstype option dump pass
-do
-	# Due to the pipe (|) before the 'while' loop, we are now in a
-	# subshell. The variables just previously set (device, mntpnt,
-	# fstype, option, dump, pass) have no sense outside of this loop.
-	# Don't use them later (after the 'done').
-
-	case	"${fstype}" in
-		swap)
-			# Special settings for swap devices
-			apply_swap_policy "${device}"
-			continue
-			;;
-		none|ignore|tmpfs)
-			# Don't modify some entries
-			continue
-			;;
-	esac
-
-	# Don't modify the "noauto" mount lines:
-	echo "${option}" | grep -q '\<noauto\>' && continue
-
-	# Skip what we are sure that it is not a block device:
-	case	"${device}" in
-		UUID=*|LABEL=*|${UDEV_ROOT}/*)
-			;;
-		*)
-			continue
-			;;
-	esac
-
-	# Skip locking device if whitelisted by the sysadmin. Two forms are
-	# accepted: the mountpoint itself, or a metadata about the filesystem
-	# (allowing to use something like TYPE=vfat for any mountpoint).
-	for	skip in ${BILIBOP_LOCKFS_WHITELIST}
-	do
-		case	"${skip}" in
-			${device})
-				continue 2
-				;;
-			${mntpnt})
-				continue 2
-				;;
-			TYPE=${fstype})
-				continue 2
-				;;
-		esac
-	done
-
-	# For each filesystem to lock, modify the line in fstab. A mount helper
-	# script will manage it later:
-	#log_warning_msg "${0##*/}: Preparing to lock: ${mntpnt}."
-
-	sed -i "s|^\s*${device}\s\+${mntpnt}\s.*|${comment}\n#&\n${replace}\n${device} ${mntpnt} lockfs fstype=${fstype},${option} ${dump} ${pass}\n|" ${FSTAB}
-
-done
-
+# Now parse fstab and modify some entries (and optionally modify crypttab
+# too):
+parse_and_modify_fstab
 
 # Be sure the lockfs mount helper script will be executed when needed:
 grep -q '\slockfs\s' ${FSTAB} &&
 check_mount_lockfs "${rootmnt}"
 
+# Avoid breakage of read-only settings by LVM tools: blacklist the actually
+# available bilibop block devices in lvm.conf(5).
+[ "${BILIBOP_LOCKFS_POLICY}" != "soft" ] &&
+blacklist_bilibop_devices "${UDEV_ROOT}"
+
 
 # Now modify some other files, or execute specific actions if wanted by the
-# sysadmin (set the hostname, modify MAC addresses, set autologin, and so on):
+# sysadmin: set the hostname, modify MAC addresses, set autologin, and so on.
+# For example:
+# touch ${rootmnt}/* ${rootmnt}/bin/* ${rootmnt}/sbin/*
+# find ${rootmnt}/etc ${rootmnt}/root -type f -xdev -exec touch {} \;
+# find ${rootmnt} -type d -xdev -exec touch {} \;
+# find ${rootmnt}/lib -xdev -exec touch {} \;
+# and maybe more would allow the admin to rescue the session even if the
+# device is wildly unplugged.
 # TODO: this is Still In Development
 # Maybe we have to provide a sample file (skeleton) including instructions to
 # write a script that can be executed both from the initramfs environment or

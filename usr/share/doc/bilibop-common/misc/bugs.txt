@@ -1,0 +1,25 @@
+The goal of this document is to reference bugs from the Debian BTS that
+can give a more comprehensive overview on bilibop. Other ressources can
+also be referenced.
+
+
+FROM DEBIAN BTS
+===============
+
+#616729: mdadm includes stuff in initrd even if this is not needed
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=616729
+
+#623975: grub2: Add support for setkey!
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=623975
+
+#645466: When running from removable media, udev allows direct access by
+         "floppy" group
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=645466
+
+#671546: udev: loop device: add backing file in udev database
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=671546
+
+#671734: Add a variable in /etc/default/grub to pass specific kernel
+         parameters in the 'recovery mode' entry.
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=671734
+

@@ -1,0 +1,99 @@
+The goal of this document is to give some tips and tricks about the LVM2
+configuration for systems installed on external media.
+
+
+1. First step
+-------------
+
+During installation of a standalone Operating System on external media,
+LVM can be used to set Logical Volumes on the top of a partition or on
+the top of an encrypted device. In all cases, because the system itself
+is installed on only one disk, there is no sense to set more than one
+Physical Volume per Volume Group. Bilibop functions don't work properly
+if a VG is composed of more than one PV.
+
+LVM can be used in a "multilayered block devices" schema. For example,
+
+Disk
+|___Partition1___PV#1
+|                |___LV#1___Filesystem (/boot)
+|                |___LV#2___LUKS___PV#2
+|                                  |___LV#3___Filesystem (/root)
+|                                  |___LV#4___Filesystem (/home)
+|                                  |___LV#5___Filesystem (swap)
+|___Partition2___LUKS___Filesystem
+|___Partition3___Filesystem
+|___Partition4___Filesystem
+
+In this example, only one partition is used to contain the entire system,
+which is nevertheless divided into four different filesystems, three of
+which are encrypted with the same key/passphrase.
+
+
+2. Configuration
+----------------
+
+/etc/lvm/lvm.conf is the configuration file for all LVM tools. See the
+lvm.conf(5) manpage for details.
+
+2.1. Filter
+-----------
+
+One of the first things to do when lvm2 is installed on a OS on removable
+media is to configure the 'filter' assignment in the 'devices' section.
+If you want to use your system to access internal drives of the host
+computers, then you can keep the default setting, allowing LVM tools to
+access any devices:
+
+filter = [ "a/.*/" ]
+
+But if you prefer to use your system as it was alone, you have to *hide*
+all Physical Volumes that are not used by your system. This is a more
+complicated task, but the drivemap(1) command can help you:
+
+$ drivemap -pin /
+/dev/sdb       [ usb-_Trademark_Storage_05F210010018DD2-0:0 |    8GB ]
+    /dev/sdb1 ............................... [ LVM2_member |    8GB ]
+        /dev/mapper/system-boot .................... [ ext3 |  255MB ] /boot
+        /dev/mapper/system-luks ............. [ crypto_LUKS | 7751MB ]
+            /dev/mapper/bilibop ............. [ LVM2_member | 7750MB ]
+                /dev/mapper/luks-root .............. [ ext4 | 6996MB ] /
+                /dev/mapper/luks-home .............. [ ext4 |  750MB ] /home
+
+Here we see the two Physical Volumes (LVM2_member) we need to 'accept',
+all others will be 'rejected'. For one of these PV, it's easy: its static
+name is "/dev/mapper/bilibop". But we have to find a way to name the first
+partition of the disk, knowing that "/dev/sdb1" is dynamically attributed.
+You must use a symlink created by udev, but it must not refer to the UUID
+of the Physical Volume. Finally, it seems there is only one class of udev
+symlinks you can use: /dev/disk/by-id/*. This can be found with:
+
+$ ls -l /dev/disk/by-id/* | awk '/\/sdb1$/ {print $9}'
+/dev/disk/by-id/usb-_Trademark_Storage_05F210010018DD2-0:0-part1
+
+(It can happen that you have the choice between two or even three names,
+mainly with external HDD)
+
+Now the result in lvm.conf is:
+
+filter = [ "a|^/dev/disk/by-id/usb-_Trademark_Storage_05F210010018DD2-0:0-part1$|", "a|^/dev/mapper/bilibop$|", "r|.*|" ]
+
+
+2.2. Backups and archives
+-------------------------
+
+If your root filesystem in on a Logical Volume, then the default place
+to store backups, /etc/lvm/backup, is useless, because backups are stored
+into the Volume that can need the backup to be opened.
+
+Additionally, you have to know that LVM archives and backups can easily be
+used to acquire certainty that your system was plugged on this computer or
+this one. So, you should probably disable these features in the 'backup'
+section:
+
+archive = 0
+backup  = 0
+
+But keep a backup of your Volume Groups, at least to avoid the annoying
+warnings (WARNING: This metadata update is NOT backed up).
+

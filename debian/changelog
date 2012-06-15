@@ -1,3 +1,58 @@
+bilibop (0.3.0) unstable; urgency=low
+
+  * debian/control:
+    - Update Build-depends from debhelper (>= 8.0.0) to debhelper (>= 9.0.0).
+    - Change some dependencies of binary packages to versioned dependencies:
+      udev (>= 167), initramfs-tools (>= 0.99). As for base-files (>= 6.4),
+      this is needed by the use of the /run temporary directory in bilibop
+      functions or scripts.
+
+  * bilibop-lockfs: modify the initramfs hook: busybox providing its own
+    blockdev builtin, don't add /sbin/blockdev in the initramfs if busybox is
+    added.
+  * extended_partition(): rewrite to avoid direct access on devices (now
+    based on udev instead of blkid), move it from lockfs.sh to common.sh
+  * lockdev_rootdev_tree():
+    - Rewrite it to avoid direct access on devices.
+    - Rename it blockdev_root_subtree().
+  * lockfs_mount_helper:
+    - When the fstype registered in /etc/fstab is 'crypt', 'crypt_LUKS' or
+      'crypto_LUKS', set the mounted mapped device as readonly too (and not
+      only the underlying device) if asked by BILIBOP_LOCKFS_POLICY != soft.
+    - Use LC_ALL=C before the verbose chmod and chown to not depend on the
+      locale and simplify the regexp in sed.
+  * Put the loop used in the initramfs script to parse and modify fstab in the
+    parse_and_modify_fstab() function in lockfs.sh, and call this function in
+    the initramfs script.
+  * Because LVM tools can bypass 'readonly' settings of block devices and
+    reset them as writable, add new functions in lockfs.sh:
+    - blacklist_bilibop_devices(): called from the initramfs script.
+    - overwrite_lvm_conf(): called from the previous one.
+    They are used to disallow management of bilibop (physical and virtual)
+    devices by the lvm commands by filtering them in the temporary lvm.conf.
+    This avoids breakage of bilibop-lockfs 'hard' policy, at least for the
+    root filesystem and its parent devices.
+  * Add a new part (3.1.g) in README.Debian to explain what is done, and why.
+
+  * bilibop-common: add a reference to
+    http://wiki.debian.org/AdvancedStartupShutdownWithMultilayeredBlockDevices
+    in the documentation.
+  * Add misc/bugs.txt and misc/lvm2.txt in the documentation.
+  * common.sh: remove unneeded command substitution (echo) in the
+    undelying_device_from_loop() function.
+  * New available options in usr/bin/drivemap:
+    - Split --debug to --debug and -x or --set-x
+    - Add -p or --mountpoint to explicitly ask to display mountpoints.
+    - Add -w or --width to control the width of the output.
+  * drivemap.sh: modify _dotline() and _print_line() to include new options.
+  * drivemap.1: add the new options in the manpage.
+  * _drivemap_primary_partitions(): rewrite to use extended_partition().
+
+  * Fix some typos, unclear sentences and language errors in debian/control,
+    in the documentation and in the comments of scripts and functions.
+
+ -- bilibop project <quidame@poivron.org>  Sat, 16 Jun 2012 01:53:41 +0200
+
 bilibop (0.2) unstable; urgency=low
 
   * New OpenPGP key.

@@ -20,6 +20,14 @@ _backing_file_="false"
 _info_="false"
 _mark_="false"
 _dm_name_="false"
+_mountpoint_="false"
+_set_x_="false"
+_width_="70"
+
+[ -z "${COLUMNS}" ] &&
+	COLUMNS="$(stty size | sed 's,.*\s\([[:digit:]]\+\)$,\1,')" &&
+	export COLUMNS
+
 FILE=""
 
 ALREADY_DONE=""
@@ -32,8 +40,8 @@ short_usage() {
 	cat <<EOF
 usage:
   ${0##*/} -h|--help
-  ${0##*/} [--debug] [-i|--info] [-d|--drive] [FILE]
-  ${0##*/} [--debug] [-i|--info] [-f|--backing-file] [-n|--dm-name] [-m|--mark] [FILE]
+  ${0##*/} [--debug] [-i|--info [-wN|--width=N]] [-d|--drive] [FILE]
+  ${0##*/} [--debug] [-i|--info [-wN|--width=N]] [-f|--backing-file] [-n|--dm-name] [-m|--mark] [FILE]
 EOF
 }
 
@@ -41,7 +49,7 @@ usage() {
 	cat <<EOF
 ${0##*/}: show block devices in a tree of dependencies
 usage:
-  ${0##*/} [OPTIONS] [FILE]
+  ${0##*/} [OPTIONS] -- [FILE]
 options:
   --debug		Output debug informations on stderr.
   -d, --drive		Display only physical disk names.
@@ -50,6 +58,9 @@ options:
   -i, --info		Give more informations about devices.
   -m, --mark		Mark the device hosting the FILE given as argument.
   -n, --dm-name		Replace each device-mapper node by its name.
+  -p, --mountpoint	Show the mountpoints or swap devices in use.
+  -w N, --width=N	Set the width of the output (default is 70).
+  -x, --set-x		Set shell option -x.
 
 FILE can be either a regular file, a directory or a block device. If FILE
 is not specified, then ${0##*/} will display informations about the disk
@@ -60,7 +71,7 @@ EOF
 
 
 # Parse options with getopt.
-ARGS="$(getopt -o dfhimn --long backing-file,debug,dm-name,drive,help,info,mark -n "${0##*/}" -- "${@}")"
+ARGS="$(getopt -o dfhimnpw:x --long backing-file,debug,dm-name,drive,help,info,mark,mountpoint,set-x,width: -n "${0##*/}" -- "${@}")"
 if	[ "${?}" = "0" ]
 then	eval set -- "$ARGS"
 else	short_usage >&2
@@ -107,6 +118,25 @@ do
 			_opts_="${_opts_:+${_opts_} }${1}"
 			shift
 			;;
+		-p|--mountpoint)
+			_mountpoint_="true"
+			_opts_="${_opts_:+${_opts_} }${1}"
+			shift
+			;;
+		-w|--width)
+			echo "${2}" | grep -q '^[1-9][0-9]\+$' &&
+			_width_="${2}" ||
+			_width_="${COLUMNS}"
+			[ ${_width_} -gt ${COLUMNS} ] &&
+			_width_="${COLUMNS}"
+			_opts_="${_opts_:+${_opts_} }-w${_width_}"
+			shift 2
+			;;
+		-x|--set-x)
+			_set_x_="true"
+			_opts_="${_opts_:+${_opts_} }${1}"
+			shift
+			;;
 		--)
 			shift
 			break
@@ -119,7 +149,8 @@ do
 	esac
 done
 
-${DEBUG} && set -x
+${DEBUG} && echo "${ARGS}"
+${_set_x_} && set -x
 
 # Now we can analyse argument(s) that are not options (not beginning with a
 # dash '-').
@@ -166,7 +197,7 @@ then
 	do
 		node="${dev##*/}"
 		case "${node}" in
-			loop*|dm-*)
+			loop*|dm-*|ram*)
 				# Avoid duplicates: all associated loop devices
 				# and each dm device are underlyed by a disk
 				# node in last instance.
@@ -196,7 +227,7 @@ _drivemap_whole_disk "${DRIVE}"
 # case the whole disk is used as container for a filesystem, RAID array,
 # PhysicalVolume, etc.
 [ -n "${ID_FS_USAGE}" ] &&
-_drivemap_whole_disk_fs "${1}"
+_drivemap_whole_disk_fs "${DRIVE}"
 
 # If we have not explicitly asked to show how the disk is divided, nothing
 # else to do.

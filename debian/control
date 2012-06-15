@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: bilibop project <quidame@poivron.org>
 Uploaders: Christophe Blanc <algebre@no-log.org>
-Build-Depends: debhelper (>= 8.0.0)
+Build-Depends: debhelper (>= 9.0.0)
 Standards-Version: 3.9.3
 Homepage: https://poivron.org/~quidame/bilibop_project
 
@@ -23,7 +23,7 @@ Description: run Debian from external media - metapackage
 
 Package: bilibop-common
 Architecture: linux-any
-Depends: ${misc:Depends}, udev
+Depends: ${misc:Depends}, udev (>= 167)
 Suggests: aufs-tools, bilibop-lockfs (= ${binary:Version}), bilibop-rules (= ${binary:Version}), cryptsetup, dmsetup, lvm2
 Description: shell functions for bilibop scripts
  ${Description}
@@ -40,14 +40,14 @@ Description: shell functions for bilibop scripts
 
 Package: bilibop-lockfs
 Architecture: linux-any
-Depends: base-files (>= 6.4), bilibop-common (= ${binary:Version}), initramfs-tools, ${misc:Depends}
+Depends: base-files (>= 6.4), bilibop-common (= ${binary:Version}), initramfs-tools (>= 0.99), ${misc:Depends}
 Recommends: cryptsetup
 Suggests: aufs-tools, bilibop-rules (= ${binary:Version}), gnome-icon-theme, libnotify-bin
 Description: lock filesystems and write changes into RAM
  ${Description}
  .
  If the lockfs feature is enabled (in a configuration file, in the boot
- commandline or by an heuristic), nothing will be written on the filesystems
+ commandline or by a heuristic), nothing will be written on the filesystems
  listed in /etc/fstab, except for those that have been whitelisted, or for
  the encrypted swap devices.
  .
@@ -72,12 +72,12 @@ Description: lock filesystems and write changes into RAM
 
 Package: bilibop-rules
 Architecture: linux-any
-Depends: base-files (>= 6.4), bilibop-common (= ${binary:Version}), initramfs-tools, ${misc:Depends}
+Depends: base-files (>= 6.4), bilibop-common (= ${binary:Version}), initramfs-tools (>= 0.99), ${misc:Depends}
 Suggests: bilibop-lockfs (= ${binary:Version}), cryptsetup, grub2, pmount, udisks
 Description: udev rules for OS running from external media
  ${Description}
  .
- This package provides an udev rules file to manage the external drive hosting
+ This package provides a udev rules file to manage the external drive hosting
  the running system. Its main goal is to forbid low-level write access on this
  drive and its partitions by any unprivileged user or application, but some
  other convenient and optional rules have been added for desktop-level

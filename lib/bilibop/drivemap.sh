@@ -154,7 +154,7 @@ _drivemap_whole_disk_fs() {
                     DRIVE_INFO="${ID_FS_TYPE:+${ID_FS_TYPE} | }${DRIVE_SIZE}"
             else    DRIVE_INFO=
             fi
-            _drivemap_print_line "${I}${1}" "${DRIVE_INFO:+[ ${DRIVE_INFO} ]}" fill
+            _drivemap_print_line "${1}" "${DRIVE_INFO:+[ ${DRIVE_INFO} ]}" fill
     fi
 }
 # ===========================================================================}}}
@@ -187,9 +187,10 @@ _drivemap_whole_disk() {
 # What we want is: output a line of dots with a length depending of two numbers
 # given as arguments.
 _drivemap_dotline() {
-    [ $((68-${1}-${2})) -gt 0 ] &&
-    echo "............................................................" |
-    sed "s;^\(\.\{$((68-${1}-${2}))\}\).*;\1;"
+    ${DEBUG} && echo "> _drivemap_dotline $@" >&2
+    [ $((${_width_}-2-${1}-${2})) -gt 0 ] &&
+    echo "........................................................................................................................................................................................................" |
+    sed "s;^\(\.\{$((${_width_}-2-${1}-${2}))\}\).*;\1;"
 }
 # ===========================================================================}}}
 # _drivemap_print_line() ===================================================={{{
@@ -204,13 +205,25 @@ _drivemap_dotline() {
 # course, this flag is ignored if the information block is not provided.
 _drivemap_print_line() {
     ${DEBUG} && echo "> _drivemap_print_line $@" >&2
+    [ "${_mountpoint_}" = "true" ] &&
+    local   mntpnt="$(_drivemap_mount_point ${1%(\*)})"
+
     if      [ -n "${2}" -a "${3}" = "fill" ]
     then
             local   dotline="$(_drivemap_dotline ${#1} ${#2})"
-            local   mntpnt="$(_drivemap_mount_point ${1%(\*)})"
             printf "${1} ${dotline} ${2}${mntpnt:+ ${mntpnt}}\n"
+
+    elif    [ -n "${mntpnt}" -a "${3}" = "fill" ]
+    then
+            local   dotline="$(_drivemap_dotline ${#1} 16)"
+            printf "${1} ${dotline} ${mntpnt}\n"
+
+    elif    [ "${3}" = "fill" ]
+    then
+            printf "${1}\n"
+
     else
-            printf "%s%*s\n" "${1}" $((70-${#1})) "${2}"
+            printf "%s%*s\n" "${1}" $((${_width_}-${#1})) "${2}"
     fi
 }
 # ===========================================================================}}}
@@ -327,16 +340,18 @@ _drivemap_primary_partitions() {
     # At first, find if there is an extended partition on the disk, to treat
     # logical partitions as subdevices of this extended one in the tree of
     # devices instead of sequentially.
-    local   extended="$(dmesg | grep "\s${1##*/}:\s.*[1-4]\s< ${1##*/}" | sed -n '$p' | sed "s;.*\([1-4]\)\s<.*;\1;")"
+    local   extended="$(extended_partition "${1}" | sed 's,.*\([1-4]\)$,\1,')"
 
     for	PART in ${1}?*
     do
+        # Partition number:
+        n="$(cat /sys/class/block/${PART##*/}/partition)"
+
         # Absolute indentation, first level:
         indent="${I}"
 
         ID_FS_TYPE=
-        n=${PART#${1}}
-        n=${n%p}
+        ID_PART_ENTRY_TYPE=
 
         [ -n "${extended}" ] &&
         case	"${n}" in
@@ -347,7 +362,7 @@ _drivemap_primary_partitions() {
         if      [ "${_info_}" = "true" ]
         then
                 eval $(query_udev_envvar "${PART}")
-                [ -n "${extended}" ] &&
+                [ "${n}" = "${extended}" ] &&
                 case    "${ID_PART_ENTRY_TYPE}" in
                     0x5)    ID_FS_TYPE="Extended" ;;
                     0xf)    ID_FS_TYPE="Extended W95 (LBA)" ;;
@@ -365,7 +380,7 @@ _drivemap_primary_partitions() {
 
         _drivemap_print_line "${indent}${device}" "${PART_INFO:+[ ${PART_INFO} ]}" fill
 
-        if      [ "${extended}" = "${n}" ]
+        if      [ "${n}" = "${extended}" ]
         then	_drivemap_logical_partitions "${1}"
         else    _drivemap_loopback_device "${PART##*/}"
                 _drivemap_dmdevice_holder "${PART##*/}"
@@ -382,13 +397,16 @@ done
 # to deal with a GPT partition table.
 _drivemap_logical_partitions() {
     ${DEBUG} && echo "> _drivemap_logical_partitions $@" >&2
-    local   PART PART_SIZE PART_INFO
+    local   n PART PART_SIZE PART_INFO
     for	PART in ${1}?*
     do
+        # Partition number:
+        n="$(cat /sys/class/block/${PART##*/}/partition)"
+
         # Absolute indentation, second level (we consider a logical partition is
         # a subdevice of an extended one).
         indent="${I}${I}"
-        case    "${PART#${1}}" in
+        case    "${n}" in
             [1-4])
                 continue
                 ;;

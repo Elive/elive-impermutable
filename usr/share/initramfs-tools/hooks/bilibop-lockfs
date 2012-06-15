@@ -30,13 +30,11 @@ then
 	copy_exec /bin/df	/bin
 	copy_exec /bin/grep	/bin
 	copy_exec /bin/sed	/bin
+	copy_exec /sbin/blockdev /sbin
 	# replace klibc's 'readlink':
 	rm -f ${DESTDIR}/bin/readlink
 	copy_exec /bin/readlink	/bin
 fi
-
-# Copy an additional command to harden the locking policy:
-copy_exec /sbin/blockdev	/sbin
 
 # Copy the needed module:
 manual_add_modules aufs

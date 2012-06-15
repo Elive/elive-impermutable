@@ -32,34 +32,18 @@ remount_rw() {
     mount -o remount,rw $(aufs_readonly_branch "${1}")
 }
 # ===========================================================================}}}
-# extended_partition() ======================================================{{{
-# What we want is:
-extended_partition() {
-    ${DEBUG} && echo "> extended_partition $@" >&2
-    local   PART
-    for     PART in ${1}*
-    do
-            # Extended partitions can be of type 0x5, 0xf and 0x85.
-            blkid -o export -p ${PART} |
-            grep -q '^PART_ENTRY_TYPE=0x\(f\|8\?5\)$' &&
-            echo "${PART}" &&
-            return 0
-    done
-    return 1
-}
-# ===========================================================================}}}
-# lockdev_rootdev_tree() ===================================================={{{
+# blockdev_root_subtree() ==================================================={{{
 # What we want is: set 'ro' or 'rw' the filesystem and its hosting disk given
 # as arguments, and all other devices between them. For example, if the first
 # one is a Logical Volume (/dev/dm-3) onto a LUKS partition (/dev/sdb1), this
 # will modify settings for /dev/dm-3, /dev/sdb, /dev/dm-0 and /dev/sdb1. The
 # main option (--setro or --setrw) must be the first argument, and the disk
 # node the last one.
-lockdev_rootdev_tree() {
-    ${DEBUG} && echo "> lockdev_rootdev_tree $@" >&2
+blockdev_root_subtree() {
+    ${DEBUG} && echo "> blockdev_root_subtree $@" >&2
     local   dev="${2}"
-    # I don't know why, but here blockdev must be called two times (give the
-    # two arguments in the same command line seem to not work in initramfs).
+    # Here blockdev must be called two times (give the two arguments in the
+    # same command line don't work with the busybox's blockdev implementation).
     blockdev --set"${1}" "${2}"
     blockdev --set"${1}" "${3}"
     while   true
@@ -75,14 +59,11 @@ lockdev_rootdev_tree() {
                     # If a logical partition has to be locked, lock the
                     # primary extended partition too. Only for ms-dos
                     # partition tables.
-                    blkid -o export -p "${3}" |
-                    grep -q '^PTTYPE=dos' ||
-                    return 0
-                    blkid -o export -p "${dev}" |
-                    grep -q '^PART_ENTRY_NUMBER=[1-4]$' &&
-                    return 0
-                    dev="$(extended_partition "${3}")" ||
-                    return 0
+                    extended="$(extended_partition "${3}")" ||
+                        return 0
+                    [ $(cat /sys/class/block/${dev##*/}/partition) -gt 4 ] &&
+                        dev="${extended}" ||
+                        return 0
                     ;;
         esac
         blockdev --set"${1}" "${dev}"
@@ -101,7 +82,7 @@ get_swap_policy() {
             ;;
         *)
             # If BILIBOP_LOCKFS_SWAP_POLICY is not set to
-            # a known value, use an heuristic to know what
+            # a known value, use a heuristic to know what
             # to do:
             is_removable "${BILIBOP_DISK}" &&
             echo "hard" ||
@@ -150,7 +131,7 @@ is_encrypted() {
 
     # At this step, we know that the device is not directly mapped by
     # cryptsetup. But we know that /etc/crypttab exists, so we can try
-    # something like: if the device already exixts, find its parent
+    # something like: if the device already exists, find its parent
     # device, and check if it is a cryptsetup target, and so on.
 
     # For the moment we have just parsed files without knowledge about
@@ -214,6 +195,75 @@ apply_swap_policy() {
             sed -i "s|^\s*${1}\s\+none\s\+swap\s.*|${comment}\n#&\n|" ${FSTAB}
             ;;
     esac
+}
+# ===========================================================================}}}
+# parse_and_modify_fstab() =================================================={{{
+# What we want is: modify some entries in /etc/fstab and optionally in
+# /etc/crypttab. This should apply only on block devices, and only on those
+# that have not been whitelisted in bilibop.conf(5). Replace the fstype by
+# 'lockfs', and modify options to remember the original fstype. This will be
+# used by the mount.lockfs helper.
+parse_and_modify_fstab() {
+    ${DEBUG} && echo "> parse_and_modify_fstab $@" >&2
+    grep -v '^\s*\(#\|$\)' ${FSTAB} |
+    while   read device mntpnt fstype option dump pass
+    do
+        # Due to the pipe (|) before the 'while' loop, we are now in a
+        # subshell. The variables just previously set (device, mntpnt,
+        # fstype, option, dump, pass) have no sense outside of this loop.
+        # Don't use them later (after the 'done').
+
+        case    "${fstype}" in
+            swap)
+                # Special settings for swap devices
+                grep -q '\<noswap\>' /proc/cmdline ||
+                apply_swap_policy "${device}"
+                continue
+                ;;
+            none|ignore|tmpfs)
+                # Don't modify some entries
+                continue
+                ;;
+        esac
+
+        # Don't modify the "noauto" mount lines:
+        echo "${option}" | grep -q '\<noauto\>' && continue
+
+        # Skip what we are sure that it is not a local block device:
+        case	"${device}" in
+            UUID=*|LABEL=*|${UDEV_ROOT}/*)
+                ;;
+            *)
+                continue
+                ;;
+        esac
+
+        # Skip locking device if whitelisted by the sysadmin. Three formats
+        # are accepted: the mountpoint itself, a (symlink to a) device name,
+        # or a metadata about the filesystem (allowing to use something like
+        # TYPE=vfat for any mountpoint).
+        for skip in ${BILIBOP_LOCKFS_WHITELIST}
+        do
+            case    "${skip}" in
+                ${device})
+                    continue 2
+                    ;;
+                ${mntpnt})
+                    continue 2
+                    ;;
+                TYPE=${fstype})
+                    continue 2
+                    ;;
+            esac
+        done
+
+        # For each filesystem to lock, modify the line in fstab. A mount
+        # helper script will manage it later:
+        #log_warning_msg "${0##*/}: Preparing to lock: ${mntpnt}."
+
+        sed -i "s|^\s*${device}\s\+${mntpnt}\s.*|${comment}\n#&\n${replace}\n${device} ${mntpnt} lockfs fstype=${fstype},${option} ${dump} ${pass}\n|" ${FSTAB}
+
+    done
 }
 # ===========================================================================}}}
 # add_lockfs_mount_helper() ================================================={{{
@@ -304,3 +354,102 @@ mount_fallback() {
     exec mount ${1} ${2} ${3:+-t ${3}} ${4:+-o ${4}}
 }
 # ===========================================================================}}}
+# overwrite_lvm_conf() ======================================================{{{
+# What we want is: blacklist devices and directories given as arguments in
+# /etc/lvm/lvm.conf. If the file is missing, create it with just the contents
+# we need. Otherwise modify it.
+overwrite_lvm_conf() {
+    ${DEBUG} && echo "> overwrite_lvm_conf $@" >&2
+    if      [ ! -f "${LVM_CONF}" ]
+    then
+            mkdir -p ${LVM_CONF%/*}
+            cat >${LVM_CONF} <<EOF
+# /etc/lvm/lvm.conf
+# Build on the fly by ${0##*/} from the initramfs.
+devices {
+    dir = "${1}"
+    scan = [ "${1}" ]
+    obtain_device_list_from_udev = 1
+    filter = [ "r#^${1}/(${2})\$#", "r#^${1}/(${3})/.*#", "a#.*#" ]
+    sysfs_scan = 1
+}
+EOF
+            return 0
+    fi
+
+    >>${LVM_CONF}
+
+    # This is not very important, but now we are on a temporary filesystem,
+    # we can unconditionally enable backups.
+    sed -i "s;^\(\s*\)\(backup\s*=\s*\).*;\n\1${comment}\n#&\n\1${replace}\n\1\21\n;" ${LVM_CONF}
+
+    if      grep -q '^\s*filter\s*=\s*\[' ${LVM_CONF}
+    then
+            sed -i "s;^\(\s*\)\(filter\s*=\s*\[\)\(.*\)$;\n\1${comment}\n#&\n\1${replace}\n\1\2 \"r#^${1}/(${2})\$#\", \"r#^${1}/(${3})/.*#\", \3\n;" ${LVM_CONF}
+
+    elif    grep -q '^\s*devices\s*{' ${LVM_CONF}
+    then
+            sed -i "s;^\(\s*devices\s*{\)\(.*\);\1\n# Added by ${0##*/}:\nfilter = [ \"r#^${1}/(${2})\$#\", \"r#^${1}/(${3})/.*#\", \"a#.*#\" ]\n\2;" ${LVM_CONF}
+
+    else    cat >>${LVM_CONF} <<EOF
+    # Added on the fly by ${0##*/} from the initramfs.
+    dir = "${1}"
+    scan = [ "${1}" ]
+    obtain_device_list_from_udev = 1
+    filter = [ "r#^${1}/(${2})\$#", "r#^${1}/(${3})/.*#", "a#.*#" ]
+    sysfs_scan = 1
+EOF
+    fi
+}
+# ===========================================================================}}}
+# blacklist_bilibop_devices() ==============================================={{{
+# What we want is: avoid breakage of readonly settings by lvm tools, especially
+# 'vgchange -ay'. This command usually bypasses the 'ro' attribute of a block
+# device (obtained with 'blockdev --setro DEVICE' or 'hdparm -r1 DEVICE'), and
+# silently unmounts it. If this device contains the root filesystem, it can
+# happen that all is mounted on / is silently unmounted (/boot, /home, /proc,
+# /sys, /dev, /tmp and more) and becomes unmountable until the next reboot.
+# So, we need to blacklist all known bilibop (physical and virtual) block
+# devices in lvm.conf(5).
+blacklist_bilibop_devices() {
+    ${DEBUG} && echo "> blacklist_bilibop_devices $@" >&2
+    [ -x "${rootmnt}/sbin/lvm" -a -x "/sbin/lvm" ] || return 0
+
+    local   blacklist="${BILIBOP_DISK##*/}.*"
+    local   BLACKLIST="disk|block|mapper|${BILIBOP_COMMON_BASENAME}"
+
+    for part in $(grep '[[:digit:]]' /proc/partitions | sed 's,.*\s\([^ ]\+\)$,\1,')
+    do  [ "$(physical_hard_disk /dev/${part})" = "${BILIBOP_DISK}" ] &&
+        bilibop_list="${bilibop_list:+${bilibop_list} }${part}"
+    done
+
+    for dev in ${bilibop_list}
+    do
+        case "${dev}" in
+            ${BILIBOP_DISK##*/}*)
+                ;;
+            *)
+                blacklist="${blacklist:+${blacklist}|}${dev}"
+                ;;
+        esac
+    done
+
+    for VG in $(lvm vgs --noheadings -o vg_name)
+    do
+        for LV in /dev/${VG}/*
+        do
+            for	dev in ${bilibop_list}
+            do
+                [ "$(readlink -f ${LV})" = "/dev/${dev}" ] &&
+                BLACKLIST="${BLACKLIST}|${VG}" &&
+                break 2
+            done
+        done
+    done
+
+    LVM_CONF="${rootmnt}/etc/lvm/lvm.conf"
+    overwrite_lvm_conf "${1}" "${blacklist}" "${BLACKLIST}"
+    lock_file "/etc/lvm/lvm.conf"
+}
+# ===========================================================================}}}
+

@@ -4,7 +4,7 @@ bilibop-rules
 1. OVERVIEW
 ===========
 
-This package mainly provides an udev rules file to be applied on operating
+This package mainly provides a udev rules file to be applied on operating
 systems running from external media (USB stick, USB HDD, FireWire, Flash
 Memory stick, eSATA HDD). Its goal is to adapt some system behaviours to
 its particular situation, like an organ outside of the body. Bilibop-rules
@@ -42,7 +42,7 @@ rules file.
 2.1. bilibop_rules_generator
 ----------------------------
 
-This program generates an udev rules file /etc/udev/rules.d/66-bilibop.rules
+This program generates a udev rules file /etc/udev/rules.d/66-bilibop.rules
 doing the same things than the file with the same name in /lib/udev/rules.d.
 The main difference is that rules in /lib are generic and can take more time
 if a lot of removable devices are plugged onto the computer. Rules in /etc
@@ -121,4 +121,5 @@ See /usr/share/doc/bilibop-common/misc/*
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
- -- bilibop project <quidame@poivron.org>  Fri, 07 Jun 2012 23:53:52 +0200
+ -- bilibop project <quidame@poivron.org>  Fri, 08 Jun 2012 23:53:52 +0200
+ -- bilibop project <quidame@poivron.org>  Fri, 15 Jun 2012 22:08:36 +0200
