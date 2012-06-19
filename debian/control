@@ -73,7 +73,7 @@ Description: lock filesystems and write changes into RAM
 Package: bilibop-rules
 Architecture: linux-any
 Depends: base-files (>= 6.4), bilibop-common (= ${binary:Version}), initramfs-tools (>= 0.99), ${misc:Depends}
-Suggests: bilibop-lockfs (= ${binary:Version}), cryptsetup, grub2, pmount, udisks
+Suggests: bilibop-lockfs (= ${binary:Version}), cryptsetup, grub-coreboot | grub-efi-amd64 | grub-efi-ia32 | grub-ieee1275 | grub-pc , pmount, udisks
 Description: udev rules for OS running from external media
  ${Description}
  .

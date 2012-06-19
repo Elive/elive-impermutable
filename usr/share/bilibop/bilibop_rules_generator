@@ -180,7 +180,7 @@ ARGS="$(getopt -o a:e:hn:o:t: --long attribute:,environment:,help,name:,output:,
 if	[ "${?}" != "0" ]
 then	short_usage >&2
 	exit 1
-else	eval set -- "$ARGS"
+else	eval set -- "${ARGS}"
 fi
 ################################################################################
 
@@ -431,7 +431,7 @@ cat <<EOF
 # See udev(7) for details.
 
 SUBSYSTEM!="block", GOTO="bilibop_end"
-KERNEL=="dm-?*|loop?", GOTO="bilibop_virtual_block"
+KERNEL=="dm-?*|loop?*", GOTO="bilibop_virtual_block"
 KERNEL!="${KERN}?*", GOTO="bilibop_end"
 
 ACTION=="add|change", \\
@@ -454,9 +454,10 @@ ACTION=="add|change", \\
 	ENV{BILIBOP_PARTITION}="%r/%k"
 
 LABEL="bilibop_virtual_block"
+TEST!="/lib/udev/bilibop_disk", GOTO="bilibop_end"
 
 ACTION=="add|change", \\
-	KERNEL=="loop?", \\
+	KERNEL=="loop?*", \\
 	ENV{BACKING_FILE}=="?*", \\
 	PROGRAM=="bilibop_disk --test %r/%k", \\
 	PROGRAM=="bilibop_disk --part %r/%k", \\
@@ -475,16 +476,17 @@ ACTION=="add|change", \\
 	PROGRAM=="bilibop_disk --root %r/%k", \\
 	SYMLINK+="%c"
 
+ACTION=="add|change", \\
+	TAG=="BILIBOP", \\
+	ENV{ID_FS_USAGE}=="", \\
+	IMPORT{program}="/sbin/blkid -o udev -p %r/%k"
+
 TAG=="BILIBOP", \\
 	TEST=="/lib/udev/rules.d/80-udisks.rules", \\
 	GOTO="bilibop_udisks"
 
 GOTO="bilibop_end"
 LABEL="bilibop_udisks"
-
-ACTION=="add|change", \\
-	ENV{ID_FS_USAGE}=="", \\
-	IMPORT{program}="/sbin/blkid -o udev -p %r/%k"
 
 ACTION=="add|change", \\
 	PROGRAM=="bilibop_disk --lock %r/%k", \\

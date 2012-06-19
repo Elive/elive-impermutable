@@ -1,3 +1,25 @@
+bilibop (0.3.1) unstable; urgency=low
+
+  * debian/control: in the Suggests: field of bilibop-rules, replace the too
+    specific 'grub2' by a list of alternatives (grub-coreboot, grub-efi-amd64,
+    grub-efi-ia32, grub-ieee1275 and grub-pc).
+
+  * Add a TODO in bilibop-common, bilibop-rules and bilibop-lockfs.
+  * Include /etc/bilibop/bilibop.conf in the bilibop-common binary package.
+  * Modify scripts and documentation to take into account that there can be
+    more than height loopback devices.
+
+  * bilibop-rules:
+    - Fix errors on tests in the initramfs script.
+    - Modify grub_device_map_manager to exit with code 0.
+  * bilibop-rules.postinst: trigger uevents for block devices.
+  * bilibop-rules.bilibop.udev and bilibop_rules_generator: import ID_FS_*
+    properties of dm devices in udev database even if udisks is not installed.
+  * bilibop_rules_generator: include a new rule for the case the generated
+    custom rules file is orphaned.
+
+ -- bilibop project <quidame@poivron.org>  Wed, 20 Jun 2012 01:47:55 +0200
+
 bilibop (0.3.0) unstable; urgency=low
 
   * debian/control:

@@ -96,13 +96,16 @@ conditions.
 
 To avoid that, it is possible - and highly recommended - to use either an
 always-up-to-date device map, or a fake one. It is the goal of this helper
-script. It is run when the package is installed to replace the device.map
-file by a symlink to /run/bilibop/grub-device.map, and when the package is
-removed to remove the symlink.
+script. It is run when the package is installed to modify either the location
+of /boot/grub/device.map or its content. If device.map already is a symlink,
+it is replaced by a new symlink to /run/bilibop/grub-device.map; otherwise
+its content is modified to map the system drive as the first disk (hd0).
 
 As for 'bilibop_rules_generator', if you plan to plug the drive hosting
-your system on diffent interfaces (USB, FireWire, etc.), it is not
-recommended to use a static fake device map.
+your system on different interfaces (USB, FireWire, etc.), it is not
+recommended to use a static fake device map. On the other hand, the use
+of a symlink can imply to run the script if BILIBOP_COMMON_BASENAME has
+been modified in bilibop.conf(5).
 
 
 2.3. make_unpersistent_rules
@@ -111,7 +114,10 @@ recommended to use a static fake device map.
 This program replaces some persistent and cumulative rules files in
 /etc/udev/rules.d by symlinks to unpersistent and always-up-to-date files
 in /run/bilibop. It is run during the installation of the package to do
-that, and when it is removed, to undo that.
+that, and when it is removed, to undo that. There is no need to play with
+this program, except when BILIBOP_COMMON_BASENAME has been modified in
+bilibop.conf.
+
 
 
 3. MORE INFO

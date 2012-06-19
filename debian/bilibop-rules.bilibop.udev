@@ -7,7 +7,7 @@
 
 # Process only on some block devices:
 SUBSYSTEM!="block", GOTO="bilibop_end"
-KERNEL=="dm-?*|loop?", GOTO="bilibop_virtual_block"
+KERNEL=="dm-?*|loop?*", GOTO="bilibop_virtual_block"
 KERNEL!="sd?*|mmcblk?*|mspblk?*", GOTO="bilibop_end"
 
 # For the resulting block devices, skip all that is not USB, FireWire or Flash
@@ -46,7 +46,7 @@ ACTION=="add|change", \
 LABEL="bilibop_virtual_block"
 
 ACTION=="add|change", \
-	KERNEL=="loop?", \
+	KERNEL=="loop?*", \
 	ENV{BACKING_FILE}=="?*", \
 	PROGRAM=="bilibop_disk --test %r/%k", \
 	PROGRAM=="bilibop_disk --part %r/%k", \
@@ -67,6 +67,15 @@ ACTION=="add|change", \
 	PROGRAM=="bilibop_disk --root %r/%k", \
 	SYMLINK+="%c"
 
+# Due to the bilibop configuration file, based on ID_FS_* udev variables, we
+# need additional information here, and we want to be sure this information
+# is available for the next rules. Additionnaly, drivemap(1) and lsbilibop(8)
+# commands can need to query ID_FS_* values, even if udisks is not installed.
+ACTION=="add|change", \
+	TAG=="BILIBOP", \
+	ENV{ID_FS_USAGE}=="", \
+	IMPORT{program}="/sbin/blkid -o udev -p %r/%k"
+
 # Now there is only partitions and virtual block devices hosted on the bilibop
 # disk to process. And the following rules are for the desktop environment;
 # they make sense only if Udisks is installed:
@@ -78,13 +87,6 @@ TAG=="BILIBOP", \
 GOTO="bilibop_end"
 
 LABEL="bilibop_udisks"
-
-# Due to the bilibop configuration file, based on ID_FS_* udev variables, we
-# need additional information here, and we want to be sure this information
-# is available for the next rules:
-ACTION=="add|change", \
-	ENV{ID_FS_USAGE}=="", \
-	IMPORT{program}="/sbin/blkid -o udev -p %r/%k"
 
 ACTION=="add|change", \
 	PROGRAM=="bilibop_disk --lock %r/%k", \

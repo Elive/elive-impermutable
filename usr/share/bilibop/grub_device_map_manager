@@ -94,11 +94,11 @@ ARGS="$(getopt -o fhlrsu --long fake,help,link,remove,show,update -n "${0##*/}" 
 if	[ "${?}" != "0" ]
 then	short_usage >&2
 	exit 1
-else	eval set -- "$ARGS"
+else	eval set -- "${ARGS}"
 fi
 ################################################################################
 
-[ "$1" = "--" ] && show="true"
+[ "${1}" = "--" ] && show="true"
 
 while	true
 do
@@ -133,7 +133,7 @@ do
 			break
 			;;
 		*)
-			unknown_argument "${arg}" >&2
+			unknown_argument "${1}" >&2
 			short_usage >&2
 			exit 1
 			;;
@@ -151,21 +151,21 @@ then	echo "${0##*/}: --fake and --update options are not compatible." >&2
 fi
 
 
-[ "${remove}" = "true" ] &&
-	rm -f ${GRUB_DEVICE_MAP}
+${remove} &&
+rm -f ${GRUB_DEVICE_MAP}
 
-[ "${link}" = "true" ] &&
-	mkdir -p ${BILIBOP_RUNDIR} &&
-	ln -s ${BILIBOP_RUNDIR}/grub-device.map ${GRUB_DEVICE_MAP}
+${link} &&
+mkdir -p ${BILIBOP_RUNDIR} &&
+ln -s ${BILIBOP_RUNDIR}/grub-device.map ${GRUB_DEVICE_MAP}
 
-[ "${update}" = "true" ] &&
-	/usr/sbin/grub-mkdevicemap
+${update} &&
+/usr/sbin/grub-mkdevicemap
 
-[ "${fake}" = "true" ] &&
-	fake_device_map >${GRUB_DEVICE_MAP}
+${fake} &&
+fake_device_map >${GRUB_DEVICE_MAP}
 
-[ "${show}" = "true" ] &&
-	show_device_map ${GRUB_DEVICE_MAP}
+${show} &&
+show_device_map ${GRUB_DEVICE_MAP}
 
-
+:
 ### END ###

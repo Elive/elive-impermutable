@@ -30,8 +30,8 @@ disk) and the upper writable (in RAM).
 For loop devices, there is a small limitation, concerning the fact that in
 some cases, some functions cannot be run by any unprivileged user: if the
 loop device has been associated from into the initramdisk environment, then
-the filename stored in /sys/block/loop?/loop/backing_file is obsolete in the
-system environment, and a call to losetup is needed to access relevant
+the filename stored in /sys/block/loop?*/loop/backing_file is obsolete in
+the system environment, and a call to losetup is needed to access relevant
 information about the filesystem the backing file resides on.
 
 People who are interested by issues concerning multilayered block devices
@@ -61,7 +61,7 @@ ${udev_root}/* (commonly /dev/*)
 /proc/partitions
 /sys/block/sd?/removable
 /sys/block/dm-?/slaves
-/sys/block/loop?/loop/backing_file
+/sys/block/loop?*/loop/backing_file
 /sys/class/block/*/dev
 /sys/class/block/*/holders
 /sys/fs/aufs/si_*/br?

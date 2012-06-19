@@ -18,13 +18,13 @@ esac
 
 ### BEGIN ###
 
-if	[ /etc/udev/udev.conf ]
+if	[ -f /etc/udev/udev.conf ]
 then	. /etc/udev/udev.conf
 fi
 udev_root="${udev_root:-/dev}"
 udev_root="${udev_root%/}"
 
-if	[ ${rootmnt}/etc/bilibop/bilibop.conf ]
+if	[ -f ${rootmnt}/etc/bilibop/bilibop.conf ]
 then	. ${rootmnt}/etc/bilibop/bilibop.conf
 fi
 BILIBOP_RUNDIR="/run/${BILIBOP_COMMON_BASENAME:=bilibop}"

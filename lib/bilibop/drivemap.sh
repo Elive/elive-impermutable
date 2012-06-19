@@ -59,7 +59,7 @@ _drivemap_mount_point() {
     local   dev mnt opt
 
     [ -f "${1}" ] &&
-    for dev in /sys/block/loop?/loop/backing_file
+    for dev in /sys/block/loop?*/loop/backing_file
     do
         if      [ "${1}" = "$(cat ${dev})" ]
         then

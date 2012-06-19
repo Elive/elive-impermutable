@@ -1,0 +1,5 @@
+bilibop-common (0.3.1)
+
+  * Provide a bilibop specific, sample 'preseed' file, and a script to easily
+    include it either into the installer's initrd or into the iso image.
+  * Translate manpages (at least in french and maybe spanish, arabic, russian).

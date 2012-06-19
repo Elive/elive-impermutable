@@ -80,7 +80,7 @@ DEBUG="false"
 # /proc/partitions
 # /sys/block/sd?/removable
 # /sys/block/dm-?/slaves
-# /sys/block/loop?/loop/backing_file
+# /sys/block/loop?*/loop/backing_file
 # /sys/class/block/*/dev
 # /sys/fs/aufs/si_*/br?
 #
@@ -372,7 +372,7 @@ underlying_device_from_device() {
         ${udev_root}/dm-[0-9]*)
             underlying_device_from_dm "${dev}"
             ;;
-        ${udev_root}/loop[0-7])
+        ${udev_root}/loop[0-9]*)
             underlying_device_from_loop "${dev}"
             ;;
         ${udev_root}/*)
