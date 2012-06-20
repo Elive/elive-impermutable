@@ -2,15 +2,33 @@
 
 set -e
 
+trigger_disk_uevent() {
+	local dev opt
+	if [ -f /etc/udev/udev.conf ]
+	then . /etc/udev/udev.conf
+	fi
+	cd ${udev_root:=/dev}
+	for dev in $(ls -l $(grep '[[:digit:]]' /proc/partitions | sed 's,.*\s\([^ ]\+\)$,\1,') | grep '\sdisk\s' | sed 's,.*\s\([^ ]\+\)$,\1,')
+	do
+		opt="${opt} --sysname-match=${dev}"
+	done
+	cd ${OLDPWD}
+	udevadm trigger ${opt}
+}
+
+
 case "${1}" in
 	remove)
 		if [ -x /usr/sbin/update-initramfs ]
 		then
 			update-initramfs -u
 		fi
-		;;
-	purge)
-		rm -f /etc/udev/rules.d/66-bilibop.rules
+
+		# Trigger uevents for block devices owned by 'disk' group.
+		if [ -x /sbin/udevadm ]
+		then
+			trigger_disk_uevent
+		fi
 		;;
 esac
 

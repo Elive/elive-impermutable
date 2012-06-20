@@ -1,3 +1,13 @@
+bilibop (0.3.2) unstable; urgency=low
+
+  * debian/control: fix indentation errors in bilibop-lockfs description.
+  * bilibop-rules:
+    - postinst: fix an error in the 'udev trigger --sysname-match' argument.
+    - postrm: trigger uevents for block devices owned by the 'disk' group.
+    - prerm: remove custom 66-bilibop.rules when package is purged.
+
+ -- bilibop project <quidame@poivron.org>  Thu, 21 Jun 2012 00:16:26 +0200
+
 bilibop (0.3.1) unstable; urgency=low
 
   * debian/control: in the Suggests: field of bilibop-rules, replace the too

@@ -57,12 +57,12 @@ Description: lock filesystems and write changes into RAM
  .
  bilibop-lockfs provides the following features:
   * whitelist based policy: filesystems on which you want to allow permanent
- changes must be explicitly listed in a configuration file.
+    changes must be explicitly listed in a configuration file.
   * not only filesystems are set read-only, but also block devices: this
- forbids changes of the partition table, boot sectors and LUKS headers.
+    forbids changes of the partition table, boot sectors and LUKS headers.
   * policy of management of swap devices.
   * desktop notifications at startup about filesystems status, to inform the
- user that temporary or permanent changes are allowed or not, and where.
+    user that temporary or permanent changes are allowed or not, and where.
  .
  This package can be used as an alternative to fsprotect, especially for
  writable operating systems embedded on a USB stick; but it may also be

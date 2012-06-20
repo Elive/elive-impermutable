@@ -10,15 +10,13 @@ case "${1}" in
 			update-initramfs -u
 		fi
 
-		# Trigger uevents for block devices except physical blocks
+		# Trigger uevents for block devices except physical ones
 		# that are not on the same disk than the root filesystem.
 		. /lib/bilibop/common.sh
 		get_udev_root
 		BILIBOP_DISK="$(physical_hard_disk /)" &&
-		udevadm trigger \
-			--sysname-match=${BILIBOP_DISK}* \
-			--sysname-match=dm-* \
-			--sysname-match=loop[!-]*
+		udevadm trigger --sysname-match=${BILIBOP_DISK##*/}* \
+			--sysname-match=dm-* --sysname-match=loop*
 
 		# Replace /etc/udev/rules.d/70-persistent-*.rules by
 		# symlinks to temporary files:

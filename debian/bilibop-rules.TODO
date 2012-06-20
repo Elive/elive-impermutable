@@ -1,4 +1,4 @@
-bilibop-rules (0.3.1)
+bilibop-rules - TODO
 
   * Provide a script to allow the admin to easily modify the 'filter' in
     lvm.conf, as the lvmconf command does for 'locking_type'.
@@ -7,3 +7,4 @@ bilibop-rules (0.3.1)
     set in bilibop.conf or in boot commandline.
   * Use debconf, at least for installation time, instead of silently modify
     grub device.map location or content.
+
