@@ -482,7 +482,7 @@ physical_hard_disk() {
     [ -z "${1}" ] && eval set -- /
     local   part disk dev
 
-    if      [ -e "/sys/class/block/${1##*/}" -a ! -e "/sys/devices/virtual/block/${1##*/}" ]
+    if      [ -b "${1}" -a -e "/sys/class/block/${1##*/}" -a ! -e "/sys/devices/virtual/block/${1##*/}" ]
     then    dev="${1}"
     else    dev="$(underlying_partition "${1}")"
     fi
@@ -669,7 +669,7 @@ parent_device_from_dm() {
     ${DEBUG} && echo "> parent_device_from_dm $@" >&2
     local   dev="$(readlink -f "${1}")"
     local   slave="$(echo /sys/block/${dev##*/}/slaves/*)"
-    [ "${slave}" = "/sys/block/${dev}/slaves/*" ] && return 3
+    [ "${slave}" = "/sys/block/${dev##*/}/slaves/*" ] && return 3
     echo "${udev_root}/${slave##*/}"
 }
 # ===========================================================================}}}
