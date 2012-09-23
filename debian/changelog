@@ -1,3 +1,19 @@
+bilibop (0.3.4) experimental; urgency=low
+
+  * debian/control: bump Standards-Version to 3.9.4; add dependency on
+    initscripts (>= 2.88dfs-13.3) for bilibop-common. Replace versioned
+    dependencies on udev and initramfs-tools by unversioned dependencies;
+    remove versioned dependency on base-files. Replace Vcs-Browser: field
+    by Vcs-Git: field.
+  * lib/bilibop/common.sh: add a test in physical_hard_disk() to avoid
+    possible failures with some partition schemes. Allow
+    parent_device_from_dm() to accept a device basename or its absolute path
+    as argument.
+  * lib/bilibop/lockfs.sh: allow is_encrypted() to treat devices called by
+    their UUID or LABEL as well as their filename.
+
+ -- bilibop project <quidame@poivron.org>  Sun, 23 Sep 2012 22:58:27 +0200
+
 bilibop (0.3.3) unstable; urgency=low
 
   * debian/control: add Vcs-Browser: field.
