@@ -115,46 +115,39 @@ is_encrypted() {
     [ -f "${CRYPTTAB}" ] || return 1
 
     case    "${1}" in
-        ${UDEV_ROOT}/mapper/*)
-            # This may be an encrypted swap device, but also a Logical Volume
-            # containing a swap filesystem. In the last case, is the Volume
-            # Group inside an encrypted container?
+        ${UDEV_ROOT}/*)
+            dev="$(echo "${1}" | sed "s,^${UDEV_ROOT},${udev_root},")"
+            ;;
+        LABEL=*)
+            dev="${udev_root}/disk/by-label/${1#LABEL=}"
+            ;;
+        UUID=*)
+            dev="${udev_root}/disk/by-uuid/${1#UUID=}"
             ;;
         *)
-            # This is not an encrypted swap device, or we don't know how to
-            # manage it.
             return 1
             ;;
     esac
 
-    is_a_crypt_target "${1}" && return 0
-
-    # At this step, we know that the device is not directly mapped by
-    # cryptsetup. But we know that /etc/crypttab exists, so we can try
-    # something like: if the device already exists, find its parent
-    # device, and check if it is a cryptsetup target, and so on.
-
-    # For the moment we have just parsed files without knowledge about
-    # devices. Now we need to work on them:
-    local   name
-    local   dev="$(readlink -f ${udev_root}/mapper/${1##*/})"
-
-    [ -b "${dev}" ] || return 1
-    dev="$(parent_device_from_dm ${dev})"
+    dev="$(readlink -f "${dev}")"
 
     while   true
     do
-            case    "${dev##*/}" in
-                dm-*)
-                    is_a_crypt_target "$(mapper_name_from_dm_node ${dev})" && return 0
-                    dev="$(parent_device_from_dm ${dev})"
-                    ;;
-                *)
-                    return 1
-                    ;;
-            esac
+        case    "${dev}" in
+            ${udev_root}/dm-*)
+                # This may be an encrypted swap device, but also a Logical Volume
+                # containing a swap filesystem. In the last case, is the Volume
+                # Group inside an encrypted container?
+                is_a_crypt_target "$(mapper_name_from_dm_node "${dev}")" && return 0
+                dev="$(parent_device_from_dm ${dev})"
+                ;;
+            *)
+                # This is not an encrypted swap device, or we don't know how to
+                # manage it.
+                return 1
+                ;;
+        esac
     done
-
     return 1
 }
 # ===========================================================================}}}
