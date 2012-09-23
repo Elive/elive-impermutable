@@ -4,9 +4,9 @@ Priority: optional
 Maintainer: bilibop project <quidame@poivron.org>
 Uploaders: Alexandre Martin <alemar@Safe-mail.net>
 Build-Depends: debhelper (>= 9.0.0)
-Standards-Version: 3.9.3
+Standards-Version: 3.9.4
 Homepage: https://poivron.org/~quidame/bilibop_project
-Vcs-Browser: https://poivron.org/~quidame/bilibop_project/bilibop.git
+Vcs-Git: http://poivron.org/~quidame/bilibop_project/bilibop.git
 
 Package: bilibop
 Section: misc
@@ -24,7 +24,7 @@ Description: run Debian from external media - metapackage
 
 Package: bilibop-common
 Architecture: linux-any
-Depends: ${misc:Depends}, udev (>= 167)
+Depends: initscripts (>= 2.88dsf-13.3), udev, ${misc:Depends}
 Suggests: aufs-tools, bilibop-lockfs (= ${binary:Version}), bilibop-rules (= ${binary:Version}), cryptsetup, dmsetup, lvm2
 Description: shell functions for bilibop scripts
  ${Description}
@@ -41,7 +41,7 @@ Description: shell functions for bilibop scripts
 
 Package: bilibop-lockfs
 Architecture: linux-any
-Depends: base-files (>= 6.4), bilibop-common (= ${binary:Version}), initramfs-tools (>= 0.99), ${misc:Depends}
+Depends: bilibop-common (= ${binary:Version}), initramfs-tools, ${misc:Depends}
 Recommends: cryptsetup
 Suggests: aufs-tools, bilibop-rules (= ${binary:Version}), gnome-icon-theme, libnotify-bin
 Description: lock filesystems and write changes into RAM
@@ -73,7 +73,7 @@ Description: lock filesystems and write changes into RAM
 
 Package: bilibop-rules
 Architecture: linux-any
-Depends: base-files (>= 6.4), bilibop-common (= ${binary:Version}), initramfs-tools (>= 0.99), ${misc:Depends}
+Depends: bilibop-common (= ${binary:Version}), initramfs-tools, ${misc:Depends}
 Suggests: bilibop-lockfs (= ${binary:Version}), cryptsetup, grub-coreboot | grub-efi-amd64 | grub-efi-ia32 | grub-ieee1275 | grub-pc , pmount, udisks
 Description: udev rules for OS running from external media
  ${Description}
