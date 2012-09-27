@@ -458,7 +458,7 @@ TEST!="/lib/udev/bilibop_disk", GOTO="bilibop_end"
 
 ACTION=="add|change", \\
 	KERNEL=="loop?*", \\
-	ENV{BACKING_FILE}=="?*", \\
+	TEST=="loop/backing_file", \\
 	PROGRAM=="bilibop_disk --test %r/%k", \\
 	PROGRAM=="bilibop_disk --part %r/%k", \\
 	ENV{BILIBOP_UNDERLYING_PARTITION}="%c", \\

@@ -25,9 +25,8 @@ ACTION=="add|change", \
 GOTO="bilibop_end"
 LABEL="bilibop_rules"
 
-# Set the disk node as readonly (optional, uses blockdev(8)), create a symlink
-# pointing to this node, add an environment variable, and optionally write a
-# fake grub device map:
+# Create a symlink pointing to the disk node, add an environment variable,
+# and optionally write a fake grub device map:
 ACTION=="add|change", \
 	KERNEL=="sd?|mmcblk?|mspblk?", \
 	PROGRAM=="bilibop_disk --disk %r/%k", \
@@ -47,7 +46,7 @@ LABEL="bilibop_virtual_block"
 
 ACTION=="add|change", \
 	KERNEL=="loop?*", \
-	ENV{BACKING_FILE}=="?*", \
+	TEST=="loop/backing_file", \
 	PROGRAM=="bilibop_disk --test %r/%k", \
 	PROGRAM=="bilibop_disk --part %r/%k", \
 	ENV{BILIBOP_UNDERLYING_PARTITION}="%c", \
