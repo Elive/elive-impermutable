@@ -99,10 +99,9 @@ Print a summary of options on stdout and exit.
 .RS
 Display additional informations about block devices. For drives, this
 includes the ID (as found in
-.IR /dev/disk/by-id ),
+.IR /dev/disk/by\-id ),
 and the size (human readable). For other devices (partitions and virtual
-block devices), this includes filesystem type, size and mountpoint if
-it exists.
+block devices), this includes the filesystem type ant its size.
 .RE
 .PP
 .BR \-m ,
@@ -142,7 +141,7 @@ columns. Can be used with
 .RB \' \-\-info \'
 and/or
 .RB \' \-\-mountpoint \'.
-If N is not a number or is greater than the number of columns of the screen,
+If N is not an integer or is greater than the number of columns of the screen,
 then the output will use the full width of the screen. If this option is not
 used, then the default is to display the result on 70 columns.
 
