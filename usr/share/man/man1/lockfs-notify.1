@@ -6,7 +6,8 @@ lockfs\-notify \- notify user about temporary or permanent changes on fs
 .SH SYNOPSIS
 .B lockfs\-notify
 .RI [ \-a | \-\-always | \-l | \-\-lockfs | \-n | \-\-nolockfs ]
-.RI [ \-t | \-\-expire\-time ]
+.RI [ \-t
+.IR TIME | \-\-expire\-time = TIME ]
 .br
 .B lockfs\-notify
 .IR \-h | \-\-help
@@ -81,7 +82,7 @@ less than
 (1 second) make the timeout is disabled and the notification never expires.
 If
 .I TIME
-is not a number, this option is silently ignored.
+is not an integer, this option is silently ignored.
 .RE
 
 .SH FILES
