@@ -111,7 +111,8 @@ fi
 # Now we can work. At first, we have to collect some informations to use them
 # later:
 BILIBOP_ROOT="$(underlying_device_from_file ${rootmnt})"
-BILIBOP_DISK="$(physical_hard_disk ${BILIBOP_ROOT})"
+BILIBOP_PART="$(underlying_partition ${BILIBOP_ROOT})"
+BILIBOP_DISK="$(physical_hard_disk ${BILIBOP_PART})"
 
 # If BILIBOP_LOCKFS_POLICY is not explicitly set to 'soft', then apply a hard
 # policy: set readonly branch as 'rr' (real readonly) instead of just 'ro' and

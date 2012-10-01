@@ -347,23 +347,26 @@ mount_fallback() {
     exec mount ${1} ${2} ${3:+-t ${3}} ${4:+-o ${4}}
 }
 # ===========================================================================}}}
-# overwrite_lvm_conf() ======================================================{{{
-# What we want is: blacklist devices and directories given as arguments in
-# /etc/lvm/lvm.conf. If the file is missing, create it with just the contents
-# we need. Otherwise modify it.
-overwrite_lvm_conf() {
+# initialize_lvm_conf() ====================================================={{{
+# What we want is: create lvm.conf or modify it if one of the file itself, the
+# 'devices' section or the 'filter' array is missing.
+initialize_lvm_conf() {
     ${DEBUG} && echo "> overwrite_lvm_conf $@" >&2
+    eval $(grep '^\s*LVM_SYSTEM_DIR=' ${rootmnt}/etc/environment)
+    LVM_CONF="${rootmnt}${LVM_SYSTEM_DIR:=/etc/lvm}/lvm.conf"
+
     if      [ ! -f "${LVM_CONF}" ]
     then
             mkdir -p ${LVM_CONF%/*}
             cat >${LVM_CONF} <<EOF
-# /etc/lvm/lvm.conf
+# ${LVM_SYSTEM_DIR}/lvm.conf
 # Build on the fly by ${0##*/} from the initramfs.
+# See lvm.conf(5) and bilibop(7) for details.
 devices {
     dir = "${1}"
     scan = [ "${1}" ]
     obtain_device_list_from_udev = 1
-    filter = [ "r#^${1}/(${2})\$#", "r#^${1}/(${3})/.*#", "a#.*#" ]
+    filter = [ "a#.*#" ]
     sysfs_scan = 1
 }
 EOF
@@ -371,27 +374,24 @@ EOF
     fi
 
     >>${LVM_CONF}
+    lock_file "${LVM_SYSTEM_DIR}/lvm.conf"
 
-    # This is not very important, but now we are on a temporary filesystem,
-    # we can unconditionally enable backups.
-    sed -i "s;^\(\s*\)\(backup\s*=\s*\).*;\n\1${comment}\n#&\n\1${replace}\n\1\21\n;" ${LVM_CONF}
-
-    if      grep -q '^\s*filter\s*=\s*\[' ${LVM_CONF}
+    if      ! grep -q '^\s*devices\s*{' ${LVM_CONF}
     then
-            sed -i "s;^\(\s*\)\(filter\s*=\s*\[\)\(.*\)$;\n\1${comment}\n#&\n\1${replace}\n\1\2 \"r#^${1}/(${2})\$#\", \"r#^${1}/(${3})/.*#\", \3\n;" ${LVM_CONF}
-
-    elif    grep -q '^\s*devices\s*{' ${LVM_CONF}
-    then
-            sed -i "s;^\(\s*devices\s*{\)\(.*\);\1\n# Added by ${0##*/}:\nfilter = [ \"r#^${1}/(${2})\$#\", \"r#^${1}/(${3})/.*#\", \"a#.*#\" ]\n\2;" ${LVM_CONF}
-
-    else    cat >>${LVM_CONF} <<EOF
-    # Added on the fly by ${0##*/} from the initramfs.
+            cat >>${LVM_CONF} <<EOF
+# Added on the fly by ${0##*/} from the initramfs.
+# See lvm.conf(5) and bilibop(7) for details.
+devices {
     dir = "${1}"
     scan = [ "${1}" ]
     obtain_device_list_from_udev = 1
-    filter = [ "r#^${1}/(${2})\$#", "r#^${1}/(${3})/.*#", "a#.*#" ]
+    filter = [ "a#.*#" ]
     sysfs_scan = 1
+}
 EOF
+    elif    ! grep -q '^\s*filter\s*=' ${LVM_CONF}
+    then
+            sed -i "s;^\s*devices\s*{;&\n    filter = [ \"a#.*#\" ]\n;" ${LVM_CONF}
     fi
 }
 # ===========================================================================}}}
@@ -402,47 +402,35 @@ EOF
 # silently unmounts it. If this device contains the root filesystem, it can
 # happen that all is mounted on / is silently unmounted (/boot, /home, /proc,
 # /sys, /dev, /tmp and more) and becomes unmountable until the next reboot.
-# So, we need to blacklist all known bilibop (physical and virtual) block
-# devices in lvm.conf(5).
+# So, we need to blacklist all known bilibop Physical Volumes by setting the
+# 'filter' array in lvm.conf(5).
 blacklist_bilibop_devices() {
     ${DEBUG} && echo "> blacklist_bilibop_devices $@" >&2
     [ -x "${rootmnt}/sbin/lvm" -a -x "/sbin/lvm" ] || return 0
 
-    local   blacklist="${BILIBOP_DISK##*/}.*"
-    local   BLACKLIST="disk|block|mapper|${BILIBOP_COMMON_BASENAME}"
+    initialize_lvm_conf "${UDEV_ROOT}"
 
     for part in $(grep '[[:digit:]]' /proc/partitions | sed 's,.*\s\([^ ]\+\)$,\1,')
-    do  [ "$(physical_hard_disk /dev/${part})" = "${BILIBOP_DISK}" ] &&
-        bilibop_list="${bilibop_list:+${bilibop_list} }${part}"
-    done
-
-    for dev in ${bilibop_list}
     do
-        case "${dev}" in
-            ${BILIBOP_DISK##*/}*)
-                ;;
-            *)
-                blacklist="${blacklist:+${blacklist}|}${dev}"
-                ;;
-        esac
-    done
+        [ "${udev_root}/${part}" = "${BILIBOP_DISK}" ] &&
+            continue
+        [ "$(physical_hard_disk ${udev_root}/${part})" != "${BILIBOP_DISK}" ] &&
+            continue
 
-    for VG in $(lvm vgs --noheadings -o vg_name)
-    do
-        for LV in /dev/${VG}/*
-        do
-            for	dev in ${bilibop_list}
-            do
-                [ "$(readlink -f ${LV})" = "/dev/${dev}" ] &&
-                BLACKLIST="${BLACKLIST}|${VG}" &&
-                break 2
-            done
-        done
-    done
+        blacklist=
+        ID_FS_TYPE=
+        DEVLINKS=
+        eval $(query_udev_envvar ${part})
+        [ "${ID_FS_TYPE}" = "LVM2_member" ] ||
+            continue
 
-    LVM_CONF="${rootmnt}/etc/lvm/lvm.conf"
-    overwrite_lvm_conf "${1}" "${blacklist}" "${BLACKLIST}"
-    lock_file "/etc/lvm/lvm.conf"
+        DEVLINKS="$(echo ${DEVLINKS} | sed "s,${udev_root}/,,g")"
+        [ "${udev_root}/${part}" = "${BILIBOP_PART}" ] &&
+            DEVLINKS="${BILIBOP_COMMON_BASENAME}/part ${DEVLINKS}"
+        blacklist="$(echo ${part} ${DEVLINKS} | sed 's, \+,|,g')"
+
+        sed -i "s;^\s*filter\s*=\s*\[\s*;&\"r#^${1}/(${blacklist})\$#\", ;" ${LVM_CONF}
+    done
 }
 # ===========================================================================}}}
 
