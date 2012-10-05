@@ -1,113 +1,176 @@
 #!/bin/sh
 
 # /bin/lsbilibop
-# List or update BILIBOP tagged devices.
+# List BILIBOP tagged devices, display some udev properties about them,
+# or trigger uevents to update their properties.
 
 PATH="/sbin:/bin"
+PROG="${0##*/}"
+TAG_DIR="/run/udev/tags/BILIBOP"
 
 info="false"
-update="false"
+add="false"
+change="false"
+trigger="false"
 
-usage() {
+short_usage() {
 	cat <<EOF
-${0##*/}: list BILIBOP tagged devices or update their udev properties.
 Usage:
-  ${0##*/} [-h|-u]
-  ${0##*/} -i [DEVICE [DEVICE [...]]]
-Options:
-  -h	Print this help on stdout and exit.
-  -i    Display some udev properties of BILIBOP tagged devices.
-  -u	Trigger udev rules to apply to the BILIBOP tagged devices.
+  ${PROG} -h
+  ${PROG} [OPTIONS] [DEVICES]
 EOF
 }
 
-infos() {
-	echo "DEVNAME='${1}'"
-	udevadm info --query property --export --name ${1} |
-	grep '^\(BILIBOP_\(DISK\|\(UNDERLYING_\)\?PARTITION\)\|UDISKS_\(SYSTEM_INTERNAL\|PRESENTATION_\(HIDE\|\(ICON_\)\?NAME\)\)\|ID_FS_\(UUID\|LABEL\|TYPE\|USAGE\)\)='
-	echo
+usage() {
+	cat <<EOF
+${PROG}: list BILIBOP tagged devices, display or update some of their udev properties.
+
+Usage:
+  ${PROG} [-a] [-c] [-i] [DEVICE [DEVICE [...]]]
+  ${PROG} -h
+
+Options:
+  -a	Trigger uevents (action=add) for BILIBOP tagged devices.
+  -c	Trigger uevents (action=change) for BILIBOP tagged devices.
+  -h	Print this help on stdout and exit.
+  -i    Display some udev properties of BILIBOP tagged devices.
+EOF
 }
 
-while	getopts :hiu opt
-do
-	case	"${opt}" in
+
+# Parse options. We use this order of priority -h > -i > -a = -c:
+# -h (help) overrides unconditionally all other options.
+# -i (info) overrides unconditionally -a (add) and -c (change).
+while getopts :achi opt ; do
+	case "${opt}" in
 		h)
 			usage
 			exit 0
 			;;
+		a)
+			trigger="true"
+			add="true"
+			;;
+		c)
+			trigger="true"
+			change="true"
+			;;
 		i)
 			info="true"
 			;;
-		u)
-			update="true"
-			;;
-		*)
-			echo "${0##*/}: unrecognized option '-${OPTARG}'." >&2
-			usage >&2
+		'?')
+			echo "${PROG}: unrecognized option '-${OPTARG}'." >&2
+			short_usage >&2
 			exit 1
 			;;
 	esac
 done
+eval ${info} && trigger="false"
 
+shift $((OPTIND-1))
+[ "${1}" = "--" ] && shift
 
-# Update:
-if	[ "${update}" = "true" ]
-then
-	# id, whoami and others are in /usr/bin. So, we use a poor control,
-	# but we don't really need it. When run by unprivileged user,
-	# 'udevadm trigger' don't fail (exit code is 0) but does nothing,
-	# silently.
-	[ "${HOME}" != "/root" -o "${USER}" != "root" ] &&
-		echo "${0##*/}: only root can use the '-u' (update) option." >&2 &&
-		exit 2
+# At least, check if BILIBOP tagged devices exist, or exit with a useful
+# message:
+if [ ! -d "${TAG_DIR}" ] ; then
+	. /lib/bilibop/common.sh
+	get_udev_root
+	DISK="$(physical_hard_disk)"
+	echo "${PROG}: ${TAG_DIR}: no such directory.\n" >&2
+	if [ -f "/etc/udev/rules.d/66-bilibop.rules" ] ; then
+		cat >&2 <<EOF
+You should modify /etc/udev/rules.d/66-bilibop.rules
+or even remove it.
+EOF
+	else
+		cat >&2 <<EOF
+First, run /usr/share/bilibop/bilibop_rules_generator
+and maybe modify /etc/udev/rules.d/66-bilibop.rules.
+EOF
+	fi
+	cat >&2 <<EOF
 
-	udevadm trigger --tag-match="BILIBOP" --action="add"
-	udevadm trigger --tag-match="BILIBOP" --action="change"
-	exit 0
+	'udevadm info --query property --name <NODE>',
+	'udevadm trigger --sysname-match <NODE>' and
+	'udevadm test <DEVPATH>' can help you, if they
+	are applied to the following device nodes:
+
+EOF
+	for node in $(device_nodes) ; do
+		[ "$(physical_hard_disk ${udev_root}/${node})" = "${DISK}" ] &&
+		printf "\t${node}\n" >&2
+	done
+	echo >&2
+	echo "But maybe your system is not running from a writable and removable media ?" >&2
+	exit 8
 fi
 
-# List and Info:
-if	[ -f /etc/udev/udev.conf ]
-then	. /etc/udev/udev.conf
+# Trigger uevents can only be done by root, but if it is tried by a
+# unprivileged user, udevadm will silently do NOTHING without failure
+# (i.e. with exit code = 0). So we place a poor checkpoint here.
+if eval ${trigger} ; then
+	[ "${HOME}" != "/root" -o "${USER}" != "root" ] &&
+	echo "${0##*/}: only root can use the '-a' or '-c' options." >&2 &&
+	exit 4
+fi
+
+# Get/set udev_root variable. It should be '/dev', but...
+if [ -f /etc/udev/udev.conf ] ; then
+	. /etc/udev/udev.conf
 fi
 udev_root="${udev_root:-/dev}"
 udev_root="${udev_root%/}"
 
-# Store devices given as arguments:
-for	arg
-do
-	case	"${arg}" in
-		${udev_root}/*)
-			DEVICE="${DEVICE:+${DEVICE} }${arg}"
-			;;
-	esac
+# Store device names given as arguments, if any:
+for arg ; do
+	if [ -b "${arg}" ] ; then
+		arg="$(readlink -f ${arg})"
+		DEVICE="${DEVICE:+${DEVICE} }${arg}"
+	fi
 done
 
+# If ALL arguments are invalid, exit.
+if [ -n "$*" -a -z "${DEVICE}" ] ; then
+	echo "${PROG}: bad argument(s) '$@'." >&2
+	short_usage >&2
+	exit 2
+fi
+
+# Trigger uevents for all BILIBOP tagged devices, and exit:
+if [ -z "${DEVICE}" ] && eval ${trigger} ; then
+	eval ${add} &&
+		udevadm trigger --tag-match="BILIBOP" --action="add"
+	eval ${change} &&
+		udevadm trigger --tag-match="BILIBOP" --action="change"
+	exit 0
+fi
 
 grep '[[:digit:]]' /proc/partitions |
-while read major minor size node
-do
+while read major minor size node ; do
 	# Skip devices that are not tagged 'BILIBOP':
-	[ ! -e "/run/udev/tags/BILIBOP/b${major}:${minor}" ] &&
-		continue
+	[ ! -e "/run/udev/tags/BILIBOP/b${major}:${minor}" ] && continue
 
-	# Display the device node:
-	[ "${info}" != "true" ] &&
-		echo "${udev_root}/${node}" &&
-		continue
-
-	# Display some udev properties for all devices or only those given
-	# as arguments:
-	if	[ -n "${DEVICE}" ]
-	then
-		for	device in ${DEVICE}
-		do
-			[ "${device}" != "${udev_root}/${node}" ] &&
-				continue
-			infos "${udev_root}/${node}"
+	# Filter by device names given as arguments:
+	if [ -n "${DEVICE}" ] ; then
+		for device in ${DEVICE} ; do
+			[ "${device}" = "${udev_root}/${node}" ] && break
 		done
-	else
-		infos "${udev_root}/${node}"
+		[ "${device}" = "${udev_root}/${node}" ] || continue
+	fi
+
+	if eval ${info} ; then
+		echo "DEVNAME='${udev_root}/${node}'"
+		udevadm info --query property --export --name ${node} |
+		grep '^\(BILIBOP_\(DISK\|\(UNDERLYING_\)\?PARTITION\)\|DEVLINKS\|UDISKS_\(SYSTEM_INTERNAL\|PRESENTATION_\(HIDE\|\(ICON_\)\?NAME\)\)\|ID_FS_\(UUID\|LABEL\|TYPE\|USAGE\)\)='
+		echo
+
+	elif eval ${trigger} ; then
+		eval ${add} &&
+			udevadm trigger --sysname-match="${node}" --action="add"
+		eval ${change} &&
+			udevadm trigger --sysname-match="${node}" --action="change"
+
+	else	echo "${udev_root}/${node}"
 	fi
 done
 
