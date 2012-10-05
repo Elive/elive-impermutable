@@ -24,6 +24,17 @@ _drivemap_initial_indent() {
     indent=""
 }
 # ===========================================================================}}}
+# _drivemap_max_mp_lenght() ================================================={{{
+# What we want is: define the lenght of the longest mountpoint string to use it
+# in a formated output (with a fixed width), but with aligned paths.
+_drivemap_max_mp_lenght() {
+    local   lenght=1
+    for	mp in $(grep "^${udev_root}/" /proc/mounts | sed 's,^[^ ]\+ \([^ ]\+\) .*,\1,')
+    do  [ ${#mp} -gt ${lenght} ] && lenght=${#mp}
+    done
+    echo ${lenght}
+}
+# ===========================================================================}}}
 # _drivemap_volume_size() ==================================================={{{
 # What we want is: output the size of a device given as argument. This size
 # will be added to the informations about the device, and must be human
@@ -215,15 +226,14 @@ _drivemap_print_line() {
 
     elif    [ -n "${mntpnt}" -a "${3}" = "fill" ]
     then
-            local   dotline="$(_drivemap_dotline ${#1} 16)"
+            local   dotline="$(_drivemap_dotline ${#1} ${lenght})"
             printf "${1} ${dotline} ${mntpnt}\n"
 
-    elif    [ "${3}" = "fill" ]
+    elif    [ -n "${2}" ]
     then
-            printf "${1}\n"
-
-    else
             printf "%s%*s\n" "${1}" $((${_width_}-${#1})) "${2}"
+
+    else    printf "${1}\n"
     fi
 }
 # ===========================================================================}}}

@@ -12,6 +12,7 @@
 # /usr/lib/klibc/bin/sh.shared
 
 PATH="/bin:/usr/bin"
+PROG="${0##*/}"
 
 DEBUG="false"
 
@@ -39,17 +40,17 @@ _drivemap_initial_indent
 short_usage() {
 	cat <<EOF
 usage:
-  ${0##*/} -h|--help
-  ${0##*/} [--debug] [-i|--info [-wN|--width=N]] [-d|--drive] [FILE]
-  ${0##*/} [--debug] [-i|--info [-wN|--width=N]] [-f|--backing-file] [-n|--dm-name] [-m|--mark] [FILE]
+  ${PROG} -h|--help
+  ${PROG} [--debug] [-i|--info [-wN|--width=N]] [-d|--drive] [FILE]
+  ${PROG} [--debug] [-i|--info [-wN|--width=N]] [-f|--backing-file] [-n|--dm-name] [-m|--mark] [FILE]
 EOF
 }
 
 usage() {
 	cat <<EOF
-${0##*/}: show block devices in a tree of dependencies
+${PROG}: show block devices in a tree of dependencies
 usage:
-  ${0##*/} [OPTIONS] -- [FILE]
+  ${PROG} [OPTIONS] -- [FILE]
 options:
   --debug		Output debug informations on stderr.
   -d, --drive		Display only physical disk names.
@@ -63,15 +64,13 @@ options:
   -x, --set-x		Set shell option -x.
 
 FILE can be either a regular file, a directory or a block device. If FILE
-is not specified, then ${0##*/} will display informations about the disk
-hosting the root filesystem of the running system. The use of -a or --all
-overrides the FILE argument.
+is not specified, then ${PROG} will display informations about all disks.
 EOF
 }
 
 
 # Parse options with getopt.
-ARGS="$(getopt -o dfhimnpw:x --long backing-file,debug,dm-name,drive,help,info,mark,mountpoint,set-x,width: -n "${0##*/}" -- "${@}")"
+ARGS="$(getopt -o dfhimnpw:x --long backing-file,debug,dm-name,drive,help,info,mark,mountpoint,set-x,width: -n "${PROG}" -- "${@}")"
 if	[ "${?}" = "0" ]
 then	eval set -- "$ARGS"
 else	short_usage >&2
@@ -187,6 +186,13 @@ if	[ "${_mark_}" = "true" ]
 then
 	[ -e "${FILE}" ] ||
 	export DEVICE="$(underlying_device_from_file ${PWD})"
+fi
+
+# If the --mountpoint option is invoked, we need to know the lenght of
+# the longest mountpoint string; the shortest being / with lenght = 1.
+if	[ "${_mountpoint_}" = "true" -a -z "${lenght}" ]
+then
+	export lenght="$(_drivemap_max_mp_lenght)"
 fi
 
 # If no DEVICE, DIR or FILE has been given as argument, process on all known
