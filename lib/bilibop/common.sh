@@ -2,7 +2,7 @@
 # vim: set et sw=4 sts=4 ts=4 fdm=marker fcl=all:
 
 # For tests and debug purposes, set it to 'true':
-DEBUG="false"
+DEBUG="${DEBUG:-false}"
 
 # README {{{
 #
@@ -19,7 +19,7 @@ DEBUG="false"
 # The bilibop shell functions use a lot of variable subtitutions. Some of them
 # (bashisms?) can not work with some shells. For:
 # - 'id=fe:00', we can use:
-#   echo "$((0x${id%:*})):$((${id#*:}))"
+#   echo "$((0x${id%:*})):$((0x${id#*:}))"
 #   (this is equivalent to: printf "%d:%d\n" "0x${id%:*}" "0x${id#*:}")
 # - 'dm=/dev/mapper/system', we can use:
 #   echo "${dm##*/}"
@@ -115,6 +115,7 @@ aufs_mountpoints
 aufs_readonly_branch <MOUNTPOINT>
 aufs_writable_branch <MOUNTPOINT>
 backing_file_from_loop <DEVICE>
+device_nodes
 device_node_from_major_minor <MAJ:MIN>
 device_id_of_file <FILE|DIR>
 find_mountpoint <FILE|DIR>
@@ -144,46 +145,48 @@ EOF
 # physical_hard_disk
 # |
 # |__underlying_partition
-#    |
-#    |__underlying_device
-#    |  |
-#    |  |__underlying_device_from_device
-#    |  |  |
-#    |  |  |__underlying_device_from_dm
-#    |  |  |__underlying_device_from_loop
-#    |  |     |
-#    |  |     |__backing_file_from_loop
-#    |  |     |__device_id_of_file
-#    |  |     |__device_node_from_major_minor
-#    |  |
-#    |  |__underlying_device_from_file
-#    |     |
-#    |     |__device_node_from_major_minor
-#    |     |__device_id_of_file
-#    |     |__find_mountpoint
-#    |     |  |
-#    |     |  |__is_aufs_mountpoint
-#    |     |     |
-#    |     |     |__canonical
-#    |     |
-#    |     |__underlying_device_from_aufs
-#    |        |
-#    |        |__aufs_dirs
-#    |           |
-#    |           |__aufs_si_directory
-#    |              |
-#    |              |__is_aufs_mountpoint
-#    |                 |
-#    |                 |__canonical
-#    |
-#    |__underlying_device_from_device
-#       |
-#       |__underlying_device_from_dm
-#       |__underlying_device_from_loop
-#          |
-#          |__backing_file_from_loop
-#          |__device_id_of_file
-#          |__device_node_from_major_minor
+# |  |
+# |  |__underlying_device
+# |  |  |
+# |  |  |__underlying_device_from_device
+# |  |  |  |
+# |  |  |  |__underlying_device_from_dm
+# |  |  |  |__underlying_device_from_loop
+# |  |  |     |
+# |  |  |     |__backing_file_from_loop
+# |  |  |     |__device_id_of_file
+# |  |  |     |__device_node_from_major_minor
+# |  |  |
+# |  |  |__underlying_device_from_file
+# |  |     |
+# |  |     |__device_node_from_major_minor
+# |  |     |__device_id_of_file
+# |  |     |__find_mountpoint
+# |  |     |  |
+# |  |     |  |__is_aufs_mountpoint
+# |  |     |     |
+# |  |     |     |__canonical
+# |  |     |
+# |  |     |__underlying_device_from_aufs
+# |  |        |
+# |  |        |__aufs_dirs
+# |  |           |
+# |  |           |__aufs_si_directory
+# |  |              |
+# |  |              |__is_aufs_mountpoint
+# |  |                 |
+# |  |                 |__canonical
+# |  |
+# |  |__underlying_device_from_device
+# |     |
+# |     |__underlying_device_from_dm
+# |     |__underlying_device_from_loop
+# |        |
+# |        |__backing_file_from_loop
+# |        |__device_id_of_file
+# |        |__device_node_from_major_minor
+# |
+# |__device_nodes
 #
 # }}}
 
@@ -199,6 +202,13 @@ canonical() {
         /)  echo "/" ;;
         *)  echo "${1%/}" ;;
     esac
+}
+# ===========================================================================}}}
+# device_nodes() ============================================================{{{
+# What we want is: output the list of device nodes from /proc/partitions.
+device_nodes() {
+    ${DEBUG} && echo "> device_nodes $@" >&2
+    grep '[[:digit:]]' /proc/partitions | sed 's,.* \([^ ]\+\)$,\1,'
 }
 # ===========================================================================}}}
 # find_mountpoint() ========================================================={{{
@@ -443,27 +453,27 @@ underlying_device() {
 # of mapped devices (LVM, dm-crypt), loopback devices and aufs filesystems.
 underlying_partition() {
     ${DEBUG} && echo "> underlying_partition $@" >&2
-	local	dev="$(underlying_device "${1}")"
-	local	old new="${dev}"
+    local   dev="$(underlying_device "${1}")"
+    local   old new="${dev}"
 
-	while	true
-	do
-		case	"${new}" in
-			"")
-				return 1
-				;;
-			"${udev_root}"/sd[a-z]*)
-				echo "${new}"
-				return 0
-				;;
-			"${old}")
-				echo "${new}"
-				return 0
-				;;
-		esac
-		old="${new}"
-		new="$(underlying_device_from_device "${old}")"
-	done
+    while   true
+    do
+        case "${new}" in
+            "")
+                return 1
+                ;;
+            "${udev_root}"/sd[a-z]*)
+                echo "${new}"
+                return 0
+                ;;
+            "${old}")
+                echo "${new}"
+                return 0
+                ;;
+        esac
+        old="${new}"
+        new="$(underlying_device_from_device "${old}")"
+    done
 }
 # ===========================================================================}}}
 # physical_hard_disk() ======================================================{{{
@@ -487,10 +497,10 @@ physical_hard_disk() {
     else    dev="$(underlying_partition "${1}")"
     fi
 
-    for part in $(sed -n '/[[:digit:]]/p' /proc/partitions | sed 's,.*\s\([^ ]\+\)$,\1,')
+    for part in $(device_nodes)
     do
         case    "${dev}" in
-		    ${udev_root}/${part}*)
+            ${udev_root}/${part}*)
                 disk="${udev_root}/${part}"
                 break
                 ;;
@@ -695,7 +705,7 @@ major_minor_from_device_node() {
 # the command.
 query_sysfs_attrs() {
     ${DEBUG} && echo "> query_sysfs_attrs $@" >&2
-	/sbin/udevadm info --attribute-walk --name "${1}"
+    /sbin/udevadm info --attribute-walk --name "${1}"
 }
 # ===========================================================================}}}
 # query_udev_envvar() ======================================================={{{
@@ -705,7 +715,7 @@ query_sysfs_attrs() {
 # command.
 query_udev_envvar() {
     ${DEBUG} && echo "> query_udev_envvar $@" >&2
-	/sbin/udevadm info --query property --name "${1}" --export
+    /sbin/udevadm info --query property --name "${1}" --export
 }
 # ===========================================================================}}}
 
