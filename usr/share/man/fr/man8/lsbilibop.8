@@ -1,0 +1,173 @@
+.TH LSBILIBOP 8 2012\-10\-05 bilibop "Administration système"
+
+.SH NOM
+lsbilibop \- lister les périphériques étiquetés BILIBOP, afficher ou mettre à jour certaines de leurs propriétés udev
+
+.SH SYNOPSIS
+.B lsbilibop
+.RB [ \-a ]
+.RB [ \-c ]
+.RB [ \-i ]
+.RI [ PÉRIPHÉRIQUE
+.RI [ PÉRIPHÉRIQUE
+.RI [ ... ]]]
+.br
+.B lsbilibop \-h
+
+.SH DESCRIPTION
+.B lsbilibop
+est un simple script shell qui affiche la liste des périphériques bloc
+marqués
+.I BILIBOP
+et certaines de leurs propriétés
+.BR udev (7),
+ou déclenche des évènements pour mettre à jour les règles udev et les
+propriétés qui peuvent être appliquées à ces périphériques.
+.P
+Si le système d'exploitation tourne depuis un support externe accessible
+en écriture (mémoire Flash USB ou SD, disque dur USB, Firewire ou eSATA),
+alors les périphériques étiquetés
+.I BILIBOP
+sont les périphériques de type bloc dont le contenu se trouve sur le même
+disque physique que le système de fichiers racine. Cela inclut le
+.BR disque ,
+les
+.BR partitions ,
+mais aussi les périphériques virtuels
+.B device\-mapper
+et
+.BR loopback ,
+et même les périphériques contenant un système de fichiers utilisé comme
+branche inférieure (en lecture seule) d'un point de montage pour
+.BR aufs (5).
+Le fichier de règles
+.I /lib/udev/rules.d/66\-bilibop.rules
+(ou
+.IB /etc/udev/rules.d/66\-bilibop.rules )
+est utilisé pour trouver et étiqueter ces périphériques.
+
+.SH OPTIONS
+Les options doivent précéder les arguments.
+Quand elle est invoquée sans option,
+.B lsbilibop
+renvoie seulement la liste des périphériques donnés comme arguments (s'il
+s'agit de périphériques en mode bloc étiquetés
+.IB BILIBOP ),
+ou de tous les périphériques étiquetés
+.I BILIBOP
+si aucun argument n'est fourni. Les périphériques sont listés dans le même
+ordre que dans le fichier
+.IR /proc/partitions ,
+c'est à dire dans l'ordre de leur découverte par le noyau. Des chemins
+absolus ou relatifs et les liens symboliques peuvent être utilisés pour
+désigner un périphérique. Les caractères joker du shell sont acceptés.
+.TP 4
+.B \-a
+Déclenche un évènement
+.RB \' ajout
+de périphérique\' pour le(s) périphérique(s) donné(s) en argument(s) (s'il
+est étiqueté
+.IR BILIBOP ),
+ou de tous les périphériques étiquetés
+.I BILIBOP
+si aucun argument n'est fourni, pour mettre à jour leurs propriétés udev.
+Cela peut être utilisé chaque fois que les variables BILIBOP_RULES_*
+correspondantes sont modifiées dans le fichier
+.BR bilibop.conf (5),
+pour appliquer les nouveaux paramètres sans avoir à redémarrer le système
+d'expoitation.
+.TP
+.B \-c
+Déclenche un évènement
+.RB \' modification
+de périphérique\' pour le(s) périphérique(s) donné(s) en argument(s) (s'il
+est étiqueté
+.IR BILIBOP ),
+ou de tous les périphériques étiquetés
+.I BILIBOP
+si aucun argument n'est fourni, pour mettre à jour leurs propriétés udev.
+Cela peut être utilisé chaque fois que les variables BILIBOP_RULES_*
+correspondantes sont modifiées dans le fichier
+.BR bilibop.conf (5),
+pour appliquer les nouveaux paramètres sans avoir à redémarrer le système
+d'expoitation.
+.TP
+.B \-h
+Affiche une page d'aide sur la sortie standard et quitte.
+.TP
+.B \-i
+Affiche certaines propriétés
+.BR udev (7)
+utiles de périphérique(s) donné(s) en argument(s) (s'ils sont étiquetés
+.IR BILIBOP ),
+ou de tous les périphériques étiquetés
+.I BILIBOP
+si aucun argument n'est fourni.
+Cette option écrase les options -a et -c.
+.IP
+Les propriétés suivantes sont données à titre d'information:
+.IP
+DEVNAME
+.br
+BILIBOP_DISK
+.br
+BILIBOP_PARTITION
+.br
+BILIBOP_UNDERLYING_PARTITION
+.br
+DEVLINKS
+.IP
+Les propriétés suivantes peuvent être utilisées pour paramètrer les
+variables BILIBOP_RULES_*_WHITELIST et d'autres dans
+.BR bilibop.conf (5):
+.IP
+ID_FS_LABEL
+.br
+ID_FS_TYPE
+.br
+ID_FS_USAGE
+.br
+ID_FS_UUID
+.IP
+Les propriétés suivantes peuvent être modifiées en changeant la valeur des
+variables BILIBOP_RULES_* correspondantes dans
+.BR bilibop.conf (5):
+.IP
+UDISKS_PRESENTATION_HIDE
+.br
+UDISKS_PRESENTATION_ICON_NAME
+.br
+UDISKS_PRESENTATION_NAME
+.br
+UDISKS_SYSTEM_INTERNAL
+
+.SH ERREURS
+Si l'étiquette \'BILIBOP\' n'existe pas dans la base de données de udev,
+alors
+.B lsbilibop
+affiche un message d'erreur pratique sur la sortie standard des erreurs,
+et liste les nœuds dont le contenu est supposé être écrit sur le même
+disque physique que la racine du système. Le code de sortie est 8.
+
+.SH FICHIERS
+/etc/bilibop/bilibop.conf
+.br
+/usr/share/doc/bilibop\-rules/examples/bilibop.conf
+.br
+/usr/share/bilibop/bilibop_rules_generator
+.br
+/lib/udev/rules.d/66\-bilibop.rules
+.br
+/etc/udev/rules.d/66\-bilibop.rules
+
+.SH VOIR AUSSI
+.BR bilibop (7),
+.BR bilibop.conf (5),
+.BR drivemap (1),
+.BR udev (7),
+.BR udevadm (8),
+.BR udisks (7)
+
+.SH AUTEUR
+Cette page de manuel a été traduite de l'anglais par Alexandre Martin
+<alemar@Safe\-mail.net> dans le cadre du projet bilibop.
