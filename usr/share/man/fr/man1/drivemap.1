@@ -1,0 +1,259 @@
+.TH DRIVEMAP 1 2012\-05\-22 bilibop "Commandes de l'utilisatrice"
+
+.SH NOM
+drivemap \- montrer les périphériques bloc dans un arbre de dépendances
+
+.SH SYNOPSIS
+.BR drivemap
+.RI [ \-i | \-\-info
+.RI [ \-w | \-\-width
+.BR N ]]
+.RI [ \-d | \-\-drive ]
+.RI [ FILE ]
+.br
+.BR drivemap
+.RI [ \-i | \-\-info
+.RI [ \-w | \-\-width
+.BR N ]]
+.RI [ \-p | \-\-mountpoint ]
+.RI [ \-f | \-\-backing\-file ]
+.RI [ \-n | \-\-dm\-name ]
+.RI [ \-m | \-\-mark ]
+.RI [ FICHIER ]
+.PP
+.BR drivemap
+.IR \-h | \-\-help
+.br
+.BR drivemap
+.RI [ \-\-debug ]
+.RI [ \-x | \-\-set\-x ]
+.RI [ OPTIONS ]
+.RI [ FICHIER ]
+
+.SH DESCRIPTION
+.B drivemap
+est un script shell utilisant les informations de
+.IR proc ,
+.I sysfs
+et
+.I udev
+pour afficher les périphériques bloc dans un arbre de dépendances.
+Il est basé sur les fonctions shell de
+.B bilibop\-common
+et supporte
+.B device\-mapper
+(dont dm\-crypt et LVM) et les périphériques boucle
+.RB ( loop )
+avec quelques limitations. Les périphériques
+.B RAID
+et les systèmes de fichiers
+.B mhddfs
+ne sont pas supportés. Voir plus bas la section
+.B AMÉLIORATIONS ET
+.BR LIMITATIONS .
+
+.SH OPTIONS
+Quand aucun argument
+.I FICHIER
+n'est fourni, la commande est appliquée à tous les disques. Si un fichier
+.I FICHIER
+est donné comme argument et existe, alors la commande s'applique au disque
+contenant ce fichier. FICHIER peut être un fichier régulier, un répertoire
+ou un fichier spécial en mode bloc.
+.PP
+.B \-\-debug
+.RS
+Affiche des informations de débogage sur la sortie standard des erreurs.
+Quand cette option est invoquée, chaque fonction appelée affiche son nom.
+Voir aussi
+.RB \' \-\-set\-x \'.
+.RE
+.PP
+.BR \-d ,
+.B \-\-drive
+.RS
+Montre uniquement les disques plutôt que leurs arbres.
+.RE
+.PP
+.BR \-f ,
+.B \-\-backing\-file
+.RS
+Essaye de remplacer chaque périphérique boucle dans l'arbre par son fichier
+associé. Cela peut échouer dans certains cas: par exemple sur les systèmes
+DebianLive, un périphérique boucle est associé à
+.I filesystem.squashfs
+depuis l'environnement du disque initial chargé en mémoire (initramdisk);
+le chemin absolu du fichier n'est pas mis à jour dans
+.I /sys
+quand le système de fichiers squashfs devient lui\-même la nouvelle racine du
+système. Ainsi le nom de fichier stocké dans
+.I backing_file
+est obsolète, et ne sera donc pas affiché.
+.RE
+.PP
+.BR \-h ,
+.B \-\-help
+.RS
+Affiche la liste des options sur la sortie standard et quitte.
+.RE
+.PP
+.BR \-i ,
+.B \-\-info
+.RS
+Affiche des informations supplémentaires sur les périphériques. Pour les
+disques ou lecteurs de disques, cela inclut l'identifiant (ID, tel que
+donné dans
+.IR /dev/disk/by\-id ),
+et la taille (en format lisible par des humains). Pour les autres
+périphériques bloc (partitions et périphériques virtuels) cela inclut le
+type du système de fichiers et la taille.
+.RE
+.PP
+.BR \-m ,
+.B \-\-mark
+.RS
+Si un
+.I FICHIER
+est donné en argument, ajoute une marque (un astérisque entre parenthèses:
+.IR (*) )
+au nom du périphérique contenant ce FICHIER. Autrement, ajoute une marque
+au nom du périphérique contenant le répertoire de travail courant.
+.RE
+.PP
+.BR \-n ,
+.B \-\-dm\-name
+.RS
+Remplace les noeuds device\-mapper
+.RI ( /dev/dm\-* )
+par leurs noms
+.RI ( /dev/mapper/* ),
+qui sont attribués statiquement et généralement plus faciles à reconnaître.
+.RE
+.PP
+.BR \-p ,
+.B \-\-mountpoint
+.RS
+Affiche les points de montage des périphériques montés, et montre les
+périphériques d'échange (swap) en cours d'utilisation.
+.RE
+.PP
+.B \-w
+.BR N ,
+.BR \-\-width = N
+.RS
+Formate la sortie sur
+.B N
+colonnes. Peut être utilisé avec
+.RB \' \-\-info \'
+et/ou
+.RB \' \-\-mountpoint \'.
+Si N n'est pas un nombre entier, ou s'il est plus grand que le nombre de
+colonnes de l'écran, alors la sortie utilisera la pleine largeur de l'écran.
+Si cette option n'est pas utilisée, le comportement par défaut est d'afficher
+le résultat sur 70 colonnes.
+.RE
+.PP
+.BR \-x ,
+.B \-\-set\-x
+.RS
+Affiche des informations de débogage sur la sortie standard des erreurs.
+Quand cette option est invoquée, le script shell est paramètré avec l'option
+.BR \-x ,
+pour plus de détails de débogage. Voir aussi
+.RB \' \-\-debug \'.
+.RE
+
+.SH AMÉLIORATIONS ET LIMITATIONS
+.B drivemap
+fait partie du projet
+.BR bilibop (7).
+Cette commande a été initialement écrite pour être appliquée au périphérique
+externe hébergeant le système en cours d'éxécution. Par son design, elle ne
+supporte pas les périphériques
+.B RAID
+et ne les supportera jamais. Un autre problème de design est que les Groupes
+de Volumes
+.BR lvm (8)
+ne devraient contenir qu'un seul Volume Physique. Nous assumons qu'il n'y a
+pas de sens à utiliser plusieurs Volumes Physiques sur un même disque pour un
+même Groupe de Volumes. En adoptant une vue de l'esprit parent/enfant, nous
+disons que chaque périphérique peut avoir au plus un parent mais de zéro à
+plusieurs enfants. Depuis que le script a été étendu pour être appliqué à
+tous les disques connectés à l'ordinateur, cela sonne comme un bogue.
+.PP
+Contairement à la commande
+.BR lsblk (1),
+.B drivemap
+intègre les périphériques boucle (loop) dans l'arbre des dépendances. En fait,
+la question qui peut être posée est la suivante:
+.br
+" Qu'est\-ce qui se passera pour le contenu d'autres périphériques physiques ou
+virtuels si je lance une commande
+.BR dd (1),
+.BR shred (1)
+ou
+.BR wipe (1)
+sur celui\-ci ou celui\-là ? "
+.br
+Et alors il apparaît que les informations contenues dans les fichiers
+.I slaves
+et
+.I holders
+dans sysfs ne sont pas suffisantes pour organiser les périphériques bloc
+en arbre, ou devraient être étendues. Pour la même raison, les partitions
+logiques sont montrées comme des sous\-périphériques des partitions primaires
+étendues.
+.PP
+Seuls les périphériques bloc dont le contenu est hébergé par un disque
+physique sont affichés: cela signifie que si un périphérique boucle est
+associé à un fichier se trouvant sur un système de fichiers temporaire
+(tmpfs, c'est à dire la RAM), ce périphérique ne sera pas montré. Ce
+n'est
+.B PAS
+un bogue: comme annoncé par son nom,
+.B drivemap
+construit et affiche une
+.RB \' carte
+.B des
+.BR disques \'
+(map of drives).
+
+.SH EXEMPLES
+Lister les lecteurs de disques physiques actuellement reconnus par le noyau:
+.IP
+.B drivemap \-d
+.PP
+Trouver le disque hébergeant le système en cours d'éxécution, et afficher son
+identifiant et sa taille:
+.IP
+.B drivemap \-id /
+.PP
+Montrer où est mon répertoire de travail courant sur un disque avec un schéma
+de partitionnement complexe (LVM + LUKS + LVM):
+.IP
+.B drivemap \-min .
+
+.SH BOGUES
+Voir plus haut la section
+.B AMÉLIORATIONS ET
+.BR LIMITATIONS .
+
+
+.SH FICHIERS
+/sys/class/block/*/holders
+.br
+/sys/class/block/*/slaves
+.br
+/sys/class/block/loop?*/loop/backing_file
+
+.SH VOIR AUSSI
+.BR bilibop (7),
+.BR lsbilibop (8),
+.BR lsblk (1),
+.BR lvm (8),
+.BR udev (7),
+.BR udevadm (8)
+
+.SH AUTEUR
+Cette page de manuel a été traduite de l'anglais par Alexandre Martin
+<alemar@Safe\-mail.net> dans le cadre du projet bilibop.
