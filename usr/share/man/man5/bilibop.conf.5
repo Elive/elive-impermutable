@@ -1,4 +1,4 @@
-.TH BILIBOP.CONF 5 2012\-05\-22 bilibop "Bilibop Project"
+.TH BILIBOP.CONF 5 2012\-10\-05 bilibop "Bilibop Project"
 
 .SH NAME
 bilibop.conf \- configuration file of bilibop packages
@@ -304,7 +304,7 @@ the system has been rebooted, most of the following BILIBOP_RULES_*
 variables \- except the first one \- can be modified, and the changes
 applied during a same session by running
 .RB \' lsbilibop
-.BR \-u \'.
+.BR \-c \'.
 See
 .BR lsbilibop (8).
 
@@ -359,7 +359,7 @@ on the same disk than the root filesystem will be considered as
 To disable this behaviour for only some devices \- for example if you want
 a partition mountable/unmountable without needs of root privileges \- you
 can list them here, separated by spaces.
-For each device or group of devices, you must specify at least one value
+For each device or group of devices, you must specify at least one token
 of the form
 .BR UUID = fsuuid ,
 .BR LABEL = fslabel ,
@@ -404,7 +404,7 @@ If BILIBOP_RULES_PRESENTATION_HIDE is not \'false\', all volumes hosted on
 the same disk than the root filesystem will be hidden to the user.
 To disable this behaviour for only some devices, you can list them here,
 separated by spaces.
-For each device or group of devices, you must specify at least one value
+For each device or group of devices, you must specify at least one token
 of the form
 .BR UUID = fsuuid ,
 .BR LABEL = fslabel ,
@@ -435,7 +435,7 @@ Default is unset.
 If a device is not hidden, it can be shown to the user with an other icon
 than the default one.
 For each device or group of devices you want to change the default icon,
-you must specify at least one value of the form
+you must specify at least one token of the form
 .BR UUID = fsuuid : icon ,
 .BR LABEL = fslabel : icon ,
 .BR TYPE = fstype : icon
@@ -464,9 +464,9 @@ Default is unset.
 .TP
 .B BILIBOP_RULES_PRESENTATION_NAME
 If a device is not hidden, it can be shown to the user with an other name
-than the default one.
+than the default one (generally the label of the filesystem).
 For each device or group of devices you want to change the default name,
-you must specify at least one value of the form
+you must specify at least one token of the form
 .BR UUID = fsuuid : name ,
 .BR LABEL = fslabel : name ,
 .BR TYPE = fstype : name
@@ -494,11 +494,11 @@ Default is unset.
 .SH FILES
 /etc/bilibop/bilibop.conf
 .br
-/usr/share/doc/bilibop-common/examples/bilibop.conf
+/usr/share/doc/bilibop\-common/examples/bilibop.conf
 .br
-/usr/share/doc/bilibop-lockfs/examples/bilibop.conf
+/usr/share/doc/bilibop\-lockfs/examples/bilibop.conf
 .br
-/usr/share/doc/bilibop-rules/examples/bilibop.conf
+/usr/share/doc/bilibop\-rules/examples/bilibop.conf
 
 .SH SEE ALSO
 .BR aufs (5),

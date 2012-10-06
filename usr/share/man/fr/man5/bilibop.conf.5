@@ -1,0 +1,552 @@
+.TH BILIBOP.CONF 5 2012\-05\-22 bilibop "Bilibop Project"
+
+.SH NOM
+bilibop.conf \- fichier de configuration des paquets bilibop
+
+.SH SYNOPSIS
+/etc/bilibop/bilibop.conf
+
+.SH DESCRIPTION
+.B bilibop.conf
+est le fichier de configuration des paquets
+.B bilibop\-*
+qui sont prévus pour être utilisés sur des systèmes tournant depuis un
+périphérique externe et modifiable (USB, FireWire, MMC, eSATA). Il est
+composé de paires
+.BR VARIABLE = VALEUR
+où
+.B VARIABLE
+est une chaîne commençant par
+.RI \' BILIBOP_ \',
+et
+.B VALEUR
+doit être entourée de guillemets si elle contient des caractères
+d'espacement (espaces ou tabulations). Les espaces autour du signe égal
+(=) ne sont pas permis. Les lignes vides ou celles commençant par un
+signe dièse (#) sont ignorées.
+.PP
+Les options de configuration valides peuvent être divisées en sections
+\'commune\' et \'spécifiques\', comme suit:
+
+.SH VARIABLES COMMUNES
+
+.TP 4
+.B BILIBOP_COMMON_BASENAME
+Cette variable définit le nom des sous\-répertoires propres à bilibop qui
+seront créés dans
+.I /dev
+et
+.I /run
+au moment du démarrage, depuis l'environnement du disque initial en
+mémoire (initramdisk) ou depuis le système en cours d'éxécution. Si elle
+est vide ou non définie, sa valeur sera
+.RI \' bilibop \'.
+Si vous la modifiez, vous devez prendre garde que certains liens
+symboliques ou réglages personnels de votre système reflètent correctement
+cette nouvelle valeur. Au minimum, si
+.B bilibop\-rules
+est installé, vous devriez exécuter les scripts d'aide fournis par ce
+paquet. Donc ce n'est peut\-être pas une bonne idée de la modifier.
+.br
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.SH VARIABLES SPÉCIFIQUES À BILIBOP\-LOCKFS
+
+.TP 4
+.B BILIBOP_LOCKFS
+Cette variable définit le comportement principal du script initramfs
+.IR bilibop\-lockfs .
+Sa valeur est de type booléen:
+.IP
+Si elle est fixée à
+.IR false ,
+le système démarrera normalement, et les autres variables
+BILIBOP_LOCKFS_* seront ignorées, à l'exception de
+.BR BILIBOP_LOCKFS_NOTIFY_POLICY .
+Si elle est fixée à
+.IR true ,
+le script initramfs déplacera le système de fichiers racine du système
+vers un point de montage utilisé comme branche inférieure et accessible
+en lecture seule d'un point de montage
+.BR aufs (5)
+utilisé lui\-même comme racine du système. Après quoi le fichier temporaire
+et accessible en écriture
+.I /etc/fstab
+sera modifié pour préparer les autres systèmes de fichiers à être montés
+comme branches non modifiables d'autres systèmes de fichiers aufs.
+.IP
+Si cette variable ne vaut rien ou vaut n'importe quoi d'autre, une
+heuristique sera utilisée pour la fixer à
+.I true
+ou
+.IR false ,
+ceci dépendant de l'attribut \'removable\' (amovible) du disque dans sysfs,
+sachant que généralement les clés USB sont vues comme media amovibles
+.RI ( true ),
+et les disques durs externes sont vus comme media non amovibles
+.RI ( false ).
+.IP
+Dans tous les cas, la valeur de cette variable peut être écrasée depuis la
+ligne de commande de démarrage en ajoutant
+.RB \' lockfs \'
+ou
+.RB \' nolockfs \'
+aux paramètres du noyau.
+.br
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.TP
+.B BILIBOP_LOCKFS_POLICY
+Cette variable definit un niveau additionnel de verrouillage (\'lock\') à
+activer ou non.
+.RS
+.IP \(bu 2
+.I soft
+.br
+Les branches inférieures des systèmes de fichiers
+.BR aufs (5)
+utiliseront l'option
+.RB \' ro \'
+(readonly). Ensuite, ces systèmes de fichiers accessibles en lecture seule
+peuvent être remontés manuellement comme accessibles en lecture\-écriture
+pour permettre à l'administratrice d'y sauvegarder certains changements.
+Ce genre d'action est fortement découragé ici, mais reste possible si vous
+savez VRAIMENT ce que vous faites; autrement, cela peut mener à des
+résultats inattendus, dont évidemment la perte de données.
+.IP
+.IP \(bu 2
+.I hard
+.br
+Les branches inférieures des points de montage aufs utiliseront l'option
+.RB \' rr \'
+(real readonly); aufs utilise cette option pour optimiser certaines
+opérations internes.
+De plus, les périphériques bloc correspondants seront eux aussi paramètrés
+comme accessibles en lecture seule en utilisant
+.BR blockdev (8),
+évitant ainsi l'accès en écriture bas niveau (même par l'administratrice)
+sur ces périphériques, et rendant impossible un remontage ultérieur en
+lecture\-écriture.
+.RE
+.IP
+Si cette variable ne vaut rien ou vaut n'importe quoi d'autre, sa valeur
+retombera à
+.IR hard .
+.br
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.TP
+.B BILIBOP_LOCKFS_WHITELIST
+Une fois que le système de fichiers racine est verrouillé comme branche
+inférieure accessible en lecture seule d'un point de montage pour aufs,
+le fichier
+.I /etc/fstab
+est modifié sur la branche supérieure et accessible en lecture\-écriture,
+pour verrouiller de la même façon tous les autres systèmes de fichiers
+locaux. Cette variable offre la possibilité d'éviter ce mécanisme pour
+certains points de montage: il s'agit d'une liste de points de montage
+ou de noms de périphériques (tels que connus dans
+.BR fstab (5))
+ou encore de lexèmes (\'tokens\') de la forme
+.BR UUID = fsuuid ,
+.BR LABEL = fslabel
+ou
+.BR TYPE = fstype
+séparés par des espaces.
+Si l'étiquette (LABEL) d'un système de fichiers contient elle\-même des
+espaces, remplacez\-les par des tirets bas (_), comme donnés par la sortie
+des commandes
+.RB \' udevadm
+info \-\-query property \-\-name
+.IR PÉRIPHÉRIQUE \'
+ou
+.RB \' blkid
+\-o udev \-p
+.IR PÉRIPHÉRIQUE \'
+pour les variables
+.IR ID_FS_UUID ,
+.I ID_FS_LABEL
+et
+.IR ID_FS_TYPE .
+Notez que lister ici un point de montage, un nom de périphérique ou
+n'importe quel lexème qui correspond littéralement à une entrée du fichier
+fstab fait que le périphérique est filtré au niveau du script initramfs,
+ce qui est plus rapide. Autrement,
+.BR mount.lockfs (8)
+cherchera à partir des métadonnées du périphérique s'il doit le sauter ou
+pas.
+.br
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.TP
+.B BILIBOP_LOCKFS_SIZE
+Par défaut,
+.B bilibop\-lockfs
+alloue la moitié de la taille de la mémoire (RAM) pour chaque branche
+supérieure d'un système de fichiers verrouillé. Il est possible d'écraser
+cette valeur pour certains points de montage dans une liste de paires
+.BR /point/de/montage = taille
+séparées par des espaces. Les tailles peuvent être absolues (suffixées
+par k, K, m, M, g ou G), ou relatives à la quantité totale de mémoire RAM
+(et suffixées par %). La taille allouée à la racine du système peut être
+fixée ici aussi, mais peut être écrasée depuis la ligne de commade de
+démarrage avec le paramètre
+.RB \' lockfs = taille \'.
+.br
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.TP
+.B BILIBOP_LOCKFS_SWAP_POLICY
+Cette variable définit la politique d'utilisation des périphériques
+d'échange (swap) listés dans
+.I /etc/fstab
+(et optionnellement dans
+.IR /etc/crypttab ).
+Generalement, il n'y a pas de sens a paramètrer un espace d'échange sur de
+la mémoire flash, mais cela peut se faire sur des disques durs externes
+USB, FireWire ou eSATA. Quatre politiques sont disponibles:
+.RS
+.IP \(bu 2
+.I soft
+.br
+Rien n'est modifié: les lignes dans
+.BR fstab (5)
+et
+.BR crypttab (5)
+sont conservées telles quelles.
+.IP \(bu 2
+.I hard
+.br
+Les entrées relatives aux périphériques \'Swap\' sont désactivées
+(commentées) dans fstab et crypttab.
+.IP \(bu 2
+.I noauto
+.br
+Le mot\-clé
+.RI \' noauto \'
+est ajouté à la liste des options relatives aux périphériques \'swap\'
+dans fstab et crypttab. Cela signifie que ces périphériques peuvent être
+activés manuellement avec
+.BR swapon (8).
+.IP \(bu 2
+.I crypt
+.br
+Les entrées relatives aux périphériques \'swap\' chiffrés sont conservées,
+les autres sont désactivées.
+.RE
+.IP
+Si BILIBOP_LOCKFS_SWAP_POLICY n'est pas fixée à une valeur connue, elle
+retombera à
+.I crypt
+ou
+.IR hard .
+Cela dépend de l'attribut \'removable\' (amovible) du disque dans sysfs:
+pour les media vus comme amovibles (clés USB), la politique est de ne pas
+utiliser du tout de périphérique d'échange
+.RI ( hard
+policy). Notez que dans tous les cas, l'utilisation de \'swap\' peut être
+désactivée depuis la ligne de commande de démarrage avec le paramètre noyau
+.IR noswap ,
+qui n'est pas une option de démarrage spécifique à
+.BR bilibop (7).
+.br
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.TP
+.B BILIBOP_LOCKFS_NOTIFY_POLICY
+Cette variable définit à quelles conditions une notification doit être
+envoyée à l'utilisatrice pour lui signifier que des systèmes de fichiers
+sont ou non verrouillés (nécessite que le paquet
+.B libnotify\-bin
+soit installé). Quatre politiques sont disponibles:
+.RS
+.IP \(bu 2
+.I always
+.br
+C'est la valeur de secours quand la variable vaut autre chose que
+.IR never ,
+.I lockfs
+ou
+.IR nolockfs .
+Si la fonctionalité
+.B bilibop\-lockfs
+est désactivée, alors une notification sera envoyée pour dire que toutes
+les informations de la session peuvent être écrites sur le disque.
+Si la fonctionnalité est activée, une notification sera envoyée pour dire
+que toutes les modifications faites sous les points de montage aufs (listés)
+seront perdues à l'arrêt du système. Si des systèmes de fichiers ne sont
+pas verrouillés, une deuxième notification sera envoyée pour dire que leurs
+modifications seront conservées à l'arrêt du système.
+.IP \(bu 2
+.I never
+.br
+Ne jamais envoyer de notification concernant le verrouillage ou non
+verrouillage des systèmes de fichiers.
+.IP \(bu 2
+.I lockfs
+.br
+Si la fonctionnalité
+.B bilibop\-lockfs
+est activée, alors une notification sera envoyée pour dire que toutes les
+modifications faites sous les points de montage aufs (listés) seront perdues
+à l'arrêt du système.
+.IP \(bu 2
+.I nolockfs
+.br
+Si la fonctionnalité
+.B bilibop\-lockfs
+est désactivée, fait la même chose que pour
+.IR always .
+Si la fonctionnalité est activée et que des systèmes de fichiers ne sont
+pas verrouillés, alors une notification sera envoyée pour dire que leurs
+modifications seront conservées après l'arrêt du système.
+.RE
+.IP
+Dans tous les cas, n'importe quelle utilisatrice peut écraser le règlage de
+l'administratrice en copiant
+.I lockfs\-notify.desktop
+(normalement dans
+.IR /etc/xdg/autostart )
+dans son propre répertoire
+.I .config/autostart
+et en modifiant les lignes commençant par
+.B Exec=
+ou
+.BR Hidden= .
+Voir
+.BR lockfs\-notify (1)
+pour plus de détails.
+.br
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.SH VARIABLES SPÉCIFIQUES À BILIBOP\-RULES
+Contrairement à la plupart des variables précédentes dont les modifications
+ne prennent effet qu'après le redémarrage du système, la plupart des
+variables BILIBOP_RULES_* suivantes, à l'exception notable de la première,
+peuvent être modifiées, et les changements immédiatement appliqués au cours
+de la même session en éxécutant
+.RB \' lsbilibop
+.BR \-u \'.
+Voir
+.BR lsbilibop (8).
+
+.TP 4
+.B BILIBOP_RULES_FAKE_DEVICE_MAP
+Par défaut, les règles
+.BR bilibop (7)
+construisent un fichier de style
+.I /boot/grub/device.map
+appelé
+.I grub\-device.map
+dans un sous\-répertoire de
+.I /run
+(et défini par la variable BILIBOP_COMMON_BASENAME).
+Le but est de mapper le périphérique amovible hébergeant le système en cours
+d'éxécution comme
+.BR (hd0) ,
+c'est à dire comme premier disque dans la séquence de démarrage du BIOS.
+Pour rendre ce faux utilisable par
+.BR update\-grub (8),
+le fichier
+.I /boot/grub/device.map
+doit être remplacé par un lien symbolique pointant dessus. Si c'est le cas,
+mais que vous ne voulez pas construire ce faux, mais utiliser plutôt un
+fichier construit à la volée par
+.BR grub\-mkdevicemap (8),
+vous devez explicitement fixer cette variable à
+.I false
+(les autres valeurs n'ont aucun effet, c'est à dire ont le même effet que
+.IR true ).
+.br
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.TP
+.B BILIBOP_RULES_SYSTEM_INTERNAL
+Par défaut, les règles bilibop utilisent les capacités de
+.BR udisks (7)
+pour outrepasser la détection usuelle du type de bus permettant de détecter
+si un périphérique est considéré comme \'system internal\', c'est à dire
+comme disque interne de l'ordinateur. Cela signifie que des privilèges
+d'administratrice sont nécessaires pour gérer les périphériques faisant
+partie du même disque que celui contenant la racine du système. Si vous
+n'avez pas besoin de ce comportement global, vous devez explicitement fixer
+cette variable à
+.I false
+(les autres valeurs n'ont aucun effet, c'est à dire ont le même effet que
+.IR true ).
+.br
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.TP
+.B BILIBOP_RULES_SYSTEM_INTERNAL_WHITELIST
+Si BILIBOP_RULES_SYSTEM_INTERNAL n'est pas \'false\', toutes les partitions
+hébergées par le même disque que la racine du système seront considérées
+comme \'system internal\'.
+Pour désactiver ce comportement pour certains périphériques \- par exemple
+si vous voulez qu'une partition soit montable/démontable sans privilèges \-
+vous pouvez les lister ici, séparés par des espaces. Pour chaque
+périphérique ou groupe de périphériques, vous devez spécifier au moins un
+lexème de la forme
+.BR UUID = fsuuid ,
+.BR LABEL = fslabel ,
+.BR TYPE = fstype
+ou
+.BR USAGE = fsusage .
+Si l'étiquette (LABEL) d'un système de fichiers contient elle\-même des
+espaces, remplacez\-les par des tirets bas (_), comme donnés par la sortie
+des commandes
+.RB \' udevadm
+info \-\-query property \-\-name
+.IR PÉRIPHÉRIQUE \'
+ou
+.RB \' blkid
+\-o udev \-p
+.IR PÉRIPHÉRIQUE \'
+pour les variables
+.IR ID_FS_UUID ,
+.IR ID_FS_LABEL ,
+.I ID_FS_TYPE
+et
+.IR ID_FS_USAGE .
+.br
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.TP
+.B BILIBOP_RULES_PRESENTATION_HIDE
+Par défaut, les règles bilibop masquent (si possible) les systèmes de
+fichiers contenus sur le même disque physique que la racine du système.
+Cela s'applique aux applications de bureau basées sur
+.BR udisks (7).
+Si vous ne voulez pas masquer les volumes bilibop, vous devez explicitement
+fixer cette variable à
+.I false
+(les autres valeurs n'ont aucun effet, c'est à dire ont le même effet que
+.IR true ).
+.br
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.TP
+.B BILIBOP_RULES_PRESENTATION_HIDE_WHITELIST
+Si BILIBOP_RULES_PRESENTATION_HIDE n'est pas \'false\', tous les volumes
+hébergés sur le même disque que la racine du système seront cachés à
+l'utilisatrice. Pour désactiver ce comportement pour certains périphériques,
+vous pouvez les lister ici, séparés par des espaces. Pour chaque
+périphérique ou groupe de périphériques, vous devez spécifier au moins un
+lexème de la forme
+.BR UUID = fsuuid ,
+.BR LABEL = fslabel ,
+.BR TYPE = fstype
+ou
+.BR USAGE = fsusage .
+Si l'étiquette (LABEL) d'un système de fichiers contient elle\-même des
+espaces, remplacez\-les par des tirets bas (_), comme donnés par la sortie
+des commandes
+.RB \' udevadm
+info \-\-query property \-\-name
+.IR PÉRIPHÉRIQUE \'
+ou
+.RB \' blkid
+\-o udev \-p
+.IR PÉRIPHÉRIQUE \'
+pour les variables
+.IR ID_FS_UUID ,
+.IR ID_FS_LABEL ,
+.I ID_FS_TYPE
+et
+.IR ID_FS_USAGE .
+.br
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.TP
+.B BILIBOP_RULES_PRESENTATION_ICON
+Si un périphérique n'est pas caché à l'utilisatrice, il peut être montré
+avec une autre icône que celle par défaut.
+Pour chaque périphérique ou groupe de périphériques auquel vous voulez
+associer une autre icône, vous devez spécifier au moins une valeur de la
+forme
+.BR UUID = fsuuid : icon ,
+.BR LABEL = fslabel : icon ,
+.BR TYPE = fstype : icon
+ou
+.BR USAGE = fsusage : icon .
+Le nom de l'icône doit suivre la spécification des thèmes d'icônes de
+freedesktop.org.
+Si l'étiquette (LABEL) d'un système de fichiers contient elle\-même des
+espaces, remplacez\-les par des tirets bas (_), comme donnés par la sortie
+des commandes
+.RB \' udevadm
+info \-\-query property \-\-name
+.IR PÉRIPHÉRIQUE \'
+ou
+.RB \' blkid
+\-o udev \-p
+.IR PÉRIPHÉRIQUE \'
+pour les variables
+.IR ID_FS_UUID ,
+.IR ID_FS_LABEL ,
+.I ID_FS_TYPE
+et
+.IR ID_FS_USAGE .
+.br
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.TP
+.B BILIBOP_RULES_PRESENTATION_NAME
+Si un périphérique n'est pas caché à l'utilisatrice, il peut être montré
+avec un autre nom que celui par défaut (généralement l'étiquette du système
+de fichiers).
+Pour chaque périphérique ou groupe de périphériques dont vous voulez
+modifier le nom par défaut, vous devez spécifier au moins une valeur de la
+forme
+.BR UUID = fsuuid : name ,
+.BR LABEL = fslabel : name ,
+.BR TYPE = fstype : name
+ou
+.BR USAGE = fsusage : name .
+Si l'étiquette (LABEL) d'un système de fichiers contient elle\-même des
+espaces, remplacez\-les par des tirets bas (_), comme donnés par la sortie
+des commandes
+.RB \' udevadm
+info \-\-query property \-\-name
+.IR PÉRIPHÉRIQUE \'
+ou
+.RB \' blkid
+\-o udev \-p
+.IR PÉRIPHÉRIQUE \'
+pour les variables
+.IR ID_FS_UUID ,
+.IR ID_FS_LABEL ,
+.I ID_FS_TYPE
+et
+.IR ID_FS_USAGE .
+.br
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.SH FICHIERS
+/etc/bilibop/bilibop.conf
+.br
+/usr/share/doc/bilibop\-common/examples/bilibop.conf
+.br
+/usr/share/doc/bilibop\-lockfs/examples/bilibop.conf
+.br
+/usr/share/doc/bilibop\-rules/examples/bilibop.conf
+
+.SH VOIR AUSSI
+.BR aufs (5),
+.BR bilibop (7),
+.BR blkid (8),
+.BR crypttab (5),
+.BR fstab (5),
+.BR lockfs\-notify (1),
+.BR lsbilibop (8),
+.BR mount (8),
+.BR mount.lockfs (8),
+.BR notify\-send (1),
+.BR proc (5),
+.BR udev (7),
+.BR udevadm (8),
+.BR udisks (7)
+
+.SH AUTEUR
+Cette page de manuel a été traduite de l'anglais par Alexandre Martin
+<alemar@Safe\-mail.net> dans le cadre du projet bilibop.
