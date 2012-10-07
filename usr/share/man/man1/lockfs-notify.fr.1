@@ -1,0 +1,105 @@
+.TH LOCKFS\-NOTIFY 1 2012\-05\-22 bilibop "Commandes de l'utilisatrice"
+
+.SH NOM
+lockfs\-notify \- notifier à l'utilisatrice les possibilités de modification des fs
+
+.SH SYNOPSIS
+.B lockfs\-notify
+.RI [ \-a | \-\-always | \-l | \-\-lockfs | \-n | \-\-nolockfs ]
+.RI [ \-t
+.IR TEMPS | \-\-expire\-time = TEMPS ]
+.br
+.B lockfs\-notify
+.IR \-h | \-\-help
+
+.SH DESCRIPTION
+.B lockfs\-notify
+est une enveloppe autour de
+.BR notify\-send (1).
+Il est utilisé pour envoyer une notification aux utilisatrices au démarrage
+d'une session, pour dire si des changements temporaires ou permanents sont
+permis sur quels systèmes de fichiers (ou plus précisément sur quels points
+de montage).
+
+.SH OPTIONS
+Si plusieurs des options
+.IR \-a ,
+.I \-l
+ou
+.I \-n
+(ou leurs formes longues, respectivement
+.IR \-\-always ,
+.I \-\-lockfs
+ou
+.IR \-\-nolockfs ),
+sont invoquées, la dernière écrase les précédentes. L'invocation de ces
+options écrase aussi la variable \'BILIBOP_LOCKFS_NOTIFY_POLICY\' qui peut
+être définie dans
+.BR bilibop.conf (5).
+.PP
+.BR \-a ,
+.B \-\-always
+.RS
+Toujours envoyer une notification: à propos des systèmes de fichiers sur
+lesquels les modifications seront permanentes, et à propos des systèmes de
+fichiers sur lesquels les modifications seront temporaires. Donc, si la
+fonctionnalité
+.B bilibop\-lockfs
+est activée, et qu'un ou plusieurs points de montage ont été listés dans
+.I /etc/bilibop/bilibop.conf
+comme ne devant pas être verrouillés, deux notifications sont envoyées à
+l'utilisatrice.
+.RE
+.PP
+.BR \-h ,
+.B \-\-help
+.RS
+Affiche un court message d'aide sur la sortie standard et quitte.
+.RE
+.PP
+.BR \-l ,
+.B \-\-lockfs
+.RS
+Envoie une notification seulement à propos des systèmes de fichiers pour
+lesquels la fonction \'lockfs\' a été activée, c'est à dire à propos des
+points de montage pour lesquels les modifications ne peuvent être que
+temporaires. Toutes ces modifications seront perdues au prochain arrêt
+de l'ordinateur.
+.RE
+.PP
+.BR \-n ,
+.B \-\-nolockfs
+.RS
+Envoie une notification seulement à propos des systèmes de fichiers pour
+lesquels la fonction \'lockfs\' a été désactivée, c'est à dire à propos
+des points de montage pour lesquels les modifications sont écrites sur le
+disque. Toutes ces modifications seront conservées après l'arrêt de
+l'ordinateur.
+.RE
+.PP
+.B \-t
+.IR TEMPS ,
+.BI \-\-expire\-time= TEMPS
+.RS
+Spécifie le délai d'attente en millisecondes après lequel la notification
+arrive à expiration, c'est à dire disparaît du bureau. Les valeurs de
+.I TEMPS
+inférieures à
+.BI \' 1000 \'
+(1 seconde) désactivent le délai d'attente et la notification n'expire pas
+(reste indéfiniment visible sur le bureau). Si
+.I TEMPS
+n'est pas un nombre entier, cette option est silencieusement ignorée.
+.RE
+
+.SH FICHIERS
+/etc/xdg/autostart/lockfs\-notify.desktop
+
+.SH VOIR AUSSI
+.BR bilibop (7),
+.BR bilibop.conf (5),
+.BR notify\-send (1)
+
+.SH AUTEUR
+Cette page de manuel a été traduite de l'anglais par Christophe Blanc
+<algebre@no\-log.org> dans le cadre du projet bilibop.
