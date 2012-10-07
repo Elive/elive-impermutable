@@ -148,7 +148,7 @@ do
 	esac
 done
 
-${DEBUG} && echo "${ARGS}"
+${DEBUG} && echo "${ARGS}" >&2
 ${_set_x_} && set -x
 
 # Now we can analyse argument(s) that are not options (not beginning with a
