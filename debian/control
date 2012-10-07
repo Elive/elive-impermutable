@@ -29,7 +29,7 @@ Suggests: aufs-tools, bilibop-lockfs (= ${binary:Version}), bilibop-rules (= ${b
 Description: shell functions for bilibop scripts
  ${Description}
  .
- This package provides shell functions usable by other bilibp scripts on the
+ This package provides shell functions usable by other bilibop scripts on the
  running system or into the initramfs environment. These functions use /dev,
  /proc and /sys databases to output the drive name or the partition hosting
  the running system, and are fully usable by any unprivileged user or
