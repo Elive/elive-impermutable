@@ -1,0 +1,137 @@
+.TH LOCKFS_MOUNT_HELPER 8 2012\-05\-29 bilibop "Administration système"
+
+.SH NOM
+mount.lockfs \- script d'aide pour la commande mount
+
+.SH SYNOPSIS
+.B mount.lockfs
+.I SYSTÈME_DE_FICHIERS
+.I POINT_DE_MONTAGE
+.B \-o
+.I OPTIONS_DE_MONTAGE
+
+.SH DESCRIPTION
+.B /sbin/mount.lockfs
+est un lien symbolique vers
+.IR /lib/bilibop/lockfs_mount_helper .
+Il est utilisé comme un programme d'aide par la commande
+.BR mount (8)
+pour le type de système de fichiers
+.RB \' lockfs \'
+dans les entrées de
+.IR /etc/fstab .
+Ce script ne peut pas être lancé manuellement, et échoue si la racine du
+système n'est pas déjà gérée par
+.BR bilibop-lockfs .
+Son usage correct et la manière dont il travaille sont les suivants:
+.IP 1. 3
+Activer
+.BR bilibop\-lockfs :
+fixer la variable BILIBOP_LOCKFS à
+.I true
+dans
+.BR bilibop.conf (5)
+et redémarrer l'ordinateur; ou redémarrer l'ordinateur et ajouter le
+paramètre
+.RB \' lockfs \'
+à la ligne de commande du noyau.
+.IP 2.
+Une fois que la future racine \'/\' est paramètrée comme point de montage
+.BR aufs (5)
+depuis l'environnement du disque de démarrage en mémoire (initramdisk), le
+fichier temporaire
+.BR fstab (5),
+accessible en écriture, est modifié pour remplacer les types de certains
+systèmes de fichiers par
+.RB \' lockfs \'.
+Les options sont aussi modifiées pour se rappeler du type de système de
+fichiers d'origine.
+.IP 3.
+Une fois que le point de montage aufs est la nouvelle racine du système,
+les scripts d'initialisation sont éxécutés:
+.BR fstab (5)
+est parcouru par
+.RB \' mount
+.BR \-a \',
+et la commande
+.BR mount (8)
+appelle
+.I mount.lockfs
+avec les arguments corrects quand un système de fichiers de type
+.RB \' lockfs \'
+est rencontré.
+.IP 4.
+.B mount.lockfs
+parcourt les arguments et vérifie si le système de fichiers a été mis
+de côté par
+.BR bilibop.conf (5),
+ou pas. Si c'est le cas, le système de fichiers est monté normalement
+et l'entrée de fstab est modifiée pour refléter l'appel réel à mount.
+Si ni le système de fichiers ni le point de montage n'ont été mis de
+côté, alors le système de fichiers est monté ailleurs et en lecture
+seule, un système de fichiers temporaire est monté avec ses propres
+options, taille, permissions et propriétés, et un système de fichiers
+aufs est monté sur le
+.I POINT_DE_MONTAGE
+donné en argument, avec les branches paramètrées précédemment.
+L'entrée dans fstab est remplacée par trois lignes reflétant les
+appels réels à mount. Si quelque chose échoue,
+.B mount.lockfs
+agit comme si le système de fichiers avait été mis de côté. Voir
+.I /usr/share/doc/bilibop\-lockfs/README.Debian
+pour plus de détails.
+
+.SH OPTIONS
+.B lockfs_mount_helper
+utilise les options et arguments tels que fournis par
+.BR mount (8)
+après que cette dernière ait analysé l'entrée correspondante dans
+.BR fstab (5).
+Ainsi, ces options et arguments sont obligatoires et sont fournis dans cet
+ordre:
+.TP
+.I SYSTÈME_DE_FICHIERS
+Correspondant au premier champ dans fstab. Ce doit être un périphérique en
+mode bloc ou un lien symbolique vers un tel périphérique. Si ce champ est
+donné dans l'un des formats
+.B UUID=*
+ou
+.BR LABEL=* ,
+alors la commande mount le traduit en nom du périphérique correspondant
+avant d'appeler le programme d'aide.
+.TP
+.I POINT_DE_MONTAGE
+Correspondant au deuxième champ dans le fichier fstab.
+.TP
+.I \-o OPTIONS_DE_MONTAGE
+Correspondant au quatrième champ dans fstab. Les options de montage sont
+analysées par le script d'aide: si l'option
+.B fstype=*
+est rencontrée, elle est retirée des options et utilisée pour monter la
+branche inférieure (en lecture seule) avec ce type de système de fichiers.
+Si les options
+.BR ro ,
+.BR noexec ,
+.B nosuid
+ou
+.B nodev
+sont rencontrées, elles sont ajoutées à la liste des options de montage de
+la branche supérieure (accessible en écriture).
+
+.SH FICHIERS
+/etc/fstab
+.br
+/lib/bilibop/lockfs_mount_helper
+.br
+/usr/share/doc/bilibop\-lockfs/README.Debian
+
+.SH VOIR AUSSI
+.BR aufs (5),
+.BR bilibop (7),
+.BR bilibop.conf (5),
+.BR fstab (5),
+.BR mount (8)
+
+.SH AUTEUR
+Cette page de manuel a été traduite de l'anglais par Christophe Blanc
+<algebre@no\-log.org> dans le cadre du projet bilibop.
