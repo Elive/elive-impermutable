@@ -1,3 +1,53 @@
+bilibop (0.3.5) experimental; urgency=low
+
+  * Fix typos in manpages and add french translations of the manpages.
+
+  * bilibop-rules:
+    Remove loopback udev rules file and modify bilibop rules file and
+    bilibop_rules_generator to not depend on the BACKING_FILE variable.
+
+  * bilibop-rules:
+    Rewrite lsbilibop to allow to trigger uevents in a per-action and
+    per-device basis: split -u option (update) to -a (action=add) and -c
+    (action=change) options.
+    Add a short help message in the case BILIBOP udev tag does not exist.
+    Add the DEVLINKS udev property in the info (-i option) output.
+    Relative paths, symlinks and wildcards are now supported in the
+    commandline.
+
+  * bilibop-rules:
+    Modify lsbilibop manpage to be consistent with the new lsbilibop script.
+
+  * bilibop-lockfs:
+    Be less restrictive in blacklist_bilibop_devices() when building the
+    'reject' patterns for lvm.conf filter array: only apply on bilibop
+    Physical Volumes and their symlinks instead of all bilibop block
+    devices and parent directories of their symlinks.
+    Modify and rename overwrite_lvm_conf() to initialize_lvm_conf().
+    Add BILIBOP_PART variable in the initramfs script.
+
+  * bilibop-common:
+    Fix drivemap output errors: remove annoying trailing spaces, fix width
+    issues that occured with the -p option.
+    Define the PROG variable and replace all occurencies of ${0##*/} by ${PROG}
+    Fix a missing redirection to stderr when --debug is invoked.
+
+  * bilibop-common:
+    add device_nodes() function, which is used now in physical_hard_disk() and
+    in lsbilibop script. Fix indentations (expand tabs) in common.sh.
+
+  * bilibop-common:
+    Add Copyright and Licence as header of lib/bilibop/common.sh, which can be
+    used standalone.
+
+  * debian/control: fix typo in bilibop-common description.
+  * Remove unneeded executable bit of maintainer scripts and file intended to
+    be installed in /bin and /usr/bin.
+  * Add debian/source.lintian-overrides to override lintian warning message
+    W: bilibop source: newer-standards-version 3.9.4 (current is 3.9.3)
+
+ -- bilibop project <quidame@poivron.org>  Tue, 09 Oct 2012 00:06:50 +0200
+
 bilibop (0.3.4) experimental; urgency=low
 
   * debian/control: bump Standards-Version to 3.9.4; add dependency on
