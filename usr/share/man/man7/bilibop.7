@@ -97,7 +97,8 @@ partitions, as owned by the
 .RI \' disk \'
 group instead of
 .RI \' floppy \',
-as done by the common udev rules. This is a workaround of the bug
+as done by the common udev rules applied to removable media. This is a
+workaround of the bug
 .BR #645466 .
 The udev rules provided by this package work even when the root filesystem
 is on a
@@ -113,7 +114,7 @@ mountpoint.
 also includes the
 .BR lsbilibop (8)
 command, and some helper scripts in
-.IR /usr/share/bilibop\-rules ,
+.IR /usr/share/bilibop ,
 that can be executed manually. See
 .I README.Debian
 in the documentation of the package for details.
