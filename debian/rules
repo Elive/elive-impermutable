@@ -6,7 +6,7 @@
 %:
 	dh $@
 
-# bilibop rules must be triggered after 60-persistent-*storage.rules.
+# bilibop rules must be triggered after 60-persistent-storage*.rules.
 override_dh_installudev:
 	dh_installudev -n --priority=66 --name=bilibop
 
