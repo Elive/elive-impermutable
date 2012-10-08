@@ -1,0 +1,237 @@
+.TH BILIBOP 7 2012\-05\-31 bilibop "Bilibop Project"
+
+.SH NAME
+bilibop \- éxécuter Debian GNU/Linux depuis un support externe
+
+.SH DESCRIPTION
+Nombre de distributions GNU/Linux \(em au moins les plus populaires d'entre
+elles \(em fournissent en téléchargement gratuit des images de disque aux
+formats
+.I .iso
+ou
+.IR .img ,
+qui peuvent être copiées sur une clé USB (parfois juste avec
+.BR cat (1)
+ou
+.BR dd (1),
+parfois par des méthodes plus complexes) et être immédiatement utilisables
+\'telles quelles\'.
+.PP
+Mais de tels systèmes d'exploitation ne sont pas conçus pour être modifiés;
+Ils sont accessibles seulement en lecture, et même s'ils fournissent une
+fonctionnalité appelée \'persistance\', celle-ci est limitée. De plus,
+ces systèmes sont couramment impossibles à maintenir, dans le sens où
+reconstruire l'image complète du système de fichiers racine est le seul
+moyen de mettre à jour le système ou de modifier ses paramétrages en
+profondeur. C'est là souvent une tâche lourde et difficile qui ne peut pas
+être effectuée depuis le système lui-même: cela nécessite un espace de
+travail dédié, extérieur au système en cours d'éxécution, ce qui nécessite
+souvent de faire appel à un autre système d'exploitation pour remplacer
+l'image de disque par la nouvelle; et certaines de ces tâches ne peuvent
+être effectuées que par des utilisatrices avancées. Les autres doivent
+attendre la prochaine mise à jour officielle, si elle arrive un jour.
+.PP
+.B Bilibop
+signifie
+.RB \' B ilibop
+.BR I s
+.BR L ive
+.BR I nstall
+.BR B oot
+.BR O n
+.BR P endrive\'.
+Cet accronyme est maintenant obsolète, mais le nom a été conservé. Le
+.B projet bilibop
+est né comme une alternative aux systèmes
+.BR LiveUSB .
+.PP
+En réalisant une installation standard de Debian directement sur un support
+amovible \(em généralement une clé USB ou un disque dur externe \(em il est
+possible de l'utiliser comme un système LiveUSB, avec cette différence qu'il
+se comporte comme n'importe quel système Debian installé: il peut être
+maintenu, modifié, mis à jour, ou même cassé par l'adminitratrice (root) à
+n'importe quel moment. En fait, sans un paramétrage spécifique, il peut être
+cassé n'importe quand par une utilisatrice sans privilèges; mais c'est aussi
+le cas des systèmes LiveUSB.
+.PP
+Ainsi,
+.B bilibop
+est un ensemble de scripts utilisant ou utilisés par d'autres programmes
+.RB ( initramfs\-tools (7),
+.BR udev (7),
+.BR aufs (5),
+ou
+.BR GRUB2 )
+pour aider les administratrices à maintenir un système d'exploitation
+.B Debian GNU/Linux
+installé sur un support amovible et inscriptible, même si certains de ces
+scripts peuvent aussi être utilisés dans d'autres contextes. L'un de ses
+buts principaux est de répondre à des problèmes de sécurité ou de durcir
+des règles et des politiques standard pour rendre le système plus robuste
+dans cette situation particulière. Plutôt qu'une nouvelle distribution
+basée sur Debian, encore une, vivant vite et mourrant jeune, bilibop a été
+conçu comme un petit ensemble de paquets Debian.
+.B bilibop\-lockfs
+peut aussi être installé sur un ordinateur portable ou sur un ordinateur
+public comme une alternative à
+.B fsprotect,
+et
+.B bilibop\-rules
+.I devrait
+aussi être installé sur un LiveUSB.
+
+.SH PAQUETS BILIBOP
+.TP 2
+.I bilibop
+C'est un métapaquet, dépendant de tous les autres paquets binaires issus
+du même paquet source
+.BR bilibop .
+.TP
+.I bilibop\-common
+Il founit principalement des fonctions shell et de la documentation. Voir
+.I README.Debian
+dans la documentation du paquet pour des détails sur ces fonctions.
+Il inclut aussi la commande
+.BR drivemap (1).
+.TP
+.I bilibop\-rules
+Ce paquet fournit des règles (rules) udev et des scripts d'aide. Son but
+premier est de fixer le disque hébergeant le système en cours d'éxécution,
+et toutes ses partitions, comme propriété du groupe
+.RI \' disk \'
+plutôt que
+.RI \' floppy \',
+comme c'est le cas actuellement pour les supports amovibles. Il s'agit d'un
+contournement du bogue
+.BR #645466 .
+Les règles udev fournies par ce paquet s'appliquent même quand la racine du
+système est sur un périphérique
+.BR LUKS ,
+un Volume Logique
+.BR LVM ,
+un périphérique boucle
+.RB ( loop )
+ou un point de montage
+.BR aufs (5).
+.B bilibop\-rules
+inclut aussi la commande
+.BR lsbilibop (8),
+et quelques scripts d'aide dans
+.IR /usr/share/bilibop ,
+qui peuvent être éxécutés manuellement. Voir
+.I README.Debian
+dans la documentation du paquet pour les détails.
+.TP
+.I bilibop\-lockfs
+En utilisant un script initramfs et un programme d'aide à
+.BR mount (8),
+les systèmes de fichiers sont montés en lecture seule comme branches
+inférieures d'un point de montage
+.BR aufs (5),
+les branches inscriptibles correspondantes étant sur des systèmes de
+fichiers temporaires. De plus, les périphériques en mode bloc sont aussi
+paramétrés comme accessibles en lecture seule, évitant ainsi les accès
+en écriture de bas niveau, même par l'administratrice. Cela concourt à
+rendre le système d'exploitation incassable, sauf avec un marteau. Voir
+.I README.Debian
+dans la documentation du paquet pour les détails.
+
+.SH INSTALLATION
+.B Debian
+peut être installée sur un disque amovible comme elle le serait sur un
+disque interne, avec les restrictions suivantes:
+.IP \(bu 2
+Il est hautement recommendé d'installé un système chiffré. Autrement, que
+peut-il se passer si la clé USB ou le DD externe a été perdu ou oublié
+quelque part, ou même volé ? Malheureusement (mais il y a des raisons de
+sécurité évidentes), cela ne peut pas être automatisé.
+.IP \(bu
+En raison des limites du nombre de cycles d'écriture sur la mémoire flash,
+il n'est pas recommendé d'y installer un espace d'échange (swap): cela
+peut réduire considérablement la durée de vie du support.
+.IP \(bu
+Même si l'architecture
+.B amd64
+est maintenant la plus commune sur les ordinateurs personnels modernes,
+l'installation d'un système compatible
+.B x86
+le rendra plus versatile et capable de tourner autant sur une architecture
+amd64 que i386 (et même sur ia32, mais cela peut nécessiter un schéma de
+partitionnement spécifique).
+.IP \(bu
+Prenez garde, vers la fin de l'installation, que le chargeur de démarrage
+soit bien écrit sur le secteur d'amorçage principal (MBR) du disque sur
+lequel le système vient d'être installé: le choix par défaut, \'install on
+MBR\' l'installera sur le secteur d'amorçage principal du premier disque !
+.IP \(bu
+En prenant en compte les recommandations précédentes, choisissez
+.RB \' Expert
+.BR Install \'
+ou
+.RB \' Expert
+.B Graphical
+.BR Install \'
+dans le menu de démarrage de l'installeur. Si vous devez installer Debian
+sur plusieurs périphériques, n'effectuez pas une installation automatique
+avec  l'option
+.RB \' Auto
+.BR Install \'
+dans le menu de démarrage de l'installeur. Si vous avez vraiment besoin
+d'atomatiser ce processus pour gagner du temps, utilisez plutôt un fichier
+.BR preseed .
+
+.SH PARAMÈTRES ET CONFIGURATION
+Le principal avantage d'une installation standard par rapport à un système
+Live est que le système installé peut répondre exactement à vos besoins:
+si les besoins évoluent, le système peut être facilement modifié. Il peut
+être installé et configuré pour être utilisé dans différents contextes:
+.PP
+\(bu usage quotidien (c'est mon cas)
+.br
+\(bu routeur et/ou pare-feu pour un réseau local
+.br
+\(bu serveur ftp et/ou http (c'est mon cas)
+.br
+\(bu récupération de données et analyse post-mortem (c'est mon cas)
+.br
+\(bu mirroir d'un dépôt de paquets Debian embarqué (c'est mon cas)
+.br
+\(bu système de test
+.br
+\(bu système à but pédagogique
+.br
+\(bu autres
+.PP
+Parce qu'un système d'exploitation tournant depuis un support externe
+est généralement utilisé sur des ordinateurs différents, avec des claviers,
+des architectures, des écrans, etc. potentiellement différents, il peut
+être nécessaire que certains paramétrages soient aussi flexibles que
+possible. Ce champ est sans doute trop large pour être couvert dans une
+seule page de manuel: voir
+.I /usr/share/doc/bilibop\-common/misc/*
+pour quelques trucs et astuces, détails et suggestions de paramètrages
+possibles.
+
+.SH FICHIERS
+/usr/share/bilibop\-common/README.Debian
+.br
+/usr/share/bilibop\-common/examples/bilibop.conf
+.br
+/usr/share/bilibop\-common/misc/*
+.br
+/usr/share/bilibop\-lockfs/README.Debian
+.br
+/usr/share/bilibop\-lockfs/examples/bilibop.conf
+.br
+/usr/share/bilibop\-rules/README.Debian
+.br
+/usr/share/bilibop\-rules/examples/bilibop.conf
+
+.SH VOIR AUSSI
+.BR bilibop.conf (5),
+.BR drivemap (1),
+.BR lsbilibop (8)
+
+.SH AUTEUR
+Cette page de manuel a été traduite de l'anglais par Alexandre Martin
+<alemar@Safe-mail.net> dans le cadre du projet bilibop.
