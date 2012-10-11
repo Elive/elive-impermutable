@@ -19,9 +19,6 @@
 # On Debian systems, the complete text of the GNU General
 # Public License version 3 can be found in "/usr/share/common-licenses/GPL-3".
 
-#
-# vim: set et sw=4 sts=4 ts=4 fdm=marker fcl=all:
-#
 
 # For tests and debug purposes, set it to 'true':
 DEBUG="${DEBUG:-false}"
@@ -37,27 +34,50 @@ DEBUG="${DEBUG:-false}"
 #> Functions that just output informations about devices/filesystems can be
 #  called by any unprivileged user.
 
-# Variable subtitutions and builtin commands: ==============================={{{
-# The bilibop shell functions use a lot of variable subtitutions. Some of them
-# (bashisms?) can not work with some shells. For:
-# - 'id=fe:00', we can use:
-#   echo "$((0x${id%:*})):$((0x${id#*:}))"
-#   (this is equivalent to: printf "%d:%d\n" "0x${id%:*}" "0x${id#*:}")
-# - 'dm=/dev/mapper/system', we can use:
-#   echo "${dm##*/}"
-# and other things like that.
+# Shell compatibility ======================================================={{{
+# The bilibop-common shell functions use a lot of variable subtitutions and
+# builtin commands. Some of them can not work with some shells. The functions
+# have been tested:
+# 1. with a lot of multilayer settings (combinations of LVM, LUKS, loop and
+#    aufs)
+# 2. by running the following script (where ${SHELL} is replaced by /bin/dash,
+#    /bin/bash, /bin/sash -f, /bin/posh, /bin/busybox sh, /bin/ksh, /bin/zsh,
+#    or /usr/lib/klibc/bin/sh.shared, etc.):
+# ----------
+# #!${SHELL}
+# PATH=/bin ; . /lib/bilibop/common.sh ; get_udev_root ; physical_hard_disk
+# ----------
+# 3. by running the previous script with /bin/sh as ${SHELL} and linking
+#    /bin/sh successively to dash, bash, sash, posh, busybox, ksh, zsh, or
+#    /usr/lib/klibc/bin/sh.shared, etc.
 #
-# They have been tested (and work) with:
+# This has been tested and works with:
 # - /bin/bash
 # - /bin/dash
 # - /bin/busybox sh
 # - /usr/lib/klibc/bin/sh.shared
-# - /bin/ksh93
+# which are the default available shells on a Debian system (bash, dash) and
+# its initramdisk built with initramfs-tools (busybox sh, klibc sh.shared).
+#
+# And also works with:
 # - /bin/mksh
+# - /bin/mksh-static
+# - /bin/bash-static
+# - /bin/posh
 # - /bin/zsh4
 #
-# They have been tested and don't work with:
-# /bin/pdksh    (this shell has even no 'printf' builtin!)
+# This has been tested and works under certain conditions with:
+# - /bin/sash       Works when the script begins with #!/bin/sash -f, but not
+#                   when it begins with #!/bin/sh and /bin/sh is linked to
+#                   sash.
+#
+# This has been tested and don't work with:
+# - /bin/pdksh      (this shell has no 'printf' builtin)
+# - /bin/ksh93      (this shell has no 'local' builtin)
+# - /usr/bin/yash   (this shell has no 'local' builtin, and '[' is not
+#                   implemented when the shell is called as 'sh'; and in all
+#                   cases, yash being in /usr/bin, it should be considered as
+#                   unusable for bilibop purposes)
 #
 # Because the 'echo' builtin command is not samely implemented in all shells
 # (especially the '-e' option is implicit in dash's echo), we never use this
@@ -164,51 +184,50 @@ EOF
 ### The following functions can be called by others in this file, except the
 ### last one, 'physical_hard_disk'.
 ### Here is the main function's dependency tree {{{
+#
 # physical_hard_disk
 # |
 # |__underlying_partition
-# |  |
-# |  |__underlying_device
-# |  |  |
-# |  |  |__underlying_device_from_device
-# |  |  |  |
-# |  |  |  |__underlying_device_from_dm
-# |  |  |  |__underlying_device_from_loop
-# |  |  |     |
-# |  |  |     |__backing_file_from_loop
-# |  |  |     |__device_id_of_file
-# |  |  |     |__device_node_from_major_minor
-# |  |  |
-# |  |  |__underlying_device_from_file
-# |  |     |
-# |  |     |__device_node_from_major_minor
-# |  |     |__device_id_of_file
-# |  |     |__find_mountpoint
-# |  |     |  |
-# |  |     |  |__is_aufs_mountpoint
-# |  |     |     |
-# |  |     |     |__canonical
-# |  |     |
-# |  |     |__underlying_device_from_aufs
-# |  |        |
-# |  |        |__aufs_dirs
-# |  |           |
-# |  |           |__aufs_si_directory
-# |  |              |
-# |  |              |__is_aufs_mountpoint
-# |  |                 |
-# |  |                 |__canonical
-# |  |
-# |  |__underlying_device_from_device
-# |     |
-# |     |__underlying_device_from_dm
-# |     |__underlying_device_from_loop
-# |        |
-# |        |__backing_file_from_loop
-# |        |__device_id_of_file
-# |        |__device_node_from_major_minor
-# |
-# |__device_nodes
+#    |
+#    |__underlying_device
+#    |  |
+#    |  |__underlying_device_from_device
+#    |  |  |
+#    |  |  |__underlying_device_from_dm
+#    |  |  |__underlying_device_from_loop
+#    |  |     |
+#    |  |     |__backing_file_from_loop
+#    |  |     |__device_id_of_file
+#    |  |     |__device_node_from_major_minor
+#    |  |
+#    |  |__underlying_device_from_file
+#    |     |
+#    |     |__device_node_from_major_minor
+#    |     |__device_id_of_file
+#    |     |__find_mountpoint
+#    |     |  |
+#    |     |  |__is_aufs_mountpoint
+#    |     |     |
+#    |     |     |__canonical
+#    |     |
+#    |     |__underlying_device_from_aufs
+#    |        |
+#    |        |__aufs_dirs
+#    |           |
+#    |           |__aufs_si_directory
+#    |              |
+#    |              |__is_aufs_mountpoint
+#    |                 |
+#    |                 |__canonical
+#    |
+#    |__underlying_device_from_device
+#       |
+#       |__underlying_device_from_dm
+#       |__underlying_device_from_loop
+#          |
+#          |__backing_file_from_loop
+#          |__device_id_of_file
+#          |__device_node_from_major_minor
 #
 # }}}
 
@@ -224,13 +243,6 @@ canonical() {
         /)  echo "/" ;;
         *)  echo "${1%/}" ;;
     esac
-}
-# ===========================================================================}}}
-# device_nodes() ============================================================{{{
-# What we want is: output the list of device nodes from /proc/partitions.
-device_nodes() {
-    ${DEBUG} && echo "> device_nodes $@" >&2
-    grep '[[:digit:]]' /proc/partitions | sed 's,.* \([^ ]\+\)$,\1,'
 }
 # ===========================================================================}}}
 # find_mountpoint() ========================================================={{{
@@ -251,8 +263,8 @@ device_node_from_major_minor() {
     #grep "^\s*${1%:*}\s\+${1#*:}\s" /proc/partitions |
     #    sed -e "s,^[[:blank:][:digit:]]*\(.\+\)$,${udev_root}/\1,"
     # maybe best:
-    local   path="$(readlink -f /sys/dev/block/${1})"
-    echo "${udev_root}/${path##*/}"
+    local   dev="$(readlink -f /sys/dev/block/${1})"
+    echo "${udev_root}/${dev##*/}"
 }
 # ===========================================================================}}}
 # device_id_of_file() ======================================================={{{
@@ -353,7 +365,7 @@ underlying_device_from_aufs() {
     local   dir dev
     for dir in $(aufs_dirs "${1}")
     do
-        dev="$(grep "^/[^ ]\+ ${dir%=r?*} " /proc/mounts | sed -e 's,^\(/[^ ]\+\) .*,\1,')"
+        dev="$(grep "^/[^ ]\+ ${dir%\=r?*} " /proc/mounts | sed -e 's,^\(/[^ ]\+\) .*,\1,')"
         if      [ -b "${dev}" ]
         then    readlink -f "${dev}"
                 return 0
@@ -502,28 +514,28 @@ underlying_partition() {
 # What we want is: output the physical hard disk node of a device, file or
 # directory given as argument. The main usage is: 'physical_hard_disk /', or
 # just 'physical_hard_disk'. The thing to do here is to find the whole disk
-# name after 'underlying_partition' has given the partition name. This is not
-# also simple to just remove digits at the end of the name: the partitions
-# of MMC/SD/SDHC memsticks are of the form /dev/mmcblk0p1, and the whole
-# device name is /dev/mmcblk0. What to do whith the 'p'? A circle? We prefer
-# a loop. This seems to be best than a lot of exceptions (how to track them
-# to build a poor function?). For that, of course, we assume that in
-# /proc/partitions, the whole disk node always comes before its partitions.
+# name after 'underlying_partition' has given the partition name.
 physical_hard_disk() {
     ${DEBUG} && echo "> physical_hard_disk $@" >&2
     [ -z "${1}" ] && eval set -- /
-    local   part disk dev
+    local   blk disk dev
 
     if      [ -b "${1}" -a -e "/sys/class/block/${1##*/}" -a ! -e "/sys/devices/virtual/block/${1##*/}" ]
     then    dev="${1}"
     else    dev="$(underlying_partition "${1}")"
     fi
 
-    for part in $(device_nodes)
+    for blk in /sys/block/*
     do
+        blk="${blk##*/}"
+        case    "${blk}" in
+            dm-*|loop*|ram*)
+                continue ;;
+        esac
+
         case    "${dev}" in
-            ${udev_root}/${part}*)
-                disk="${udev_root}/${part}"
+            ${udev_root}/${blk}*)
+                disk="${udev_root}/${blk}"
                 break
                 ;;
         esac
@@ -664,6 +676,13 @@ is_readonly() {
 }
 # ===========================================================================}}}
 
+# device_nodes() ============================================================{{{
+# What we want is: output the list of device nodes from /proc/partitions.
+device_nodes() {
+    ${DEBUG} && echo "> device_nodes $@" >&2
+    grep '[[:digit:]]' /proc/partitions | sed 's,.* \([^ ]\+\)$,\1,'
+}
+# ===========================================================================}}}
 # extended_partition() ======================================================{{{
 # What we want is: output the primary extended partition device node of a drive
 # given as argument.
@@ -741,3 +760,4 @@ query_udev_envvar() {
 }
 # ===========================================================================}}}
 
+# vim: set et sw=4 sts=4 ts=4 fdm=marker fcl=all:
