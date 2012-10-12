@@ -214,6 +214,12 @@ EOF
 #    |        |
 #    |        |__aufs_dirs
 #    |           |
+#    |           |__aufs_dirs_if_brs0
+#    |           |  |
+#    |           |  |__is_aufs_mountpoint
+#    |           |     |
+#    |           |     |_canonical
+#    |           |
 #    |           |__aufs_si_directory
 #    |              |
 #    |              |__is_aufs_mountpoint
@@ -303,16 +309,35 @@ aufs_si_directory() {
     is_aufs_mountpoint "${1}" | sed -e 's|.*si=\([^ ,]\+\).*|/sys/fs/aufs/si_\1|'
 }
 # ===========================================================================}}}
+# aufs_dirs_if_brs0() ======================================================={{{
+# What we want is: output all the underlying mountpoints (called branches) an
+# aufs filesystem given as argument is made of, by parsing /proc/mounts. This
+# needs aufs module loaded with brs=0 parameter (not the default).
+aufs_dirs_if_brs0() {
+    ${DEBUG} && echo "> aufs_dirs_if_brs0 $@" >&2
+    is_aufs_mountpoint "${1}" | sed -e 's@.*[ ,]br:\([^ ,]\+\).*@\1@ ; s@:@ @g'
+}
+# ===========================================================================}}}
 # aufs_dirs() ==============================================================={{{
 # What we want is: output all the underlying mountpoints (called branches) an
 # aufs filesystem given as argument is made of.
 aufs_dirs() {
     ${DEBUG} && echo "> aufs_dirs $@" >&2
     local   br
-    for br in $(aufs_si_directory "${1}")/br*
-    do
-        cat ${br}
-    done
+    case  "$(cat /sys/module/aufs/parameters/brs)" in
+        0)
+            for br in $(aufs_dirs_if_brs0 "${1}")
+            do
+                echo ${br}
+            done
+            ;;
+        *)
+            for br in $(aufs_si_directory "${1}")/br*
+            do
+                cat ${br}
+            done
+            ;;
+    esac
 }
 # ===========================================================================}}}
 # backing_file_from_loop() =================================================={{{
@@ -640,10 +665,21 @@ aufs_mountpoints() {
 aufs_readonly_branch() {
     ${DEBUG} && echo "> aufs_readonly_branch $@" >&2
     local   br
-    for br in $(aufs_si_directory "${1}")/br*
-    do
-        grep '=r[or]\(+wh\)\?$' ${br} | sed -e 's,=r[or].*,,'
-    done
+    case  "$(cat /sys/module/aufs/parameters/brs)" in
+        0)
+            for br in $(aufs_dirs_if_brs0 "${1}")
+            do
+                echo ${br} | grep -q '=r[or]\(+wh\)\?$' &&
+                echo ${br%\=r*}
+            done
+            ;;
+        *)
+            for br in $(aufs_si_directory "${1}")/br*
+            do
+                grep '=r[or]\(+wh\)\?$' ${br} | sed -e 's,=r[or].*,,'
+            done
+            ;;
+    esac
 }
 # ===========================================================================}}}
 # aufs_writable_branch() ===================================================={{{
@@ -652,10 +688,21 @@ aufs_readonly_branch() {
 aufs_writable_branch() {
     ${DEBUG} && echo "> aufs_writable_branch $@" >&2
     local   br
-    for br in $(aufs_si_directory "${1}")/br*
-    do
-        grep '=rw\(+nolwh\)\?$' ${br} | sed -e 's,=rw.*,,'
-    done
+    case  "$(cat /sys/module/aufs/parameters/brs)" in
+        0)
+            for br in $(aufs_dirs_if_brs0 "${1}")
+            do
+                echo ${br} | grep -q '=rw\(+nolwh\)\?$' &&
+                echo ${br%\=rw*}
+            done
+            ;;
+        *)
+            for br in $(aufs_si_directory "${1}")/br*
+            do
+                grep '=rw\(+nolwh\)\?$' ${br} | sed -e 's,=rw.*,,'
+            done
+            ;;
+    esac
 }
 # ===========================================================================}}}
 
@@ -760,4 +807,4 @@ query_udev_envvar() {
 }
 # ===========================================================================}}}
 
-# vim: set et sw=4 sts=4 ts=4 fdm=marker fcl=all:
+# vim: et sw=4 sts=4 ts=4 fdm=marker fcl=all
