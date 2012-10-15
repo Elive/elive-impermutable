@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: bilibop project <quidame@poivron.org>
 Uploaders: Alexandre Martin <alemar@Safe-mail.net>
-Build-Depends: debhelper (>= 9.0.0)
+Build-Depends: debhelper (>= 9)
 Standards-Version: 3.9.4
 Homepage: https://poivron.org/~quidame/bilibop_project
 Vcs-Git: http://poivron.org/~quidame/bilibop_project/bilibop.git
@@ -13,7 +13,7 @@ Section: misc
 Priority: extra
 Architecture: linux-any
 Depends: bilibop-lockfs (= ${binary:Version}), bilibop-rules (= ${binary:Version}), ${misc:Depends}
-Description: run Debian from external media - metapackage
+Description: run Debian GNU/Linux from external media - metapackage
  ${Description}
  .
  The installation of this metapackage will install all other BILIBOP packages
