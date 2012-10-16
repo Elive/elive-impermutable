@@ -22,7 +22,7 @@ writable device (USB, FireWire, eSATA, MMC and maybe more); this means all
 filesystems used by the system must be either hosted by the same disk or
 in RAM.
 
-Functions that just output informations about devices/filesystems can be
+Functions that just output information about devices/filesystems can be
 called by any unprivileged user. Some of the main functions can be called
 from the commandline (or from a script) with:
 $ . /lib/bilibop/common.sh
