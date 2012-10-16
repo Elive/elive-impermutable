@@ -23,7 +23,7 @@
 
 
 # For tests and debug purposes, set it to 'true':
-DEBUG="${DEBUG:-false}"
+[ "${DEBUG}" = "true" ] || DEBUG="false"
 
 # README {{{
 #
