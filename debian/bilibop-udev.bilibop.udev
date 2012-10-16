@@ -7,7 +7,7 @@ KERNEL!="sd?*|mmcblk?*|mspblk?*", GOTO="bilibop_end"
 
 ACTION=="add|change", \
 	SUBSYSTEMS=="usb|firewire|memstick|mmc", \
-	PROGRAM=="bilibop_disk --test %r/%k", \
-	GROUP:="disk", \
+	PROGRAM=="bilibop_disk $tempnode", \
+	GROUP:="disk"
 
 LABEL="bilibop_end"

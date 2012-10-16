@@ -1,0 +1,19 @@
+#!/bin/sh
+# vim: set et ts=4 sts=4 sw=4:
+
+# This script must be called from /lib/udev/rules.d/66-bilibop.rules
+# (or any other udev rules filename).
+# Usage: PROGRAM=="bilibop_disk $tempnode"
+# Returns 0 if the argument is on the same disk than the root filesystem,
+# 1 if not.
+PATH="/bin"
+
+[ -b "${1}" ] || exit 3
+udev_root="${1%/*}"
+
+# Load bilibop shell functions
+. /lib/bilibop/common.sh
+
+[ "$(physical_hard_disk ${1})" = "$(physical_hard_disk /)" ]
+exit $?
+
