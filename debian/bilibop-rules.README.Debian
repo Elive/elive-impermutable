@@ -17,14 +17,51 @@ allowing any member of this group to damage it, even by mistake, with a
 simple 'shred DEVICE' or 'cat /dev/zero >DEVICE' command. So the bilibop
 rules fix the disk hosting the operating system and all its partitions as
 owned by the 'disk' group, as it was an internal disk. This is the main,
-and this is not optional. Other rules are optional and can be disabled.
+and this is not optional.
 
-See the bilibop.conf(5) manual page and
+
+2. OTHER UDEV RULES
+===================
+
+Another feature of the bilibop udev rules is to tag all devices hosted by
+the same disk than the root filesystem as 'BILIBOP'. This applies to all
+physical devices (disk and partitions) and virtual devices (device-mapper
+and loop), and can be used later by the lsbilibop(8) command (see below).
+
+
+2.1. Udisks facilities
+----------------------
+
+Bilibop rules include rules to set udisks(7) environment variables for
+the devices hosted on the same disk than the root filesystem. If one of
+the Gnome, KDE, Xfce or LXDE desktop environment is installed, and then
+Udisks is used to mount/unmount removable devices from the file manager
+or the desktop (which is an instance of the file manager), it is possible
+to hide some devices, or show them with a different name or icon than the
+default, or prompt the user for su/sudo password when she attempts to
+manage them. The udisks variables bilibop rules can set are:
+
+UDISKS_PRESENTATION_HIDE
+UDISKS_PRESENTATION_NAME
+UDISKS_PRESENTATION_ICON_NAME
+UDISKS_SYSTEM_INTERNAL
+
+By default, 'BILIBOP' tagged devices are hidden and set 'system internal'.
+
+
+2.2. lsbilibop
+--------------
+
+This command can be used to list 'BILIBOP' tagged devices, and display or
+update some of their udev properties. It should be used each time the
+BILIBOP_RULES_* variables are modified in /etc/bilibop/bilibop.conf.
+
+See the bilibop.conf(5) and lsbilibop(8) manual pages and
 /usr/share/doc/bilibop-rules/examples/bilibop.conf
 for detailed information about default or custom settings.
 
 
-2. HELPER SCRIPTS
+3. HELPER SCRIPTS
 =================
 
 bilibop-rules provides helper scripts (in /usr/share/bilibop). Two of them
@@ -39,7 +76,7 @@ must be executed again, if it has been used previously to generate a custom
 rules file.
 
 
-2.1. bilibop_rules_generator
+3.1. bilibop_rules_generator
 ----------------------------
 
 This program generates a udev rules file /etc/udev/rules.d/66-bilibop.rules
@@ -54,7 +91,7 @@ Take care that if your device is able to be plugged on several port types
 type on which it was plugged when the rules have been generated. As example,
 for a 'LaCie Rugged FW/USB' external HDD:
 
-2.1.a. When booted as USB device
+3.1.a. When booted as USB device
 
 The sysfs attributes possibly managed by the script are:
 ATTRS{vendor}=="LaCie   "
@@ -64,13 +101,13 @@ ATTRS{manufacturer}=="LaCie"
 ATTRS{product}=="LaCie Rugged FW/USB"
 ATTRS{serial}=="00D04B9A0506232D"
 
-2.1.b. When booted as FireWire device
+3.1.b. When booted as FireWire device
 
 The sysfs attributes possibly managed by the script are:
 ATTRS{vendor}=="LaCie   "
 ATTRS{model}=="Rugged FW/USB   "
 
-2.1.c. Generate the proper rules file:
+3.1.c. Generate the proper rules file:
 
 To generate a rules files matching sysfs attributes both for USB and FireWire
 usage, you have to force 'vendor' and 'model' sysfs attributes, because the
@@ -81,7 +118,7 @@ for USB will not work for FireWire. So, use this command:
 /usr/share/bilibop/bilibop_rules_generator --attribute vendor,model
 
 
-2.2. grub_device_map_manager
+3.2. grub_device_map_manager
 ----------------------------
 
 This program can be used in association with BILIBOP_RULES_FAKE_DEVICE_MAP
@@ -108,7 +145,7 @@ of a symlink can imply to run the script if BILIBOP_COMMON_BASENAME has
 been modified in bilibop.conf(5).
 
 
-2.3. make_unpersistent_rules
+3.3. make_unpersistent_rules
 ----------------------------
 
 This program replaces some persistent and cumulative rules files in
@@ -119,13 +156,11 @@ this program, except when BILIBOP_COMMON_BASENAME has been modified in
 bilibop.conf.
 
 
-
-3. MORE INFO
+4. MORE INFO
 ============
 
 See /usr/share/doc/bilibop-common/misc/*
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
- -- bilibop project <quidame@poivron.org>  Fri, 08 Jun 2012 23:53:52 +0200
- -- bilibop project <quidame@poivron.org>  Fri, 15 Jun 2012 22:08:36 +0200
+ -- bilibop project <quidame@poivron.org>  Tue, 16 Oct 2012 13:09:05 +0200
