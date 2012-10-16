@@ -168,13 +168,24 @@ g. ${rootmnt}/etc/lvm/lvm.conf is modified (optional):
    modified to filter the block devices we want to protect from further
    LVM investigations.
 
-   All known block devices that are on the same disk than the filesystem
-   mounted on ${rootmnt} are listed. In our example:
-   sdb.*|dm-0|dm-1|dm-2|dm-3|dm-4
+   Since the LVM filter is applied to Physical Volumes (PV), all known PV
+   same disk than the filesystem mounted on ${rootmnt} are listed. In our
+   example: /dev/sdb1 and /dev/dm-2
 
-   A second list is build including all directories in /dev that could
-   contain symlinks to devices of the first list. In our example:
-   disk|block|mapper|bilibop|veegee|xporter
+   For each device listed above, a list is build, which contains all
+   the symlinks to this device, which have been created and so are managed
+   by udev. Another symlink, that does not exist at this step, is added for
+   compatibility with bilibop-rules. In our example, these symplinks are:
+   for /dev/sdb1:
+       /dev/bilibop/part
+       /dev/block/8:17
+       /dev/disk/by-id/usb-_Xporter_Memory_07B3100100182DD2-0:0-part1
+       /dev/disk/by-path/pci-0000:00:1d.7-usb-0:4.1:1.0-scsi-0:0:0:0-part1
+   for /dev/dm-2:
+       /dev/block/254:2
+       /dev/disk/by-id/dm-name-peevee
+       /dev/disk/by-id/dm-uuid-CRYPT-LUKS1-fd6568300caf4913253ec426a3659bd3-peevee
+       /dev/mapper/peevee
 
    After what the lvm configuration file is modified by adding the two
    lists as rejected patterns at the beginning of the 'filter' array, into
@@ -184,9 +195,9 @@ g. ${rootmnt}/etc/lvm/lvm.conf is modified (optional):
    filter = [ "a/.*/" ]
 
    is commented and replaced by:
-   filter = [ "r#^/dev/(sdb.*|dm-0|dm-1|dm-2|dm-3|dm-4)$#", "r#^/dev/(disk|block|mapper|bilibop|veegee|xporter)/.*#",  "a/.*/" ]
+   filter = [ "r#^/dev/(sdb1|bilibop/part|block/8:17|disk/by-id/usb-_Xporter_Memory_07B3100100182DD2-0:0-part1|disk/by-path/pci-0000:00:1d.7-usb-0:4.1:1.0-scsi-0:0:0:0-part1)$#", "r#^/dev/(dm-2|block/254:2|disk/by-id/dm-name-peevee|disk/by-id/dm-uuid-CRYPT-LUKS1-fd6568300caf4913253ec426a3659bd3-peevee|mapper/peevee)/.*#", "a/.*/" ]
 
-   If lvm.conf is missing, it is created. If the 'filter' assignment is
+   If lvm.conf is missing, it is created. If the 'filter' array is
    missing, it is added as the first one in the 'devices' section. If the
    'devices' section is missing, it is appended at the end of the file.
 
@@ -235,7 +246,10 @@ b. It checks if:
 
    This can happen if '/dev/mapper/xporter-boot' or 'LABEL=boot' has been
    whitelisted instead of 'UUID=a82267c0-fe18-6c44-0acf-d11a5904d7ae' or
-   simply '/boot'.
+   simply '/boot': the bilibop-lockfs initramfs script doesn't understand
+   that this device is whitelisted and modifies the corresponding fstab
+   entry; after what the mount helper script, understanding that the device
+   is whitelisted, restores the fstab entry.
 
    NOTE that the replacement of the last field (here '2') by '0' is less
    than minor: the /fastboot file created by the initramfs script already
@@ -269,7 +283,7 @@ d. The script checks if a specified size has to be allocated to the
    if necessary, to match those of the readonly branch.
 
 e. The aufs is mounted. If the global lockfs policy is 'hard', then
-   the writable branch is set 'rr' instead of 'ro'.
+   the readonly branch is set 'rr' instead of 'ro'.
 
    If mount fails, then what it has been done before is undone, and a
    'mount_fallback' is executed.
@@ -314,5 +328,4 @@ is writable, other block devices are read-only.
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
- -- bilibop project <quidame@poivron.org>  Fri, 08 Jun 2012 23:53:52 +0200
- -- bilibop project <quidame@poivron.org>  Fri, 15 Jun 2012 22:05:41 +0200
+ -- bilibop project <quidame@poivron.org>  Tue, 16 Oct 2012 11:59:29 +0200
