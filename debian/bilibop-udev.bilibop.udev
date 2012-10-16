@@ -10,3 +10,4 @@ ACTION=="add|change", \
 	PROGRAM=="bilibop_disk --test %r/%k", \
 	GROUP:="disk", \
 
+LABEL="bilibop_end"
