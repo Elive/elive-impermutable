@@ -408,26 +408,27 @@ blacklist_bilibop_devices() {
     ${DEBUG} && echo "> blacklist_bilibop_devices $@" >&2
     [ -x "${rootmnt}/sbin/lvm" -a -x "/sbin/lvm" ] || return 0
 
+    local   node
     initialize_lvm_conf "${UDEV_ROOT}"
 
-    for part in $(grep '[[:digit:]]' /proc/partitions | sed 's,.*\s\([^ ]\+\)$,\1,')
+    for node in $(device_nodes)
     do
-        [ "${udev_root}/${part}" = "${BILIBOP_DISK}" ] &&
+        [ "${udev_root}/${node}" = "${BILIBOP_DISK}" ] &&
             continue
-        [ "$(physical_hard_disk ${udev_root}/${part})" != "${BILIBOP_DISK}" ] &&
+        [ "$(physical_hard_disk ${udev_root}/${node})" != "${BILIBOP_DISK}" ] &&
             continue
 
         blacklist=
         ID_FS_TYPE=
         DEVLINKS=
-        eval $(query_udev_envvar ${part})
+        eval $(query_udev_envvar ${node})
         [ "${ID_FS_TYPE}" = "LVM2_member" ] ||
             continue
 
         DEVLINKS="$(echo ${DEVLINKS} | sed "s,${udev_root}/,,g")"
-        [ "${udev_root}/${part}" = "${BILIBOP_PART}" ] &&
+        [ "${udev_root}/${node}" = "${BILIBOP_PART}" ] &&
             DEVLINKS="${BILIBOP_COMMON_BASENAME}/part ${DEVLINKS}"
-        blacklist="$(echo ${part} ${DEVLINKS} | sed 's, \+,|,g')"
+        blacklist="$(echo ${node} ${DEVLINKS} | sed 's, \+,|,g')"
 
         sed -i "s;^\s*filter\s*=\s*\[\s*;&\"r#^${1}/(${blacklist})\$#\", ;" ${LVM_CONF}
     done
