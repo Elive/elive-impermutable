@@ -1,3 +1,36 @@
+bilibop (0.3.6) experimental; urgency=low
+
+  * bilibop-common: modify common.sh for portability:
+    - device_node_from_major_minor(): replace local path= by dev= (path is
+      an environment variable of zsh, as PATH, but with spaces as separators
+      instead of colons).
+    - underlying_device_from_aufs(): escape equal sign (\=) in a variable
+      subtitution (for compatibility with zsh again).
+  * bilibop-common: modify common.sh to be sure DEBUG is 'true' or 'false'.
+  * bilibop-common: modify physical_hard_disk(). Base the loop on /sys/block/*
+    instead of the content of /proc/partitions. Runs a little bit faster.
+  * bilibop-common: Add support for aufs module parameter 'brs=0'; add
+    aufs_dirs_if_brs0() function, and modify aufs_readonly_branch(),
+    aufs_writable_branch() and aufs_dirs() to use the new one.
+  * bilibop-common: modify _drivemap_volume_size() to use 10 instead of 8 as a
+    limit to display sizes in MB).
+  * bilibop-common: add FSF address in the licence header of common.sh
+
+  * bilibop-lockfs: use device_nodes() in blacklist_bilibop_devices().
+  * bilibop-rules: fix typo in lsbilibop(8) french manual page.
+
+  * Update documentation for bilibop-common (README.Debian, bugs.txt and
+    lvm2.txt), bilibop-lockfs (README.Debian) and bilibop-rules
+    (README.Debian).
+
+  * debian/control: replace debhelper (>= 9.0.0) by debhelper (>= 9) in the
+    Build-Depends: field. Add "GNU/Linux" in the short description of the
+    bilibop metapackage.
+  * debian/substvars: replace 'Debian' by 'Debian GNU/Linux'; add 'eSATA' in
+    the list of external media.
+
+ -- bilibop project <quidame@poivron.org>  Tue, 16 Oct 2012 15:58:14 +0200
+
 bilibop (0.3.5) experimental; urgency=low
 
   * Fix typos in manpages and add french translations of the manpages.
