@@ -75,6 +75,8 @@ Package: bilibop-rules
 Architecture: linux-any
 Depends: bilibop-common (= ${binary:Version}), initramfs-tools, ${misc:Depends}
 Suggests: bilibop-lockfs (= ${binary:Version}), cryptsetup, grub-coreboot | grub-efi-amd64 | grub-efi-ia32 | grub-ieee1275 | grub-pc , pmount, udisks
+Conflicts: bilibop-udev
+Provides: bilibop-device-policy
 Description: udev rules for OS running from external media
  ${Description}
  .
@@ -93,6 +95,25 @@ Description: udev rules for OS running from external media
  .
  This package is not designed to be used on internal disks. It works only
  for OS installed on removable and writable media, including LiveUSB systems.
+ .
+ ${Requirement}
+
+Package: bilibop-udev
+Architecture: linux-any
+Depends: bilibop-common (= ${binary:Version}), ${misc:Depends}
+Suggests: bilibop-lockfs (= ${binary:Version})
+Conflicts: bilibop-rules
+Provides: bilibop-device-policy
+Description: udev rules for OS running from external media
+ ${Description}
+ .
+ This package provides a udev rules file to manage the external drive hosting
+ the running system. Its goal is to forbid low-level write access on this
+ drive and its partitions by any unprivileged user or application.
+ .
+ This package is not designed to be used on internal disks. It works only
+ for OS installed on removable and writable media, especially LiveUSB systems.
+ See also the bilibop-rules package.
  .
  ${Requirement}
 
