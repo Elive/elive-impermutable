@@ -40,7 +40,7 @@ lvm.conf(5) manpage for details.
 -----------
 
 One of the first things to do when lvm2 is installed on a OS on removable
-media is to configure the 'filter' assignment in the 'devices' section.
+media is to configure the 'filter' array in the 'devices' section.
 If you want to use your system to access internal drives of the host
 computers, then you can keep the default setting, allowing LVM tools to
 access any devices:
@@ -77,6 +77,10 @@ mainly with external HDD)
 Now the result in lvm.conf is:
 
 filter = [ "a|^/dev/disk/by-id/usb-_Trademark_Storage_05F210010018DD2-0:0-part1$|", "a|^/dev/mapper/bilibop$|", "r|.*|" ]
+
+or simply:
+
+filter = [ "a|usb-_Trademark_Storage_05F210010018DD2-0:0-part1$|", "a|^/dev/mapper/bilibop$|", "r|.*|" ]
 
 
 2.2. Backups and archives
