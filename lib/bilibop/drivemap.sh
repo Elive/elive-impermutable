@@ -51,7 +51,7 @@ _drivemap_volume_size() {
     local   size="$(cat /sys/class/block/${dev##*/}/size)"
     if      [ $((size*512/1000/1000/1000/1000)) -gt 1 ]
     then    printf "%6s" "$((size*512/1000/1000/1000/1000))TB"
-    elif    [ $((size*512/1000/1000/1000)) -ge 8 ]
+    elif    [ $((size*512/1000/1000/1000)) -ge 10 ]
     then    printf "%6s" "$((size*512/1000/1000/1000))GB"
     elif    [ $((size*512/1000/1000)) -gt 10 ]
     then    printf "%6s" "$((size*512/1000/1000))MB"
