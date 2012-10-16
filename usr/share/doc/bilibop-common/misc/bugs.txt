@@ -2,9 +2,16 @@ The goal of this document is to reference bugs from the Debian BTS that
 can give a more comprehensive overview on bilibop. Other ressources can
 also be referenced.
 
-
 FROM DEBIAN BTS
 ===============
+
+#675467: ITP: bilibop -- run Debian from external media
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=675467
+
+#675532: RFS: bilibop/0.3.5 (ITP #675467)
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=675532
+
+---------------
 
 #616729: mdadm includes stuff in initrd even if this is not needed
 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=616729
@@ -22,4 +29,8 @@ http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=671546
 #671734: Add a variable in /etc/default/grub to pass specific kernel
          parameters in the 'recovery mode' entry.
 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=671734
+
+#678954: lvm2: Inconsistencies between lvm.conf and udev rules lead to
+         hide VG, and worse
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=678954
 
