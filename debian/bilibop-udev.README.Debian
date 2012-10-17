@@ -1,0 +1,17 @@
+bilibop-udev
+------------
+
+This package mainly provides a udev rules file to be applied on operating
+systems running from external media (USB stick, USB HDD, FireWire, Flash
+Memory stick).
+
+The running system being hosted on a removable device, the common udev
+rules (91-permissions.rules) will set it as owned by the 'floppy' group,
+allowing any member of this group to damage it, even by mistake, with a
+simple 'shred DEVICE' or 'cat /dev/zero >DEVICE' command. So the bilibop
+udev rules fix the disk hosting the operating system and all its partitions
+as owned by the 'disk' group, as it was an internal disk.
+
+NOTE: there is currently no support for eSATA drives.
+
+ -- bilibop project <quidame@poivron.org>  Wed, 17 Oct 2012 14:33:20 +0200
