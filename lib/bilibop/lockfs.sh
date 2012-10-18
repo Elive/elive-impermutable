@@ -335,18 +335,6 @@ check_mount_lockfs() {
     fi
 }
 # ===========================================================================}}}
-# mount_fallback() =========================================================={{{
-# What we want is: mount a device on its original mountpoint and rewrite the
-# fstab entry to keep it coherent. This function should be called in case of
-# error or if the device is whitelisted. Device, mountpoint, type and options
-# must be given as argument (in this order), each of them being inserted
-# between double quotes.
-mount_fallback() {
-    ${DEBUG} && echo "> mount_fallback $@" >&2
-    sed -i "s;^\s*[^#][^ ]\+\s\+${2}\s\+lockfs\s.*;${1} ${2} ${3:-auto} ${4:-defaults} 0 0;" /etc/fstab
-    exec mount ${1} ${2} ${3:+-t ${3}} ${4:+-o ${4}}
-}
-# ===========================================================================}}}
 # initialize_lvm_conf() ====================================================={{{
 # What we want is: create lvm.conf or modify it if one of the file itself, the
 # 'devices' section or the 'filter' array is missing.

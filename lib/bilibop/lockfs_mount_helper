@@ -29,6 +29,19 @@ This script can not be run manually, but only by a mount process.
 EOF
 }
 
+# mount_fallback() =========================================================={{{
+# What we want is: mount a device on its original mountpoint and rewrite the
+# fstab entry to keep it coherent. This function should be called in case of
+# error or if the device is whitelisted. Device, mountpoint, type and options
+# must be given as argument (in this order), each of them being inserted
+# between double quotes.
+mount_fallback() {
+    ${DEBUG} && echo "> mount_fallback $@" >&2
+    sed -i "s;^\s*[^#][^ ]\+\s\+${2}\s\+lockfs\s.*;${1} ${2} ${3:-auto} ${4:-defaults} 0 0;" /etc/fstab
+    exec mount ${1} ${2} ${3:+-t ${3}} ${4:+-o ${4}}
+}
+# ===========================================================================}}}
+
 # Works only if the parent process is /bin/mount:
 if	[ "$(readlink -f /proc/${PPID}/exe)" != "/bin/mount" ]
 then	usage >&2
@@ -36,7 +49,8 @@ then	usage >&2
 fi
 
 
-. /lib/bilibop/lockfs.sh
+. /lib/bilibop/common.sh
+get_bilibop_variables
 get_udev_root
 
 # Works only if the root filesystem is already managed by bilibop-lockfs:
