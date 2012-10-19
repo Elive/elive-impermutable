@@ -218,6 +218,6 @@ bilibop (0.2) unstable; urgency=low
 
 bilibop (0.1) unstable; urgency=low
 
-  * Initial Release (Closes #675467).
+  * Initial Release (Closes: #675467).
 
  -- bilibop project <quidame@poivron.org>  Fri, 01 Jun 2012 00:06:51 +0200
