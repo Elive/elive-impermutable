@@ -46,7 +46,7 @@ with mkswap(8) after it has been disabled with swapoff(8).
 In /etc/fstab, you should have something like:
 UUID=12345678-9abc-def0-1234-56789abcdef0 none swap sw 0 0
 
-2.2. Encrypted swap
+2.2. Encrypted swap (random key)
 
 * In /etc/crypttab, you should have something like:
 crypt_swap UUID=12345678-9abc-def0-1234-56789abcdef0 /dev/random swap,offset=8
@@ -54,11 +54,41 @@ crypt_swap UUID=12345678-9abc-def0-1234-56789abcdef0 /dev/random swap,offset=8
 The "offset=8" option is added to not modify the height first sectors of the
 filesystem: 512*8=4096 is the size of the first page of the swap fs, where
 the UUID and LABEL are stored. The string 'SWAPSPACE2' is at the end of this
-first page. Install the 'haveged' package to use /dev/random as the key,
-otherwise use /dev/urandom.
+first page. So, with this offset, the UUID is protected, and can be used from
+a session to another.
+
+Install the 'haveged' package or any other hardware-based Random Number
+Generator (rng-tools, randomsound), and set it to be started before the
+cryptdisks* initscripts if you want to use /dev/random as the key; otherwise,
+use /dev/urandom, or you'll probably have to fill the random pool by hand
+(i.e. by 'randomly' pressing keys on the keyboard).
 
 * In /etc/fstab, you should have something like:
 /dev/mapper/crypt_swap none swap sw 0 0
+
+NOTE that with a single-use swap area, you cannot benefit of the hibernate
+features (suspend-to-disk), even if your session manager or login manager
+can propose it to you.
+
+2.3. Encrypted swap (persistent)
+
+Here, the swap area uses dm-crypt/LUKS with a fixed passphrase. Even if it is
+possible to set an encrypted device only for the swap space, separatly from
+the system, the common usage is to set an encrypted device and use LVM on the
+top of the decrypted device: the same passphrase is used to simultaneously
+decrypt the root filesystem, the swap area and sometimes more (/home, shared
+and miscellaneous data, etc.)
+
+* In /etc/crypttab, you should have something like:
+crypt UUID=12345678-9abc-def0-1234-56789abcdef0 none luks
+
+* In /etc/fstab, you should have something like:
+/dev/mapper/vg00-root	/	ext4	noatime,errors=remount-ro	0 1
+/dev/mapper/vg00-swap	none	swap	sw				0 0
+
+NOTE that with these settings, your system can hibernate and be resumed on
+the same computer (and probably only if plugged on the same USB/Firewire/etc.
+port).
 
 
 3. Use the swap partition of the host computer
@@ -103,5 +133,5 @@ To properly disable the swap device:
 Don't forget the 'seek=8' and '--offset=8' options with dd and cryptsetup
 respectively, otherwise the firsts sectors will be overwritten, the UUID
 deleted, and if this UUID is used in a configuration file of a system
-installed on the computer, unexpetced errors can occur.
+installed on the computer, errors will occur during the boot of this system.
 
