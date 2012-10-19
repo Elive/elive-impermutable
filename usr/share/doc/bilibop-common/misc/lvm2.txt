@@ -15,15 +15,15 @@ if a VG is composed of more than one PV.
 LVM can be used in a "multilayered block devices" schema. For example,
 
 Disk
-|___Partition1___PV#1
-|                |___LV#1___Filesystem (/boot)
-|                |___LV#2___LUKS___PV#2
-|                                  |___LV#3___Filesystem (/root)
-|                                  |___LV#4___Filesystem (/home)
-|                                  |___LV#5___Filesystem (swap)
-|___Partition2___LUKS___Filesystem
-|___Partition3___Filesystem
-|___Partition4___Filesystem
+├───Partition1───PV#1
+│                ├───LV#1───Filesystem (/boot)
+│                └───LV#2───LUKS───PV#2
+│                                  ├───LV#3───Filesystem (/root)
+│                                  ├───LV#4───Filesystem (/home)
+│                                  └───LV#5───SWAP Filesystem
+├───Partition2───LUKS───Filesystem
+├───Partition3───Filesystem
+└───Partition4───Filesystem
 
 In this example, only one partition is used to contain the entire system,
 which is nevertheless divided into four different filesystems, three of
@@ -43,7 +43,7 @@ One of the first things to do when lvm2 is installed on a OS on removable
 media is to configure the 'filter' array in the 'devices' section.
 If you want to use your system to access internal drives of the host
 computers, then you can keep the default setting, allowing LVM tools to
-access any devices:
+access any device:
 
 filter = [ "a/.*/" ]
 
@@ -82,18 +82,31 @@ or simply:
 
 filter = [ "a|usb-_Trademark_Storage_05F210010018DD2-0:0-part1$|", "a|^/dev/mapper/bilibop$|", "r|.*|" ]
 
+Now test it with 'vgscan'. It can happen that the second PV (and then the
+second VG) is not found. This is because /dev/mapper/bilibop is not managed
+by udev (maybe due to some dmsetup udev rules). In that case, you have to
+inform LVM to not obtain device list from udev, but to scan /dev entirely
+and take any symlink into account; so in the same 'devices' section, set
+
+obtain_device_list_from_udev = 0
+
+Then, if 'vgscan' gives you the expected result, run 'update-initramfs -u':
+this will build a new initramdisk with the new lvm.conf into; all other
+volumes than those used by your system will never be activated at boot time
+or later, until you modify the 'filter' setting.
+
 
 2.2. Backups and archives
 -------------------------
 
 If your root filesystem in on a Logical Volume, then the default place
-to store backups, /etc/lvm/backup, is useless, because backups are stored
+to store backups - /etc/lvm/backup - is useless, because backups are stored
 into the Volume that can need the backup to be opened.
 
 Additionally, you have to know that LVM archives and backups can easily be
 used to acquire certainty that your system was plugged on this computer or
-this one. So, you should probably disable these features in the 'backup'
-section:
+this one, if Logical Volumes on the disks of the computer are activated.
+So, you should probably disable these features in the 'backup' section:
 
 archive = 0
 backup  = 0
