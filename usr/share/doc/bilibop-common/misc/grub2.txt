@@ -93,6 +93,13 @@ to build your own keymap, do as follows (see bug #623975):
 NOTE: the ckbcomp follows the syntax of setxkbmap(1); for a complete list of
 available layouts, see /usr/share/X11/xkb/symbols/*
 
+To use it, set GRUB_TERMINAL_INPUT to "at_keyboard" in /etc/default/grub,
+add a line just containing 'keymap fr' in /etc/grub.d/40_custom or in
+/boot/grub/custom.cfg, run 'update-grub', and that's all. If several keymaps
+are stored in /boot/grub/layouts, each of them can be used by entering GRUB
+commandline mode and use the 'keymap' command, followed by the filename of
+the keymap you need, without the .gkb extension.
+
 
 5. /etc/grub.d/4[01]_custom
 ---------------------------
