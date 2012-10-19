@@ -68,7 +68,7 @@ use /dev/urandom, or you'll probably have to fill the random pool by hand
 
 NOTE that with a single-use swap area, you cannot benefit of the hibernate
 features (suspend-to-disk), even if your session manager or login manager
-can propose it to you.
+can propose it to you. See [1].
 
 2.3. Encrypted swap (persistent)
 
@@ -134,4 +134,17 @@ Don't forget the 'seek=8' and '--offset=8' options with dd and cryptsetup
 respectively, otherwise the firsts sectors will be overwritten, the UUID
 deleted, and if this UUID is used in a configuration file of a system
 installed on the computer, errors will occur during the boot of this system.
+
+NOTE that when you use a swap device on the fly, your session logout manager
+can propose you a 'hibernate' button. If you use it, your session will be
+recorded on the swap space, but you will not recover it. See [1].
+
+
+[1]: if your system has no swap device that can be used to resume a session
+     after a hibernation, you should if possible disable the 'hibernate'
+     button of your session logout manager.
+     For Xfce4, run:
+     $ xfconf-query --channel xfce4-session --create \
+                    --property /shutdown/ShowHibernate \
+		    --type bool --set false
 
