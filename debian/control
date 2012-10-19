@@ -104,7 +104,7 @@ Depends: bilibop-common (= ${binary:Version}), ${misc:Depends}
 Suggests: bilibop-lockfs (= ${binary:Version})
 Conflicts: bilibop-rules
 Provides: bilibop-device-policy
-Description: udev rules for OS running from external media
+Description: minimal udev rule for Debian GNU/Linux running from external media
  ${Description}
  .
  This package provides a udev rules file to manage the external drive hosting
