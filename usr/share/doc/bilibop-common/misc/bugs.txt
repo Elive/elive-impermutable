@@ -35,3 +35,7 @@ http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=671734
          hide VG, and worse
 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=678954
 
+#691029: udisks: set ID_DRIVE_DETACHABLE to 0 has no effect. This can lead
+         to system crash.
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=691029
+
