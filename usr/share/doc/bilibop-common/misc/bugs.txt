@@ -2,13 +2,14 @@ The goal of this document is to reference bugs from the Debian BTS that
 can give a more comprehensive overview on bilibop. Other ressources can
 also be referenced.
 
+
 FROM DEBIAN BTS
 ===============
 
 #675467: ITP: bilibop -- run Debian from external media
 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=675467
 
-#675532: RFS: bilibop/0.3.5 (ITP #675467)
+#675532: RFS: bilibop/0.4.0 (ITP #675467)
 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=675532
 
 ---------------
