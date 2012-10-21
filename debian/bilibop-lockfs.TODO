@@ -1,6 +1,6 @@
 bilibop-lockfs - TODO
 
-  * Translate manpages (at least in french and maybe spanish, arabic, russian).
+  * Translate manpages
   * Use debconf to notice the user that she must reboot the system to use the
     lockfs feature, and how.
 
