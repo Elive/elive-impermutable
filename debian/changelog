@@ -1,3 +1,43 @@
+bilibop (0.4.0) experimental; urgency=low
+
+  * Add new binary package: bilibop-udev, as a minimal subset of
+    bilibop-rules. There is a conflict between bilibop-udev and bilibop-rules,
+    and each of them provides the 'bilibop-device-policy' virtual package.
+  * bilibop-lockfs: the mount_fallback() function being the only one in
+    lockfs.sh that can be used by the lockfs_mount_helper script, move it from
+    lockfs.sh to lockfs_mount_helper, and source common.sh directly instead of
+    lockfs.sh from lockfs_mount_helper.
+  * bilibop-common: update documentation:
+    - add a reference to bilibop-udev in misc/udev.txt
+    - update misc/bugs.txt (new bug reported against udisks)
+    - give additional information about encrypted swap devices (misc/swap.txt)
+    - add a NOTE about hibernation, and explain how to hide the 'hibernate'
+      button of xfce4-session-logout (misc/swap.txt)
+    - give more info about the LVM 'filter' settings and how to use it from OS
+      on external media (misc/lvm2.txt)
+    - give detailed info on how to build and use non-default keymap in GRUB
+      (misc/grub2.txt)
+
+  * debian/changelog: fix a debchangelog syntax error in the Initial Release
+    entry (add the missing colon after 'Closes').
+  * debian/control: update dependency relationships and description of the
+    binary packages:
+    - bilibop: modify the Depends: field; now bilibop depends on the virtual
+      package 'bilibop-device-policy' instead of 'bilibop-rules (= version)'.
+    - bilibop-common: modify the Suggests: field; now suggests the virtual
+      package 'bilibop-device-policy' as above and remove (= version) for
+      bilibop-lockfs.
+    - bilibop-lockfs: modify the Recommends: and Suggests: fields in the same
+      manner. Move 'aufs-tools' and 'libnotify-bin' from Suggests: to
+      Recommends: field. Add some details in the long description.
+    - bilibop-rules: add 'grub-common' and 'lvm2' in Recommends: and move
+      'udisks' from Suggests: to Recommends: field. Update short description.
+      Add some details in the long description.
+  * Update debian/bilibop-rules.dirs (remove unneeded initramfs-tools/hooks
+    directory).
+
+ -- bilibop project <quidame@poivron.org>  Mon, 22 Oct 2012 00:20:33 +0200
+
 bilibop (0.3.6) experimental; urgency=low
 
   * bilibop-common: modify common.sh for portability:
