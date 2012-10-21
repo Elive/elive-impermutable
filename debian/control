@@ -12,7 +12,7 @@ Package: bilibop
 Section: misc
 Priority: extra
 Architecture: linux-any
-Depends: bilibop-lockfs (= ${binary:Version}), bilibop-rules (= ${binary:Version}), ${misc:Depends}
+Depends: bilibop-lockfs (= ${binary:Version}), bilibop-device-policy, ${misc:Depends}
 Description: run Debian GNU/Linux from external media - metapackage
  ${Description}
  .
@@ -25,7 +25,7 @@ Description: run Debian GNU/Linux from external media - metapackage
 Package: bilibop-common
 Architecture: linux-any
 Depends: initscripts (>= 2.88dsf-13.3), udev, ${misc:Depends}
-Suggests: aufs-tools, bilibop-lockfs (= ${binary:Version}), bilibop-rules (= ${binary:Version}), cryptsetup, dmsetup, lvm2
+Suggests: aufs-tools, bilibop-lockfs, bilibop-device-policy, cryptsetup, dmsetup, lvm2
 Description: shell functions for bilibop scripts
  ${Description}
  .
@@ -42,8 +42,8 @@ Description: shell functions for bilibop scripts
 Package: bilibop-lockfs
 Architecture: linux-any
 Depends: bilibop-common (= ${binary:Version}), initramfs-tools, ${misc:Depends}
-Recommends: cryptsetup
-Suggests: aufs-tools, bilibop-rules (= ${binary:Version}), gnome-icon-theme, libnotify-bin
+Recommends: aufs-tools, cryptsetup, libnotify-bin
+Suggests: bilibop-device-policy, gnome-icon-theme
 Description: lock filesystems and write changes into RAM
  ${Description}
  .
@@ -57,27 +57,29 @@ Description: lock filesystems and write changes into RAM
  to be locked later by a mount helper script.
  .
  bilibop-lockfs provides the following features:
-  * whitelist based policy: filesystems on which you want to allow permanent
+  * whitelist based policy: filesystems on which you want to allow persistent
     changes must be explicitly listed in a configuration file.
   * not only filesystems are set read-only, but also block devices: this
     forbids changes of the partition table, boot sectors and LUKS headers.
-  * policy of management of swap devices.
+  * management of swap devices, that can be used as is, noauto, only if
+    encrypted or not used at all.
   * desktop notifications at startup about filesystems status, to inform the
-    user that temporary or permanent changes are allowed or not, and where.
+    user that volatile or persistent changes are allowed or not, and where.
  .
  This package can be used as an alternative to fsprotect, especially for
  writable operating systems embedded on a USB stick; but it may also be
- installed on public or personal computers.
+ installed on public or personal computers, for daily use or testing purposes.
  .
  ${Requirement}
 
 Package: bilibop-rules
 Architecture: linux-any
 Depends: bilibop-common (= ${binary:Version}), initramfs-tools, ${misc:Depends}
-Suggests: bilibop-lockfs (= ${binary:Version}), cryptsetup, grub-coreboot | grub-efi-amd64 | grub-efi-ia32 | grub-ieee1275 | grub-pc , pmount, udisks
+Recommends: grub-common, lvm2, udisks
+Suggests: bilibop-lockfs, cryptsetup, grub-coreboot | grub-efi-amd64 | grub-efi-ia32 | grub-ieee1275 | grub-pc, pmount, policykit-1
 Conflicts: bilibop-udev
 Provides: bilibop-device-policy
-Description: udev rules for OS running from external media
+Description: device management rules for OS running from external media
  ${Description}
  .
  This package provides a udev rules file to manage the external drive hosting
@@ -89,12 +91,13 @@ Description: udev rules for OS running from external media
  configuration file has been modified.
  .
  bilibop-rules also provides helper scripts to:
-  * build custom udev rules
+  * build custom bilibop udev rules running faster than the generic ones
   * make some persistent and cumulative rules files unpersistent
   * use either a fake or an always-up-to-date grub device map
  .
  This package is not designed to be used on internal disks. It works only
  for OS installed on removable and writable media, including LiveUSB systems.
+ See also the bilibop-udev package.
  .
  ${Requirement}
 
