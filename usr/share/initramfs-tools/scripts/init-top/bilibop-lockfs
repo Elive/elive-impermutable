@@ -1,0 +1,85 @@
+#!/bin/sh
+
+PREREQ=""
+
+prereqs()
+{
+	echo "$PREREQ"
+}
+
+case $1 in
+	prereqs)
+		prereqs
+		exit 0
+	;;
+esac
+
+# Modify local lvm.conf (in the initramfs) to lock LVM metadata with:
+# global {
+# 	locking_type = 4
+# 	metadata_read_only = 1
+# }
+# activation {
+# 	read_only_volume_list = [ "vg0", "vg0/lv0", "vg0/lv1", "vg1", "vg1/lv0", "vg1/lv1", "vg1/lv2" ]
+# }
+
+# /proc/cmdline will be parsed several times. We call 'cat' only one time:
+readonly CMDLINE="$(cat /proc/cmdline)"
+
+# Set verbosity from boot commandline:
+for	param in ${CMDLINE}
+do
+	case	"${param}" in
+		quiet)
+			quiet="y"
+			break
+			;;
+	esac
+done
+
+# Load functions:
+. /scripts/functions
+. /lib/bilibop/lockfs.sh
+
+udev_root="/dev"
+BILIBOP_LOCKFS="true"
+
+# Check if BILIBOP_LOCKFS is overridden from the boot commandline. To use
+# lockfs in single-user mode, it is necessary to use 'lockfs=force'.
+for	param in ${CMDLINE}
+do
+	case	"${param}" in
+		single|S|1)
+			single="true"
+			;;
+		lockfs=force)
+			_force="true"
+			;;
+		nolockfs)
+			BILIBOP_LOCKFS="false"
+			;;
+		lockfs|lockfs=*)
+			BILIBOP_LOCKFS="true"
+			;;
+	esac
+done
+[ "${single}" = "true" ] && BILIBOP_LOCKFS="false"
+[ "${_force}" = "true" ] && BILIBOP_LOCKFS="true"
+
+case	"${BILIBOP_LOCKFS}" in
+	true)
+		log_warning_msg "${0##*/}: Set LVM read-only."
+		;;
+	false)
+		log_warning_msg "${0##*/}: Nothing to do."
+		exit 0
+		;;
+esac
+
+# Now modify 'locking_type', 'metadata_read_only' and 'read_only_volume_list'
+# variables in (initramfs)/etc/lvm/lvm.conf:
+LVM_CONF="/etc/lvm/lvm.conf"
+initialize_lvm_conf "${udev_root}"
+set_readonly_lvm_settings
+
+:
