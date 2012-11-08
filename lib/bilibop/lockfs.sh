@@ -3,7 +3,6 @@
 
 # The bilibop-lockfs functions need those of bilibop-common:
 . /lib/bilibop/common.sh
-get_bilibop_variables ${rootmnt}
 
 # lock_file() ==============================================================={{{
 # What we want is: add a filename to the list of files that have been modified
@@ -339,9 +338,7 @@ check_mount_lockfs() {
 # What we want is: create lvm.conf or modify it if one of the file itself, the
 # 'devices' section or the 'filter' array is missing.
 initialize_lvm_conf() {
-    ${DEBUG} && echo "> overwrite_lvm_conf $@" >&2
-    eval $(grep '^\s*LVM_SYSTEM_DIR=' ${rootmnt}/etc/environment)
-    LVM_CONF="${rootmnt}${LVM_SYSTEM_DIR:=/etc/lvm}/lvm.conf"
+    ${DEBUG} && echo "> initialize_lvm_conf $@" >&2
 
     if      [ ! -f "${LVM_CONF}" ]
     then
@@ -354,32 +351,77 @@ devices {
     dir = "${1}"
     scan = [ "${1}" ]
     obtain_device_list_from_udev = 1
-    filter = [ "a#.*#" ]
+    filter = [ "a|.*|" ]
     sysfs_scan = 1
+}
+
+global {
+    locking_type = 1
+    metadata_read_only = 0
+}
+
+activation {
+    read_only_volume_list = [ ]
 }
 EOF
             return 0
     fi
 
-    >>${LVM_CONF}
-    lock_file "${LVM_SYSTEM_DIR}/lvm.conf"
-
+    ##
     if      ! grep -q '^\s*devices\s*{' ${LVM_CONF}
-    then
-            cat >>${LVM_CONF} <<EOF
+    then    cat >>${LVM_CONF} <<EOF
 # Added on the fly by ${0##*/} from the initramfs.
 # See lvm.conf(5) and bilibop(7) for details.
 devices {
     dir = "${1}"
     scan = [ "${1}" ]
     obtain_device_list_from_udev = 1
-    filter = [ "a#.*#" ]
+    filter = [ "a|.*|" ]
     sysfs_scan = 1
 }
 EOF
-    elif    ! grep -q '^\s*filter\s*=' ${LVM_CONF}
-    then
-            sed -i "s;^\s*devices\s*{;&\n    filter = [ \"a#.*#\" ]\n;" ${LVM_CONF}
+    else
+            grep -q '^\s*dir\s*=' ${LVM_CONF} ||
+            sed -i "s;^\s*devices\s*{;&\n    dir = \"${1}\"\n;" ${LVM_CONF}
+            grep -q '^\s*scan\s*=' ${LVM_CONF} ||
+            sed -i "s;^\s*devices\s*{;&\n    scan = [ \"${1}\" ]\n;" ${LVM_CONF}
+            grep -q '^\s*obtain_device_list_from_udev\s*=' ${LVM_CONF} ||
+            sed -i 's;^\s*devices\s*{;&\n    obtain_device_list_form_udev = 1\n;' ${LVM_CONF}
+            grep -q '^\s*filter\s*=' ${LVM_CONF} ||
+            sed -i 's;^\s*devices\s*{;&\n    filter = [ "a|.*|" ]\n;' ${LVM_CONF}
+            grep -q '^\s*sysfs_scan\s*=' ${LVM_CONF} ||
+            sed -i 's;^\s*devices\s*{;&\n    sysfs_scan = 1\n;' ${LVM_CONF}
+    fi
+
+    ##
+    if      ! grep -q '^\s*global\s*{' ${LVM_CONF}
+    then    cat >>${LVM_CONF} <<EOF
+# Added on the fly by ${0##*/} from the initramfs.
+# See lvm.conf(5) and bilibop(7) for details.
+global {
+    locking_type = 1
+    metadata_read_only = 0
+}
+EOF
+    else
+            grep -q '^\s*locking_type\s*=' ${LVM_CONF} ||
+            sed -i 's;^\s*global\s*{;&\n    locking_type = 1\n;' ${LVM_CONF}
+            grep -q '^\s*metadata_read_only\s*=' ${LVM_CONF} ||
+            sed -i 's;^\s*global\s*{;&\n    metadata_read_only = 0\n;' ${LVM_CONF}
+    fi
+
+    ##
+    if      ! grep -q '^\s*activation\s*{' ${LVM_CONF}
+    then    cat >>${LVM_CONF} <<EOF
+# Added on the fly by ${0##*/} from the initramfs.
+# See lvm.conf(5) and bilibop(7) for details.
+activation {
+    read_only_volume_list = [ ]
+}
+EOF
+    else
+            grep -q '^\s*read_only_volume_list\s*=' ${LVM_CONF} ||
+            sed -i 's;^\s*activation\s*{;&\n    read_only_volume_list = [ ]\n;' ${LVM_CONF}
     fi
 }
 # ===========================================================================}}}
@@ -397,8 +439,6 @@ blacklist_bilibop_devices() {
     [ -x "${rootmnt}/sbin/lvm" -a -x "/sbin/lvm" ] || return 0
 
     local   node
-    initialize_lvm_conf "${UDEV_ROOT}"
-
     for node in $(device_nodes)
     do
         [ "${udev_root}/${node}" = "${BILIBOP_DISK}" ] &&
@@ -418,8 +458,32 @@ blacklist_bilibop_devices() {
             DEVLINKS="${BILIBOP_COMMON_BASENAME}/part ${DEVLINKS}"
         blacklist="$(echo ${node} ${DEVLINKS} | sed 's, \+,|,g')"
 
-        sed -i "s;^\s*filter\s*=\s*\[\s*;&\"r#^${1}/(${blacklist})\$#\", ;" ${LVM_CONF}
+        sed -i "s;^\s*filter\s*=\s*\[\s*;&\"r#^${UDEV_ROOT}/(${blacklist})\$#\", ;" ${LVM_CONF}
     done
+}
+# ===========================================================================}}}
+# set_readonly_lvm_settings() ==============================================={{{
+# What we want is: overwrite temporary lvm.conf (into initrd or on aufs) and
+# set some variables to make VG and LV read-only (content + metadata).
+# In 'global' section:
+#   locking_type = 4
+#   metadata_read_only = 1
+# In 'activation' section:
+#   read_only_volume_list = [ "vg0/lv0", "vg0/lv1", "vg1/lv0", "vg1/lv1", "vg1/lv2" ]
+set_readonly_lvm_settings() {
+    ${DEBUG} && echo "> set_readonly_lvm_settings $@" >&2
+
+    if      [ -f "/etc/lvm/bilibop" ]
+    then
+            for lvm in $(cat /etc/lvm/bilibop)
+            do
+                ROVL="${ROVL:+${ROVL}, }\"${lvm}\""
+            done
+
+            sed -i 's|^\(\s*locking_type\s*=\s*\).*|\14|' ${LVM_CONF}
+            sed -i 's|^\(\s*metadata_read_only\s*=\s*\).*|\11|' ${LVM_CONF}
+            sed -i "s|^\(\s*read_only_volume_list\s*=\s*\).*|\1[ ${ROVL} ]|" ${LVM_CONF}
+    fi
 }
 # ===========================================================================}}}
 
