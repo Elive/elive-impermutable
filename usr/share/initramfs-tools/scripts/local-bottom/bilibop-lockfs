@@ -36,6 +36,7 @@ done
 # Load functions:
 . /scripts/functions
 . /lib/bilibop/lockfs.sh
+get_bilibop_variables ${rootmnt}
 
 
 # The bilibop functions assume that udev_root can be different from /dev; but
@@ -232,10 +233,17 @@ parse_and_modify_fstab
 grep -q '\slockfs\s' ${FSTAB} &&
 check_mount_lockfs "${rootmnt}"
 
-# Avoid breakage of read-only settings by LVM tools: blacklist the actually
-# available bilibop block devices in lvm.conf(5).
-[ "${BILIBOP_LOCKFS_POLICY}" != "soft" ] &&
-blacklist_bilibop_devices "${UDEV_ROOT}"
+# Avoid breakage of read-only settings by LVM tools:
+if	[ "${BILIBOP_LOCKFS_POLICY}" != "soft" ]
+then
+	eval $(grep '^\s*LVM_SYSTEM_DIR=' ${rootmnt}/etc/environment)
+	LVM_CONF="${rootmnt}${LVM_SYSTEM_DIR:=/etc/lvm}/lvm.conf"
+	initialize_lvm_conf "${UDEV_ROOT}"
+	set_readonly_lvm_settings
+	blacklist_bilibop_devices
+	>>${LVM_CONF}
+	lock_file "${LVM_SYSTEM_DIR}/lvm.conf"
+fi
 
 
 # Now modify some other files, or execute specific actions if wanted by the
