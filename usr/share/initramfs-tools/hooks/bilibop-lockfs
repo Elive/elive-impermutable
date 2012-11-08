@@ -44,5 +44,64 @@ force_load usb-storage
 force_load firewire-sbp2
 force_load mmc_block
 
+
+# Add a list of LV used by local filesystems.
+. /lib/bilibop/common.sh
+get_udev_root
+
+lv_list=$(vgs --noheadings -o vg_name,lv_name)
+[ -n "${lv_list}" ] || exit 0
+
+mkdir -p ${DESTDIR}/etc/lvm
+LV_LIST="${DESTDIR}/etc/lvm/bilibop"
+
+for dev in $(grep -v '^\s*\(#\|$\)' /etc/fstab | sed 's,^\s*\([^[:blank:]]\+\)\s.*,\1,')
+do
+	case "${dev}" in
+		UUID=*|LABEL=*)
+			dev="$(findfs ${dev})"
+			;;
+		/*)	;;
+		*)	continue ;;
+	esac
+	dev="$(readlink -f ${dev})"
+	devlist="${devlist} ${dev}"
+done
+
+[ -f "/etc/crypttab" ] &&
+for dev in $(grep -v '^\s*\(#\|$\)' /etc/crypttab | sed 's,^\s*[^[:blank:]]\+\s\+\([^[:blank:]]\+\)\s.*,\1,')
+do
+	case "${dev}" in
+		UUID=*|LABEL=*)
+			dev="$(findfs ${dev})"
+			;;
+		/*)	;;
+		*)	continue ;;
+	esac
+	dev="$(readlink -f ${dev})"
+	devlist="${devlist} ${dev}"
+done
+
+echo "${lv_list}" |
+while read VG LV
+do
+	for dev in ${devlist}
+	do
+		case "${dev}" in
+			${udev_root}/dm-*)
+				if	[ "$(readlink -f ${udev_root}/${VG}/${LV})" = "${dev}" ] ||
+					[ "$(readlink -f ${udev_root}/mapper/${VG}-${LV})" = "${dev}" ]
+				then	touch ${LV_LIST}
+					echo ${VG}/${LV} >>${LV_LIST}
+					break
+				fi
+				;;
+			*)
+				continue
+				;;
+		esac
+	done
+done
+
 :
 ### END ###
