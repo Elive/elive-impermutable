@@ -237,13 +237,8 @@ parse_and_modify_fstab() {
         for skip in ${BILIBOP_LOCKFS_WHITELIST}
         do
             case    "${skip}" in
-                ${device})
-                    continue 2
-                    ;;
-                ${mntpnt})
-                    continue 2
-                    ;;
-                TYPE=${fstype})
+                ${device}|${mntpnt}|TYPE=${fstype})
+                    unlock_logical_volume ${device}
                     continue 2
                     ;;
             esac
@@ -484,6 +479,41 @@ set_readonly_lvm_settings() {
             sed -i 's|^\(\s*metadata_read_only\s*=\s*\).*|\11|' ${LVM_CONF}
             sed -i "s|^\(\s*read_only_volume_list\s*=\s*\).*|\1[ ${ROVL} ]|" ${LVM_CONF}
     fi
+}
+# ===========================================================================}}}
+# unlock_logical_volume() ==================================================={{{
+# What we want is: avoid mount errors for whitelisted devices/mountpoints. For
+# that, we have to override, from the local-bottom script, some settings done
+# from the init-top script: reset readonly attribute of a whitelisted Logical
+# Volume, and remove it from the list of the Logical Volumes to set read-only.
+# This function is called from parse_and_modify_fstab().
+unlock_logical_volume() {
+    ${DEBUG} && echo "> unlock_logical_volume $@" >&2
+    [ -f /etc/lvm/bilibop ] || return 0
+    local   lvm node symlink dev="${1}"
+    for lvm in $(cat /etc/lvm/bilibop)
+    do
+        [ -e "${udev_root}/${lvm}" ] || continue
+        case "${dev}" in
+            UUID=*)
+                symlink="${udev_root}/disk/by-uuid/${dev#UUID=}"
+                ;;
+            LABEL=*)
+                symlink="${udev_root}/disk/by-label/${dev#LABEL=}"
+                ;;
+            ${UDEV_ROOT}/*)
+                symlink="$(echo ${dev} | sed "s,^${UDEV_ROOT},${udev_root},")"
+                ;;
+        esac
+        [ -e "${symlink}" ] || continue
+        node="$(readlink -f ${symlink})"
+        if [ "$(readlink -f ${udev_root}/${lvm})" = "${node}" ]
+        then
+            sed -i "/^${lvm}$/d" /etc/lvm/bilibop
+            blockdev --setrw ${node}
+            break
+        fi
+    done
 }
 # ===========================================================================}}}
 
