@@ -20,8 +20,10 @@ esac
 # 	metadata_read_only = 1
 # }
 # activation {
-# 	read_only_volume_list = [ "vg0", "vg0/lv0", "vg0/lv1", "vg1", "vg1/lv0", "vg1/lv1", "vg1/lv2" ]
+# 	read_only_volume_list = [ "vg0/lv0", "vg0/lv1", "vg1/lv0", "vg1/lv1", "vg1/lv2" ]
 # }
+# This is done very early in the boot process, before activation of Logical
+# Volumes.
 
 # /proc/cmdline will be parsed several times. We call 'cat' only one time:
 readonly CMDLINE="$(cat /proc/cmdline)"
