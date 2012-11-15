@@ -60,7 +60,8 @@ Description: lock filesystems and write changes into RAM
   * whitelist based policy: filesystems on which you want to allow persistent
     changes must be explicitly listed in a configuration file.
   * not only filesystems are set read-only, but also block devices: this
-    forbids changes of the partition table, boot sectors and LUKS headers.
+    forbids changes of the partition table, boot sectors, LUKS headers and
+    LVM metadata.
   * management of swap devices, that can be used as is, noauto, only if
     encrypted or not used at all.
   * desktop notifications at startup about filesystems status, to inform the
@@ -68,7 +69,8 @@ Description: lock filesystems and write changes into RAM
  .
  This package can be used as an alternative to fsprotect, especially for
  writable operating systems embedded on a USB stick; but it may also be
- installed on public or personal computers, for daily use or testing purposes.
+ installed on public or personal computers, for daily use, testing purposes
+ or as a tool in anti-forensics strategies.
  .
  ${Requirement}
 
