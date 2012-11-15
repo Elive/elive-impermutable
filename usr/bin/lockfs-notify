@@ -161,11 +161,11 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 		elif	echo "${locked}" | grep -q ', '
 		then
 			locked="$(echo ${locked} | sed "s;, \('/[^,' ]\+'\)$; and \1 are;")"
-			perm_or_temp_fs="temporary filesystems"
+			perm_or_temp_fs="volatile filesystems"
 			this_fs="these filesystems"
 		else
 			locked="${locked} is"
-			perm_or_temp_fs="a temporary filesystem"
+			perm_or_temp_fs="a volatile filesystem"
 			this_fs="this filesystem"
 		fi
 
@@ -194,11 +194,11 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 		elif	echo "${unlocked}" | grep -q ', '
 		then
 			unlocked="$(echo ${unlocked} | sed "s;, \('/[^,' ]\+'\)$; and \1 are;")"
-			perm_or_temp_fs="permanent filesystems"
+			perm_or_temp_fs="persistent filesystems"
 			this_fs="these filesystems"
 		else
 			unlocked="${unlocked} is"
-			perm_or_temp_fs="a permanent filesystem"
+			perm_or_temp_fs="a persistent filesystem"
 			this_fs="this filesystem"
 		fi
 
