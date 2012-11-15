@@ -16,20 +16,20 @@ and writable media (USB, FireWire, MMC, eSATA). It is composed of
 pairs, where
 .B VARIABLE
 is a string beginning by
-.RI \' BILIBOP_ \',
+.RI \(aq BILIBOP_ \(aq,
 and
 .B VALUE
 must be inserted between quotes if it contains blank characters (spaces or
 tabulations). Spaces around the equal sign (=) are not allowed. Empty lines
 or lines beginning by a hash sign (#) are ignored.
 .PP
-Valid configuration options can be divided in \'common\' and \'specific\'
+Valid configuration options can be divided in \(aqcommon\(aq and
+\(aqspecific\(aq
 sections, as follows:
 
 .SH BILIBOP COMMON VARIABLES
 
-.TP 4
-.B BILIBOP_COMMON_BASENAME
+.SS BILIBOP_COMMON_BASENAME
 This variable defines the basename of bilibop subdirectories that will be
 created in
 .I /dev
@@ -37,7 +37,7 @@ and
 .I /run
 at boot time, from into the initramfs environment or from into the running
 system. If it is empty or unset, the value will fallback to
-.RI \' bilibop \'.
+.RI \(aq bilibop \(aq.
 If you modify it to anything else, you have to take care that some symlinks
 or custom settings of your system reflect the new location. At least, if
 .B bilibop\-rules
@@ -48,12 +48,11 @@ Default is unset.
 
 .SH BILIBOP\-LOCKFS SPECIFIC VARIABLES
 
-.TP 4
-.B BILIBOP_LOCKFS
+.SS BILIBOP_LOCKFS
 This variable defines the main behaviour of the
 .I bilibop\-lockfs
 initramfs script. It is a boolean:
-.IP
+.PP
 If set to
 .IR false ,
 the system will boot normally, and other BILIBOP_LOCKFS_* variables will
@@ -67,9 +66,9 @@ mountpoint used as the lower/readonly branch of an
 mountpoint used itself as the actual root filesystem. After what the
 temporary and writable
 .I /etc/fstab
-file will be modified to prepare other filesystems \- if not whitelisted \-
-to be mounted as readonly branches of aufs too.
-.IP
+file will be modified to prepare other filesystems \(em if not whitelisted
+\(em to be mounted as readonly branches of aufs too.
+.PP
 If empty, unset, or set to anything else, then a heuristic will be used
 to set it to
 .I true
@@ -80,52 +79,47 @@ knowing that generally USB keys are seen as removable devices
 .RI ( true ),
 and USB HDDs are seen as non removable devices
 .RI ( false ).
-.IP
+.PP
 In all cases, the value of this variable can be overridden from the boot
 commandline by adding
-.RB \' lockfs \'
+.RB \(aq lockfs \(aq
 or
-.RB \' nolockfs \'
+.RB \(aq nolockfs \(aq
 to the line of kernel parameters.
 .br
 Default is unset.
 
-.TP
-.B BILIBOP_LOCKFS_POLICY
-This variable defines an additional \'lock\' level to be enabled or not.
-.RS
+.SS BILIBOP_LOCKFS_POLICY
+This variable defines an additional \(aqlock\(aq level to be enabled or not.
 .IP \(bu 2
 .I soft
 .br
 The readonly branches of
 .BR aufs (5)
 mountpoints will be set to
-.RB \' ro \'
+.RB \(aq ro \(aq
 (readonly). Later, these readonly filesystems can be remounted manually as
 writable to allow root to save some changes on them. This kind of action is
 highly discouraged here, but is possible if you REALLY know what you do;
 otherwise it can lead to unexpected results, including of course data loss.
-.IP
 .IP \(bu 2
 .I hard
 .br
 The readonly branches of aufs mountpoints will be set to
-.RB \' rr \'
+.RB \(aq rr \(aq
 (real readonly); this is used by aufs to optimize some internal operations.
 Additionally, the corresponding block devices will be set as readonly too
 with
 .BR blockdev (8),
 avoiding low\-level write access to them (even by root) and avoiding the
 filesystems to be remounted later as writable.
-.RE
-.IP
+.PP
 If empty, unset, or set to anything else, the value will fallback to
 .IR hard .
 .br
 Default is unset.
 
-.TP
-.B BILIBOP_LOCKFS_WHITELIST
+.SS BILIBOP_LOCKFS_WHITELIST
 One time the root filesystem is locked as the readonly branch of an aufs,
 the
 .I /etc/fstab
@@ -143,13 +137,13 @@ or
 .BR TYPE = fstype .
 If the LABEL of a device contains spaces, replace them by underscores (_),
 as given by the output of
-.RB \' udevadm
+.RB \(aq udevadm
 info \-\-query property \-\-name
-.IR DEVICE \'
+.IR DEVICE \(aq
 or
-.RB \' blkid
+.RB \(aq blkid
 \-o udev \-p
-.IR DEVICE \'
+.IR DEVICE \(aq
 for
 .IR ID_FS_UUID ,
 .I ID_FS_LABEL
@@ -163,13 +157,12 @@ will query metadata about the device to check if it must skip it or not.
 .br
 Default is unset.
 
-.TP
-.B BILIBOP_LOCKFS_SIZE
+.SS BILIBOP_LOCKFS_SIZE
 By default,
 .B bilibop\-lockfs
 allocates half of RAM size (or TMPFS_SIZE if set in
 .I /etc/default/tpmfs
-\- but this file is considered obsolete now) for each aufs writable branch
+\(em but this file is considered obsolete now) for each aufs writable branch
 of a locked filesystem. It is possible to override this value for some
 mountpoints in a whitespace separated list of
 .BR mountpoint = size
@@ -177,13 +170,12 @@ pairs. Sizes can be absolute (suffixed with k, K, m, M, g or G), or relative
 to the total amount of RAM (and suffixed with %). The size allocated to the
 root filesystem can be fixed here too, but can be overridden from the boot
 commandline with a
-.RB \' lockfs = size \'
+.RB \(aq lockfs = size \(aq
 kernel parameter.
 .br
 Default is unset.
 
-.TP
-.B BILIBOP_LOCKFS_SWAP_POLICY
+.SS BILIBOP_LOCKFS_SWAP_POLICY
 This variable defines what to do with swap devices listed in
 .I /etc/fstab
 (and optionally in
@@ -191,7 +183,6 @@ This variable defines what to do with swap devices listed in
 Generally, there is no sense to setup a swap device on a flash memory
 stick, but this can be done on USB, FireWire or eSATA HDDs. Four policies
 are available:
-.RS
 .IP \(bu 2
 .I soft
 .br
@@ -208,7 +199,7 @@ Swap entries in fstab and crypttab are disabled (commented).
 .I noauto
 .br
 The
-.RI \' noauto \'
+.RI \(aq noauto \(aq
 keyword is appended to the list of options of swap entries in fstab and
 crypttab. This means swap devices can be enabled manually with
 .BR swapon (8).
@@ -216,8 +207,7 @@ crypttab. This means swap devices can be enabled manually with
 .I crypt
 .br
 Entries about encrypted swap devices are kept as is, others are disabled.
-.RE
-.IP
+.PP
 If BILIBOP_LOCKFS_SWAP_POLICY is not set to a known value,
 .I crypt
 or
@@ -235,13 +225,11 @@ specific boot option.
 .br
 Default is unset.
 
-.TP
-.B BILIBOP_LOCKFS_NOTIFY_POLICY
+.SS BILIBOP_LOCKFS_NOTIFY_POLICY
 This variable defines when to notify the user that filesystems are locked
 or not (needs
 .B libnotify\-bin
 package installed to work). There are four available policies:
-.RS
 .IP \(bu 2
 .I always
 .br
@@ -280,8 +268,7 @@ feature is disabled, does the same thing as for
 If the feature is enabled and some mountpoints have been whitelisted,
 then a notification will be send to say that all changes under them will
 be kept at shutdown.
-.RE
-.IP
+.PP
 In all cases, any user can override the admin settings by copying
 .I lockfs\-notify.desktop
 (normally in
@@ -301,15 +288,14 @@ Default is unset.
 .SH BILIBOP\-RULES SPECIFIC VARIABLES
 Unlike the previous variables whose modifications take effect only after
 the system has been rebooted, most of the following BILIBOP_RULES_*
-variables \- except the first one \- can be modified, and the changes
+variables \(em except the first one \(em can be modified, and the changes
 applied during a same session by running
-.RB \' lsbilibop
-.BR \-c \'.
+.RB \(aq lsbilibop
+.BR \-c \(aq.
 See
 .BR lsbilibop (8).
 
-.TP 4
-.B BILIBOP_RULES_FAKE_DEVICE_MAP
+.SS BILIBOP_RULES_FAKE_DEVICE_MAP
 By default,
 .BR bilibop (7)
 rules build a
@@ -336,12 +322,11 @@ explicitly set this to
 .br
 Default is unset.
 
-.TP
-.B BILIBOP_RULES_SYSTEM_INTERNAL
+.SS BILIBOP_RULES_SYSTEM_INTERNAL
 By default, bilibop rules use
 .BR udisks (7)
 facilities to override the usual bus type detection of whether a device is
-considered \'system internal\'.
+considered \(aqsystem internal\(aq.
 This means root privileges will be needed to manage devices hosted by the
 same disk than the root filesystem.
 If you don't need this global behaviour, explicitly set this to
@@ -351,13 +336,12 @@ If you don't need this global behaviour, explicitly set this to
 .br
 Default is unset.
 
-.TP
-.B BILIBOP_RULES_SYSTEM_INTERNAL_WHITELIST
-If BILIBOP_RULES_SYSTEM_INTERNAL is not \'false\', all partitions hosted
+.SS BILIBOP_RULES_SYSTEM_INTERNAL_WHITELIST
+If BILIBOP_RULES_SYSTEM_INTERNAL is not \(aqfalse\(aq, all partitions hosted
 on the same disk than the root filesystem will be considered as
-\'system internal\'.
-To disable this behaviour for only some devices \- for example if you want
-a partition mountable/unmountable without needs of root privileges \- you
+\(aqsystem internal\(aq.
+To disable this behaviour for only some devices \(em for example if you want
+a partition mountable/unmountable without needs of root privileges \(em you
 can list them here, separated by spaces.
 For each device or group of devices, you must specify at least one token
 of the form
@@ -368,13 +352,13 @@ or
 .BR USAGE = fsusage .
 If the LABEL of a device contains spaces, replace them by underscores (_),
 as given by the output of
-.RB \' udevadm
+.RB \(aq udevadm
 info \-\-query property \-\-name
-.IR DEVICE \'
+.IR DEVICE \(aq
 or
-.RB \' blkid
+.RB \(aq blkid
 \-o udev \-p
-.IR DEVICE \'
+.IR DEVICE \(aq
 for
 .IR ID_FS_UUID ,
 .IR ID_FS_LABEL ,
@@ -385,8 +369,7 @@ variables.
 .br
 Default is unset.
 
-.TP
-.B BILIBOP_RULES_PRESENTATION_HIDE
+.SS BILIBOP_RULES_PRESENTATION_HIDE
 By default, bilibop rules hide (if possible) the filesystems contained on
 the same physical hard disk or memory stick than the root filesystem.
 This applies to desktop applications based on
@@ -398,10 +381,9 @@ If you don't want to hide the bilibop volumes, explicitly set this to
 .br
 Default is unset.
 
-.TP
-.B BILIBOP_RULES_PRESENTATION_HIDE_WHITELIST
-If BILIBOP_RULES_PRESENTATION_HIDE is not \'false\', all volumes hosted on
-the same disk than the root filesystem will be hidden to the user.
+.SS BILIBOP_RULES_PRESENTATION_HIDE_WHITELIST
+If BILIBOP_RULES_PRESENTATION_HIDE is not \(aqfalse\(aq, all volumes hosted
+on the same disk than the root filesystem will be hidden to the user.
 To disable this behaviour for only some devices, you can list them here,
 separated by spaces.
 For each device or group of devices, you must specify at least one token
@@ -413,13 +395,13 @@ or
 .BR USAGE = fsusage .
 If the LABEL of a device contains spaces, replace them by underscores (_),
 as given by the output of
-.RB \' udevadm
+.RB \(aq udevadm
 info \-\-query property \-\-name
-.IR DEVICE \'
+.IR DEVICE \(aq
 or
-.RB \' blkid
+.RB \(aq blkid
 \-o udev \-p
-.IR DEVICE \'
+.IR DEVICE \(aq
 for
 .IR ID_FS_UUID ,
 .IR ID_FS_LABEL ,
@@ -430,8 +412,7 @@ variables.
 .br
 Default is unset.
 
-.TP
-.B BILIBOP_RULES_PRESENTATION_ICON
+.SS BILIBOP_RULES_PRESENTATION_ICON
 If a device is not hidden, it can be shown to the user with an other icon
 than the default one.
 For each device or group of devices you want to change the default icon,
@@ -444,13 +425,13 @@ or
 The icon name must follow the freedesktop.org icon theme specification.
 If the LABEL of a device contains spaces, replace them by underscores (_),
 as given by the output of
-.RB \' udevadm
+.RB \(aq udevadm
 info \-\-query property \-\-name
-.IR DEVICE \'
+.IR DEVICE \(aq
 or
-.RB \' blkid
+.RB \(aq blkid
 \-o udev \-p
-.IR DEVICE \'
+.IR DEVICE \(aq
 for
 .IR ID_FS_UUID ,
 .IR ID_FS_LABEL ,
@@ -461,8 +442,7 @@ variables.
 .br
 Default is unset.
 
-.TP
-.B BILIBOP_RULES_PRESENTATION_NAME
+.SS BILIBOP_RULES_PRESENTATION_NAME
 If a device is not hidden, it can be shown to the user with an other name
 than the default one (generally the label of the filesystem).
 For each device or group of devices you want to change the default name,
@@ -474,13 +454,13 @@ or
 .BR USAGE = fsusage : name .
 If the LABEL of a device contains spaces, replace them by underscores (_),
 as given by the output of
-.RB \' udevadm
+.RB \(aq udevadm
 info \-\-query property \-\-name
-.IR DEVICE \'
+.IR DEVICE \(aq
 or
-.RB \' blkid
+.RB \(aq blkid
 \-o udev \-p
-.IR DEVICE \'
+.IR DEVICE \(aq
 for
 .IR ID_FS_UUID ,
 .IR ID_FS_LABEL ,

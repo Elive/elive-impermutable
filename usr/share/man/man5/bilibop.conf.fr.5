@@ -17,7 +17,7 @@ composé de paires
 où
 .B VARIABLE
 est une chaîne commençant par
-.RI \' BILIBOP_ \',
+.RI \(aq BILIBOP_ \(aq,
 et
 .B VALEUR
 doit être entourée de guillemets si elle contient des caractères
@@ -26,12 +26,11 @@ d'espacement (espaces ou tabulations). Les espaces autour du signe égal
 signe dièse (#) sont ignorées.
 .PP
 Les options de configuration valides peuvent être divisées en sections
-\'commune\' et \'spécifiques\', comme suit:
+\(aqcommune\(aq et \(aqspécifiques\(aq, comme suit:
 
 .SH VARIABLES COMMUNES
 
-.TP 4
-.B BILIBOP_COMMON_BASENAME
+.SS BILIBOP_COMMON_BASENAME
 Cette variable définit le nom des sous\-répertoires propres à bilibop qui
 seront créés dans
 .I /dev
@@ -40,7 +39,7 @@ et
 au moment du démarrage, depuis l'environnement du disque initial en
 mémoire (initramdisk) ou depuis le système en cours d'éxécution. Si elle
 est vide ou non définie, sa valeur sera
-.RI \' bilibop \'.
+.RI \(aq bilibop \(aq.
 Si vous la modifiez, vous devez prendre garde que certains liens
 symboliques ou réglages personnels de votre système reflètent correctement
 cette nouvelle valeur. Au minimum, si
@@ -52,12 +51,11 @@ Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SH VARIABLES SPÉCIFIQUES À BILIBOP\-LOCKFS
 
-.TP 4
-.B BILIBOP_LOCKFS
+.SS BILIBOP_LOCKFS
 Cette variable définit le comportement principal du script initramfs
 .IR bilibop\-lockfs .
 Sa valeur est de type booléen:
-.IP
+.PP
 Si elle est fixée à
 .IR false ,
 le système démarrera normalement, et les autres variables
@@ -74,51 +72,48 @@ et accessible en écriture
 .I /etc/fstab
 sera modifié pour préparer les autres systèmes de fichiers à être montés
 comme branches non modifiables d'autres systèmes de fichiers aufs.
-.IP
+.PP
 Si cette variable ne vaut rien ou vaut n'importe quoi d'autre, une
 heuristique sera utilisée pour la fixer à
 .I true
 ou
 .IR false ,
-ceci dépendant de l'attribut \'removable\' (amovible) du disque dans sysfs,
-sachant que généralement les clés USB sont vues comme media amovibles
+ceci dépendant de l'attribut \(aqremovable\(aq (amovible) du disque dans
+sysfs, sachant que généralement les clés USB sont vues comme media amovibles
 .RI ( true ),
 et les disques durs externes sont vus comme media non amovibles
 .RI ( false ).
-.IP
+.PP
 Dans tous les cas, la valeur de cette variable peut être écrasée depuis la
 ligne de commande de démarrage en ajoutant
-.RB \' lockfs \'
+.RB \(aq lockfs \(aq
 ou
-.RB \' nolockfs \'
+.RB \(aq nolockfs \(aq
 aux paramètres du noyau.
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
-.TP
-.B BILIBOP_LOCKFS_POLICY
-Cette variable definit un niveau additionnel de verrouillage (\'lock\') à
-activer ou non.
-.RS
+.SS BILIBOP_LOCKFS_POLICY
+Cette variable definit un niveau additionnel de verrouillage (\(aqlock\(aq)
+à activer ou non.
 .IP \(bu 2
 .I soft
 .br
 Les branches inférieures des systèmes de fichiers
 .BR aufs (5)
 utiliseront l'option
-.RB \' ro \'
+.RB \(aq ro \(aq
 (readonly). Ensuite, ces systèmes de fichiers accessibles en lecture seule
 peuvent être remontés manuellement comme accessibles en lecture\-écriture
 pour permettre à l'administratrice d'y sauvegarder certains changements.
 Ce genre d'action est fortement découragé ici, mais reste possible si vous
 savez VRAIMENT ce que vous faites; autrement, cela peut mener à des
 résultats inattendus, dont évidemment la perte de données.
-.IP
 .IP \(bu 2
 .I hard
 .br
 Les branches inférieures des points de montage aufs utiliseront l'option
-.RB \' rr \'
+.RB \(aq rr \(aq
 (real readonly); aufs utilise cette option pour optimiser certaines
 opérations internes.
 De plus, les périphériques bloc correspondants seront eux aussi paramètrés
@@ -127,16 +122,14 @@ comme accessibles en lecture seule en utilisant
 évitant ainsi l'accès en écriture bas niveau (même par l'administratrice)
 sur ces périphériques, et rendant impossible un remontage ultérieur en
 lecture\-écriture.
-.RE
-.IP
+.PP
 Si cette variable ne vaut rien ou vaut n'importe quoi d'autre, sa valeur
 retombera à
 .IR hard .
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
-.TP
-.B BILIBOP_LOCKFS_WHITELIST
+.SS BILIBOP_LOCKFS_WHITELIST
 Une fois que le système de fichiers racine est verrouillé comme branche
 inférieure accessible en lecture seule d'un point de montage pour aufs,
 le fichier
@@ -147,7 +140,7 @@ locaux. Cette variable offre la possibilité d'éviter ce mécanisme pour
 certains points de montage: il s'agit d'une liste de points de montage
 ou de noms de périphériques (tels que connus dans
 .BR fstab (5))
-ou encore de lexèmes (\'tokens\') de la forme
+ou encore de lexèmes (\(aqtokens\(aq) de la forme
 .BR UUID = fsuuid ,
 .BR LABEL = fslabel
 ou
@@ -156,13 +149,13 @@ séparés par des espaces.
 Si l'étiquette (LABEL) d'un système de fichiers contient elle\-même des
 espaces, remplacez\-les par des tirets bas (_), comme donnés par la sortie
 des commandes
-.RB \' udevadm
+.RB \(aq udevadm
 info \-\-query property \-\-name
-.IR PÉRIPHÉRIQUE \'
+.IR PÉRIPHÉRIQUE \(aq
 ou
-.RB \' blkid
+.RB \(aq blkid
 \-o udev \-p
-.IR PÉRIPHÉRIQUE \'
+.IR PÉRIPHÉRIQUE \(aq
 pour les variables
 .IR ID_FS_UUID ,
 .I ID_FS_LABEL
@@ -178,8 +171,7 @@ pas.
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
-.TP
-.B BILIBOP_LOCKFS_SIZE
+.SS BILIBOP_LOCKFS_SIZE
 Par défaut,
 .B bilibop\-lockfs
 alloue la moitié de la taille de la mémoire (RAM) pour chaque branche
@@ -191,12 +183,11 @@ par k, K, m, M, g ou G), ou relatives à la quantité totale de mémoire RAM
 (et suffixées par %). La taille allouée à la racine du système peut être
 fixée ici aussi, mais peut être écrasée depuis la ligne de commade de
 démarrage avec le paramètre
-.RB \' lockfs = taille \'.
+.RB \(aq lockfs = taille \(aq.
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
-.TP
-.B BILIBOP_LOCKFS_SWAP_POLICY
+.SS BILIBOP_LOCKFS_SWAP_POLICY
 Cette variable définit la politique d'utilisation des périphériques
 d'échange (swap) listés dans
 .I /etc/fstab
@@ -205,7 +196,6 @@ d'échange (swap) listés dans
 Generalement, il n'y a pas de sens a paramètrer un espace d'échange sur de
 la mémoire flash, mais cela peut se faire sur des disques durs externes
 USB, FireWire ou eSATA. Quatre politiques sont disponibles:
-.RS
 .IP \(bu 2
 .I soft
 .br
@@ -217,49 +207,47 @@ sont conservées telles quelles.
 .IP \(bu 2
 .I hard
 .br
-Les entrées relatives aux périphériques \'Swap\' sont désactivées
+Les entrées relatives aux périphériques \(aqswap\(aq sont désactivées
 (commentées) dans fstab et crypttab.
 .IP \(bu 2
 .I noauto
 .br
 Le mot\-clé
-.RI \' noauto \'
-est ajouté à la liste des options relatives aux périphériques \'swap\'
+.RI \(aq noauto \(aq
+est ajouté à la liste des options relatives aux périphériques \(aqswap\(aq
 dans fstab et crypttab. Cela signifie que ces périphériques peuvent être
 activés manuellement avec
 .BR swapon (8).
 .IP \(bu 2
 .I crypt
 .br
-Les entrées relatives aux périphériques \'swap\' chiffrés sont conservées,
-les autres sont désactivées.
-.RE
-.IP
+Les entrées relatives aux périphériques \(aqswap\(aq chiffrés sont
+conservées, les autres sont désactivées.
+.PP
 Si BILIBOP_LOCKFS_SWAP_POLICY n'est pas fixée à une valeur connue, elle
 retombera à
 .I crypt
 ou
 .IR hard .
-Cela dépend de l'attribut \'removable\' (amovible) du disque dans sysfs:
+Cela dépend de l'attribut \(aqremovable\(aq (amovible) du disque dans sysfs:
 pour les media vus comme amovibles (clés USB), la politique est de ne pas
 utiliser du tout de périphérique d'échange
 .RI ( hard
-policy). Notez que dans tous les cas, l'utilisation de \'swap\' peut être
-désactivée depuis la ligne de commande de démarrage avec le paramètre noyau
+policy). Notez que dans tous les cas, l'utilisation de \(aqswap\(aq peut
+être désactivée depuis la ligne de commande de démarrage avec le paramètre
+noyau
 .IR noswap ,
 qui n'est pas une option de démarrage spécifique à
 .BR bilibop (7).
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
-.TP
-.B BILIBOP_LOCKFS_NOTIFY_POLICY
+.SS BILIBOP_LOCKFS_NOTIFY_POLICY
 Cette variable définit à quelles conditions une notification doit être
 envoyée à l'utilisatrice pour lui signifier que des systèmes de fichiers
 sont ou non verrouillés (nécessite que le paquet
 .B libnotify\-bin
 soit installé). Quatre politiques sont disponibles:
-.RS
 .IP \(bu 2
 .I always
 .br
@@ -300,8 +288,7 @@ est désactivée, fait la même chose que pour
 Si la fonctionnalité est activée et que des systèmes de fichiers ne sont
 pas verrouillés, alors une notification sera envoyée pour dire que leurs
 modifications seront conservées après l'arrêt du système.
-.RE
-.IP
+.PP
 Dans tous les cas, n'importe quelle utilisatrice peut écraser le règlage de
 l'administratrice en copiant
 .I lockfs\-notify.desktop
@@ -325,13 +312,12 @@ ne prennent effet qu'après le redémarrage du système, la plupart des
 variables BILIBOP_RULES_* suivantes, à l'exception notable de la première,
 peuvent être modifiées, et les changements immédiatement appliqués au cours
 de la même session en éxécutant
-.RB \' lsbilibop
-.BR \-u \'.
+.RB \(aq lsbilibop
+.BR \-u \(aq.
 Voir
 .BR lsbilibop (8).
 
-.TP 4
-.B BILIBOP_RULES_FAKE_DEVICE_MAP
+.SS BILIBOP_RULES_FAKE_DEVICE_MAP
 Par défaut, les règles
 .BR bilibop (7)
 construisent un fichier de style
@@ -360,12 +346,11 @@ vous devez explicitement fixer cette variable à
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
-.TP
-.B BILIBOP_RULES_SYSTEM_INTERNAL
+.SS BILIBOP_RULES_SYSTEM_INTERNAL
 Par défaut, les règles bilibop utilisent les capacités de
 .BR udisks (7)
 pour outrepasser la détection usuelle du type de bus permettant de détecter
-si un périphérique est considéré comme \'system internal\', c'est à dire
+si un périphérique est considéré comme \(aqsystem internal\(aq, c'est à dire
 comme disque interne de l'ordinateur. Cela signifie que des privilèges
 d'administratrice sont nécessaires pour gérer les périphériques faisant
 partie du même disque que celui contenant la racine du système. Si vous
@@ -377,16 +362,15 @@ cette variable à
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
-.TP
-.B BILIBOP_RULES_SYSTEM_INTERNAL_WHITELIST
-Si BILIBOP_RULES_SYSTEM_INTERNAL n'est pas \'false\', toutes les partitions
-hébergées par le même disque que la racine du système seront considérées
-comme \'system internal\'.
-Pour désactiver ce comportement pour certains périphériques \- par exemple
-si vous voulez qu'une partition soit montable/démontable sans privilèges \-
-vous pouvez les lister ici, séparés par des espaces. Pour chaque
-périphérique ou groupe de périphériques, vous devez spécifier au moins un
-lexème de la forme
+.SS BILIBOP_RULES_SYSTEM_INTERNAL_WHITELIST
+Si BILIBOP_RULES_SYSTEM_INTERNAL n'est pas \(aqfalse\(aq, toutes les
+partitions hébergées par le même disque que la racine du système seront
+considérées comme \(aqsystem internal\(aq.
+Pour désactiver ce comportement pour certains périphériques \(em par
+exemple si vous voulez qu'une partition soit montable/démontable sans
+privilèges \(em vous pouvez les lister ici, séparés par des espaces.
+Pour chaque périphérique ou groupe de périphériques, vous devez spécifier
+au moins un lexème de la forme
 .BR UUID = fsuuid ,
 .BR LABEL = fslabel ,
 .BR TYPE = fstype
@@ -395,13 +379,13 @@ ou
 Si l'étiquette (LABEL) d'un système de fichiers contient elle\-même des
 espaces, remplacez\-les par des tirets bas (_), comme donnés par la sortie
 des commandes
-.RB \' udevadm
+.RB \(aq udevadm
 info \-\-query property \-\-name
-.IR PÉRIPHÉRIQUE \'
+.IR PÉRIPHÉRIQUE \(aq
 ou
-.RB \' blkid
+.RB \(aq blkid
 \-o udev \-p
-.IR PÉRIPHÉRIQUE \'
+.IR PÉRIPHÉRIQUE \(aq
 pour les variables
 .IR ID_FS_UUID ,
 .IR ID_FS_LABEL ,
@@ -411,8 +395,7 @@ et
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
-.TP
-.B BILIBOP_RULES_PRESENTATION_HIDE
+.SS BILIBOP_RULES_PRESENTATION_HIDE
 Par défaut, les règles bilibop masquent (si possible) les systèmes de
 fichiers contenus sur le même disque physique que la racine du système.
 Cela s'applique aux applications de bureau basées sur
@@ -425,9 +408,8 @@ fixer cette variable à
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
-.TP
-.B BILIBOP_RULES_PRESENTATION_HIDE_WHITELIST
-Si BILIBOP_RULES_PRESENTATION_HIDE n'est pas \'false\', tous les volumes
+.SS BILIBOP_RULES_PRESENTATION_HIDE_WHITELIST
+Si BILIBOP_RULES_PRESENTATION_HIDE n'est pas \(aqfalse\(aq, tous les volumes
 hébergés sur le même disque que la racine du système seront cachés à
 l'utilisatrice. Pour désactiver ce comportement pour certains périphériques,
 vous pouvez les lister ici, séparés par des espaces. Pour chaque
@@ -441,13 +423,13 @@ ou
 Si l'étiquette (LABEL) d'un système de fichiers contient elle\-même des
 espaces, remplacez\-les par des tirets bas (_), comme donnés par la sortie
 des commandes
-.RB \' udevadm
+.RB \(aq udevadm
 info \-\-query property \-\-name
-.IR PÉRIPHÉRIQUE \'
+.IR PÉRIPHÉRIQUE \(aq
 ou
-.RB \' blkid
+.RB \(aq blkid
 \-o udev \-p
-.IR PÉRIPHÉRIQUE \'
+.IR PÉRIPHÉRIQUE \(aq
 pour les variables
 .IR ID_FS_UUID ,
 .IR ID_FS_LABEL ,
@@ -457,8 +439,7 @@ et
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
-.TP
-.B BILIBOP_RULES_PRESENTATION_ICON
+.SS BILIBOP_RULES_PRESENTATION_ICON
 Si un périphérique n'est pas caché à l'utilisatrice, il peut être montré
 avec une autre icône que celle par défaut.
 Pour chaque périphérique ou groupe de périphériques auquel vous voulez
@@ -474,13 +455,13 @@ freedesktop.org.
 Si l'étiquette (LABEL) d'un système de fichiers contient elle\-même des
 espaces, remplacez\-les par des tirets bas (_), comme donnés par la sortie
 des commandes
-.RB \' udevadm
+.RB \(aq udevadm
 info \-\-query property \-\-name
-.IR PÉRIPHÉRIQUE \'
+.IR PÉRIPHÉRIQUE \(aq
 ou
-.RB \' blkid
+.RB \(aq blkid
 \-o udev \-p
-.IR PÉRIPHÉRIQUE \'
+.IR PÉRIPHÉRIQUE \(aq
 pour les variables
 .IR ID_FS_UUID ,
 .IR ID_FS_LABEL ,
@@ -490,8 +471,7 @@ et
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
-.TP
-.B BILIBOP_RULES_PRESENTATION_NAME
+.SS BILIBOP_RULES_PRESENTATION_NAME
 Si un périphérique n'est pas caché à l'utilisatrice, il peut être montré
 avec un autre nom que celui par défaut (généralement l'étiquette du système
 de fichiers).
@@ -506,13 +486,13 @@ ou
 Si l'étiquette (LABEL) d'un système de fichiers contient elle\-même des
 espaces, remplacez\-les par des tirets bas (_), comme donnés par la sortie
 des commandes
-.RB \' udevadm
+.RB \(aq udevadm
 info \-\-query property \-\-name
-.IR PÉRIPHÉRIQUE \'
+.IR PÉRIPHÉRIQUE \(aq
 ou
-.RB \' blkid
+.RB \(aq blkid
 \-o udev \-p
-.IR PÉRIPHÉRIQUE \'
+.IR PÉRIPHÉRIQUE \(aq
 pour les variables
 .IR ID_FS_UUID ,
 .IR ID_FS_LABEL ,
