@@ -4,21 +4,30 @@ bilibop-lockfs
 1. OVERVIEW
 ===========
 
-This package has been designed to be installed on operating systems
-embedded on removable and writable media. This includes Flash Memory
-sticks and external HDDs. This means all automatically mounted
-filesystems must be hosted on the same drive than the root filesystem.
-
 Bilibop-lockfs is a collection of shell scripts whose the main goal
 is to use the system without modify it in any way: high-level write
 access is disallowed by mounting filesystems as readonly branches of
 aufs(5), forcing all changes to be written on the temporary writable
 branches, i.e. in the RAM; additionally, low-level write access is also
 forbidden, by setting the block devices (including the whole disk itself)
-as readonly with blockdev(8). There, 'without modify it in any way'
-means no log files, no cookies, no timestamp or data changes, but also
-no modification of the boot sectors or partition table, no changes of
-the LUKS headers, etc.
+as readonly with the 'read_only_volume_list' setting in lvm.conf(5) for
+Logical Volumes, and with blockdev(8) for all others. There, 'without
+modify it in any way' means no log files, no cookies, no timestamp or
+data changes, but also no modification of the boot sectors or partition
+table, no changes of the LUKS headers, LVM metadata, and so on.
+
+This package was initially designed to be installed on operating systems
+embedded on removable and writable media. This includes Flash Memory
+sticks and external HDDs. Now, *bilibop-lockfs* can also be used on any
+internal disk (HDD or SSD), if the root filesystem is not hosted on more
+than one disk (by using LVM or RAID). It can be used:
+- to not decrease the lifetime of the flash media (USB stick, SD card,
+  Solid State Disk) which the system is installed on (such media have
+  limited write cycles).
+- to perform tests: all that is not the initramdisk can be temporarily
+  modified at system or user level, and then tested without risk to affect
+  original configurations: they will be active after the next boot.
+- as a tool in anti-forensics strategies, as explained above.
 
 NOTE that the bilibop-lockfs scripts depend on the bilibop-common
 functions, which require Linux kernel 2.6.37 or higher to work
@@ -51,10 +60,18 @@ manual page. They allow to:
 3. HOW IT WORKS
 ===============
 
-An initramfs script is used to lock the root filesystem. Other mountpoints
-are managed by a mount helper script. Here is an example of a partition
-scheme on a USB stick of 16GB (this is the outputs of the drivemap(1)
-command, when bilibop-lockfs is disabled):
+If one of the devices registered in fstab(5) is a Logical Volume, and
+if the keyword 'nolockfs' is not used in the boot commandline, a first
+initramfs script is used to modify lvm.conf(5) inside the initramfs BEFORE
+LV are activated; then they are activated read-only (their metadata are
+not updated, and block devices are set readonly).
+
+After what, when the root of the system has been discovered and mounted
+from the initramfs, another initramfs script (the main) is used to lock
+the root filesystem and all its (virtual or physical) parent block devices.
+Other mountpoints are managed by a mount helper script. Here is an example
+of a partition scheme on a USB stick of 16GB (this is the outputs of the
+drivemap(1) command, when bilibop-lockfs is disabled):
 
 $ drivemap -m /
 /dev/sdb
@@ -83,7 +100,7 @@ contains a Physical Volume 'peevee' used as member of the Volume Group
 'veegee' that contains two Logical Volumes: 'root' and 'home'. The second
 primary partition is used to be mountable, readable and writable on any
 computer: it contains a vfat (FAT32) filesystem of 8 GB and is not
-automatically mounted (not listed in /etc/fstab).
+automatically mounted (not registered in /etc/fstab).
 
 
 3.1. First stage
@@ -97,7 +114,7 @@ script is executed.
 a. It checks if the 'lockfs' feature is enabled or not. If not, it exits.
 
 b. It checks if ${rootmnt} is already an aufs mountpoint. If yes, it exits.
-   This is done for compatibility with other programs such as 'fsprotect'.
+   This is done to not conflict with other programs such as 'fsprotect'.
 
 c. It checks the policy to apply: 'hard' or 'soft'. If 'hard', then the
    block device mounted on ${rootmnt} and the drive hosting this device are
@@ -164,42 +181,19 @@ g. ${rootmnt}/etc/lvm/lvm.conf is modified (optional):
    BILIBOP_LOCKFS_POLICY is not set to 'soft'. Some commands such as
    'vgchange -ay', which is run by the lvm2 initscript, can reset the 'ro'
    flag on Logical Volumes. This is a case of breakage of the lockfs 'hard'
-   policy. To avoid this infamous result, the lvm.conf(5) file must be
-   modified to filter the block devices we want to protect from further
-   LVM investigations.
+   policy. To avoid this infamous result, the lvm.conf(5) file is modified:
+   - in the 'global' section:
+     locking_type = 4
+     metadata_read_only = 1
+   - in the 'activation' section: the content of (initrd)/etc/lvm/bilibop
+     is used to set 'read_only_volume_list'.
+   - in the 'devices' section: the PV we want to protect from further LVM
+     investigations are filtered by the 'filter' option.
 
-   Since the LVM filter is applied to Physical Volumes (PV), all known PV
-   same disk than the filesystem mounted on ${rootmnt} are listed. In our
-   example: /dev/sdb1 and /dev/dm-2
-
-   For each device listed above, a list is build, which contains all
-   the symlinks to this device, which have been created and so are managed
-   by udev. Another symlink, that does not exist at this step, is added for
-   compatibility with bilibop-rules. In our example, these symplinks are:
-   for /dev/sdb1:
-       /dev/bilibop/part
-       /dev/block/8:17
-       /dev/disk/by-id/usb-_Xporter_Memory_07B3100100182DD2-0:0-part1
-       /dev/disk/by-path/pci-0000:00:1d.7-usb-0:4.1:1.0-scsi-0:0:0:0-part1
-   for /dev/dm-2:
-       /dev/block/254:2
-       /dev/disk/by-id/dm-name-peevee
-       /dev/disk/by-id/dm-uuid-CRYPT-LUKS1-fd6568300caf4913253ec426a3659bd3-peevee
-       /dev/mapper/peevee
-
-   After what the lvm configuration file is modified by adding the two
-   lists as rejected patterns at the beginning of the 'filter' array, into
-   the 'devices' section.
-
-   This makes the original line:
-   filter = [ "a/.*/" ]
-
-   is commented and replaced by:
-   filter = [ "r#^/dev/(sdb1|bilibop/part|block/8:17|disk/by-id/usb-_Xporter_Memory_07B3100100182DD2-0:0-part1|disk/by-path/pci-0000:00:1d.7-usb-0:4.1:1.0-scsi-0:0:0:0-part1)$#", "r#^/dev/(dm-2|block/254:2|disk/by-id/dm-name-peevee|disk/by-id/dm-uuid-CRYPT-LUKS1-fd6568300caf4913253ec426a3659bd3-peevee|mapper/peevee)/.*#", "a/.*/" ]
-
-   If lvm.conf is missing, it is created. If the 'filter' array is
-   missing, it is added as the first one in the 'devices' section. If the
-   'devices' section is missing, it is appended at the end of the file.
+   The variable 'read_only_volume_list' applies to Logical Volumes.
+   The variable 'filter' applies to Physical Volumes.
+   Modify both 'read_only_volume_list' and 'filter' is a kind of defense
+   in depth.
 
 
 3.2. Second stage
@@ -230,7 +224,7 @@ b. It checks if:
    'mount_fallback'.
 
    'very close' ?
-   Since 'mount' can resolve the device name when it is called by its
+   Since mount(8) can resolve the device name when it is called by its
    LABEL or UUID, the first argument given to the mount helpers is always
    the device name (or a symlink to it), never LABEL=* or UUID=*, even if
    the fstab entry uses this format. Options are preserved.
@@ -241,7 +235,7 @@ b. It checks if:
    and replaced by the initramfs script by:
    UUID=a82267c0-fe18-6c44-0acf-d11a5904d7ae /boot lockfs fstype=ext3,noatime,nodev,noexec,nosuid 0 0
 
-   the new one is:
+   in case of 'mount_fallback' the new one is:
    /dev/mapper/xporter-boot /boot ext3 noexec,nosuid,nodev,noatime 0 0
 
    This can happen if '/dev/mapper/xporter-boot' or 'LABEL=boot' has been
@@ -328,4 +322,4 @@ is writable, other block devices are read-only.
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
- -- bilibop project <quidame@poivron.org>  Tue, 16 Oct 2012 11:59:29 +0200
+ -- bilibop project <quidame@poivron.org>  Thu, 15 Nov 2012 00:58:43 +0100
