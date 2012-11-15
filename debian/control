@@ -16,7 +16,7 @@ Depends: bilibop-lockfs (= ${binary:Version}), bilibop-device-policy, ${misc:Dep
 Description: run Debian GNU/Linux from external media - metapackage
  ${Description}
  .
- The installation of this metapackage will install all other BILIBOP packages
+ The installation of this metapackage will install other BILIBOP packages
  as dependencies. You should not install it, unless your system is writable
  and runs from an external device.
  .
@@ -106,7 +106,7 @@ Description: device management rules for OS running from external media
 Package: bilibop-udev
 Architecture: linux-any
 Depends: bilibop-common (= ${binary:Version}), ${misc:Depends}
-Suggests: bilibop-lockfs (= ${binary:Version})
+Suggests: bilibop-lockfs
 Conflicts: bilibop-rules
 Provides: bilibop-device-policy
 Description: minimal udev rule for Debian GNU/Linux running from external media
