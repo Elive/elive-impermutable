@@ -1,3 +1,36 @@
+bilibop (0.4.1) experimental; urgency=low
+
+  * Modify lockfs.sh:
+    - add new functions: 'set_readonly_lvm_settings()', to modify
+      'locking_type', 'metadata_read_only' and 'read_only_volume_list'; and
+      'unlock_logical_volume()', to not lock (set read-only) whitelisted
+      Logical Volumes.
+    - rewrite 'initialize_lvm_conf()' to also initialize 'locking_type',
+      'metadata_read_only' and 'read_only_volume_list' LVM variables.
+    - rewrite 'blacklist_bilibop_devices()'.
+    - modify 'parse_and_modify_fstab()' to use 'unlock_logical_volumes()'.
+  * bilibop-lockfs:
+    - modify local-bottom initramfs script (call 'set_readonly_lvm_settings()'
+      when lockfs policy is 'hard').
+    - modify initramfs hook to include a list of Logical Volumes in the
+      initramdisk; this list is used by 'set_readonly_lvm_settings()'.
+    - new init-top initramfs script, to call 'set_readonly_lvm_settings()'
+      very early in the boot process, unless the 'nolockfs' parameter is used
+      in the boot commandline.
+  * Update documentation (debian/bilibop-lockfs.README.Debian).
+  * Modify lockfs-notify script: replace 'permanent' by 'persistent' and
+    'temporary' by 'volatile'.
+
+  * Modify bilibop.conf(5) manual pages: use the '.SS' tag, and replace \' by
+    \(aq.
+
+  * debian/control: update bilibop-lockfs description; since bilibop depends
+    on bilibop-device-policy, remove 'all' from 'install all other BILIBOP
+    packages'. For bilibop-udev, replace versioned suggestion on
+    bilibop-lockfs by unversioned one.
+
+ -- bilibop project <quidame@poivron.org>  Fri, 16 Nov 2012 00:46:57 +0100
+
 bilibop (0.4.0) experimental; urgency=low
 
   * Add new binary package: bilibop-udev, as a minimal subset of
