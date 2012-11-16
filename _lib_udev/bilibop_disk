@@ -13,6 +13,7 @@ udev_root="${1%/*}"
 
 # Load bilibop shell functions
 . /lib/bilibop/common.sh
+get_udev_root
 
 [ "$(physical_hard_disk ${1})" = "$(physical_hard_disk /)" ]
 exit $?
