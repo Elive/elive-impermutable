@@ -1,3 +1,12 @@
+bilibop (0.4.2) experimental; urgency=low
+
+  * Update debian/bilibop-lockfs.dirs
+  * Update debian/bilibop-lockfs.install
+  * Add missing call to 'get_udev_root' in the bilibop_disk (bilibop-udev)
+    script.
+
+ -- bilibop project <quidame@poivron.org>  Fri, 16 Nov 2012 03:14:23 +0100
+
 bilibop (0.4.1) experimental; urgency=low
 
   * Modify lockfs.sh:
