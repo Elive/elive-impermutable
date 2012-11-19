@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+case "${1}" in
+    configure)
+        # Trigger uevents for the disk hosting the root filesystem and its
+	# partitions.
+	udevadm trigger --sysname-match=$(lib/bilibop/disk)*
+        ;;
+esac
+
+#DEBHELPER#
+:
