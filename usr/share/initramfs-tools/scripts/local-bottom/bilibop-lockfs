@@ -234,7 +234,8 @@ grep -q '\slockfs\s' ${FSTAB} &&
 check_mount_lockfs "${rootmnt}"
 
 # Avoid breakage of read-only settings by LVM tools:
-if	[ "${BILIBOP_LOCKFS_POLICY}" != "soft" ]
+if	[ -f "/etc/lvm/bilibop" ] &&
+	[ "${BILIBOP_LOCKFS_POLICY}" != "soft" ]
 then
 	eval $(grep '^\s*LVM_SYSTEM_DIR=' ${rootmnt}/etc/environment)
 	LVM_CONF="${rootmnt}${LVM_SYSTEM_DIR:=/etc/lvm}/lvm.conf"

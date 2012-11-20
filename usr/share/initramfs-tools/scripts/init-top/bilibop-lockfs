@@ -25,6 +25,9 @@ esac
 # This is done very early in the boot process, before activation of Logical
 # Volumes.
 
+# If the system has no Logical Volume registered in fstab, nothing to do:
+[ -f "/etc/lvm/bilibop" ] || exit 0
+
 # /proc/cmdline will be parsed several times. We call 'cat' only one time:
 readonly CMDLINE="$(cat /proc/cmdline)"
 

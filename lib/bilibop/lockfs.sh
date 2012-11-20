@@ -239,6 +239,7 @@ parse_and_modify_fstab() {
         do
             case    "${skip}" in
                 ${device}|${mntpnt}|TYPE=${fstype})
+                    [ -f "/etc/lvm/bilibop" ] &&
                     unlock_logical_volume ${device}
                     continue 2
                     ;;
@@ -357,7 +358,6 @@ global {
 }
 
 activation {
-    read_only_volume_list = [ ]
 }
 EOF
             return 0
@@ -412,12 +412,8 @@ EOF
 # Added on the fly by ${0##*/} from the initramfs.
 # See lvm.conf(5) and bilibop(7) for details.
 activation {
-    read_only_volume_list = [ ]
 }
 EOF
-    else
-            grep -q '^\s*read_only_volume_list\s*=' ${LVM_CONF} ||
-            sed -i 's;^\s*activation\s*{;&\n    read_only_volume_list = [ ]\n;' ${LVM_CONF}
     fi
 }
 # ===========================================================================}}}
@@ -432,7 +428,6 @@ EOF
 # 'filter' array in lvm.conf(5).
 blacklist_bilibop_devices() {
     ${DEBUG} && echo "> blacklist_bilibop_devices $@" >&2
-    [ -x "${rootmnt}/sbin/lvm" -a -x "/sbin/lvm" ] || return 0
 
     local   node
     for node in $(device_nodes)
@@ -469,16 +464,19 @@ blacklist_bilibop_devices() {
 set_readonly_lvm_settings() {
     ${DEBUG} && echo "> set_readonly_lvm_settings $@" >&2
 
-    if      [ -f "/etc/lvm/bilibop" ]
-    then
-            for lvm in $(cat /etc/lvm/bilibop)
-            do
-                ROVL="${ROVL:+${ROVL}, }\"${lvm}\""
-            done
+    sed -i 's|^\(\s*locking_type\s*=\s*\).*|\14|' ${LVM_CONF}
+    sed -i 's|^\(\s*metadata_read_only\s*=\s*\).*|\11|' ${LVM_CONF}
 
-            sed -i 's|^\(\s*locking_type\s*=\s*\).*|\14|' ${LVM_CONF}
-            sed -i 's|^\(\s*metadata_read_only\s*=\s*\).*|\11|' ${LVM_CONF}
-            sed -i "s|^\(\s*read_only_volume_list\s*=\s*\).*|\1[ ${ROVL} ]|" ${LVM_CONF}
+    for lvm in $(cat /etc/lvm/bilibop)
+    do
+        ROVL="${ROVL:+${ROVL}, }\"${lvm}\""
+    done
+    [ -n "${ROVL}" ] || return 0
+
+    if  grep -q '^\s*read_only_volume_list\s*=' ${LVM_CONF} ; then
+        sed -i "s|^\s*read_only_volume_list\s*=\s*[|& ${ROVL},|" ${LVM_CONF}
+    else
+        sed -i "s|^\s*activation\s*{.*|&\n    read_only_volume_list = [ ${ROVL} ]|" ${LVM_CONF}
     fi
 }
 # ===========================================================================}}}
@@ -490,7 +488,7 @@ set_readonly_lvm_settings() {
 # This function is called from parse_and_modify_fstab().
 unlock_logical_volume() {
     ${DEBUG} && echo "> unlock_logical_volume $@" >&2
-    [ -f /etc/lvm/bilibop ] || return 0
+
     local   lvm node symlink dev="${1}"
     for lvm in $(cat /etc/lvm/bilibop)
     do
