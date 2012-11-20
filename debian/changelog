@@ -1,3 +1,30 @@
+bilibop (0.4.3) experimental; urgency=low
+
+  * bilibop-common:
+    - Add lib/bilibop/disk (outputs the name of the disk hosting the root
+      filesystem, or hosting a file, device or directory given as argument);
+    - Update documentation (README.Debian and bugs.txt).
+  * bilibop-lockfs:
+    - Fix error due to invalid lvm.conf settings (read_only_volume_list should
+      not be set if empty): modify 'bilibop-lockfs' initramfs scripts, and
+      the functions 'parse_and_modify_fstab()', 'initialize_lvm_conf()',
+      'blacklist_bilibop_devices()', 'set_readonly_lvm_settings()' and
+      'unlock_logical_volume()'.
+    - Improve support for loop devices (take into account that the first field
+      in fstab can be a regular file instead of a block device): modify
+      lockfs_mount_helper script and 'parse_and_modify_fstab()' function in
+      lockfs.sh.
+  * bilibop-udev: modify udev rules file (now based on lib/bilibop/disk; runs
+    faster). Add postinst and postrm maintscripts to trigger spurious uevents.
+    Update README.Debian.
+
+  * debian/control: change Section of bilibop binary package (from misc to
+    metapackages); change Depends of the same package (replace dependency on
+    bilibop-device-policy virtual package by a versioned dependency on
+    bilibop-rules).
+
+ -- bilibop project <quidame@poivron.org>  Tue, 20 Nov 2012 15:22:57 +0100
+
 bilibop (0.4.2) experimental; urgency=low
 
   * Update debian/bilibop-lockfs.dirs
