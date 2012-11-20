@@ -25,7 +25,8 @@ PATH="/sbin:/bin"
 usage() {
 	cat <<EOF
 ${0##*/}: mount helper script for bilibop-lockfs.
-This script can not be run manually, but only by a mount process.
+This script can not be run manually, but only by a mount process,
+and only if bilibop-lockfs is enabled.
 EOF
 }
 
@@ -64,54 +65,43 @@ else
 	exit 1
 fi
 
-
-# Parse arguments. We need to know the device to mount, the mountpoint and the
-# mount options:
-while	[ "${1}" ]
-do
-	case	"${1}" in
-		${udev_root}/*)
-			[ -b "${1}" ] && device="${1}"
-			shift
-			;;
-		/*)
-			[ -d "${1}" ] && mntpnt="${1%/}"
-			shift
-			;;
-		-o)
-			options="${2}"
-			shift 2
-			;;
-		*)
-			usage >&2
-			exit 1
-			;;
-	esac
-done
-
-if	[ -b "${device}" ]
+# the mount command always provides arguments to the helper scipts in this
+# order: FILESYSTEM MOUNTPOINT -o OPTIONS. We take advantage of this fixed
+# format.
+if	[ -b "${1}" ]
 then
+	device="${1}"
 	# Query ID_FS_* udev environment variables of the device:
 	eval $(query_udev_envvar $(readlink -f ${device}))
 	if	[ -z "${ID_FS_USAGE}" ]
 	then	eval $(blkid -o udev -p ${device})
 	fi
+	[ "${ID_FS_USAGE}" = "filesystem" ] &&
+	for	skip in ${BILIBOP_LOCKFS_WHITELIST}
+	do
+		case	"${skip}" in
+			UUID=${ID_FS_UUID}|LABEL=${ID_FS_LABEL}|TYPE=${ID_FS_TYPE})
+				LOCKFS="false"
+				break
+				;;
+		esac
+	done
+
+elif	[ -f "${1}" ]
+then
+	lofile="${1}"
+	LOFILE="${robr}${lofile}"
+
 else
-	# There is no block device to mount. Maybe it is a bind mount of
-	# a directory on another, or whatever...
+	# There is no block device to mount (here 'block device' includes
+	# files associated to a loop device). Bind mounts and remote fs
+	# should have been discarded by the bilibop-lockfs script in the
+	# initramfs...
 	LOCKFS="false"
 fi
 
-# Skip whitelisted device (those using the mountpoint have been treated by the
-# initramfs script):
-for	skip in ${BILIBOP_LOCKFS_WHITELIST}
-do
-	case	"${skip}" in
-		UUID=${ID_FS_UUID}|LABEL=${ID_FS_LABEL}|TYPE=${ID_FS_TYPE})
-			LOCKFS="false"
-			;;
-	esac
-done
+mntpnt="${2}"
+option="${4}"
 
 
 # Parse mount options. Two cases:
@@ -120,9 +110,9 @@ done
 # 2. the tmpfs will be mounted with only some options of the previous:
 #    ro, nodev, noexec, nosuid, if they exist.
 
-# 1. Options for the readonly branch:
 for	opt in $(IFS=',' ; echo ${options})
 do
+	# 1. Options for the readonly branch:
 	case	"${opt}" in
 		fstype=*)
 			eval "${opt}"
@@ -133,11 +123,8 @@ do
 			robr_opts="${robr_opts:+${robr_opts},}${opt}"
 			;;
 	esac
-done
 
-# 2. Options for the writable branch:
-for	opt in $(IFS=',' ; echo ${options})
-do
+	# 2. Options for the writable branch:
 	case	"${opt}" in
 		ro|nodev|noexec|nosuid)
 			rwbr_opts="${rwbr_opts:+${rwbr_opts},}${opt}"
@@ -152,14 +139,14 @@ done
 # fstab entry and do a normal mount:
 if	[ "${LOCKFS}" != "true" ]
 then
-	mount_fallback "${device}" "${mntpnt}" "${fstype}" "${robr_opts}"
+	mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
 	exit $?
 fi
 
 
 # Each readonly branch is mounted under the subtree of the main readonly
 # branch (/aufs/ro) and each writable branch is mounted under the subtree
-# of the main writable branch:
+# of the main writable branch (/aufs/rw):
 robr="${robr}${mntpnt}"
 rwbr="${rwbr}${mntpnt}"
 
@@ -171,16 +158,16 @@ then
 	RO="ro"
 else
 	RO="rr"
-	blockdev --setro ${device}
+	[ -b "${device}" ] && blockdev --setro ${device}
 fi
 
 # Try to mount the readonly branch. In case of failure, undo what has been
 # done before, do a normal mount, rewrite the fstab entry to be coherent
 # with that, and exit:
-if	! mount ${fstype:+-t ${fstype}} -o ${robr_opts:+${robr_opts},}ro ${device} ${robr}
+if	! mount ${fstype:+-t ${fstype}} -o ${robr_opts:+${robr_opts},}ro ${device:-${LOFILE}} ${robr}
 then
-	[ "${RO}" = "rr" ] && blockdev --setrw "${device}"
-	mount_fallback "${device}" "${mntpnt}" "${fstype}" "${robr_opts}"
+	[ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
+	mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
 	exit 3
 fi
 
@@ -197,17 +184,20 @@ do
 done
 
 # Create the mountpoint (it should not exist before this step):
-[ ! -d "${rwbr}" ] &&
-	mkdir -p ${rwbr} &&
-	lock_file "${mntpnt}"
+if	[ ! -d "${rwbr}" ]
+then
+	mkdir -p ${rwbr}
+	grep -q "^${mntpnt}$" ${BILIBOP_RUNDIR}/lock ||
+	echo "${mntpnt}" >>${BILIBOP_RUNDIR}/lock
+fi
 
 # Try to mount the writable branch, and in case of failure, undo what
 # has been done before, etc.
 if	! mount -t tmpfs -o ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},}mode=0755 tmpfs ${rwbr}
 then
 	umount ${robr}
-	[ "${RO}" = "rr" ] && blockdev --setrw "${device}"
-	mount_fallback "${device}" "${mntpnt}" "${fstype}" "${robr_opts}"
+	[ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
+	mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
 	exit 3
 fi
 
@@ -235,8 +225,8 @@ if	! mount -t aufs -o br:${rwbr}=rw:${robr}=${RO} none ${mntpnt}
 then
 	umount ${robr}
 	umount ${rwbr}
-	[ "${RO}" = "rr" ] && blockdev --setrw "${device}"
-	mount_fallback "${device}" "${mntpnt}" "${fstype}" "${robr_opts}"
+	[ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
+	mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
 	exit 3
 fi
 
@@ -261,7 +251,7 @@ fi
 # All is OK. So we can rewrite fstab entry to reflect the real mounts. This
 # can be important for clean unmounts at shutdown (for the case a filesystem
 # is remounted rw during a session).
-robr_line="${device} ${robr} ${fstype:-auto} ${robr_opts:+${robr_opts},}ro 0 0"
+robr_line="${device:-${LOFILE}} ${robr} ${fstype:-auto} ${robr_opts:+${robr_opts},}ro 0 0"
 rwbr_line="tmpfs ${rwbr} tmpfs ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},}${uid:+uid=${uid},}${gid:+gid=${gid},}mode=${mod} 0 0"
 aufs_line="none ${mntpnt} aufs br:${rwbr}=rw:${robr}=${RO} 0 0"
 
