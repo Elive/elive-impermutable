@@ -9,10 +9,10 @@ Homepage: https://poivron.org/~quidame/bilibop_project
 Vcs-Git: http://poivron.org/~quidame/bilibop_project/bilibop.git
 
 Package: bilibop
-Section: misc
+Section: metapackages
 Priority: extra
 Architecture: linux-any
-Depends: bilibop-lockfs (= ${binary:Version}), bilibop-device-policy, ${misc:Depends}
+Depends: bilibop-lockfs (= ${binary:Version}), bilibop-rules (= ${binary:Version}), ${misc:Depends}
 Description: run Debian GNU/Linux from external media - metapackage
  ${Description}
  .
