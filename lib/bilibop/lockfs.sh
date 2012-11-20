@@ -212,18 +212,19 @@ parse_and_modify_fstab() {
                 apply_swap_policy "${device}"
                 continue
                 ;;
-            none|ignore|tmpfs)
+            none|ignore|tmpfs|lockfs)
                 # Don't modify some entries
                 continue
                 ;;
         esac
 
-        # Don't modify the "noauto" mount lines:
-        echo "${option}" | grep -q '\<noauto\>' && continue
+        # Don't modify the "noauto" mount lines nor the binded mounts:
+        echo "${option}" | grep -q '\<\(noauto\|bind\)\>' && continue
 
-        # Skip what we are sure that it is not a local block device:
+        # Skip what we are sure that it is not a local block device (or a
+        # local file):
         case	"${device}" in
-            UUID=*|LABEL=*|${UDEV_ROOT}/*)
+            UUID=*|LABEL=*|/*)
                 ;;
             *)
                 continue
