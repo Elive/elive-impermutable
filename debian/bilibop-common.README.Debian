@@ -135,5 +135,18 @@ and finally:
 # chroot /mnt
 
 
+SCRIPTS
+=======
+
+Bilibop-common is shipped with two shell scripts:
+/lib/bilibop/disk
+/usr/bin/drivemap
+The first one is very small; it just outputs the physical disk name that
+contains the root filesystem (or the disk name containing a file, device
+or directory given as argument). This is a kind of 'proof of concept'.
+The second one is more complicated; it is fully described in its own
+manual page: drivemap(1).
+
+
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
- -- bilibop project <quidame@poivron.org>  Fri, 12 Oct 2012 11:29:29 +0200
+ -- bilibop project <quidame@poivron.org>  Tue, 20 Nov 2012 12:49:54 +0100
