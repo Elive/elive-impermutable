@@ -101,7 +101,7 @@ else
 fi
 
 mntpnt="${2}"
-option="${4}"
+options="${4}"
 
 
 # Parse mount options. Two cases:
