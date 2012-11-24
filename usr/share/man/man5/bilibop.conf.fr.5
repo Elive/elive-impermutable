@@ -118,7 +118,12 @@ Les branches inférieures des points de montage aufs utiliseront l'option
 opérations internes.
 De plus, les périphériques bloc correspondants seront eux aussi paramètrés
 comme accessibles en lecture seule en utilisant
-.BR blockdev (8),
+.B read_only_volume_list
+dans
+.BR lvm.conf (5)
+pour les Volumes Logiques, ou
+.BR blockdev (8)
+pour les autres périphériques bloc,
 évitant ainsi l'accès en écriture bas niveau (même par l'administratrice)
 sur ces périphériques, et rendant impossible un remontage ultérieur en
 lecture\-écriture.
@@ -174,9 +179,12 @@ Par défaut, la valeur de cette variable n'est pas fixée.
 .SS BILIBOP_LOCKFS_SIZE
 Par défaut,
 .B bilibop\-lockfs
-alloue la moitié de la taille de la mémoire (RAM) pour chaque branche
-supérieure d'un système de fichiers verrouillé. Il est possible d'écraser
-cette valeur pour certains points de montage dans une liste de paires
+alloue la moitié de la taille de la mémoire vive (ou TPMFS_SIZE si cette
+variable est initialisée dans
+.IB /etc/default/tmpfs )
+pour chaque branche supérieure d'un système de fichiers verrouillé. Il
+est possible d'écraser cette valeur pour certains points de montage dans
+une liste de paires
 .BR /point/de/montage = taille
 séparées par des espaces. Les tailles peuvent être absolues (suffixées
 par k, K, m, M, g ou G), ou relatives à la quantité totale de mémoire RAM

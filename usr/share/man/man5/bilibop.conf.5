@@ -109,8 +109,13 @@ The readonly branches of aufs mountpoints will be set to
 .RB \(aq rr \(aq
 (real readonly); this is used by aufs to optimize some internal operations.
 Additionally, the corresponding block devices will be set as readonly too
-with
-.BR blockdev (8),
+by using the
+.B read_only_volume_list
+variable in
+.BR lvm.conf (5)
+for Logical Volumes, or
+.BR blockdev (8)
+for other block devices,
 avoiding low\-level write access to them (even by root) and avoiding the
 filesystems to be remounted later as writable.
 .PP
@@ -161,10 +166,9 @@ Default is unset.
 By default,
 .B bilibop\-lockfs
 allocates half of RAM size (or TMPFS_SIZE if set in
-.I /etc/default/tpmfs
-\(em but this file is considered obsolete now) for each aufs writable branch
-of a locked filesystem. It is possible to override this value for some
-mountpoints in a whitespace separated list of
+.IR /etc/default/tpmfs )
+for each aufs writable branch of a locked filesystem. It is possible to
+override this value for some mountpoints in a whitespace separated list of
 .BR mountpoint = size
 pairs. Sizes can be absolute (suffixed with k, K, m, M, g or G), or relative
 to the total amount of RAM (and suffixed with %). The size allocated to the
