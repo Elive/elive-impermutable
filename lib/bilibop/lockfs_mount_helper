@@ -76,7 +76,7 @@ then
 	if	[ -z "${ID_FS_USAGE}" ]
 	then	eval $(blkid -o udev -p ${device})
 	fi
-	[ "${ID_FS_USAGE}" = "filesystem" ] &&
+	[ "${ID_FS_USAGE}" = "filesystem" -o "${ID_FS_USAGE}" = "crypto" ] &&
 	for	skip in ${BILIBOP_LOCKFS_WHITELIST}
 	do
 		case	"${skip}" in
