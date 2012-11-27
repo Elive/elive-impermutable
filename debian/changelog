@@ -1,3 +1,14 @@
+bilibop (0.4.4) experimental; urgency=low
+
+  * Fix inconsistent variable name in the lockfs_mount_helper script.
+  * Modify lockfs_mount_helper script: allow devices with 'crypto'
+    ID_FS_USAGE (instead of only 'filesystem') to be listed in the
+    BILIBOP_LOCKFS_WHITELIST variable.
+  * Update bilibop.conf(5) manual pages (en & fr), and fix a translation
+    error in the french version.
+
+ -- bilibop project <quidame@poivron.org>  Tue, 27 Nov 2012 01:40:01 +0100
+
 bilibop (0.4.3) experimental; urgency=low
 
   * bilibop-common:
