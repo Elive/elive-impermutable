@@ -95,7 +95,11 @@ Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SS BILIBOP_LOCKFS_POLICY
 Cette variable definit un niveau additionnel de verrouillage (\(aqlock\(aq)
-à activer ou non.
+à activer ou non. Sa valeur peut être écrasée depuis la ligne de commande
+de démarrage avec
+.RB \(aq lockfs=hard \(aq
+ou
+.RB \(aq lockfs=soft \(aq.
 .IP \(bu 2
 .I soft
 .br
@@ -246,7 +250,9 @@ policy). Notez que dans tous les cas, l'utilisation de \(aqswap\(aq peut
 noyau
 .IR noswap ,
 qui n'est pas une option de démarrage spécifique à
-.BR bilibop (7).
+.BR bilibop (7),
+mais fixe la valeur de BILIBOP_LOCKFS_SWAP_POLICY à
+.IR hard .
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 

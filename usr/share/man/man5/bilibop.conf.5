@@ -91,6 +91,10 @@ Default is unset.
 
 .SS BILIBOP_LOCKFS_POLICY
 This variable defines an additional \(aqlock\(aq level to be enabled or not.
+Its value can be overridden from the boot commandline with
+.RB \(aq lockfs=hard \(aq
+or
+.RB \(aq lockfs=soft \(aq.
 .IP \(bu 2
 .I soft
 .br
@@ -225,7 +229,8 @@ commandline with the
 .I noswap
 kernel parameter, which is not a
 .BR bilibop (7)
-specific boot option.
+specific boot option, but leads to set BILIBOP_LOCKFS_SWAP_POLICY to
+.IR hard .
 .br
 Default is unset.
 
