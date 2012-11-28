@@ -1,3 +1,20 @@
+bilibop (0.4.5) experimental; urgency=low
+
+  * bilibop-lockfs: modify bilibop-lockfs initramfs scripts, lockfs.sh and
+    lockfs_mount_helper:
+    - 'noswap' boot parameter overrides BILIBOP_LOCKFS_SWAP_POLICY and set
+      it to "hard".
+    - parse /proc/cmdline in a more portable and robust way: take into account
+      that the last runlevel (0 to 6, S and single) overrides all the previous
+      ones; allow the general format 'lockfs[=opt1[,opt2[,opt3]]]' with
+      options 'hard', 'soft', 'force' and an arbitrary string matching a regex
+      for the size of the tmpfs used for /.
+  * Update bilibop-lockfs documentation (README.Debian).
+  * Update bilibop.conf(5) manual page for bilibop-lockfs related variables
+    that can be overridden from boot commandline.
+
+ -- bilibop project <quidame@poivron.org>  Wed, 28 Nov 2012 03:37:16 +0100
+
 bilibop (0.4.4) experimental; urgency=low
 
   * Fix inconsistent variable name in the lockfs_mount_helper script.
