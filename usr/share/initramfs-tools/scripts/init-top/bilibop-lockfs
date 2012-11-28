@@ -48,38 +48,58 @@ done
 
 udev_root="/dev"
 BILIBOP_LOCKFS="true"
+BILIBOP_LOCKFS_POLICY="hard"
 
-# Check if BILIBOP_LOCKFS is overridden from the boot commandline. To use
-# lockfs in single-user mode, it is necessary to use 'lockfs=force'.
+# Check if BILIBOP_LOCKFS or BILIBOP_LOCKFS_POLICY are overridden from the
+# boot commandline. To enable bilibop-lockfs in single-user mode, it is
+# necessary to use 'lockfs=force'.
 for	param in ${CMDLINE}
 do
 	case	"${param}" in
 		single|S|1)
 			single="true"
 			;;
-		lockfs=force)
-			_force="true"
+		[02-6])
+			single="false"
 			;;
 		nolockfs)
 			BILIBOP_LOCKFS="false"
+			_force="false"
 			;;
-		lockfs|lockfs=*)
+		lockfs)
 			BILIBOP_LOCKFS="true"
+			;;
+		lockfs=*)
+			BILIBOP_LOCKFS="true"
+			for	opt in $(IFS=',' ; echo ${param#lockfs=})
+			do
+				case	"${opt}" in
+					force)
+						_force="true"
+						;;
+					hard|soft)
+						BILIBOP_LOCKFS_POLICY="${opt}"
+						;;
+				esac
+			done
 			;;
 	esac
 done
-[ "${single}" = "true" ] && BILIBOP_LOCKFS="false"
-[ "${_force}" = "true" ] && BILIBOP_LOCKFS="true"
 
-case	"${BILIBOP_LOCKFS}" in
-	true)
-		log_warning_msg "${0##*/}: Set LVM read-only."
-		;;
-	false)
-		log_warning_msg "${0##*/}: Nothing to do."
-		exit 0
-		;;
-esac
+# 'lockfs=force' boot option is available only for single-user sessions:
+if	[ "${single}" = "true" ]
+then	BILIBOP_LOCKFS="false"
+	[ "${_force}" = "true" ] &&
+	BILIBOP_LOCKFS="true"
+fi
+
+# If bilibop-lockfs is disabled, or enabled with a 'soft' policy, do nothing:
+if	[ "${BILIBOP_LOCKFS}" = "true" ] &&
+	[ "${BILIBOP_LOCKFS_POLICY}" = "hard" ]
+then	log_warning_msg "${0##*/}: Set LVM read-only."
+else	log_warning_msg "${0##*/}: Nothing to do."
+	exit 0
+fi
 
 # Now modify 'locking_type', 'metadata_read_only' and 'read_only_volume_list'
 # variables in (initramfs)/etc/lvm/lvm.conf:

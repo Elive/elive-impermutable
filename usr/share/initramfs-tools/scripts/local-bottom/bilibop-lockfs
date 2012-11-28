@@ -55,19 +55,45 @@ do
 		single|S|1)
 			single="true"
 			;;
-		lockfs=force)
-			_force="true"
+		[02-6])
+			single="false"
 			;;
 		nolockfs)
 			BILIBOP_LOCKFS="false"
+			_force="false"
 			;;
-		lockfs|lockfs=*)
+		lockfs)
 			BILIBOP_LOCKFS="true"
+			;;
+		lockfs=*)
+			BILIBOP_LOCKFS="true"
+			for	opt in $(IFS=',' ; echo ${param#lockfs=})
+			do
+				case	"${opt}" in
+					force)
+						_force="true"
+						;;
+					hard|soft)
+						BILIBOP_LOCKFS_POLICY="${opt}"
+						;;
+					[1-9]*[0-9KkMmGg%])
+						SIZE="${opt}"
+						;;
+				esac
+			done
+			;;
+		noswap)
+			BILIBOP_LOCKFS_SWAP_POLICY="hard"
 			;;
 	esac
 done
-[ "${single}" = "true" ] && BILIBOP_LOCKFS="false"
-[ "${_force}" = "true" ] && BILIBOP_LOCKFS="true"
+
+# 'lockfs=force' boot option is available only for single-user sessions:
+if	[ "${single}" = "true" ]
+then	BILIBOP_LOCKFS="false"
+	[ "${_force}" = "true" ] &&
+	BILIBOP_LOCKFS="true"
+fi
 
 
 # Now, if BILIBOP_LOCKFS is not explicitly set to "true" or "false", then
@@ -126,26 +152,18 @@ else	RO="rr"
 fi
 
 # Determine tmpfs size for the aufs writable branch:
-SIZE=
-for	size in ${BILIBOP_LOCKFS_SIZE}
-do
-	case	"${size}" in
-		/=[1-9]*[0-9KkMmGg%])
-			SIZE="${size#/=}"
-			break
-			;;
-	esac
-done
-
-# Check if the size has been overridden from the boot commandline:
-for	param in ${CMDLINE}
-do
-	case	"${param}" in
-		lockfs=[1-9]*[0-9KkMmGg%])
-			SIZE="${param#lockfs=}"
-			;;
-	esac
-done
+if	[ -z "${SIZE}" ]
+then
+	for	size in ${BILIBOP_LOCKFS_SIZE}
+	do
+		case	"${size}" in
+			/=[1-9]*[0-9KkMmGg%])
+				SIZE="${size#/=}"
+				break
+				;;
+		esac
+	done
+fi
 
 log_begin_msg "${0##*/}: Setting up aufs branches"
 

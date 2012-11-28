@@ -153,6 +153,22 @@ rwbr="${rwbr}${mntpnt}"
 
 # If the policy is not explicitly set to 'soft', set the block device as
 # readonly, and use 'rr' aufs option to improve performances:
+for	param in $(cat /proc/cmdline)
+do
+	case	"${param}" in
+		lockfs=*)
+			for	policy in $(IFS=',' ; echo ${param#lockfs=})
+			do
+				case	"${policy}" in
+					hard|soft)
+						BILIBOP_LOCKFS_POLICY="${policy}"
+						;;
+				esac
+			done
+			;;
+	esac
+done
+
 if	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ]
 then
 	RO="ro"

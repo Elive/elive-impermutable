@@ -208,7 +208,6 @@ parse_and_modify_fstab() {
         case    "${fstype}" in
             swap)
                 # Special settings for swap devices
-                grep -q '\<noswap\>' /proc/cmdline ||
                 apply_swap_policy "${device}"
                 continue
                 ;;
