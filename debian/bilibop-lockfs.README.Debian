@@ -57,7 +57,49 @@ manual page. They allow to:
   lockfs-notify(1) manpage for details.
 
 
-3. HOW IT WORKS
+3. BOOT OPTIONS
+===============
+
+Several variables can be set or overridden from the boot commandline,
+with the following keywords/parameters (the last one given in the boot
+commandline overrides the previous ones):
+
+- 'nolockfs' - disable bilibop-lockfs features:
+  BILIBOP_LOCKFS="false"
+
+- 'lockfs' - enable bilibop-lockfs features:
+  BILIBOP_LOCKFS="true"
+
+- 'lockfs=force' - enable bilibop-lockfs features when system boots in
+  single-user mode:
+  BILIBOP_LOCKFS="true"
+
+- 'lockfs=hard' - enable bilibop-lockfs features, with restrictive policy:
+  BILIBOP_LOCKFS="true"
+  BILIBOP_LOCKFS_POLICY="hard"
+
+- 'lockfs=soft' - enable bilibop-lockfs features, with permissive policy:
+  BILIBOP_LOCKFS="true"
+  BILIBOP_LOCKFS_POLICY="soft"
+
+- 'lockfs=<SIZE>' - enable bilibop-lockfs features, and allocate SIZE of
+  tmpfs for the root filesystem (/). SIZE must be digits (not beginning
+  by zero) suffixed with 'k', 'K', 'm', 'M', 'g', 'G', or '%'. Default is
+  50% of the RAM.
+  BILIBOP_LOCKFS="true"
+  BILIBOP_LOCKFS_SIZE="/=<SIZE> ${BILIBOP_LOCKFS_SIZE}"
+
+- 'noswap' - if bilibop-lockfs is enabled, then apply a more restrictive
+  policy than does the checkroot.sh initscript: comment lines about swap
+  in /etc/fstab and also /etc/crypttab if necessary.
+  BILIBOP_LOCKFS_SWAP_POLICY="hard"
+
+Unknown keywords are silently ignored. Parameters can be used together,
+separated by comma; for example:
+  lockfs=soft,30%,force
+
+
+4. HOW IT WORKS
 ===============
 
 If one of the devices registered in fstab(5) is a Logical Volume, and
@@ -103,7 +145,7 @@ computer: it contains a vfat (FAT32) filesystem of 8 GB and is not
 automatically mounted (not registered in /etc/fstab).
 
 
-3.1. First stage
+4.1. First stage
 ----------------
 
 One time the device that is normally used as the root of the system has
@@ -196,7 +238,7 @@ g. ${rootmnt}/etc/lvm/lvm.conf is modified (optional):
    in depth.
 
 
-3.2. Second stage
+4.2. Second stage
 -----------------
 
 Now /, the root of the system, is what it was previously named ${rootmnt}.
@@ -292,7 +334,7 @@ f. The last step is to modify /etc/fstab to make it matches /proc/mounts:
    of three lines: readonly branch, writable branch and the aufs itself.
 
 
-3.3. Results
+4.3. Results
 ------------
 
 bilibop-lockfs is enabled with default options (bilibop.conf is empty):
@@ -322,4 +364,4 @@ is writable, other block devices are read-only.
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
- -- bilibop project <quidame@poivron.org>  Thu, 15 Nov 2012 00:58:43 +0100
+ -- bilibop project <quidame@poivron.org>  Tue, 27 Nov 2012 00:27:00 +0100
