@@ -104,12 +104,14 @@ case	"${BILIBOP_LOCKFS}" in
 		;;
 	false)
 		log_warning_msg "${0##*/}: Nothing to do."
+		plymouth_message "${0##*/} is disabled"
 		exit 0
 		;;
 	*)
 		if	is_removable $(physical_hard_disk ${rootmnt})
 		then	log_warning_msg "${0##*/}: Locking filesystem."
 		else	log_warning_msg "${0##*/}: Nothing to do."
+			plymouth_message "${0##*/} is disabled"
 			exit 0
 		fi
 		;;
@@ -120,6 +122,7 @@ esac
 if	is_aufs_mountpoint -q "${rootmnt}"
 then	log_warning_msg "${0##*/}: Root filesystem is already mounted as aufs..."
 	log_failure_msg "${0##*/}: Exit."
+	plymouth_message "${0##*/}: ERROR"
 	exit 0
 fi
 
@@ -132,6 +135,7 @@ if	! grep -q '\<aufs\>' /proc/filesystems
 then
 	log_failure_msg "${0##*/}: No aufs kernel support."
 	log_failure_msg "${0##*/}: Exit."
+	plymouth_message "${0##*/}: ERROR"
 	exit 1
 fi
 
@@ -189,6 +193,7 @@ then
 
 	log_failure_msg "${0##*/}: Error occured when setting aufs writable branch."
 	log_failure_msg "${0##*/}: Exit."
+	plymouth_message "${0##*/}: ERROR"
 	exit 1
 fi
 
@@ -211,6 +216,7 @@ else
 
 	_log_msg "failed.\n"
 	log_failure_msg "${0##*/}: Persistent root filesystem is writable."
+	plymouth_message "${0##*/}: ERROR"
 	exit 1
 fi
 
@@ -219,7 +225,8 @@ fi
 >${BILIBOP_RUNDIR}/lock
 
 log_end_msg
-log_success_msg "${0##*/}: Root filesystem is now locked."
+log_success_msg "${0##*/}: Root filesystem is now locked (${BILIBOP_LOCKFS_POLICY} policy)."
+plymouth_message "${0##*/}: ${BILIBOP_LOCKFS_POLICY} policy is enabled"
 
 # Avoid filesystems check:
 >${rootmnt}/fastboot

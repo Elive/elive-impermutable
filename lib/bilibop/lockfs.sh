@@ -514,4 +514,14 @@ unlock_logical_volume() {
     done
 }
 # ===========================================================================}}}
+# plymouth_message() ========================================================{{{
+# What we want is: tell plymouth daemon to display a message. (Plymouth is the
+# name of the standard graphical boot splash on Linux)
+plymouth_message() {
+    ${DEBUG} && echo "> plymouth_message $@" >&2
+	if      [ -x /bin/plymouth ] && plymouth --ping
+    then    plymouth message --text="$@"
+    fi
+}
+# ===========================================================================}}}
 
