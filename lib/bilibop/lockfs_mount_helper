@@ -65,27 +65,51 @@ else
 	exit 1
 fi
 
+# Some configurations can have been overridden from the boot commandline:
+for	param in $(cat /proc/cmdline)
+do
+	case	"${param}" in
+		lockfs=*)
+			for	policy in $(IFS=',' ; echo ${param#lockfs=})
+			do
+				case	"${policy}" in
+					hard|soft)
+						BILIBOP_LOCKFS_POLICY="${policy}"
+						;;
+					all)
+						BILIBOP_LOCKFS_WHITELIST=""
+						;;
+				esac
+			done
+			;;
+	esac
+done
+
 # the mount command always provides arguments to the helper scipts in this
 # order: FILESYSTEM MOUNTPOINT -o OPTIONS. We take advantage of this fixed
 # format.
 if	[ -b "${1}" ]
 then
 	device="${1}"
-	# Query ID_FS_* udev environment variables of the device:
-	eval $(query_udev_envvar $(readlink -f ${device}))
-	if	[ -z "${ID_FS_USAGE}" ]
-	then	eval $(blkid -o udev -p ${device})
+	# Check if this device is whitelisted:
+	if	[ -n "${BILIBOP_LOCKFS_WHITELIST}" ]
+	then
+		# Query ID_FS_* udev environment variables of the device:
+		eval $(query_udev_envvar $(readlink -f ${device}))
+		if	[ -z "${ID_FS_USAGE}" ]
+		then	eval $(blkid -o udev -p ${device})
+		fi
+		[ "${ID_FS_USAGE}" = "filesystem" -o "${ID_FS_USAGE}" = "crypto" ] &&
+		for	skip in ${BILIBOP_LOCKFS_WHITELIST}
+		do
+			case	"${skip}" in
+				UUID=${ID_FS_UUID}|LABEL=${ID_FS_LABEL}|TYPE=${ID_FS_TYPE})
+					LOCKFS="false"
+					break
+					;;
+			esac
+		done
 	fi
-	[ "${ID_FS_USAGE}" = "filesystem" -o "${ID_FS_USAGE}" = "crypto" ] &&
-	for	skip in ${BILIBOP_LOCKFS_WHITELIST}
-	do
-		case	"${skip}" in
-			UUID=${ID_FS_UUID}|LABEL=${ID_FS_LABEL}|TYPE=${ID_FS_TYPE})
-				LOCKFS="false"
-				break
-				;;
-		esac
-	done
 
 elif	[ -f "${1}" ]
 then
@@ -153,22 +177,6 @@ rwbr="${rwbr}${mntpnt}"
 
 # If the policy is not explicitly set to 'soft', set the block device as
 # readonly, and use 'rr' aufs option to improve performances:
-for	param in $(cat /proc/cmdline)
-do
-	case	"${param}" in
-		lockfs=*)
-			for	policy in $(IFS=',' ; echo ${param#lockfs=})
-			do
-				case	"${policy}" in
-					hard|soft)
-						BILIBOP_LOCKFS_POLICY="${policy}"
-						;;
-				esac
-			done
-			;;
-	esac
-done
-
 if	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ]
 then
 	RO="ro"

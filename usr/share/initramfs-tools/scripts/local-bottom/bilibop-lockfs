@@ -79,6 +79,9 @@ do
 					[1-9]*[0-9KkMmGg%])
 						SIZE="${opt}"
 						;;
+					all)
+						BILIBOP_LOCKFS_WHITELIST=""
+						;;
 				esac
 			done
 			;;
@@ -153,6 +156,7 @@ if	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ]
 then	RO="ro"
 else	RO="rr"
 	blockdev_root_subtree ro ${BILIBOP_ROOT} ${BILIBOP_DISK}
+	BILIBOP_LOCKFS_POLICY="hard"
 fi
 
 # Determine tmpfs size for the aufs writable branch:
