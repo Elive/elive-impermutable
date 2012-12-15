@@ -89,6 +89,11 @@ commandline overrides the previous ones):
   BILIBOP_LOCKFS="true"
   BILIBOP_LOCKFS_SIZE="/=<SIZE> ${BILIBOP_LOCKFS_SIZE}"
 
+- 'lockfs=all' - enable bilibop-lockfs features and blank the list of
+  devices to not lock:
+  BILIBOP_LOCKFS="true"
+  BILIBOP_LOCKFS_WHITELIST=""
+
 - 'noswap' - if bilibop-lockfs is enabled, then apply a more restrictive
   policy than does the checkroot.sh initscript: comment lines about swap
   in /etc/fstab and also /etc/crypttab if necessary.
