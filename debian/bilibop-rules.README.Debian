@@ -28,6 +28,23 @@ the same disk than the root filesystem as 'BILIBOP'. This applies to all
 physical devices (disk and partitions) and virtual devices (device-mapper
 and loop), and can be used later by the lsbilibop(8) command (see below).
 
+Internal physical block devices (i.e. disks and partitions of the drives
+inside the computer) are also tagged as 'INSIDEV'. This can be used later
+by the physical_volumes_filter helper script, and provides an easy way to
+customize the settings and behaviour of these internal devices (see
+90-insidev.rules in the documentation of the package for examples).
+
+Additionally, if one of the 'BILIBOP' tagged devices uses the device-mapper,
+some of the udev symlinks to this device are updated. This is done because
+when a device has already been added from the initrd, the dm rules file
+(55-dm.rules) makes that the spurious 'add' uevent triggered by udev from
+the system environment don't update symlinks to the added device, leading
+to this situation, that a dm device can have a lot of symlinks created by
+udev in the initrd environment, but none is managed by udev in the system
+environment. So, bilibop rules restore at least /dev/mapper/dm_name as a
+part of the udev database, and also /dev/vg_name/lv_name if the device is
+a Logical Volume.
+
 
 2.1. Udisks facilities
 ----------------------
@@ -47,6 +64,11 @@ UDISKS_PRESENTATION_ICON_NAME
 UDISKS_SYSTEM_INTERNAL
 
 By default, 'BILIBOP' tagged devices are hidden and set 'system internal'.
+
+The rule ENV{ID_DRIVE_DETACHABLE}:=0 is also applied to the disk, to avoid
+udisks detach it from its bus when a partition is unmounted, but it seems
+to not work correctly. Bad thing! Here the Udisks ability to detach a drive
+can lead to crash the system :(
 
 
 2.2. lsbilibop
@@ -156,6 +178,49 @@ this program, except when BILIBOP_COMMON_BASENAME has been modified in
 bilibop.conf.
 
 
+3.4. physical_volumes_filter
+----------------------------
+
+This script can be used to display the LVM 'filter' settings actually in
+use, or to modify these settings. It uses the 'BILIBOP' and 'INSIDEV' tags
+to find devices and their symlinks and build patterns on which the 'accept'
+or 'reject' behaviours will be applied.
+
+For example, if you don't want to activate Logical Volumes other than those
+used by your system, you can easily make that all Physical Volumes that are
+not used by your system are ignored and never scanned by lvm tools:
+
+/usr/share/bilibop/physical_volumes_filter --overwrite --udev --accept bilibop --reject all
+
+Or, shorter:
+
+/usr/share/bilibop/physical_volumes_filter -oua bilibop -r all.
+
+This can be very useful, especially when the VG and LV names used on your
+system are as generic as 'vg0' and 'lv0', 'lv1', etc.
+
+One time you are satisfied of your settings, you should not modify them.
+To use other LVM filters without modifying your owns, you can do:
+
+# mkdir /tmp/lvm
+# cp /etc/lvm/lvm.conf /tmp/lvm
+# export LVM_SYSTEM_DIR=/tmp/lvm
+
+And then you can use 'pvfilter' and all LVM tools from the same shell:
+changes from pvfilter will apply to /tmp/lvm/lvm.conf, and LVM tools will
+use the settings from this temporary file. If, for a reason or another,
+the initramdisk of your system is updated during this time, lvm.conf
+will be copied in it from /etc/lvm, not from /tmp/lvm, and so your next
+boot will not be compromised. In this context, you can safely run:
+
+/usr/share/bilibop/physical_volumes_filter --overwrite --blank --reject bilibop --show
+
+And then you can perform operations on Physical or Logical Volumes by
+using LVM commands without take the risk to modify your owns by mistake.
+
+See also lvm.conf(5) manual page for details.
+
+
 4. MORE INFO
 ============
 
@@ -163,4 +228,4 @@ See /usr/share/doc/bilibop-common/misc/*
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
- -- bilibop project <quidame@poivron.org>  Tue, 16 Oct 2012 13:09:05 +0200
+ -- bilibop project <quidame@poivron.org>  Wed, 19 Dec 2012 22:51:56 +0100
