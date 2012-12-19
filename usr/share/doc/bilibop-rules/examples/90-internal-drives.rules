@@ -1,8 +1,8 @@
 # /usr/share/doc/bilibop-rules/examples/90-internal-drives.rules
 
-# This file may be copied in /etc/udev/rules.d
-# It can be used to manage internal drives when the running system is on a
-# removable device. Lines before 'TAG+="INTERNAL"' should not be modified.
+  ┌───────────────────────────────────────────────────────────────┐
+  │  THIS FILE IS NOW OUT OF DATE. SEE 90-insidev.rules INSTEAD.  │
+  └───────────────────────────────────────────────────────────────┘
 
 
 # ==============================================================================

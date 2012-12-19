@@ -1,0 +1,65 @@
+# /usr/share/doc/bilibop-rules/examples/90-insidev.rules
+
+# This file may be copied in /etc/udev/rules.d
+# It can be used to manage internal drives when the running system is on a
+# removable device.
+
+# Internal disks and partitions should have been tagged by 66-bilibop.rules:
+TAG=="INSIDEV", GOTO="insidev_rules"
+GOTO="insidev_end"
+LABEL="insidev_rules"
+
+ACTION!="add|change", GOTO="insidev_end"
+
+# Examples:
+# =========
+# Here are some examples of actions to perform, or properties to set.
+
+# A. Uncomment the following line if you want to set the whole disk and
+#    each of its partitions as read-only. This can avoid big mistakes
+#    on your friend's computer, but is reset after the system has been
+#    suspended to RAM.
+#RUN+="/sbin/blockdev --setro $tempnode"
+#
+#    This is a variant using a boot parameter: insidev. If this keyword
+#    IS NOT present in the boot commandline, devices are set readonly:
+#PROGRAM!="/bin/grep -q '\<insidev\>' /proc/cmdline", RUN+="/sbin/blockdev --setro $tempnode"
+#
+#    This is a variant using a boot parameter: noinsidev. If this keyword
+#    IS present in the boot commandline, devices are set readonly:
+#PROGRAM=="/bin/grep -q '\<noinsidev\>' /proc/cmdline", RUN+="/sbin/blockdev --setro $tempnode"
+
+
+# B. Uncomment the following line if you want the disk and its partitions
+#    to be hidden to the user (works only for udisks-based applications):
+#ATTR{partition}=="?*", ENV{UDISKS_PRESENTATION_HIDE}="1"
+
+
+# C. Uncomment the following line if you want that the user be able to
+#    mount the partitions without prompt for su/sudo password.
+#    Dangerous: use with care.
+#ENV{ID_FS_USAGE}=="filesystem", ENV{UDISKS_SYSTEM_INTERNAL}="0"
+#
+#    This is a variant using a boot parameter (insidev):
+#ENV{ID_FS_USAGE}=="filesystem", PROGRAM=="/bin/grep -q '\<insidev\>' /proc/cmdline", ENV{UDISKS_SYSTEM_INTERNAL}="0"
+
+
+# D. Uncomment the following lines if you want to automatically setup
+#    encrypted swap devices from internal partitions. Experimental: use
+#    with care.
+#ACTION=="add", \
+#	PROGRAM!="/bin/grep -q '\<no\(insidev\|swap\)\>' /proc/cmdline", \
+#	ENV{ID_FS_TYPE}=="swap", ENV{ID_PART_ENTRY_TYPE}=="0x82", \
+#	PROGRAM=="/sbin/blockdev --setrw $tempnode", \
+#	TEST!="%r/mapper/encswap_%k", \
+#	PROGRAM=="/sbin/cryptsetup --key-file=%r/urandom --offset=8 create encswap_%k $tempnode", \
+#	RUN+="/sbin/mkswap -f -L encswap_%k %r/mapper/encswap_%k", \
+#	RUN+="/sbin/swapon %r/mapper/encswap_%k"
+#
+#    The same can be done *manually* by beginning the rule with
+#    ACTION=="change", and run 'udevadm trigger --tag-match="INSIDEV"
+#    during a session; 'urandom' should probably be replaced by 'random',
+#    especially if 'haveged', 'rng-tools' or 'randomsound' is installed.
+
+
+LABEL="insidev_end"
