@@ -60,7 +60,7 @@ EOF
 usage() {
     cat <<EOF
 ${PROG}: get/set the filter of Physical Volumes in LVM2 configuration file.
-See ${PROG}(8) and lvm.conf(5) for details.
+See also lvm.conf(5) for some details.
 
 Usage:
   ${PROG} [--file FILE]
