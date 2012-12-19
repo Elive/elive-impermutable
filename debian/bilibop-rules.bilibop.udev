@@ -7,6 +7,7 @@
 
 # Process only on some block devices:
 SUBSYSTEM!="block", GOTO="bilibop_end"
+ACTION!="add|change", GOTO="bilibop_end"
 KERNEL=="dm-?*|loop?*", GOTO="bilibop_virtual_block"
 KERNEL!="sd?*|mmcblk?*|mspblk?*", GOTO="bilibop_end"
 
@@ -14,97 +15,92 @@ KERNEL!="sd?*|mmcblk?*|mspblk?*", GOTO="bilibop_end"
 # Memory cards, and test if the device is hosted by the same disk than the root
 # filesystem. If yes, fix its group to 'disk' (this is mandatory), add a tag,
 # go to a xxx label to continue...
-ACTION=="add|change", \
-	SUBSYSTEMS=="usb|firewire|memstick|mmc", \
+SUBSYSTEMS=="usb|firewire|memstick|mmc", \
 	PROGRAM=="bilibop_disk --test %r/%k", \
 	GROUP:="disk", \
 	TAG+="BILIBOP", \
 	GOTO="bilibop_rules"
 
-# ...and let all the rest go directly to the end.
+# Tag internal physical block devices (disks and partitions)
+SUBSYSTEMS=="usb|firewire", GOTO="bilibop_end"
+KERNEL=="sd?*", TAG+="INSIDEV"
+
 GOTO="bilibop_end"
 LABEL="bilibop_rules"
 
 # Create a symlink pointing to the disk node, add an environment variable,
-# and optionally write a fake grub device map:
-ACTION=="add|change", \
-	KERNEL=="sd?|mmcblk?|mspblk?", \
+# and say Udisks to not detach the drive:
+KERNEL=="sd?|mmcblk?|mspblk?", \
 	PROGRAM=="bilibop_disk --disk %r/%k", \
 	SYMLINK+="%c", \
 	ENV{BILIBOP_DISK}="%r/%k", \
+	ENV{ID_DRIVE_DETACHABLE}:="0", \
 	GOTO="bilibop_end"
 
 # Add an environment variable for the partitions:
-ACTION=="add|change", \
-	ATTR{partition}=="?*", \
-	ENV{BILIBOP_PARTITION}="%r/%k"
+ATTR{partition}=="?*", ENV{BILIBOP_PARTITION}="%r/%k"
 
 # Now process on loopback and mapped devices. If they are hosted by the same
 # disk than the root filesystem, add their parent partition's name to the
 # udev database:
 LABEL="bilibop_virtual_block"
 
-ACTION=="add|change", \
-	KERNEL=="loop?*", \
+KERNEL=="loop?*", \
 	TEST=="loop/backing_file", \
 	PROGRAM=="bilibop_disk --test %r/%k", \
 	PROGRAM=="bilibop_disk --part %r/%k", \
 	ENV{BILIBOP_UNDERLYING_PARTITION}="%c", \
 	TAG+="BILIBOP"
 
-ACTION=="add|change", \
-	KERNEL=="dm-?*", \
+KERNEL=="dm-?*", \
 	PROGRAM=="bilibop_disk --test %r/%k", \
 	PROGRAM=="bilibop_disk --part %r/%k", \
 	ENV{BILIBOP_UNDERLYING_PARTITION}="%c", \
 	TAG+="BILIBOP"
 
-# Add two other symlinks: one targetting the underlying partition (host) and
+# Now all bilibop devices are tagged; so we use the tag to filter them here:
+TAG=="BILIBOP", GOTO="bilibop_device"
+GOTO="bilibop_end"
+LABEL="bilibop_device"
+
+# Add two other symlinks: one targetting the underlying partition (part) and
 # the other targetting the root filesystem (root).
-ACTION=="add|change", \
-	TAG=="BILIBOP", \
-	PROGRAM=="bilibop_disk --root %r/%k", \
-	SYMLINK+="%c"
+PROGRAM=="bilibop_disk --root %r/%k", SYMLINK+="%c"
 
 # Due to the bilibop configuration file, based on ID_FS_* udev variables, we
 # need additional information here, and we want to be sure this information
 # is available for the next rules. Additionnaly, drivemap(1) and lsbilibop(8)
 # commands can need to query ID_FS_* values, even if udisks is not installed.
-ACTION=="add|change", \
-	TAG=="BILIBOP", \
-	ENV{ID_FS_USAGE}=="", \
-	IMPORT{program}="/sbin/blkid -o udev -p %r/%k"
+ENV{ID_FS_USAGE}=="", IMPORT{program}="/sbin/blkid -o udev -p %r/%k"
 
-# Now there is only partitions and virtual block devices hosted on the bilibop
-# disk to process. And the following rules are for the desktop environment;
-# they make sense only if Udisks is installed:
-TAG=="BILIBOP", \
-	TEST=="/lib/udev/rules.d/80-udisks.rules", \
-	GOTO="bilibop_udisks"
+# Restore *broken* symlinks: at least /dev/mapper/* and, if device is a Logical
+# Volume, /dev/vg_name/lv_name. This overrides the *-dm.rules and *-lvm.rules,
+# but if this is not done, dm devices added in the initrd (and this is the case
+# for bilibop devices) have no symlink in the udev database... but pvfilter
+# needs at least one symlink. See the comments in /lib/udev/rules.d/55-dm.rules
+# for details.
+KERNEL=="dm-?*", \
+	ENV{DM_UUID}=="LVM-?*", \
+	ENV{DM_LV_NAME}!="?*" , \
+	IMPORT{program}="/sbin/dmsetup splitname --nameprefixes --noheadings --rows $attr{dm/name}"
 
-# Nothing else to do for other devices or if udisks rules file was not found:
+KERNEL=="dm-?*", \
+	ENV{DM_LV_NAME}=="?*", \
+	ENV{DM_VG_NAME}=="?*", \
+	ENV{DM_LV_LAYER}=="", \
+	SYMLINK+="$env{DM_VG_NAME}/$env{DM_LV_NAME}"
+
+KERNEL=="dm-?*", SYMLINK+="mapper/$attr{dm/name}"
+
+# The following rules are for the desktop environment; they make sense only if
+# Udisks is installed:
+TEST=="/lib/udev/rules.d/80-udisks.rules", GOTO="bilibop_udisks"
 GOTO="bilibop_end"
-
 LABEL="bilibop_udisks"
 
-ACTION=="add|change", \
-	PROGRAM=="bilibop_disk --lock %r/%k", \
-	ENV{UDISKS_SYSTEM_INTERNAL}:="1"
-
-ACTION=="add|change", \
-	PROGRAM=="bilibop_disk --hide %r/%k", \
-	ENV{UDISKS_PRESENTATION_HIDE}:="1", \
-	GOTO="bilibop_end"
-
-# If the device is hidden to the user, there is no need to set its presentation
-# icon nor its name.
-
-ACTION=="add|change", \
-	PROGRAM=="bilibop_disk --icon %r/%k", \
-	ENV{UDISKS_PRESENTATION_ICON_NAME}:="%c"
-
-ACTION=="add|change", \
-	PROGRAM=="bilibop_disk --name %r/%k", \
-	ENV{UDISKS_PRESENTATION_NAME}:="%c"
+PROGRAM=="bilibop_disk --lock %r/%k", ENV{UDISKS_SYSTEM_INTERNAL}:="1"
+PROGRAM=="bilibop_disk --hide %r/%k", ENV{UDISKS_PRESENTATION_HIDE}:="1", GOTO="bilibop_end"
+PROGRAM=="bilibop_disk --icon %r/%k", ENV{UDISKS_PRESENTATION_ICON_NAME}:="%c"
+PROGRAM=="bilibop_disk --name %r/%k", ENV{UDISKS_PRESENTATION_NAME}:="%c"
 
 LABEL="bilibop_end"
