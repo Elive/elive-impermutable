@@ -92,10 +92,11 @@ Description: device management rules for OS running from external media
  command allows the admin to update udev properties of the devices after the
  configuration file has been modified.
  .
- bilibop-rules also provides helper scripts to:
+ To ease device management, bilibop-rules also provides helper scripts to:
   * build custom bilibop udev rules running faster than the generic ones
   * make some persistent and cumulative rules files unpersistent
   * use either a fake or an always-up-to-date grub device map
+  * filter Physical Volumes, to activate only those needed by the system
  .
  This package is not designed to be used on internal disks. It works only
  for OS installed on removable and writable media, including LiveUSB systems.
