@@ -3,12 +3,23 @@
 set -e
 
 case "${1}" in
-	remove)
-		if [ -x /usr/sbin/update-initramfs ]
-		then
-			update-initramfs -u
-		fi
-		;;
+    purge)
+        # Comment bilibop-lockfs specific configuration variables in
+        # the common bilibop config file:
+        CONFIGFILE="/etc/bilibop/bilibop.conf"
+        if grep -qs '^\s*BILIBOP_LOCKFS\(_[A-Z]\+\)*=' ${CONFIGFILE}; then
+            sed -i 's,^\s*BILIBOP_LOCKFS\(_[A-Z]\+\)*=,#&,' ${CONFIGFILE}
+        fi
+        ;;
+esac
+
+case "${1}" in
+    purge|remove)
+        # Remove bilibop-lockfs scripts from the initramdisk:
+        if [ -x /usr/sbin/update-initramfs ]; then
+            update-initramfs -u
+        fi
+        ;;
 esac
 
 #DEBHELPER#

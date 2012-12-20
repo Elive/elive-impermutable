@@ -2,34 +2,38 @@
 
 set -e
 
-trigger_disk_uevent() {
-	local dev opt
-	if [ -f /etc/udev/udev.conf ]
-	then . /etc/udev/udev.conf
-	fi
-	cd ${udev_root:=/dev}
-	for dev in $(ls -l $(grep '[[:digit:]]' /proc/partitions | sed 's,.*\s\([^ ]\+\)$,\1,') | grep '\sdisk\s' | sed 's,.*\s\([^ ]\+\)$,\1,')
-	do
-		opt="${opt} --sysname-match=${dev}"
-	done
-	cd ${OLDPWD}
-	udevadm trigger ${opt}
-}
+case "${1}" in
+    purge)
+        # Remove custom rules:
+        rm -f /etc/udev/rules.d/66-bilibop.rules
 
+        # Comment bilibop-rules specific configuration variables in
+        # the common bilibop config file:
+        CONFIGFILE="/etc/bilibop/bilibop.conf"
+        if grep -qs '^\s*BILIBOP_RULES\(_[A-Z]\+\)\+=' ${CONFIGFILE}; then
+            sed -i 's,^\s*BILIBOP_RULES\(_[A-Z]\+\)\+=,#&,' ${CONFIGFILE}
+        fi
+        ;;
+esac
 
 case "${1}" in
-	remove)
-		if [ -x /usr/sbin/update-initramfs ]
-		then
-			update-initramfs -u
-		fi
+    purge|remove)
+        # Remove bilibop-rules script from the initramdisk:
+        if [ -x /usr/sbin/update-initramfs ]; then
+            update-initramfs -u
+        fi
 
-		# Trigger uevents for block devices owned by 'disk' group.
-		if [ -x /sbin/udevadm ]
-		then
-			trigger_disk_uevent
-		fi
-		;;
+        # Trigger uevents for block devices owned by 'disk' group.
+        if [ -x /sbin/udevadm ]; then
+            cd $(udevadm info --root)
+            for dev in $(find * -type b -group disk); do
+                grep -q "\s${dev}$" /proc/partitions &&
+                opt="${opt} --sysname-match=${dev}"
+            done
+            udevadm trigger ${opt}
+            cd ${OLDPWD}
+        fi
+        ;;
 esac
 
 #DEBHELPER#

@@ -3,45 +3,71 @@
 set -e
 
 case "${1}" in
-	configure)
-		# Add a new script in the initramfs:
-		if [ -x /usr/sbin/update-initramfs ]
-		then
-			update-initramfs -u
-		fi
+    configure)
+        # Add a new script in the initramfs:
+        if [ -x /usr/sbin/update-initramfs ]; then
+            update-initramfs -u
+        fi
 
-		# Trigger uevents for block devices except physical ones
-		# that are not on the same disk than the root filesystem.
-		. /lib/bilibop/common.sh
-		get_udev_root
-		BILIBOP_DISK="$(physical_hard_disk /)" &&
-		udevadm trigger --sysname-match=${BILIBOP_DISK##*/}* \
-			--sysname-match=dm-* --sysname-match=loop*
+        # Trigger uevents for block devices owned by 'disk' group
+        # or being on the same disk than the root filesystem.
+        . /lib/bilibop/common.sh
+        get_udev_root
+        BILIBOP_DISK="$(physical_hard_disk /)" &&
+        if [ -x /sbin/udevadm ]; then
+            opt="--sysname-match=${BILIBOP_DISK##*/}*"
+            dm=
+            lo=
+            for dev in $(ls /sys/block); do
+                case "${dev}" in
+                    ${BILIBOP_DISK##*/})
+                        ;;
+                    dm-*)
+                        [ "${dm}" = "done" ] && continue
+                        opt="${opt} --sysname-match=dm-*"
+                        dm="done"
+                        ;;
+                    loop*)
+                        [ "${lo}" = "done" ] && continue
+                        if grep -q "\s${dev}$" /proc/partitions; then
+                            opt="${opt} --sysname-match=loop*"
+                            lo="done"
+                        fi
+                        ;;
+                    *)
+                        ls -l ${udev_root}/${dev}* |
+                        grep -q '^\([^[:blank:]]\+\s\+\)\{3\}\disk\s' &&
+                        opt="${opt} --sysname-match=${dev}*"
+                        ;;
+                esac
+            done
+            udevadm trigger ${opt}
+        fi
 
-		# Replace /etc/udev/rules.d/70-persistent-*.rules by
-		# symlinks to temporary files:
-		/usr/share/bilibop/make_unpersistent_rules
+        # Replace /etc/udev/rules.d/70-persistent-*.rules by
+        # symlinks to temporary files:
+        /usr/share/bilibop/make_unpersistent_rules
 
-		# GRUB device.map management:
-		[ -d "/boot/grub" ] || exit 0
+        # GRUB device.map management (only if GRUB is installed on MBR)
+        GRUB_MARK="$(dd if=${BILIBOP_DISK} bs=4 skip=96 count=1 2>${udev_root}/null)"
+        if [ -d "/boot/grub" -a "${GRUB_MARK}" = "GRUB" ]; then
+            DEVICE_MAP="/boot/grub/device.map"
 
-		DEVICE_MAP="/boot/grub/device.map"
+            if [ -h "${DEVICE_MAP}" ]; then
+                # Replace the symlink if it cannot be resolved:
+                DEVICE_MAP="$(readlink -f ${DEVICE_MAP})" ||
+                /usr/share/bilibop/grub_device_map_manager --link
+            fi
 
-		if	[ -h "${DEVICE_MAP}" ]
-		then
-			# Replace the symlink if it cannot be resolved:
-			DEVICE_MAP="$(readlink -f ${DEVICE_MAP})" ||
-			/usr/share/bilibop/grub_device_map_manager --link
-		fi
+            if [ -f "/etc/bilibop/bilibop.conf" ]; then
+                . /etc/bilibop/bilibop.conf
+            fi
 
-		if	[ -f "/etc/bilibop/bilibop.conf" ]
-		then	. /etc/bilibop/bilibop.conf
-		fi
-
-		# Build a fake device map:
-		[ "${BILIBOP_RULES_FAKE_DEVICE_MAP}" = "false" ] ||
-		/usr/share/bilibop/grub_device_map_manager --fake
-		;;
+            # Build a fake device map:
+            [ "${BILIBOP_RULES_FAKE_DEVICE_MAP}" = "false" ] ||
+            /usr/share/bilibop/grub_device_map_manager --fake
+        fi
+        ;;
 esac
 
 #DEBHELPER#
