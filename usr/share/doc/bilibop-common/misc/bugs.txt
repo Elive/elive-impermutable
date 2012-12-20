@@ -9,7 +9,7 @@ FROM DEBIAN BTS
 #675467: ITP: bilibop -- run Debian from external media
 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=675467
 
-#675532: RFS: bilibop/0.4.5 (ITP #675467)
+#675532: RFS: bilibop/0.4.6 (ITP #675467)
 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=675532
 
 ---------------
