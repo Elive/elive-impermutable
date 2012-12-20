@@ -46,11 +46,16 @@ force_load mmc_block
 
 
 # Add a list of LV used by local filesystems.
+if	[ -x /sbin/lvm ]
+then
+	lv_list=$(lvm lvs --noheadings -o vg_name,lv_name)
+	[ -n "${lv_list}" ] || exit 0
+else
+	exit 0
+fi
+
 . /lib/bilibop/common.sh
 get_udev_root
-
-lv_list=$(vgs --noheadings -o vg_name,lv_name)
-[ -n "${lv_list}" ] || exit 0
 
 mkdir -p ${DESTDIR}/etc/lvm
 LV_LIST="${DESTDIR}/etc/lvm/bilibop"
