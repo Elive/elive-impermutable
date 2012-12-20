@@ -88,9 +88,10 @@ Description: device management rules for OS running from external media
  the running system. Its main goal is to forbid low-level write access on this
  drive and its partitions by any unprivileged user or application, but some
  other convenient and optional rules have been added for desktop-level
- management of the system disk and partitions (need udisks). The 'lsbilibop'
- command allows the admin to update udev properties of the devices after the
- configuration file has been modified.
+ management of the system disk and partitions (need udisks), as well as the
+ internal disks of the computer. The 'lsbilibop' command allows the admin to
+ update udev properties of the devices after the configuration file has been
+ modified.
  .
  To ease device management, bilibop-rules also provides helper scripts to:
   * build custom bilibop udev rules running faster than the generic ones
