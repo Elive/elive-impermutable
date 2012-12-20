@@ -2,30 +2,26 @@
 
 set -e
 
-trigger_disk_uevent() {
-	local dev opt
-	if [ -f /etc/udev/udev.conf ]
-	then . /etc/udev/udev.conf
-	fi
-	cd /sys/class/block
-	for dev in $(ls | grep -v '^\(dm-\|loop\)')
-	do
-		udevadm info --attribute-walk --name ${dev} |
-		grep -q '^\s*SUBSYSTEMS=="\(usb\|firewire\|memstick\|mmc\)"' || continue
-		ls -l ${udev_root:-/dev}/${dev} |
-		grep -q '^\([^ ]\+\s\+\)\{3\}disk\s' || continue
-		opt="${opt} --sysname-match=${dev}"
-	done
-	udevadm trigger ${opt}
-}
-
-
 case "${1}" in
-	remove)
-		# Trigger uevents for disks and partitions owned by 'disk' group.
-		trigger_disk_uevent
-		;;
+    remove)
+        # Trigger uevents for external, physical block devices owned by
+        # 'disk' group.
+        if [ -x /sbin/udevadm ]; then
+            opt=
+            udev_root="$(udevadm info --root)"
+            for dev in $(ls /sys/block | grep -v '/\(dm-\|loop\)[0-9]\+$'); do
+                udevadm info --attribute-walk --name ${dev} |
+                grep -q '^\s*SUBSYSTEMS=="\(usb\|firewire\|memstick\|mmc\)"' || continue
+                ls -l ${udev_root}/${dev} |
+                grep -q '^\([^ ]\+\s\+\)\{3\}disk\s' || continue
+                opt="${opt} --sysname-match=${dev}*"
+            done
+            [ -z "${opt}" ] ||
+            udevadm trigger ${opt}
+        fi
+        ;;
 esac
 
 #DEBHELPER#
 :
+# vim: et ts=4 sts=4 sw=4

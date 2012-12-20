@@ -5,10 +5,11 @@ set -e
 case "${1}" in
     configure)
         # Trigger uevents for the disk hosting the root filesystem and its
-	# partitions.
-	udevadm trigger --sysname-match=$(lib/bilibop/disk)*
+        # partitions.
+        udevadm trigger --sysname-match=$(lib/bilibop/disk)*
         ;;
 esac
 
 #DEBHELPER#
 :
+# vim: et ts=4 sts=4 sw=4
