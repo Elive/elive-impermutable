@@ -3,7 +3,7 @@
 set -e
 
 case "${1}" in
-    remove)
+    purge|remove)
         # Trigger uevents for external, physical block devices owned by
         # 'disk' group.
         if [ -x /sbin/udevadm ]; then
