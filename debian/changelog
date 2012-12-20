@@ -1,3 +1,26 @@
+bilibop (0.4.6) experimental; urgency=low
+
+  * bilibop-lockfs:
+    - Add support for plymouth: send a message from local-bottom initramfs
+      script when bilibop-lockfs is enabled, disabled or has failed.
+    - Allow to override/blank BILIBOP_LOCKFS_WHITELIST with 'lockfs=all'
+      boot parameter.
+    - Update documentation.
+
+  * bilibop-rules:
+    - Add a new helper script: physical_volumes_filter, and its shell
+      functions: pvfilter.sh; the script is used to modify the variables
+      'obtain_device_list_from_udev' and 'filter' in lvm.conf.
+    - Rewrite udev rules and bilibop_rules_generator to tag internal drives
+      and partitions, and restore some dm-* related symlinks in the udev
+      database (needed by the new script).
+    - Update documentation.
+
+  * debian/control: update bilibop-rules extended description.
+  * Rewrite maintainer scripts.
+
+ -- bilibop project <quidame@poivron.org>  Thu, 20 Dec 2012 12:45:39 +0100
+
 bilibop (0.4.5) experimental; urgency=low
 
   * bilibop-lockfs: modify bilibop-lockfs initramfs scripts, lockfs.sh and
