@@ -1,10 +1,6 @@
 bilibop-rules - TODO
 
-  * Provide a script to allow the admin to easily modify the 'filter' in
-    lvm.conf, as the lvmconf command does for 'locking_type'.
   * Translate manpages
-  * Include a udev rules file to manage internal drives by using options to
-    set in bilibop.conf or in boot commandline.
   * Use debconf, at least for installation time, instead of silently modify
     grub device.map location or content.
 
