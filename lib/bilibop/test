@@ -1,0 +1,7 @@
+#!/bin/sh
+# Test if the argument (file/directory/device) is on the same underlying
+# device than the root filesystem.
+. /lib/bilibop/common.sh
+get_udev_root
+DISK="$(physical_hard_disk /)" || exit $?
+[ "$(physical_hard_disk ${1})" = "${DISK}" ]
