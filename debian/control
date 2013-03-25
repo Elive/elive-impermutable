@@ -24,7 +24,7 @@ Description: run Debian GNU/Linux from external media - metapackage
 
 Package: bilibop-common
 Architecture: linux-any
-Depends: initscripts (>= 2.88dsf-13.3), udev, ${misc:Depends}
+Depends: udev, ${misc:Depends}
 Suggests: aufs-tools, bilibop-lockfs, bilibop-device-policy, cryptsetup, dmsetup, lvm2
 Description: shell functions for bilibop scripts
  ${Description}
@@ -41,7 +41,7 @@ Description: shell functions for bilibop scripts
 
 Package: bilibop-lockfs
 Architecture: linux-any
-Depends: bilibop-common (= ${binary:Version}), initramfs-tools, ${misc:Depends}
+Depends: bilibop-common (= ${binary:Version}), initramfs-tools, initscripts (>= 2.88dsf-13.3), ${misc:Depends}
 Recommends: aufs-tools, cryptsetup, libnotify-bin
 Suggests: bilibop-device-policy, gnome-icon-theme
 Description: lock filesystems and write changes into RAM
@@ -76,7 +76,7 @@ Description: lock filesystems and write changes into RAM
 
 Package: bilibop-rules
 Architecture: linux-any
-Depends: bilibop-common (= ${binary:Version}), initramfs-tools, ${misc:Depends}
+Depends: bilibop-common (= ${binary:Version}), initramfs-tools, initscripts (>= 2.88dsf-13.3), ${misc:Depends}
 Recommends: grub-common, lvm2, udisks
 Suggests: bilibop-lockfs, cryptsetup, grub-coreboot | grub-efi-amd64 | grub-efi-ia32 | grub-ieee1275 | grub-pc, pmount, policykit-1
 Conflicts: bilibop-udev
