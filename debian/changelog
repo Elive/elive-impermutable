@@ -1,3 +1,9 @@
+bilibop (0.4.8) experimental; urgency=low
+
+  * bilibop-udev: rewrite postinst script.
+
+ -- bilibop project <quidame@poivron.org>  Mon, 25 Mar 2013 06:41:23 +0100
+
 bilibop (0.4.7) experimental; urgency=low
 
   * bilibop-udev: fix a bux in the udev rules (a matching rule as
