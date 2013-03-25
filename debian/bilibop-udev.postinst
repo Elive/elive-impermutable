@@ -6,7 +6,10 @@ case "${1}" in
     configure)
         # Trigger uevents for the disk hosting the root filesystem and its
         # partitions.
-        udevadm trigger --sysname-match=$(lib/bilibop/disk)*
+        . /lib/bilibop/common.sh
+        udev_root="$(udevadm info --root)"
+        BILIBOP_DISK="$(physical_hard_disk /)"
+        udevadm trigger --sysname-match=${BILIBOP_DISK##*/}*
         ;;
 esac
 
