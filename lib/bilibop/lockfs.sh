@@ -38,6 +38,8 @@ remount_rw() {
 # will modify settings for /dev/dm-3, /dev/sdb, /dev/dm-0 and /dev/sdb1. The
 # main option (--setro or --setrw) must be the first argument, and the disk
 # node the last one.
+# See also the NOTE in 'set_readonly_lvm_settings()' about why we don't use
+# 'lvm lvchange --permission r' to set a LV as readonly.
 blockdev_root_subtree() {
     ${DEBUG} && echo "> blockdev_root_subtree $@" >&2
     local   dev="${2}"
@@ -460,6 +462,12 @@ blacklist_bilibop_devices() {
 #   metadata_read_only = 1
 # In 'activation' section:
 #   read_only_volume_list = [ "vg0/lv0", "vg0/lv1", "vg1/lv0", "vg1/lv1", "vg1/lv2" ]
+#
+# NOTE: we cannot use 'lvchange --permission r' here or elsewhere, because
+# (unlike 'blockdev --setro'), this makes the readonly setup persistent, and
+# this would need additional stuff to undo that at the good time by running
+# 'lvchange --permission rw'. Additionally, this changes LV metadata, and this
+# is exactly what we want to avoid.
 set_readonly_lvm_settings() {
     ${DEBUG} && echo "> set_readonly_lvm_settings $@" >&2
 
@@ -477,6 +485,24 @@ set_readonly_lvm_settings() {
     else
         sed -i "s|^\s*activation\s*{.*|&\n    read_only_volume_list = [ ${ROVL} ]|" ${LVM_CONF}
     fi
+}
+# ===========================================================================}}}
+# activate_bilibop_lv() ====================================================={{{
+# What we want is: activate Logical Volumes listed in /etc/lvm/bilibop. It can
+# happen that some LV are not yet activated at this point: the initramfs lvm2
+# script activates $ROOT and $resume only (the initramfs cryptroot script is
+# less selective). After 'blacklist_bilibop_devices()', there will be no way
+# for the lvm init script to activate missing LV, and mount (between others)
+# will fail.
+activate_bilibop_lv() {
+    ${DEBUG} && echo "> activate_bilibop_lv $@" >&2
+    [ -f /etc/lvm/bilibop ] || return 0
+    local vg_lv
+    for vg_lv in $(cat /etc/lvm/bilibop); do
+        if [ ! -e "${udev_root}/${vg_lv}" ]; then
+            lvm lvchange -a y --sysinit ${vg_lv}
+        fi
+    done
 }
 # ===========================================================================}}}
 # unlock_logical_volume() ==================================================={{{

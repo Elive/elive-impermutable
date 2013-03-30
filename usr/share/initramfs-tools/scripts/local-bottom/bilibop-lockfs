@@ -235,6 +235,14 @@ plymouth_message "${0##*/}: ${BILIBOP_LOCKFS_POLICY} policy is enabled"
 # Avoid filesystems check:
 >${rootmnt}/fastboot
 
+# This is for the case LVM is used for something else than $ROOT and $resume,
+# and cryptsetup is not used (no /conf/conf.d/cryptroot in the initrd); in
+# such a case, only $ROOT and $resume are activated from initrd; others are
+# activated from the system with an initscript; but:
+# 1. if BILIBOP_LOCKFS_POLICY is 'hard', this initscript will have no effect
+# 2. we need to make devices available before parsing ${rootmnt}/etc/fstab
+activate_bilibop_lv
+
 # Rebuild fstab to automatically mount other filesystems as readonly aufs
 # branches:
 log_warning_msg "${0##*/}: Modifying temporary static filesystem table (fstab)."
