@@ -35,6 +35,7 @@ KERNEL=="sd?|mmcblk?|mspblk?", \
 	SYMLINK+="%c", \
 	ENV{BILIBOP_DISK}="%r/%k", \
 	ENV{ID_DRIVE_DETACHABLE}:="0", \
+	ENV{UDISKS_SYSTEM_INTERNAL}:="1", \
 	GOTO="bilibop_end"
 
 # Add an environment variable for the partitions:

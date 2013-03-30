@@ -450,6 +450,7 @@ KERNEL=="${KERN}?", \\
 	SYMLINK+="${BILIBOP_COMMON_BASENAME}/disk", \\
 	ENV{BILIBOP_DISK}="%r/%k", \\
 	ENV{ID_DRIVE_DETACHABLE}:="0", \\
+	ENV{UDISKS_SYSTEM_INTERNAL}:="1", \\
 	GOTO="bilibop_end"
 
 ATTR{partition}=="?*", ENV{BILIBOP_PARTITION}="%r/%k"
