@@ -17,7 +17,7 @@ is a symlink to
 It is used as an helper program by the
 .BR mount (8)
 command for the
-.RB \' lockfs \'
+.RB \(aq lockfs \(aq
 filesystem type entries in
 .IR /etc/fstab .
 This script cannot be run manually, and fails if the root filesystem is not
@@ -32,29 +32,29 @@ set the BILIBOP_LOCKFS variable to
 in
 .BR bilibop.conf (5)
 and reboot the computer; or reboot the computer and append the
-.RB \' lockfs \'
+.RB \(aq lockfs \(aq
 kernel parameter to the boot commandline.
 .IP 2.
-One time the future \'/\' is set as an
+One time the future \(aq/\(aq is set as an
 .BR aufs (5)
 mountpoint from into the initramfs environment, the temporary and writable
 .BR fstab (5)
 on it is modified to replace filesystem types of some entries by
-.RB \' lockfs \'.
+.RB \(aq lockfs \(aq.
 Options are also modified to remember the original fstype.
 .IP 3.
 One time the aufs mountpoint is the new root filesystem, initscripts are
 executed:
 .BR fstab (5)
 is parsed by
-.RB \' mount
-.BR \-a \',
+.RB \(aq mount
+.BR \-a \(aq,
 and then
 .BR mount (8)
 calls
 .I mount.lockfs
 with the proper arguments when a
-.RB \' lockfs \'
+.RB \(aq lockfs \(aq
 fstype is encountered.
 .IP 4.
 .B mount.lockfs

@@ -17,7 +17,7 @@ est un lien symbolique vers
 Il est utilisé comme un programme d'aide par la commande
 .BR mount (8)
 pour le type de système de fichiers
-.RB \' lockfs \'
+.RB \(aq lockfs \(aq
 dans les entrées de
 .IR /etc/fstab .
 Ce script ne peut pas être lancé manuellement, et échoue si la racine du
@@ -33,17 +33,17 @@ dans
 .BR bilibop.conf (5)
 et redémarrer l'ordinateur; ou redémarrer l'ordinateur et ajouter le
 paramètre
-.RB \' lockfs \'
+.RB \(aq lockfs \(aq
 à la ligne de commande du noyau.
 .IP 2.
-Une fois que la future racine \'/\' est paramètrée comme point de montage
+Une fois que la future racine \(aq/\(aq est paramètrée comme point de montage
 .BR aufs (5)
 depuis l'environnement du disque de démarrage en mémoire (initramdisk), le
 fichier temporaire
 .BR fstab (5),
 accessible en écriture, est modifié pour remplacer les types de certains
 systèmes de fichiers par
-.RB \' lockfs \'.
+.RB \(aq lockfs \(aq.
 Les options sont aussi modifiées pour se rappeler du type de système de
 fichiers d'origine.
 .IP 3.
@@ -51,14 +51,14 @@ Une fois que le point de montage aufs est la nouvelle racine du système,
 les scripts d'initialisation sont éxécutés:
 .BR fstab (5)
 est parcouru par
-.RB \' mount
-.BR \-a \',
+.RB \(aq mount
+.BR \-a \(aq,
 et la commande
 .BR mount (8)
 appelle
 .I mount.lockfs
 avec les arguments corrects quand un système de fichiers de type
-.RB \' lockfs \'
+.RB \(aq lockfs \(aq
 est rencontré.
 .IP 4.
 .B mount.lockfs

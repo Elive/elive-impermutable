@@ -32,7 +32,7 @@ options are invoked (or their long forms, respectively
 or
 .IR \-\-nolockfs ),
 the last overrides the previous ones. The invocation of these options also
-overrides the variable \'BILIBOP_LOCKFS_NOTIFY_POLICY\' that can be set in
+overrides the variable \(aqBILIBOP_LOCKFS_NOTIFY_POLICY\(aq that can be set in
 .BR bilibop.conf (5).
 .PP
 .BR \-a ,
@@ -56,7 +56,7 @@ Print a short help message on stdout and exit.
 .BR \-l ,
 .B \-\-lockfs
 .RS
-Send a notification only about filesystems for which the \'lockfs\' feature
+Send a notification only about filesystems for which the \(aqlockfs\(aq feature
 has been enabled, i.e. about mountpoints for which only temporary changes
 are allowed. All these changes will be lost at next shutdown of the
 computer.
@@ -65,7 +65,7 @@ computer.
 .BR \-n ,
 .B \-\-nolockfs
 .RS
-Send a notification only about filesystems for which the \'lockfs\' feature
+Send a notification only about filesystems for which the \(aqlockfs\(aq feature
 has been disabled, i.e. about mountpoints for which permanent changes are
 allowed. All these changes will be kept after the shutdown of the computer.
 .RE
@@ -78,7 +78,7 @@ Specifies the timeout in milliseconds at which to expire the notification.
 Values of
 .I TIME
 less than
-.BI \' 1000 \'
+.BI \(aq 1000 \(aq
 (1 second) make the timeout is disabled and the notification never expires.
 If
 .I TIME

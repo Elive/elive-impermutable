@@ -60,8 +60,8 @@ relative paths and symlinks can be used to specify a device. Shell
 wildcards are allowed.
 .TP 4
 .B \-a
-Trigger \'device
-.BR add \'
+Trigger \(aqdevice
+.BR add \(aq
 uevent for the device(s) given as arguments (if they are
 .I BILIBOP
 tagged block devices), or of all BILIBOP tagged block devices if none is
@@ -71,8 +71,8 @@ corresponding BILIBOP_RULES_* variables are modified in
 to apply the new settings without need to reboot the operating system.
 .TP
 .B \-c
-Trigger \'device
-.BR change\'
+Trigger \(aqdevice
+.BR change\(aq
 uevent for the device(s) given as arguments (if they are
 .I BILIBOP
 tagged block devices), or of all BILIBOP tagged block devices if none is
@@ -131,7 +131,7 @@ UDISKS_PRESENTATION_NAME
 UDISKS_SYSTEM_INTERNAL
 
 .SH ERRORS
-If the \'BILIBOP\' tag does not exist in the udev database, then
+If the \(aqBILIBOP\(aq tag does not exist in the udev database, then
 .B lsbilibop
 displays a useful error message on stderr, and lists the device nodes whose
 content is supposed to be written on the same physical disk than the root

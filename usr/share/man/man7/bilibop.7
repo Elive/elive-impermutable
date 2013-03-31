@@ -13,10 +13,10 @@ disk images that can be copied on a USB memory stick (sometimes with just
 .BR cat (1)
 or
 .BR dd (1),
-sometimes in a more complicated way) and immediatly usable \'as is\'.
+sometimes in a more complicated way) and immediatly usable \(aqas is\(aq.
 .PP
 But such operating systems are not designed to be modified;
-they are read-only, and even when they provide a \'persistent\' feature,
+they are read-only, and even when they provide a \(aqpersistent\(aq feature,
 it is limited. Additionally, they are currently unmaintainable, in the
 sense that rebuild the complete image of the root filesystem is the only
 way to update the system or modify its settings in depth. This is often
@@ -28,13 +28,13 @@ Others have to wait for the next release, if it comes a day.
 .PP
 .B Bilibop
 stands for
-.RB \' B ilibop
+.RB \(aq B ilibop
 .BR I s
 .BR L ive
 .BR I nstall
 .BR B oot
 .BR O n
-.BR P endrive\'.
+.BR P endrive\(aq.
 This acronym is now obsolete, but the name has been kept. The
 .B bilibop project
 is born as an alternative to the
@@ -94,9 +94,9 @@ command.
 This package provides udev rules and helper scripts. Its main purpose is
 to fix the external drive hosting the running system, and all its
 partitions, as owned by the
-.RI \' disk \'
+.RI \(aq disk \(aq
 group instead of
-.RI \' floppy \',
+.RI \(aq floppy \(aq,
 as done by the common udev rules applied to removable media. This is a
 workaround of the bug
 .BR #645466 .
@@ -157,20 +157,20 @@ partition scheme).
 .IP \(bu
 Take care, near the end of the installation, that the bootloader will be
 installed on the MBR of the drive where the system has been freshly
-installed: choosing the default \'install on MBR\' will install it on
+installed: choosing the default \(aqinstall on MBR\(aq will install it on
 the Master Boot Record of the first disk !
 .IP \(bu
 Taking previous recommendations into account, choose
-.RB \' Expert
-.BR Install \'
+.RB \(aq Expert
+.BR Install \(aq
 or
-.RB \' Expert
+.RB \(aq Expert
 .B Graphical
-.BR Install \'
+.BR Install \(aq
 in the installer boot menu. if you have to install Debian on several
 devices, don't perform an automated installation via the
-.RB \' Auto
-.BR Install \'
+.RB \(aq Auto
+.BR Install \(aq
 option in the installer boot menu. If you really need to automate this
 process to win time, use a
 .B preseed

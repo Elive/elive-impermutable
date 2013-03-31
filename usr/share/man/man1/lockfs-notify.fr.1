@@ -33,7 +33,7 @@ ou
 ou
 .IR \-\-nolockfs ),
 sont invoquées, la dernière écrase les précédentes. L'invocation de ces
-options écrase aussi la variable \'BILIBOP_LOCKFS_NOTIFY_POLICY\' qui peut
+options écrase aussi la variable \(aqBILIBOP_LOCKFS_NOTIFY_POLICY\(aq qui peut
 être définie dans
 .BR bilibop.conf (5).
 .PP
@@ -61,7 +61,7 @@ Affiche un court message d'aide sur la sortie standard et quitte.
 .B \-\-lockfs
 .RS
 Envoie une notification seulement à propos des systèmes de fichiers pour
-lesquels la fonction \'lockfs\' a été activée, c'est à dire à propos des
+lesquels la fonction \(aqlockfs\(aq a été activée, c'est à dire à propos des
 points de montage pour lesquels les modifications ne peuvent être que
 temporaires. Toutes ces modifications seront perdues au prochain arrêt
 de l'ordinateur.
@@ -71,7 +71,7 @@ de l'ordinateur.
 .B \-\-nolockfs
 .RS
 Envoie une notification seulement à propos des systèmes de fichiers pour
-lesquels la fonction \'lockfs\' a été désactivée, c'est à dire à propos
+lesquels la fonction \(aqlockfs\(aq a été désactivée, c'est à dire à propos
 des points de montage pour lesquels les modifications sont écrites sur le
 disque. Toutes ces modifications seront conservées après l'arrêt de
 l'ordinateur.
@@ -85,7 +85,7 @@ Spécifie le délai d'attente en millisecondes après lequel la notification
 arrive à expiration, c'est à dire disparaît du bureau. Les valeurs de
 .I TEMPS
 inférieures à
-.BI \' 1000 \'
+.BI \(aq 1000 \(aq
 (1 seconde) désactivent le délai d'attente et la notification n'expire pas
 (reste indéfiniment visible sur le bureau). Si
 .I TEMPS

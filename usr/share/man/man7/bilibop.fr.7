@@ -15,11 +15,11 @@ qui peuvent être copiées sur une clé USB (parfois juste avec
 ou
 .BR dd (1),
 parfois par des méthodes plus complexes) et être immédiatement utilisables
-\'telles quelles\'.
+\(aqtelles quelles\(aq.
 .PP
 Mais de tels systèmes d'exploitation ne sont pas conçus pour être modifiés;
 Ils sont accessibles seulement en lecture, et même s'ils fournissent une
-fonctionnalité appelée \'persistance\', celle-ci est limitée. De plus,
+fonctionnalité appelée \(aqpersistance\(aq, celle-ci est limitée. De plus,
 ces systèmes sont couramment impossibles à maintenir, dans le sens où
 reconstruire l'image complète du système de fichiers racine est le seul
 moyen de mettre à jour le système ou de modifier ses paramétrages en
@@ -33,13 +33,13 @@ attendre la prochaine mise à jour officielle, si elle arrive un jour.
 .PP
 .B Bilibop
 signifie
-.RB \' B ilibop
+.RB \(aq B ilibop
 .BR I s
 .BR L ive
 .BR I nstall
 .BR B oot
 .BR O n
-.BR P endrive\'.
+.BR P endrive\(aq.
 Cet accronyme est maintenant obsolète, mais le nom a été conservé. Le
 .B projet bilibop
 est né comme une alternative aux systèmes
@@ -98,9 +98,9 @@ Il inclut aussi la commande
 Ce paquet fournit des règles (rules) udev et des scripts d'aide. Son but
 premier est de fixer le disque hébergeant le système en cours d'éxécution,
 et toutes ses partitions, comme propriété du groupe
-.RI \' disk \'
+.RI \(aq disk \(aq
 plutôt que
-.RI \' floppy \',
+.RI \(aq floppy \(aq,
 comme c'est le cas actuellement pour les supports amovibles. Il s'agit d'un
 contournement du bogue
 .BR #645466 .
@@ -161,21 +161,21 @@ partitionnement spécifique).
 .IP \(bu
 Prenez garde, vers la fin de l'installation, que le chargeur de démarrage
 soit bien écrit sur le secteur d'amorçage principal (MBR) du disque sur
-lequel le système vient d'être installé: le choix par défaut, \'install on
-MBR\' l'installera sur le secteur d'amorçage principal du premier disque !
+lequel le système vient d'être installé: le choix par défaut, \(aqinstall on
+MBR\(aq l'installera sur le secteur d'amorçage principal du premier disque !
 .IP \(bu
 En prenant en compte les recommandations précédentes, choisissez
-.RB \' Expert
-.BR Install \'
+.RB \(aq Expert
+.BR Install \(aq
 ou
-.RB \' Expert
+.RB \(aq Expert
 .B Graphical
-.BR Install \'
+.BR Install \(aq
 dans le menu de démarrage de l'installeur. Si vous devez installer Debian
 sur plusieurs périphériques, n'effectuez pas une installation automatique
 avec  l'option
-.RB \' Auto
-.BR Install \'
+.RB \(aq Auto
+.BR Install \(aq
 dans le menu de démarrage de l'installeur. Si vous avez vraiment besoin
 d'atomatiser ce processus pour gagner du temps, utilisez plutôt un fichier
 .BR preseed .
