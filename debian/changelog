@@ -1,3 +1,16 @@
+bilibop (0.4.9) experimental; urgency=low
+
+  * bilibop-rules: modify debian/bilibop-rules.bilibop-udev and
+    bilibop_rules_generator to unconditionally set UDISKS_SYSTEM_INTERNAL to 1
+    for the main drive.
+  * bilibop-lockfs: add 'activate_bilibop_lv()' in lockfs.sh functions, and
+    call it from bilibop-lockfs local-bottom initramfs script. This is needed
+    to be sure all Logical Volumes needed by the system (listed in /etc/fstab
+    and/or /etc/crypttab) are active at this step.
+  * Fix typos: replace all occurences of \' by \(aq in manual pages.
+
+ -- bilibop project <quidame@poivron.org>  Sun, 31 Mar 2013 18:47:41 +0200
+
 bilibop (0.4.8) experimental; urgency=low
 
   * bilibop-udev: rewrite postinst script.
