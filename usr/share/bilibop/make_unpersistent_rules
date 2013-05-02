@@ -19,7 +19,7 @@ get_bilibop_variables
 ETC_RULES_DIR="/etc/udev/rules.d"
 restore=""
 verbose=""
-skip=""
+only=""
 TYPE=""
 
 usage() {
@@ -35,12 +35,12 @@ OPTIONS:
   -h, --help
       Display this help and exit.
 
-  -r, --restore, --reverse
-      Remove links to unpersistent rules files and restore persistent
-      udev rules files.
+  -o TYPE, --only TYPE
+      Apply actions only for the specified TYPE of rules (cd or net).
 
-  -s TYPE, --skip TYPE
-      Do not apply actions for the selected TYPE of rules (cd or net).
+  -r, --restore
+      Remove links to unpersistent rules files and restore persistent
+      (static) udev rules files.
 
   -v, --verbose
       Be verbose.
@@ -56,7 +56,7 @@ execute() {
 
 
 # Parse options.
-ARGS="$(getopt -o hrs:v --long help,restore,reverse,skip:,verbose -n "${0##*/}" -- "${@}")"
+ARGS="$(getopt -o ho:rv --long help,only,restore,verbose -n "${0##*/}" -- "${@}")"
 
 if	[ "${?}" != "0" ]
 then
@@ -73,13 +73,13 @@ do
 			usage
 			exit 0
 			;;
-		-r|--restore|--reverse)
+		-o|--only)
+			only="${2}"
+			shift 2
+			;;
+		-r|--restore)
 			restore="true"
 			shift
-			;;
-		-s|--skip)
-			skip="${2}"
-			shift 2
 			;;
 		-v|--verbose)
 			verbose="-v"
@@ -98,18 +98,18 @@ do
 done
 
 # Now, analyse the results.
-case	"${skip}" in
+case "${only}" in
 	cd)
-		TYPE="net"
+		TYPE="cd"
 		;;
 	net)
-		TYPE="cd"
+		TYPE="net"
 		;;
 	"")
 		TYPE="cd net"
 		;;
 	*)
-		unknown_argument "${skip}" >&2
+		unknown_argument "${only}" >&2
 		exit 1
 		;;
 esac
