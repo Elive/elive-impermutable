@@ -152,10 +152,12 @@ make_symlink() {
 			# nothing else to do:
 			continue
 		else
+			[ -d "${BILIBOP_RUNDIR}" ] || execute mkdir -p ${BILIBOP_RUNDIR}
 			[ -f "${target}" ] && execute mv ${verbose} ${target} ${unpersistent}
 		fi
 
 	elif [ -f "${persistent}" ]; then
+		[ -d "${BILIBOP_RUNDIR}" ] || execute mkdir -p ${BILIBOP_RUNDIR}
 		execute mv ${verbose} ${persistent} ${unpersistent}
 	fi
 
@@ -174,9 +176,6 @@ if [ "${restore}" = "true" ]; then
 	done
 
 else
-	if [ ! -d "${BILIBOP_RUNDIR}" ]; then
-		execute mkdir -p ${BILIBOP_RUNDIR}
-	fi
 	for	i in ${TYPE}; do
 		make_symlink ${i}
 	done
