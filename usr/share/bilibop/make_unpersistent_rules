@@ -11,6 +11,7 @@ set -e
 ### BEGIN ###
 
 PATH="/sbin:/bin:/usr/bin"
+PROG="${0##*/}"
 
 . /lib/bilibop/common.sh
 
@@ -26,12 +27,12 @@ SKIP=""
 
 usage() {
 	cat <<EOF
-${0##*/} replaces some persistent udev rules files by
+${PROG} replaces some persistent udev rules files by
 links to unpersistent files (in ${BILIBOP_RUNDIR}).
 This is done to avoid cumulative informations about optical drives
 and network interfaces.
 
-Usage: ${0##*/} [OPTIONS]
+Usage: ${PROG} [OPTIONS]
 
 OPTIONS:
   -h, --help
@@ -59,7 +60,7 @@ execute() {
 
 set +e
 # Parse options.
-ARGS="$(getopt -o ho:rv --long help,only:,restore,verbose -n "${0##*/}" -- "${@}")"
+ARGS="$(getopt -o ho:rv --long help,only:,restore,verbose -n "${PROG}" -- "${@}")"
 
 if [ "${?}" != "0" ]; then
 	usage >&2
