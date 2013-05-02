@@ -12,6 +12,8 @@ set -e
 
 PATH="/sbin:/bin:/usr/bin"
 PROG="${0##*/}"
+SOPTS="ho:rv"
+LOPTS="help,only:,restore,verbose"
 
 . /lib/bilibop/common.sh
 
@@ -24,6 +26,14 @@ verbose=""
 only=""
 TYPE=""
 SKIP=""
+
+short_usage() {
+	cat <<EOF
+Usage:
+  ${PROG} -h|--help
+  ${PROG} [-v|--verbose] [-r|--restore] [-o|--only cd|net]
+EOF
+}
 
 usage() {
 	cat <<EOF
@@ -59,15 +69,15 @@ execute() {
 
 
 set +e
-# Parse options.
-ARGS="$(getopt -o ho:rv --long help,only:,restore,verbose -n "${PROG}" -- "${@}")"
-
+### Parse options ##############################################################
+ARGS="$(getopt -o ${SOPTS} --long ${LOPTS} -n ${PROG} -- "${@}")"
 if [ "${?}" != "0" ]; then
-	usage >&2
+	short_usage >&2
 	exit 1
 else
 	eval set -- "${ARGS}"
 fi
+################################################################################
 set -e
 
 
@@ -95,7 +105,7 @@ while true; do
 			;;
 		*)
 			unknown_argument "${1}" >&2
-			usage >&2
+			short_usage >&2
 			exit 1
 			;;
 	esac
@@ -117,6 +127,7 @@ case "${only}" in
 		;;
 	*)
 		unknown_argument "${only}" >&2
+		short_usage >&2
 		exit 1
 		;;
 esac
