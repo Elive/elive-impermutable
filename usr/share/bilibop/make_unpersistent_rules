@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 # /usr/share/bilibop/make_unpersistent_rules
 
@@ -56,6 +57,7 @@ execute() {
 }
 
 
+set +e
 # Parse options.
 ARGS="$(getopt -o ho:rv --long help,only:,restore,verbose -n "${0##*/}" -- "${@}")"
 
@@ -64,6 +66,7 @@ then
 	usage >&2
 	exit 1
 fi
+set -e
 
 eval set -- "${ARGS}"
 
