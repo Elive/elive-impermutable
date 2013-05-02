@@ -294,7 +294,7 @@ device_id_of_file() {
 # option: print nothing, but return a 0/1 exit value.
 is_aufs_mountpoint() {
     ${DEBUG} && echo "> is_aufs_mountpoint $@" >&2
-    local   opt
+    local   opt=
     case    "${1}" in
         -*)
             opt="${1}"
@@ -545,7 +545,7 @@ underlying_partition() {
 physical_hard_disk() {
     ${DEBUG} && echo "> physical_hard_disk $@" >&2
     [ -z "${1}" ] && eval set -- /
-    local   blk disk dev
+    local   blk dev disk=
 
     if      [ -b "${1}" -a -e "/sys/class/block/${1##*/}" -a ! -e "/sys/devices/virtual/block/${1##*/}" ]
     then    dev="${1}"
