@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 # /bin/lsbilibop
 # List BILIBOP tagged devices, display some udev properties about them,
@@ -41,7 +42,7 @@ EOF
 # Parse options. We use this order of priority -h > -i > -a = -c:
 # -h (help) overrides unconditionally all other options.
 # -i (info) overrides unconditionally -a (add) and -c (change).
-while getopts :achi opt ; do
+while getopts :achi opt; do
 	case "${opt}" in
 		h)
 			usage
@@ -65,19 +66,22 @@ while getopts :achi opt ; do
 			;;
 	esac
 done
-eval ${info} && trigger="false"
+
+if [ "${info}" = "true" ]; then
+	trigger="false"
+fi
 
 shift $((OPTIND-1))
-[ "${1}" = "--" ] && shift
+if [ "${1}" = "--" ]; then shift; fi
 
 # At least, check if BILIBOP tagged devices exist, or exit with a useful
 # message:
-if [ ! -d "${TAG_DIR}" ] ; then
+if [ ! -d "${TAG_DIR}" ]; then
 	. /lib/bilibop/common.sh
 	get_udev_root
 	DISK="$(physical_hard_disk)"
 	echo "${PROG}: ${TAG_DIR}: no such directory.\n" >&2
-	if [ -f "/etc/udev/rules.d/66-bilibop.rules" ] ; then
+	if [ -f "/etc/udev/rules.d/66-bilibop.rules" ]; then
 		cat >&2 <<EOF
 You should modify /etc/udev/rules.d/66-bilibop.rules
 or even remove it.
@@ -96,7 +100,7 @@ EOF
 	are applied to the following device nodes:
 
 EOF
-	for node in $(device_nodes) ; do
+	for node in $(device_nodes); do
 		[ "$(physical_hard_disk ${udev_root}/${node})" = "${DISK}" ] &&
 		printf "\t${node}\n" >&2
 	done
@@ -108,69 +112,71 @@ fi
 # Trigger uevents can only be done by root, but if it is tried by a
 # unprivileged user, udevadm will silently do NOTHING without failure
 # (i.e. with exit code = 0). So we place a poor checkpoint here.
-if eval ${trigger} ; then
-	[ "${HOME}" != "/root" -o "${USER}" != "root" ] &&
+if [ "${trigger}" = "true" ]; then
+	[ "${USER}" != "root" ] &&
 	echo "${0##*/}: only root can use the '-a' or '-c' options." >&2 &&
 	exit 4
 fi
 
 # Get/set udev_root variable. It should be '/dev', but...
-if [ -f /etc/udev/udev.conf ] ; then
+if [ -f /etc/udev/udev.conf ]; then
 	. /etc/udev/udev.conf
 fi
 udev_root="${udev_root:-/dev}"
 udev_root="${udev_root%/}"
 
 # Store device names given as arguments, if any:
-for arg ; do
-	if [ -b "${arg}" ] ; then
+for arg; do
+	if [ -b "${arg}" ]; then
 		arg="$(readlink -f ${arg})"
 		DEVICE="${DEVICE:+${DEVICE} }${arg}"
 	fi
 done
 
 # If ALL arguments are invalid, exit.
-if [ -n "$*" -a -z "${DEVICE}" ] ; then
+if [ -n "$*" -a -z "${DEVICE}" ]; then
 	echo "${PROG}: bad argument(s) '$@'." >&2
 	short_usage >&2
 	exit 2
 fi
 
 # Trigger uevents for all BILIBOP tagged devices, and exit:
-if [ -z "${DEVICE}" ] && eval ${trigger} ; then
-	eval ${add} &&
+if [ -z "${DEVICE}" -a "${trigger}" = "true" ]; then
+	if [ "${add}" = "true" ]; then
 		udevadm trigger --tag-match="BILIBOP" --action="add"
-	eval ${change} &&
+	elif [ "${change}" = "true" ]; then
 		udevadm trigger --tag-match="BILIBOP" --action="change"
+	fi
 	exit 0
 fi
 
 grep '[[:digit:]]' /proc/partitions |
-while read major minor size node ; do
+while read major minor size node; do
 	# Skip devices that are not tagged 'BILIBOP':
 	[ ! -e "/run/udev/tags/BILIBOP/b${major}:${minor}" ] && continue
 
 	# Filter by device names given as arguments:
-	if [ -n "${DEVICE}" ] ; then
-		for device in ${DEVICE} ; do
+	if [ -n "${DEVICE}" ]; then
+		for device in ${DEVICE}; do
 			[ "${device}" = "${udev_root}/${node}" ] && break
 		done
 		[ "${device}" = "${udev_root}/${node}" ] || continue
 	fi
 
-	if eval ${info} ; then
+	if [ "${info}" = "true" ]; then
 		echo "DEVNAME='${udev_root}/${node}'"
 		udevadm info --query property --export --name ${node} |
 		grep '^\(BILIBOP_\(DISK\|\(UNDERLYING_\)\?PARTITION\)\|DEVLINKS\|UDISKS_\(SYSTEM_INTERNAL\|PRESENTATION_\(HIDE\|\(ICON_\)\?NAME\)\)\|ID_FS_\(UUID\|LABEL\|TYPE\|USAGE\)\)='
 		echo
 
-	elif eval ${trigger} ; then
-		eval ${add} &&
+	elif [ "${trigger}" = "true" ]; then
+		if [ "${add}" = "true" ]; then
 			udevadm trigger --sysname-match="${node}" --action="add"
-		eval ${change} &&
+		elif [ "${change}" = "true" ]; then
 			udevadm trigger --sysname-match="${node}" --action="change"
-
-	else	echo "${udev_root}/${node}"
+		fi
+	else
+		echo "${udev_root}/${node}"
 	fi
 done
 
