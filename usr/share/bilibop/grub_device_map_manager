@@ -17,7 +17,7 @@ set -e
 
 ### BEGIN ###
 
-PATH="/bin:/usr/bin"
+PATH="/usr/sbin:/sbin:/usr/bin:/bin"
 PROG="${0##*/}"
 SOPTS="fhlrsu"
 LOPTS="fake,help,link,remove,show,update"
@@ -56,11 +56,10 @@ EOF
 }
 
 fake_device_map() {
-	eval $(query_udev_envvar "$(physical_hard_disk /boot)")
-	for link in ${DEVLINKS}; do
-		case "${link}" in
-			/dev/disk/by-id/*)
-				echo "(hd0)	${link}"
+	for symlink in $(udevadm info --root --query symlink --name "$(physical_hard_disk /boot)"); do
+		case "${symlink}" in
+			${udev_root}/disk/by-id/*)
+				echo "(hd0)	${symlink}"
 				break
 				;;
 		esac
@@ -169,7 +168,7 @@ if [ "${link}" = "true" ]; then
 fi
 
 if [ "${update}" = "true" ]; then
-	/usr/sbin/grub-mkdevicemap
+	grub-mkdevicemap
 fi
 
 if [ "${fake}" = "true" ]; then
