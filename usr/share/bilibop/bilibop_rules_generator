@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 # /usr/share/bilibop/bilibop_rules_generator
 
@@ -176,7 +177,7 @@ sysfs_attrs_rule() {
 	rules=$((rules+1))
 }
 
-
+set +e
 ### Parse options ##############################################################
 ARGS="$(getopt -o ${SOPTS} --long ${LOPTS} -n ${PROG} -- "${@}")"
 if [ "${?}" != "0" ]; then
@@ -186,6 +187,7 @@ else
 	eval set -- "${ARGS}"
 fi
 ################################################################################
+set -e
 
 while true; do
 	case "${1}" in
