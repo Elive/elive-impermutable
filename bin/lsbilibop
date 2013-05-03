@@ -17,8 +17,8 @@ action=""
 short_usage() {
 	cat <<EOF
 Usage:
-  ${PROG} -h
-  ${PROG} [OPTIONS] [DEVICES]
+  ${PROG} -h|-l
+  ${PROG} [-a|-c|-i] [DEVICE [DEVICE [...]]]
 EOF
 }
 
@@ -27,8 +27,8 @@ usage() {
 ${PROG}: list BILIBOP tagged devices, display or update some of their udev properties.
 
 Usage:
-  ${PROG} [-a] [-c] [-i] [DEVICE [DEVICE [...]]]
   ${PROG} -h|-l
+  ${PROG} [OPTION] [DEVICES]
 
 Options:
   -a	Trigger uevents (action=add) for BILIBOP tagged devices.
