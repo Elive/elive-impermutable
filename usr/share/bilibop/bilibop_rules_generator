@@ -24,6 +24,9 @@
 ### BEGIN ###
 
 PATH="/bin:/usr/bin"
+PROG="${0##*/}"
+SOPTS="a:e:hn:o:t:"
+LOPTS="attribute:,environment:,help,name:,output:,target:"
 
 ETC_RULES_DIR="/etc/udev/rules.d"
 LIB_RULES_DIR="/lib/udev/rules.d"
@@ -58,19 +61,19 @@ rules=0
 short_usage() {
 	cat <<EOF
 Usage:
-  ${0##*/} -h|--help
-  ${0##*/} [-a ATTR] [-e ENV] [-n HEADER] [-o FILE] [-t TARGET]
+  ${PROG} -h|--help
+  ${PROG} [-a ATTR] [-e ENV] [-n HEADER] [-o FILE] [-t TARGET]
 EOF
 }
 
 usage() {
 	cat <<EOF
-${0##*/} writes a udev rules file to forbid low-level
+${PROG} writes a udev rules file to forbid low-level
 write access - for unprivileged users - to the removable media on which
 the system is installed, and to do other optional things.
-Default rules file is ${ETC_RULES_DIR}/${RULE}.
+Default custom rules file is ${ETC_RULES_DIR}/${RULE}.
 
-Usage: ${0##*/} [OPTIONS]
+Usage: ${PROG} [OPTIONS]
 
 OPTIONS:
   -a ATTR, --attibute ATTR
@@ -112,7 +115,7 @@ EOF
 
 uncompatible_attributes() {
 	cat <<EOF
-${0}: Uncompatible sysfs attributes (${1},${2}).
+${PROG}: Uncompatible sysfs attributes (${1},${2}).
 Possible arguments are:
 	vendor,model
 	manufacturer,product,serial
@@ -126,8 +129,7 @@ sysfs_attribute_match_udev_envvar() {
 
 # usage: udev_envvar_rule ID_SERIAL|ID_SERIAL_SHORT|ID_MODEL|ID_VENDOR
 udev_envvar_rule() {
-	if	[ -n "$(eval printf "\$${1}")" ]
-	then
+	if [ -n "$(eval printf "\$${1}")" ]; then
 		KEY="ENV"
 		CLASS="${1}"
 		VALUE="$(eval printf "\$${1}" | sed 's, *$,,')"
@@ -141,7 +143,7 @@ udev_envvar_rule() {
 
 # usage: sysfs_attrs_rule vendor|model|manufacturer|product|serial
 sysfs_attrs_rule() {
-	case	"${1}" in
+	case "${1}" in
 		vendor|model)
 			VALUE="$(query_sysfs_attrs "${NODE}" | grep "ATTRS{${1}}==" | grep -v '=="0x' | sed -e 's,.*=="\(.*\)"$,\1, ; s, *$,,')"
 			[ -n "${VALUE}" ] || return 1
@@ -155,8 +157,8 @@ sysfs_attrs_rule() {
 			[ -n "${VALUE}" ] || return 1
 			;;
 		serial)
-			if	[ -n "${ID_SERIAL_SHORT}" ]
-			then	VALUE="$(echo "${ID_SERIAL_SHORT}" | sed -e 's, *$,,')"
+			if [ -n "${ID_SERIAL_SHORT}" ]; then
+				VALUE="$(echo "${ID_SERIAL_SHORT}" | sed -e 's, *$,,')"
 			fi
 			[ -n "${VALUE}" ] || return 1
 			sysfs_attribute_match_udev_envvar "${NODE}" "${1}" "${VALUE}" ||
@@ -176,17 +178,17 @@ sysfs_attrs_rule() {
 
 
 ### Parse options ##############################################################
-ARGS="$(getopt -o a:e:hn:o:t: --long attribute:,environment:,help,name:,output:,target: -n "${0##*/}" -- "${@}")"
-if	[ "${?}" != "0" ]
-then	short_usage >&2
+ARGS="$(getopt -o ${SOPTS} --long ${LOPTS} -n ${PROG} -- "${@}")"
+if [ "${?}" != "0" ]; then
+	short_usage >&2
 	exit 1
-else	eval set -- "${ARGS}"
+else
+	eval set -- "${ARGS}"
 fi
 ################################################################################
 
-while	true
-do
-	case	"${1}" in
+while true; do
+	case "${1}" in
 		-h|--help)
 			usage
 			exit 0
@@ -225,9 +227,8 @@ done
 
 # Now, analyse the results.
 # 1. Redirect stdout.
-if	[ -n "${output}" ]
-then
-	case	"${output}" in
+if [ -n "${output}" ]; then
+	case "${output}" in
 		-)
 			output="stdout"
 			;;
@@ -237,10 +238,9 @@ then
 			exit 1
 			;;
 		*)
-			if	[ ! -d "$(dirname "${output}")" ]
-			then
+			if [ ! -d "$(dirname "${output}")" ]; then
 				cat >&2 <<EOF
-${0}: $(dirname "${output}") directory don't exist.
+${PROG}: $(dirname "${output}") directory don't exist.
 EOF
 				exit 2
 			else
@@ -253,12 +253,10 @@ else
 fi
 
 # 2. Set target.
-if	[ -n "${target}" ]
-then
-	if	! [ -b "${target}" -o -d "${target}" -o -f "${target}" ]
-	then
+if [ -n "${target}" ]; then
+	if ! [ -b "${target}" -o -d "${target}" -o -f "${target}" ]; then
 		cat >&2 <<EOF
-${0}: target ${target} don't exist.
+${PROG}: target ${target} don't exist.
 EOF
 		exit 3
 	fi
@@ -266,7 +264,7 @@ else
 	target="/"
 fi
 
-case	"${target}" in
+case "${target}" in
 	${udev_root}/sd[a-z])
 		NODE="${target}"
 		;;
@@ -275,7 +273,7 @@ case	"${target}" in
 		;;
 esac
 
-case	"${NODE}" in
+case "${NODE}" in
 	${udev_root}/sd*)
 		KERN="sd"
 		;;
@@ -287,43 +285,40 @@ case	"${NODE}" in
 		;;
 	*)
 		cat >&2 <<EOF
-${0}: unable to define a target node.
+${PROG}: unable to define a target node.
 EOF
 		exit 3
 		;;
 esac
 
 # 3. Set header.
-if	[ -z "${header}" ]
-then
+if [ -z "${header}" ]; then
 	[ -z "${output}" -o "${output}" = "stdout" ] &&
 	header="${ETC_RULES_DIR}/${RULE}" ||
 	header="${output}"
 fi
 
 # 4. Get sysfs attribute classes.
-if	[ -n "${attrib}" ]
-then
+if [ -n "${attrib}" ]; then
 	attrib="$(echo ${attrib} | tr ',' ' ')"
-	for	x in ${attrib}
-	do
-		case	"${x}" in
+	for x in ${attrib}; do
+		case "${x}" in
 			vendor|model)
 				;;
 			manufacturer|product|serial)
-				if	echo "${attrib}" | grep -q "\<model\>"
-				then	noway="model"
-				elif	echo "${attrib}" | grep -q '\<vendor\>'
-				then	noway="vendor"
+				if echo "${attrib}" | grep -q "\<model\>"; then
+					noway="model"
+				elif echo "${attrib}" | grep -q '\<vendor\>'; then
+					noway="vendor"
 				fi
-				if	[ -n "${noway}" ]
-				then
+				if [ -n "${noway}" ]; then
 					uncompatible_attributes "${x}" "${noway}" >&2
 					exit 1
 				fi
 				;;
 			*)
 				unknown_argument "${x}" >&2
+	yy			short_usage
 				exit 1
 				;;
 		esac
@@ -331,12 +326,10 @@ then
 fi
 
 # 5. Get udev environment variables names.
-if	[ -n "${envvar}" ]
-then
+if	[ -n "${envvar}" ]; then
 	envvar="$(echo ${envvar} | tr ',' ' ')"
-	for	x in ${envvar}
-	do
-		case	"${x}" in
+	for x in ${envvar}; do
+		case "${x}" in
 			ID_SERIAL|ID_SERIAL_SHORT|ID_MODEL|ID_VENDOR)
 				;;
 			*)
@@ -353,62 +346,58 @@ eval $(query_udev_envvar ${NODE})
 
 # Run now...
 
-if	[ -z "${attrib}" -a -z "${envvar}" ]
-then
-	if	[ ${rules} -eq 0 ]
-	then
+if [ -z "${attrib}" -a -z "${envvar}" ]; then
+	if	[ ${rules} -eq 0 ]; then
 		sysfs_attrs_rule manufacturer
 		sysfs_attrs_rule product
 		sysfs_attrs_rule serial
 	fi
 
-	if	[ ${rules} -eq 0 ]
-	then
+	if	[ ${rules} -eq 0 ]; then
 		# Use this for an external HDD you can boot from both USB or
 		# FireWire.
 		sysfs_attrs_rule vendor
 		sysfs_attrs_rule model
 	fi
 
-	if	[ ${rules} -eq 0 ]
-	then
+	if	[ ${rules} -eq 0 ]; then
 		# It seems ID_SERIAL is a good fallback (exists in almost all
 		# cases)
 		udev_envvar_rule ID_SERIAL
 	fi
 
 else
-	for	a in ${attrib}
-	do	sysfs_attrs_rule "${a}"
+	for a in ${attrib}; do
+		sysfs_attrs_rule "${a}"
 	done
 
-	for	e in ${envvar}
-	do	udev_envvar_rule "${e}"
+	for	e in ${envvar}; do
+		udev_envvar_rule "${e}"
 	done
 fi
 
 # XXX:
-if	[ ${rules} -eq 0 ]
-then
-	for	x in ${attrib}
-	do	attrib_not_found="${attrib_not_found:+${attrib_not_found}, }'${x}'"
+if [ ${rules} -eq 0 ]; then
+	for x in ${attrib}; do
+		attrib_not_found="${attrib_not_found:+${attrib_not_found}, }'${x}'"
 	done
 	attrib_not_found="${attrib_not_found:+${attrib_not_found} sysfs attribute(s)}"
 
-	for	x in ${envvar}
-	do	envvar_not_found="${envvar_not_found:+${envvar_not_found}, }'${x}'"
+	for x in ${envvar}; do
+		envvar_not_found="${envvar_not_found:+${envvar_not_found}, }'${x}'"
 	done
 	envvar_not_found="${envvar_not_found:+${envvar_not_found} udev environment variable(s)}"
 
-	if	[ -z "${attrib}" -a -z "${envvar}" ]
-	then	not_found="for"
-	elif	[ -n "${attrib_not_found}" -a -n "${envvar_not_found}" ]
-	then	not_found="from ${attrib_not_found} or ${envvar_not_found} for"
-	else	not_found="from ${attrib_not_found}${envvar_not_found} for"
+	if [ -z "${attrib}" -a -z "${envvar}" ]; then
+		not_found="for"
+	elif [ -n "${attrib_not_found}" -a -n "${envvar_not_found}" ]; then
+		not_found="from ${attrib_not_found} or ${envvar_not_found} for"
+	else
+		not_found="from ${attrib_not_found}${envvar_not_found} for"
 	fi
 
 	cat >&2 <<EOF
-${0}:
+${PROG}:
 Unable to build rules ${not_found} the device ${NODE}.
 EOF
 	exit 10
@@ -505,3 +494,4 @@ LABEL="bilibop_end"
 EOF
 
 ### END ###
+# vim: ts=4 sts=4 sw=4
