@@ -10,9 +10,9 @@ PROG="${0##*/}"
 TAG_DIR="/run/udev/tags/BILIBOP"
 
 info="false"
-add="false"
-change="false"
+list="false"
 trigger="false"
+action=""
 
 short_usage() {
 	cat <<EOF
@@ -28,21 +28,33 @@ ${PROG}: list BILIBOP tagged devices, display or update some of their udev prope
 
 Usage:
   ${PROG} [-a] [-c] [-i] [DEVICE [DEVICE [...]]]
-  ${PROG} -h
+  ${PROG} -h|-l
 
 Options:
   -a	Trigger uevents (action=add) for BILIBOP tagged devices.
   -c	Trigger uevents (action=change) for BILIBOP tagged devices.
   -h	Print this help on stdout and exit.
   -i    Display some udev properties of BILIBOP tagged devices.
+  -l    Don't rely on BILIBOP tag to list bilibop devices.
 EOF
 }
 
+bilibop_list() {
+	. /lib/bilibop/common.sh
+	udev_root="$(udevadm info --root)"
+	BILIBOP_DISK="$(physical_hard_disk /)"
+	for node in $(device_nodes); do
+		if [ "$(physical_hard_disk ${udev_root}/${node})" = "${BILIBOP_DISK}" ]; then
+			echo "${udev_root}/${node}"
+		fi
+	done
+}
 
-# Parse options. We use this order of priority -h > -i > -a = -c:
+# Parse options. We use this order of priority -h > -l > -i > -a = -c:
 # -h (help) overrides unconditionally all other options.
+# -l (list) overrides unconditionally -i, -a and -c.
 # -i (info) overrides unconditionally -a (add) and -c (change).
-while getopts :achi opt; do
+while getopts :achil opt; do
 	case "${opt}" in
 		h)
 			usage
@@ -59,6 +71,9 @@ while getopts :achi opt; do
 		i)
 			info="true"
 			;;
+		l)
+			list="true"
+			;;
 		'?')
 			echo "${PROG}: unrecognized option '-${OPTARG}'." >&2
 			short_usage >&2
@@ -67,7 +82,10 @@ while getopts :achi opt; do
 	esac
 done
 
-if [ "${info}" = "true" ]; then
+if [ "${list}" = "true" ]; then
+	bilibop_list
+	exit $?
+elif [ "${info}" = "true" ]; then
 	trigger="false"
 fi
 
@@ -77,9 +95,6 @@ if [ "${1}" = "--" ]; then shift; fi
 # At least, check if BILIBOP tagged devices exist, or exit with a useful
 # message:
 if [ ! -d "${TAG_DIR}" ]; then
-	. /lib/bilibop/common.sh
-	get_udev_root
-	DISK="$(physical_hard_disk)"
 	echo "${PROG}: ${TAG_DIR}: no such directory.\n" >&2
 	if [ -f "/etc/udev/rules.d/66-bilibop.rules" ]; then
 		cat >&2 <<EOF
@@ -100,10 +115,7 @@ EOF
 	are applied to the following device nodes:
 
 EOF
-	for node in $(device_nodes); do
-		[ "$(physical_hard_disk ${udev_root}/${node})" = "${DISK}" ] &&
-		printf "\t${node}\n" >&2
-	done
+	bilibop_list >&2
 	echo >&2
 	echo "But maybe your system is not running from a writable and removable media ?" >&2
 	exit 8
@@ -113,9 +125,10 @@ fi
 # unprivileged user, udevadm will silently do NOTHING without failure
 # (i.e. with exit code = 0). So we place a poor checkpoint here.
 if [ "${trigger}" = "true" ]; then
-	[ "${USER}" != "root" ] &&
-	echo "${0##*/}: only root can use the '-a' or '-c' options." >&2 &&
-	exit 4
+	if [ "${USER}" != "root" ]; then
+		echo "${0##*/}: only root can use the '-a' or '-c' options." >&2
+		exit 4
+	fi
 fi
 
 # Get/set udev_root variable. It should be '/dev', but...
