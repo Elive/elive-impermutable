@@ -119,11 +119,7 @@ if [ "${trigger}" = "true" ]; then
 fi
 
 # Get/set udev_root variable. It should be '/dev', but...
-if [ -f /etc/udev/udev.conf ]; then
-	. /etc/udev/udev.conf
-fi
-udev_root="${udev_root:-/dev}"
-udev_root="${udev_root%/}"
+udev_root="$(udevadm info --root)"
 
 # Store device names given as arguments, if any:
 for arg; do
