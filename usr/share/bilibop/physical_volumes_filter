@@ -1,24 +1,29 @@
 #!/bin/sh
-# vim: set et sw=4 sts=4 ts=4 fdm=marker fcl=all:
+set -e
 
-# /usr/sbin/pvfilter
+# /usr/share/bilibop/physical_volumes_filter
 # Get|set the 'filter' and 'obtain_device_list_from_udev' variables in
 # lvm.conf(5).
 
+### BEGIN ###
+
 PATH="/bin:/usr/bin"
 PROG="${0##*/}"
+SOPTS="a:bDd:f:hilor:sux:"
+LOPTS="accept:,blank,default,delimiter:,exclude:,file:,help,init,list-pv,overwrite,reject:,show,udev"
 
 # Check if 'lvm' is installed; if not, exit unconditionally.
 have_lvm="1"
-for dir in /sbin /usr/sbin /bin /usr/bin ; do
-    [ -x "${dir}/lvm" ] &&
-    have_lvm="$?" &&
-    break
+for dir in /sbin /usr/sbin /bin /usr/bin; do
+	if [ -x "${dir}/lvm" ]; then
+		have_lvm="$?"
+		break
+	fi
 done
 
-if  [ "${have_lvm}" = "1" ] ; then
-    echo "${PROG}: lvm command not found." >&2
-    exit 11
+if [ "${have_lvm}" = "1" ]; then
+	echo "${PROG}: lvm command not found." >&2
+	exit 11
 fi
 unset have_lvm
 
@@ -34,12 +39,12 @@ show="false"        # --show
 udev="false"        # --udev
 accept_all="false"  # --accept all
 filter="false"      # --accept, --reject, --exclude
-B="|" ; E="${B}"    # --delimiter
+B="|"; E="${B}"     # --delimiter
 
 exit_code=""        # for -o with unwritable file
 reject_path=""      # not empty if /dev/disk/by-path is already rejected
 reject_block=""     # not empty if /dev/block is already rejected
-FILTER_STRING=""    # final result of all -a, -r or -e options
+FILTER_STRING=""    # final result of all -a, -r or -x options
 ALREADY_DONE=""     # list of already treated devices
 
 . /lib/bilibop/pvfilter.sh
@@ -48,7 +53,7 @@ get_udev_root
 # short_usage() ============================================================={{{
 # Print short help in case of error.
 short_usage() {
-    cat <<EOF
+	cat <<EOF
 Usage:
     ${PROG} -h|--help
     ${PROG} [OPTIONS [ARGUMENTS]]
@@ -58,7 +63,7 @@ EOF
 # usage() ==================================================================={{{
 # Display options summary when asked with -h or --help option.
 usage() {
-    cat <<EOF
+	cat <<EOF
 ${PROG}: get/set the filter of Physical Volumes in LVM2 configuration file.
 See also lvm.conf(5) for some details.
 
@@ -73,131 +78,153 @@ Usage:
 Options:
   -a ARG, --accept=ARG
   -r ARG, --reject=ARG
-                Accept or reject device(s). Each -a or -r option can be invoked
-                several times, and the filter will be build in the same order
-                than the commandline options. The resulting patterns will be
-                added BEFORE existing rules. ARG can be:
-                all         all Physical Volumes
-                insidev     only PV on internal disks
-                bilibop     only PV on the same disk than the root filesystem
-                other       only PV on other disks
-                <DEVICE>    a specific block device
-                verbatim=*  an arbitrary string
-  -b, --blank   Start with a blank 'filter' before to apply --accept and
-                --reject options.
-  -D, --default Reset filter to its default value (i.e. accept all).
+        Accept or reject device(s). Each -a or -r option can be invoked
+        several times, and the filter will be build in the same order
+        than the commandline options. The resulting patterns will be
+        added BEFORE existing rules. ARG can be:
+        all         all Physical Volumes
+        insidev     only PV on internal disks
+        bilibop     only PV on the same disk than the root filesystem
+        other       only PV on other disks
+        <DEVICE>    a specific block device
+        verbatim=*  an arbitrary string
+
+  -b, --blank
+        Start with a blank 'filter' before to apply --accept and
+        --reject options.
+
+  -D, --default
+        Reset filter to its default value (i.e. accept all).
+
   -d ?, --delimiter ?
-                Set the delimiter to use at the beginning and end of a 'accept'
-                or 'reject' pattern. Can be invoked several times, one before
-                each -a or -r option. Valid delimiters can be:
-                "!", "#", "%", "+", ",", ".", ":", ";", "=", "@", "|", "{}",
-                "[]" and "()". Most of them must be protected to not be
-                interpreted by the shell.
-  -e ARG, --exclude ARG
-                Same as --reject, except that all symlinks to devices to reject
-                are rejected. ARG can be:
-                insidev     only PV on internal disks
-                bilibop     only PV on the same disk than the root filesystem
-                other       only PV on other disks
-                <DEVICE>    a specific block device
+        Set the delimiter to use at the beginning and end of a 'accept'
+        or 'reject' pattern. Can be invoked several times, one before
+        each -a or -r option. Valid delimiters can be:
+        "!", "#", "%", "+", ",", ".", ":", ";", "=", "@", "|", "{}",
+        "[]" and "()". Most of them must be protected to not be
+        interpreted by the shell.
+
   -f FILE, --file FILE
-                Use FILE as an alternative LVM configuration file.
-  -h, --help    Print this message on stdout and exit.
-  -i, --init    Initialize lvm.conf if one of the file, the 'devices' section
-                or the 'filter' or 'obtain_device_list_from_udev' variables
-                are missing. Filter is then set to its default value.
-  -l, --list-pv List block devices with LVM2_member fstype and exit.
+        Use FILE as an alternative LVM configuration file.
+
+  -h, --help
+        Print this message on stdout and exit.
+
+  -i, --init
+        Initialize lvm.conf if one of the file, the 'devices' section
+        or the 'filter' or 'obtain_device_list_from_udev' variables
+        are missing. Filter is then set to its default value.
+
+  -l, --list-pv
+        List block devices with LVM2_member fstype and exit.
+
   -o, --overwrite
-                Overwrite the configuration file (lvm.conf).
-  -s, --show    Show the filter rules in use or built with other options. Used
-                with --list-pv, show all symlinks found in /dev for each listed
-                PV.
-  -u, --udev    Set the 'obtain_device_list_from_udev' variable to 1 and obtain
-                device list from udev. When used with --list-pv, override the
-                -s option and show only the symlinks managed by udev.
+        Overwrite the configuration file (lvm.conf).
+
+  -s, --show
+        Show the filter rules in use or built with other options. Used
+        with --list-pv, show all symlinks found in /dev for each listed
+        PV.
+
+  -u, --udev
+        Set the 'obtain_device_list_from_udev' variable to 1 and obtain
+        device list from udev. When used with --list-pv, override the
+        -s option and show only the symlinks managed by udev.
+
+  -x ARG, --exclude ARG
+        Same as --reject, except that all symlinks to devices to reject
+        are rejected. ARG can be:
+        insidev     only PV on internal disks
+        bilibop     only PV on the same disk than the root filesystem
+        other       only PV on other disks
+        <DEVICE>    a specific block device
 EOF
 }
 # ===========================================================================}}}
 
-# Parse options with getopt ================================================={{{
-ARGS="$(getopt -o a:bDd:e:f:hilor:su --long accept:,blank,default,delimiter:,exclude:,file:,help,init,list-pv,overwrite,reject:,show,udev -n "${PROG}" -- "${@}")"
-if  [ "${?}" != "0" ] ; then
-    short_usage >&2
-    exit 1
+set +e
+### Parse options ##############################################################
+ARGS="$(getopt -o ${SOPTS} --long ${LOPTS} -n ${PROG} -- "${@}")"
+if  [ "${?}" != "0" ]; then
+	short_usage >&2
+	exit 1
 else
-    eval set -- "${ARGS}"
+	eval set -- "${ARGS}"
 fi
+################################################################################
+set -e
 
-while true ; do
-    case "${1}" in
-        -h|--help)
-            usage
-            exit 0
-            ;;
-        -i|--init)
-            init="true"
-            shift
-            ;;
-        -f|--file)
-            LVM_CONF="${2}"
-            shift 2
-            ;;
-        -s|--show)
-            show="true"
-            shift
-            ;;
-        -u|--udev)
-            udev="true"
-            shift
-            ;;
-        -b|--blank)
-            blank="true"
-            shift
-            ;;
-        -o|--overwrite)
-            overwrite="true"
-            shift
-            ;;
-        -l|--list-pv)
-            listpv="true"
-            shift
-            ;;
-        -D|--default)
-            default="true"
-            shift
-            ;;
-        -d|--delimiter)
-            # This option will be parsed again later
-            shift 2
-            ;;
-        -a|--accept)
-            # This option will be parsed again later, but we have to know in
-            # advance if the filter will contain something like "a|.*|". In
-            # that case, the list of devices to reject must contain all the
-            # symlinks to the rejected devices.
-            if  [ "${2}" = "all" ] ; then
-                accept_all="true"
-            fi
-            shift 2
-            ;;
-        -r|--reject)
-            # This option will be parsed again later
-            shift 2
-            ;;
-        -e|--exclude)
-            # This option will be parsed again later
-            shift 2
-            ;;
-        --)
-            shift
-            break
-            ;;
-        *)
-            unknown_argument "${1}" >&2
-            short_usage >&2
-            exit 1
-            ;;
-    esac
+# Parse options ============================================================={{{
+while true; do
+	case "${1}" in
+		-h|--help)
+			usage
+			exit 0
+			;;
+		-i|--init)
+			init="true"
+			shift
+			;;
+		-f|--file)
+			LVM_CONF="${2}"
+			shift 2
+			;;
+		-s|--show)
+			show="true"
+			shift
+			;;
+		-u|--udev)
+			udev="true"
+			shift
+			;;
+		-b|--blank)
+			blank="true"
+			shift
+			;;
+		-o|--overwrite)
+			overwrite="true"
+			shift
+			;;
+		-l|--list-pv)
+			listpv="true"
+			shift
+			;;
+		-D|--default)
+			default="true"
+			shift
+			;;
+		-d|--delimiter)
+			# This option will be parsed again later
+			shift 2
+			;;
+		-a|--accept)
+			# This option will be parsed again later, but we have to know in
+			# advance if the filter will contain something like "a|.*|". In
+			# that case, the list of devices to reject must contain all the
+			# symlinks to the rejected devices.
+			if [ "${2}" = "all" ]; then
+				accept_all="true"
+			fi
+			shift 2
+			;;
+		-r|--reject)
+			# This option will be parsed again later
+			shift 2
+			;;
+		-x|--exclude)
+			# This option will be parsed again later
+			shift 2
+			;;
+		--)
+			shift
+			break
+			;;
+		*)
+			unknown_argument "${1}" >&2
+			short_usage >&2
+			exit 1
+			;;
+	esac
 done
 
 # Options will be parsed again:
@@ -210,41 +237,41 @@ eval set -- "${ARGS}"
 
 # 0. If no option is invoked, or only -f FILE or --file FILE, just
 #    display the actual settings (if possible) and exit:
-if  [ "${1}" = "--" ] ||
-    [ "${3}" = "--" -a "${1}" = "-f" ] ||
-    [ "${3}" = "--" -a "${1}" = "--file" ] ; then
-    grep -qs '^\s*devices\s{' ${LVM_CONF}
-    case "$?" in
-        0)
-            not_found=0
-            grep '^\s*obtain_device_list_from_udev\s*=' ${LVM_CONF}
-            not_found=$((not_found+$?))
-            grep '^\s*filter\s*=' ${LVM_CONF}
-            not_found=$((not_found+$?))
-            [ "${not_found}" != "0" ] &&
-                echo "${PROG}: a needed variable is not defined in ${LVM_CONF}" >&2 &&
-                echo "Use '--init' option to create it." >&2
-            exit ${not_found}
-            ;;
-        1)
-            echo "${PROG}: 'devices' section is missing in ${LVM_CONF}." >&2
-            echo "Use '--init' option to create it." >&2
-            exit 10
-            ;;
-        2)
-            echo "${PROG}: ${LVM_CONF} does not exist." >&2
-            echo "Use '--init' option to create it." >&2
-            exit 10
-            ;;
-    esac
-    exit $?
+if [ "${1}" = "--" ] ||
+	[ "${3}" = "--" -a "${1}" = "-f" ] ||
+	[ "${3}" = "--" -a "${1}" = "--file" ]; then
+	grep -qs '^\s*devices\s{' ${LVM_CONF}
+	case "$?" in
+		0)
+			not_found=0
+			grep '^\s*obtain_device_list_from_udev\s*=' ${LVM_CONF}
+			not_found=$((not_found+$?))
+			grep '^\s*filter\s*=' ${LVM_CONF}
+			not_found=$((not_found+$?))
+			[ "${not_found}" != "0" ] &&
+				echo "${PROG}: a needed variable is not defined in ${LVM_CONF}" >&2 &&
+				echo "Use '--init' option to create it." >&2
+			exit ${not_found}
+			;;
+		1)
+			echo "${PROG}: 'devices' section is missing in ${LVM_CONF}." >&2
+			echo "Use '--init' option to create it." >&2
+			exit 10
+			;;
+		2)
+			echo "${PROG}: ${LVM_CONF} does not exist." >&2
+			echo "Use '--init' option to create it." >&2
+			exit 10
+			;;
+	esac
+	exit $?
 fi
 
 # 1. -l, --list-pv
 #    List LVM2 members - even those rejected by the filter - and exit.
-if  eval ${listpv} ; then
-    _pvfilter_list_pv
-    exit $?
+if [ "${listpv}" = "true" ]; then
+	_pvfilter_list_pv
+	exit $?
 fi
 
 # 2. -i, --init
@@ -252,190 +279,190 @@ fi
 #    'obtain_device_list_from_udev' and 'filter' variables); add missing
 #    file, section and/or variables if asked by --init, and exit. If --init
 #    is not invoked but something is missing, exit too.
-if  eval ${init} ; then
-    if  [ -f "${LVM_CONF}" ] ; then
-        _pvfilter_init_device_filters ; exit $?
-    else
-        _pvfilter_init_lvm_configfile ; exit $?
-    fi
+if [ "${init}" = "true"]; then
+	if [ -f "${LVM_CONF}" ]; then
+		_pvfilter_init_device_filters; exit $?
+	else
+		_pvfilter_init_lvm_configfile; exit $?
+	fi
 else
-    _pvfilter_init_lvm_configfile || exit $?
-    _pvfilter_init_device_filters || exit $?
+	_pvfilter_init_lvm_configfile || exit $?
+	_pvfilter_init_device_filters || exit $?
 fi
 
 # 3. -d, --default
 #    Reset -b, -u, -o, -a and -r options.
-if  eval ${default} ; then
-    echo "${PROG}: ${LVM_CONF} reset to default filter (accept all)." >&2
-    udev="true"
-    blank="true"
-    overwrite="true"
-    ARGS="--accept all --"
-    eval set -- "${ARGS}"
+if [ "${default}" = "true" ]; then
+	echo "${PROG}: ${LVM_CONF} reset to default filter (accept all)." >&2
+	udev="true"
+	blank="true"
+	overwrite="true"
+	ARGS="--accept all --"
+	eval set -- "${ARGS}"
 fi
 
 # 4. Some options cannot be invoked by unprivileged users:
-if  [ ! -r "${LVM_CONF}" ] ; then
-    echo "${PROG}: ${LVM_CONF} is not readable." >&2
-    exit 10
+if [ ! -r "${LVM_CONF}" ]; then
+	echo "${PROG}: ${LVM_CONF} is not readable." >&2
+	exit 10
 
-elif [ ! -w "${LVM_CONF}" ] ; then
-    if  eval ${overwrite} ; then
-        overwrite="false"
-        show="true"
-        exit_code="11"
-        exec 1>&2
-        echo "${PROG}: you don't have write permissions on ${LVM_CONF}"
-        echo "THIS IS A DRY RUN:"
-    fi
+elif [ ! -w "${LVM_CONF}" ]; then
+	if eval ${overwrite}; then
+		overwrite="false"
+		show="true"
+		exit_code="11"
+		exec 1>&2
+		echo "${PROG}: you don't have write permissions on ${LVM_CONF}"
+		echo "THIS IS A DRY RUN:"
+	fi
 fi
 
 # Build the strings to filter ==============================================={{{
 # For that, we parse options and arguments again:
-while true
-do
-    case "${1}" in
-        --)
-            shift
-            break
-            ;;
-        -d|--delimiter)
-            _pvfilter_delimiter "${2}"
-            shift 2
-            ;;
-        -a|--accept)
-            case "${2}" in
-                all)
-                    FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }\"a${B}.*${E}\""
-                    filter="true"
-                    blank="true"
-                    break
-                    ;;
-                verbatim=*)
-                    verbatim="${2#verbatim=}"
-                    [ -n "${verbatim}" ] &&
-                    FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }\"a${B}${verbatim}${E}\""
-                    ;;
-                bilibop|insidev|other|${udev_root}/*)
-                    _pvfilter_list_filter_devices "${2}"
-                    [ -n "${diskid}" ] &&
-                    diskid="$(_pvfilter_accept_string "" ${diskid})" &&
-                    FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${diskid:+\"${diskid}\"}"
-                    [ -n "${dmname}" ] &&
-                    dmname="$(_pvfilter_accept_string ${udev_root}/mapper ${dmname})" &&
-                    FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${dmname:+\"${dmname}\"}"
-                    [ -n "${lvname}" ] &&
-                    lvname="$(_pvfilter_accept_string "" ${lvname})" &&
-                    FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${lvname:+\"${lvname}\"}"
-                    ;;
-                *)
-                    unknown_argument "${2}" >&2
-                    short_usage >&2
-                    exit 1
-                    ;;
-            esac
-            filter="true"
-            shift 2
-            ;;
-        -r|--reject)
-            case "${2}" in
-                all)
-                    FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }\"r${B}.*${E}\""
-                    filter="true"
-                    blank="true"
-                    break
-                    ;;
-                verbatim=*)
-                    verbatim="${2#verbatim=}"
-                    [ -n "${verbatim}" ] &&
-                    FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }\"r${B}${verbatim}${E}\""
-                    ;;
-                bilibop|insidev|other|${udev_root}/*)
-                    if  eval ${accept_all} ; then
-                        _pvfilter_list_exclude_devices "${2}"
-                        [ -n "${devlist}" ] &&
-                        devlist="$(_pvfilter_reject_string "" ${devlist} -f)" &&
-                        FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${devlist:+\"${devlist}\"}"
-                        [ -n "${dirlist}" ] &&
-                        dirlist="$(_pvfilter_reject_string ${udev_root} ${dirlist} -d)" &&
-                        FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${dirlist:+\"${dirlist}\"}"
-                    else
-                        _pvfilter_list_filter_devices "${2}"
-                        [ -n "${diskid}" ] &&
-                        diskid="$(_pvfilter_reject_string "" ${diskid})" &&
-                        FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${diskid:+\"${diskid}\"}"
-                        [ -n "${dmname}" ] &&
-                        dmname="$(_pvfilter_reject_string ${udev_root}/mapper ${dmname})" &&
-                        FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${dmname:+\"${dmname}\"}"
-                        [ -n "${lvname}" ] &&
-                        lvname="$(_pvfilter_accept_string "" ${lvname})" &&
-                        FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${lvname:+\"${lvname}\"}"
-                    fi
-                    ;;
-                *)
-                    unknown_argument "${2}" >&2
-                    short_usage >&2
-                    exit 1
-                    ;;
-            esac
-            filter="true"
-            shift 2
-            ;;
-        -e|--exclude)
-            case "${2}" in
-                bilibop|insidev|other|${udev_root}/*)
-                    _pvfilter_list_exclude_devices "${2}"
-                    [ -n "${devlist}" ] &&
-                    devlist="$(_pvfilter_reject_string "" ${devlist} -f)" &&
-                    FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${devlist:+\"${devlist}\"}"
-                    [ -n "${dirlist}" ] &&
-                    dirlist="$(_pvfilter_reject_string ${udev_root} ${dirlist} -d)" &&
-                    FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${dirlist:+\"${dirlist}\"}"
-                    ;;
-                *)
-                    unknown_argument "${2}" >&2
-                    short_usage >&2
-                    exit 1
-                    ;;
-            esac
-            filter="true"
-            shift 2
-            ;;
-        *)
-            shift
-            ;;
-    esac
+while true; do
+	case "${1}" in
+		--)
+			shift
+			break
+			;;
+		-d|--delimiter)
+			_pvfilter_delimiter "${2}"
+			shift 2
+			;;
+		-a|--accept)
+			case "${2}" in
+				all)
+					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }\"a${B}.*${E}\""
+					filter="true"
+					blank="true"
+					break
+					;;
+				verbatim=*)
+					verbatim="${2#verbatim=}"
+					[ -n "${verbatim}" ] &&
+					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }\"a${B}${verbatim}${E}\""
+					;;
+				bilibop|insidev|other|${udev_root}/*)
+					_pvfilter_list_filter_devices "${2}"
+					[ -n "${diskid}" ] &&
+					diskid="$(_pvfilter_accept_string "" ${diskid})" &&
+					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${diskid:+\"${diskid}\"}"
+					[ -n "${dmname}" ] &&
+					dmname="$(_pvfilter_accept_string ${udev_root}/mapper ${dmname})" &&
+					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${dmname:+\"${dmname}\"}"
+					[ -n "${lvname}" ] &&
+					lvname="$(_pvfilter_accept_string "" ${lvname})" &&
+					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${lvname:+\"${lvname}\"}"
+					;;
+				*)
+					unknown_argument "${2}" >&2
+					short_usage >&2
+					exit 1
+					;;
+			esac
+			filter="true"
+			shift 2
+			;;
+		-r|--reject)
+			case "${2}" in
+				all)
+					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }\"r${B}.*${E}\""
+					filter="true"
+					blank="true"
+					break
+					;;
+				verbatim=*)
+					verbatim="${2#verbatim=}"
+					[ -n "${verbatim}" ] &&
+					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }\"r${B}${verbatim}${E}\""
+					;;
+				bilibop|insidev|other|${udev_root}/*)
+					if eval ${accept_all}; then
+						_pvfilter_list_exclude_devices "${2}"
+						[ -n "${devlist}" ] &&
+						devlist="$(_pvfilter_reject_string "" ${devlist} -f)" &&
+						FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${devlist:+\"${devlist}\"}"
+						[ -n "${dirlist}" ] &&
+						dirlist="$(_pvfilter_reject_string ${udev_root} ${dirlist} -d)" &&
+						FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${dirlist:+\"${dirlist}\"}"
+					else
+						_pvfilter_list_filter_devices "${2}"
+						[ -n "${diskid}" ] &&
+						diskid="$(_pvfilter_reject_string "" ${diskid})" &&
+						FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${diskid:+\"${diskid}\"}"
+						[ -n "${dmname}" ] &&
+						dmname="$(_pvfilter_reject_string ${udev_root}/mapper ${dmname})" &&
+						FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${dmname:+\"${dmname}\"}"
+						[ -n "${lvname}" ] &&
+						lvname="$(_pvfilter_accept_string "" ${lvname})" &&
+						FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${lvname:+\"${lvname}\"}"
+					fi
+					;;
+				*)
+					unknown_argument "${2}" >&2
+					short_usage >&2
+					exit 1
+					;;
+			esac
+			filter="true"
+			shift 2
+			;;
+		-e|--exclude)
+			case "${2}" in
+				bilibop|insidev|other|${udev_root}/*)
+					_pvfilter_list_exclude_devices "${2}"
+					[ -n "${devlist}" ] &&
+					devlist="$(_pvfilter_reject_string "" ${devlist} -f)" &&
+					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${devlist:+\"${devlist}\"}"
+					[ -n "${dirlist}" ] &&
+					dirlist="$(_pvfilter_reject_string ${udev_root} ${dirlist} -d)" &&
+					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${dirlist:+\"${dirlist}\"}"
+					;;
+				*)
+					unknown_argument "${2}" >&2
+					short_usage >&2
+					exit 1
+					;;
+			esac
+			filter="true"
+			shift 2
+			;;
+		*)
+			shift
+			;;
+	esac
 done
 # ===========================================================================}}}
 
 # Run now!
-eval ${udev} && u=1 || u=0
+LVM_TEMP="$(mktemp /tmp/lvm.conf.XXXXXXX)"
+trap "rm -f ${LVM_TEMP}" 0 2 3 6 9 15
 
-# Overwrite the file:
-if  eval ${overwrite} ; then
-    sed -i "s,^\(\s*obtain_device_list_from_udev\s*=\s*\).*,\1${u}," ${LVM_CONF}
+[ "${udev}" = "true" ] && u=1 || u=0
+sed "s,^\(\s*obtain_device_list_from_udev\s*=\s*\).*,\1${u}," ${LVM_CONF} >${LVM_TEMP}
 
-    if  eval ${blank} ; then
-        sed -i "s?^\(\s*filter\s*=\s*\[\).*]?\1${FILTER_STRING:+ ${FILTER_STRING}} ]?" ${LVM_CONF}
-    else
-        sed -i "s?^\(\s*filter\s*=\s*\[\)?\1${FILTER_STRING:+ ${FILTER_STRING}, }?" ${LVM_CONF}
-    fi
-
-    eval ${show} &&
-        grep '^\s*\(filter\|obtain_device_list_from_udev\)\s*=' ${LVM_CONF}
-    exit
+if [ "${blank}" = "true" ]; then
+	sed -i "s?^\(\s*filter\s*=\s*\[\).*]?\1${FILTER_STRING:+ ${FILTER_STRING}} ]?" ${LVM_TEMP}
+else
+	sed -i "s?^\(\s*filter\s*=\s*\[\)?\1${FILTER_STRING:+ ${FILTER_STRING}, }?" ${LVM_TEMP}
 fi
 
-# Show only (--show is implicit when --overwrite is not invoked):
-grep '^\s*obtain_device_list_from_udev\s*=' ${LVM_CONF} |
-sed "s?^\(\s*obtain_device_list_from_udev\s*=\s*\).*?\1${u}?"
+# Overwrite the file:
+if [ "${overwrite}" = "true" ]; then
+	if ! diff -q ${LVM_CONF} ${LVM_TEMP} >/dev/null; then
+		cp ${LVM_CONF} ${LVM_CONF}.bak
+		cat ${LVM_TEMP} >${LVM_CONF}
+	fi
 
-if  eval ${blank} ; then
-    grep '^\s*filter\s*=' ${LVM_CONF} |
-    sed "s?^\(\s*\)filter\s*=\s*\[.*\]?\1filter = [ ${FILTER_STRING} ]?"
+	if [ "${show}" = "true" ]; then
+		grep '^\s*\(filter\|obtain_device_list_from_udev\)\s*=' ${LVM_CONF}
+	fi
 else
-    grep '^\s*filter\s*=' ${LVM_CONF} |
-    sed "s?^\(\s*filter\s*=\s*\[\)?\1${FILTER_STRING:+ ${FILTER_STRING}, }?"
+	# Show only (--show is implicit when --overwrite is not invoked):
+	grep '^\s*\(filter\|obtain_device_list_from_udev\)\s*=' ${LVM_TEMP}
 fi
 
 exit ${exit_code}
+
+### END ###
+# vim: ts=4 sts=4 sw=4
