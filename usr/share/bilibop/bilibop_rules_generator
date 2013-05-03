@@ -44,11 +44,11 @@ get_udev_root
 get_bilibop_variables
 
 # Other variables
-NODE=""		# the device node (/dev/sda, /dev/sdb)
-KEY=""		# the type of udev key (ENV, ATTRS)
-CLASS=""	# the sysfs attribute class (serial, model, vendor...) or the
-		# udev environment variable name (ID_SERIAL, ID_MODEL...)
-VALUE=""	# the value of the attribute or environment variable
+NODE=""     # the device node (/dev/sda, /dev/sdb)
+KEY=""      # the type of udev key (ENV, ATTRS)
+CLASS=""    # the sysfs attribute class (serial, model, vendor...) or the
+            # udev environment variable name (ID_SERIAL, ID_MODEL...)
+VALUE=""    # the value of the attribute or environment variable
 
 attrib=""
 envvar=""
@@ -117,8 +117,8 @@ uncompatible_attributes() {
 	cat <<EOF
 ${PROG}: Uncompatible sysfs attributes (${1},${2}).
 Possible arguments are:
-	vendor,model
-	manufacturer,product,serial
+        vendor,model
+        manufacturer,product,serial
 EOF
 }
 
@@ -318,7 +318,7 @@ if [ -n "${attrib}" ]; then
 				;;
 			*)
 				unknown_argument "${x}" >&2
-	yy			short_usage
+				short_usage
 				exit 1
 				;;
 		esac
@@ -326,7 +326,7 @@ if [ -n "${attrib}" ]; then
 fi
 
 # 5. Get udev environment variables names.
-if	[ -n "${envvar}" ]; then
+if [ -n "${envvar}" ]; then
 	envvar="$(echo ${envvar} | tr ',' ' ')"
 	for x in ${envvar}; do
 		case "${x}" in
@@ -347,20 +347,20 @@ eval $(query_udev_envvar ${NODE})
 # Run now...
 
 if [ -z "${attrib}" -a -z "${envvar}" ]; then
-	if	[ ${rules} -eq 0 ]; then
+	if [ ${rules} -eq 0 ]; then
 		sysfs_attrs_rule manufacturer
 		sysfs_attrs_rule product
 		sysfs_attrs_rule serial
 	fi
 
-	if	[ ${rules} -eq 0 ]; then
+	if [ ${rules} -eq 0 ]; then
 		# Use this for an external HDD you can boot from both USB or
 		# FireWire.
 		sysfs_attrs_rule vendor
 		sysfs_attrs_rule model
 	fi
 
-	if	[ ${rules} -eq 0 ]; then
+	if [ ${rules} -eq 0 ]; then
 		# It seems ID_SERIAL is a good fallback (exists in almost all
 		# cases)
 		udev_envvar_rule ID_SERIAL
@@ -371,7 +371,7 @@ else
 		sysfs_attrs_rule "${a}"
 	done
 
-	for	e in ${envvar}; do
+	for e in ${envvar}; do
 		udev_envvar_rule "${e}"
 	done
 fi
