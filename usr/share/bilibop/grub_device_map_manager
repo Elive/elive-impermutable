@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 # /usr/share/bilibop/grub_device_map_manager
 
@@ -92,6 +93,7 @@ fake="false"
 link="false"
 show="false"
 
+set +e
 ### Parse options ##############################################################
 ARGS="$(getopt -o ${SOPTS} --long ${LOPTS} -n ${PROG} -- "${@}")"
 if [ "${?}" != "0" ]; then
@@ -101,6 +103,7 @@ else
 	eval set -- "${ARGS}"
 fi
 ################################################################################
+set -e
 
 [ "${1}" = "--" ] && show="true"
 
