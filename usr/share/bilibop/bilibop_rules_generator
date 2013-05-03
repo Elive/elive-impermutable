@@ -130,10 +130,10 @@ sysfs_attribute_match_udev_envvar() {
 
 # usage: udev_envvar_rule ID_SERIAL|ID_SERIAL_SHORT|ID_MODEL|ID_VENDOR
 udev_envvar_rule() {
-	if [ -n "$(eval printf "\$${1}")" ]; then
+	if [ -n "$(eval printf "%s" "${1:+\$${1}}")" ]; then
 		KEY="ENV"
 		CLASS="${1}"
-		VALUE="$(eval printf "\$${1}" | sed 's, *$,,')"
+		VALUE="$(eval printf "%s" "${1:+\$${1}}" | sed 's, *$,,')"
 		ALL_RULES="${ALL_RULES:+${ALL_RULES}, \\
 	}${KEY}{${CLASS}}==\"${VALUE}\""
 		rules=$((rules+1))
@@ -169,6 +169,11 @@ sysfs_attrs_rule() {
 			return 1
 			;;
 	esac
+
+	if echo "${VALUE}" | grep -q '"'; then
+		VALUE=
+		return 1
+	fi
 
 	KEY="ATTRS"
 	CLASS="${1}"
@@ -232,7 +237,7 @@ done
 if [ -n "${output}" ]; then
 	case "${output}" in
 		-)
-			output="stdout"
+			output=""
 			;;
 		-*)
 			unknown_argument "${output}" >&2
@@ -246,12 +251,17 @@ ${PROG}: $(dirname "${output}") directory don't exist.
 EOF
 				exit 2
 			else
-				exec 1>"${output}"
+				TEMPOUT="$(mktemp /tmp/bilibop-rules.XXXXXXX)"
+				trap "rm -f ${TEMPOUT}" 0 2 3 6 9 15
+				exec 1>"${TEMPOUT}"
 			fi
 			;;
 	esac
 else
-	exec 1>"${ETC_RULES_DIR}/${RULE}"
+	output="${ETC_RULES_DIR}/${RULE}"
+	TEMPOUT="$(mktemp /tmp/bilibop-rules.XXXXXXX)"
+	trap "rm -f ${TEMPOUT}" 0 2 3 6 9 15
+	exec 1>"${TEMPOUT}"
 fi
 
 # 2. Set target.
@@ -295,9 +305,7 @@ esac
 
 # 3. Set header.
 if [ -z "${header}" ]; then
-	[ -z "${output}" -o "${output}" = "stdout" ] &&
-	header="${ETC_RULES_DIR}/${RULE}" ||
-	header="${output}"
+	header="${output:-${ETC_RULES_DIR}/${RULE}}"
 fi
 
 # 4. Get sysfs attribute classes.
@@ -350,31 +358,31 @@ eval $(query_udev_envvar ${NODE})
 
 if [ -z "${attrib}" -a -z "${envvar}" ]; then
 	if [ ${rules} -eq 0 ]; then
-		sysfs_attrs_rule manufacturer
-		sysfs_attrs_rule product
-		sysfs_attrs_rule serial
+		sysfs_attrs_rule manufacturer || echo "Unavailable sysfs attribute: manufacturer" >&2
+		sysfs_attrs_rule product || echo "Unavailable sysfs attribute: product" >&2
+		sysfs_attrs_rule serial || echo "Unavailable sysfs attribute: serial" >&2
 	fi
 
 	if [ ${rules} -eq 0 ]; then
 		# Use this for an external HDD you can boot from both USB or
 		# FireWire.
-		sysfs_attrs_rule vendor
-		sysfs_attrs_rule model
+		sysfs_attrs_rule vendor || echo "Unavailable sysfs attribute: vendor" >&2
+		sysfs_attrs_rule model || echo "Unavailable sysfs attribute: model" >&2
 	fi
 
 	if [ ${rules} -eq 0 ]; then
 		# It seems ID_SERIAL is a good fallback (exists in almost all
 		# cases)
-		udev_envvar_rule ID_SERIAL
+		udev_envvar_rule ID_SERIAL || echo "Unavailable udev property: ID_SERIAL" >&2
 	fi
 
 else
 	for a in ${attrib}; do
-		sysfs_attrs_rule "${a}"
+		sysfs_attrs_rule "${a}" || echo "Unavailable sysfs attribute: ${a}" >&2
 	done
 
 	for e in ${envvar}; do
-		udev_envvar_rule "${e}"
+		udev_envvar_rule "${e}" || echo "Unavailable udev property: ${e}" >&2
 	done
 fi
 
@@ -494,6 +502,12 @@ PROGRAM=="bilibop_disk --name %r/%k", ENV{UDISKS_PRESENTATION_NAME}:="%c"
 
 LABEL="bilibop_end"
 EOF
+
+if [ -f "${TEMPOUT}" -a -n "${output}" ]; then
+	umask 022
+	touch ${output}
+	cat ${TEMPOUT} >|${output}
+fi
 
 ### END ###
 # vim: ts=4 sts=4 sw=4
