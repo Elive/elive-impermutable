@@ -279,7 +279,7 @@ fi
 #    'obtain_device_list_from_udev' and 'filter' variables); add missing
 #    file, section and/or variables if asked by --init, and exit. If --init
 #    is not invoked but something is missing, exit too.
-if [ "${init}" = "true"]; then
+if [ "${init}" = "true" ]; then
 	if [ -f "${LVM_CONF}" ]; then
 		_pvfilter_init_device_filters; exit $?
 	else
