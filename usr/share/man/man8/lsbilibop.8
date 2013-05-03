@@ -1,13 +1,14 @@
-.TH LSBILIBOP 8 2012\-10\-05 bilibop "System Administration"
+.TH LSBILIBOP 8 2013\-05\-03 bilibop "System Administration"
 
 .SH NAME
 lsbilibop \- list BILIBOP tagged devices, display or update some of their udev properties
 
 .SH SYNOPSIS
 .B lsbilibop
-.RB [ \-a ]
-.RB [ \-c ]
-.RB [ \-i ]
+.RB [ \-l ]
+.br
+.B lsbilibop
+.RB [ \-a | \-c | \-i ]
 .RI [ DEVICE
 .RI [ DEVICE
 .RI [ ... ]]]
@@ -129,13 +130,19 @@ UDISKS_PRESENTATION_ICON_NAME
 UDISKS_PRESENTATION_NAME
 .br
 UDISKS_SYSTEM_INTERNAL
+.TP
+.B \-l
+Dont't rely on the \(aqBILIBOP\(aq tag to list the devices.
+This option is based on the
+.I bilibop\-common
+shell library.
 
 .SH ERRORS
 If the \(aqBILIBOP\(aq tag does not exist in the udev database, then
 .B lsbilibop
 displays a useful error message on stderr, and lists the device nodes whose
 content is supposed to be written on the same physical disk than the root
-filesystem. Exit code is 8.
+filesystem (as does the \-l option). Exit code is 8.
 
 .SH FILES
 /etc/bilibop/bilibop.conf

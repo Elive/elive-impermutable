@@ -1,13 +1,14 @@
-.TH LSBILIBOP 8 2012\-10\-05 bilibop "Administration système"
+.TH LSBILIBOP 8 2013\-05\-03 bilibop "Administration système"
 
 .SH NOM
 lsbilibop \- lister les périphériques étiquetés BILIBOP, afficher ou mettre à jour certaines de leurs propriétés udev
 
 .SH SYNOPSIS
 .B lsbilibop
-.RB [ \-a ]
-.RB [ \-c ]
-.RB [ \-i ]
+.RB [ \-l ]
+.br
+.B lsbilibop
+.RB [ \-a | \-c | \-i ]
 .RI [ PÉRIPHÉRIQUE
 .RI [ PÉRIPHÉRIQUE
 .RI [ ... ]]]
@@ -140,6 +141,11 @@ UDISKS_PRESENTATION_ICON_NAME
 UDISKS_PRESENTATION_NAME
 .br
 UDISKS_SYSTEM_INTERNAL
+.TP
+.B \-l
+Liste les périphériques sans se fier à l'étiquette \(aqBILIBOP\(aq.
+Cette option s'appuie sur la bibliothèque de fonctions shell du paquet
+.IR bilibop-common .
 
 .SH ERREURS
 Si l'étiquette \(aqBILIBOP\(aq n'existe pas dans la base de données de udev,
@@ -147,7 +153,8 @@ alors
 .B lsbilibop
 affiche un message d'erreur pratique sur la sortie standard des erreurs,
 et liste les nœuds dont le contenu est supposé être écrit sur le même
-disque physique que la racine du système. Le code de sortie est 8.
+disque physique que la racine du système (comme avec l'option \-l).
+Le code de sortie est 8.
 
 .SH FICHIERS
 /etc/bilibop/bilibop.conf
