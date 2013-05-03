@@ -50,11 +50,11 @@ while getopts :achi opt; do
 			;;
 		a)
 			trigger="true"
-			add="true"
+			action="add"
 			;;
 		c)
 			trigger="true"
-			change="true"
+			action="change"
 			;;
 		i)
 			info="true"
@@ -142,12 +142,8 @@ fi
 
 # Trigger uevents for all BILIBOP tagged devices, and exit:
 if [ -z "${DEVICE}" -a "${trigger}" = "true" ]; then
-	if [ "${add}" = "true" ]; then
-		udevadm trigger --tag-match="BILIBOP" --action="add"
-	elif [ "${change}" = "true" ]; then
-		udevadm trigger --tag-match="BILIBOP" --action="change"
-	fi
-	exit 0
+	udevadm trigger --tag-match="BILIBOP" --action="${action}"
+	exit $?
 fi
 
 grep '[[:digit:]]' /proc/partitions |
@@ -170,13 +166,10 @@ while read major minor size node; do
 		echo
 
 	elif [ "${trigger}" = "true" ]; then
-		if [ "${add}" = "true" ]; then
-			udevadm trigger --sysname-match="${node}" --action="add"
-		elif [ "${change}" = "true" ]; then
-			udevadm trigger --sysname-match="${node}" --action="change"
-		fi
+		udevadm trigger --sysname-match="${node}" --action="${action}"
 	else
 		echo "${udev_root}/${node}"
 	fi
 done
 
+# vim: ts=4 sts=4 sw=4
