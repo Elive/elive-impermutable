@@ -42,8 +42,8 @@ Description: shell functions for bilibop scripts
 Package: bilibop-lockfs
 Architecture: linux-any
 Depends: bilibop-common (= ${binary:Version}), initramfs-tools, initscripts (>= 2.88dsf-13.3), ${misc:Depends}
-Recommends: aufs-tools, cryptsetup, libnotify-bin
-Suggests: bilibop-device-policy, gnome-icon-theme
+Recommends: aufs-tools, cryptsetup
+Suggests: bilibop-device-policy, gnome-icon-theme, libnotify-bin
 Description: lock filesystems and write changes into RAM
  ${Description}
  .
