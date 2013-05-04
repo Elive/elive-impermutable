@@ -1,3 +1,32 @@
+bilibop (0.4.10) experimental; urgency=low
+
+  * debian/compat: bump to compatibility level 9.
+  * debian/control: down libnotify-bin from Recommends: to Suggests: for the
+    bilibop-lockfs binary package.
+
+  * bilibop-common: modify is_aufs_mountpoint() and physical_hard_disk(): set
+    some local variables to an empty string to fix shell-dependant behaviours
+    with the 'local' built-in command.
+
+  * bilibop-rules:
+    - Modify helper scripts in /usr/share/bilibop: set -e; reformat syntax
+      (spaces, neawlines, indents); fix minor errors and cosmetics.
+    - make_unpersistent_rules: replace the --skip option by the more explicit
+      --only; remove the confusing --reverse option; allow to always handle
+      the two files in the same command line.
+    - bilibop_rules_generator: fix printf errors and output redirection, and
+      manage minor failures to not abort immediately.
+    - grub_device_map_manager: add link_device_map() function; do not
+      automatically and stupidly remove the existing devive map when the
+      --link option is used; fix typos.
+    - lsbilibop: add -l option to not rely on BILIBOP udev tags; query the
+      ID_DRIVE_DETACHABE value.
+    - Update documentation.
+
+  * bilibop-udev: add a new udev rule (to create a 'bootdisk' symlink).
+
+ -- bilibop project <quidame@poivron.org>  Sat, 04 May 2013 01:57:21 +0200
+
 bilibop (0.4.9) experimental; urgency=low
 
   * bilibop-rules: modify debian/bilibop-rules.bilibop-udev and
