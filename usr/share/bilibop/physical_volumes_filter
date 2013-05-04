@@ -407,7 +407,7 @@ while true; do
 			filter="true"
 			shift 2
 			;;
-		-e|--exclude)
+		-x|--exclude)
 			case "${2}" in
 				bilibop|insidev|other|${udev_root}/*)
 					_pvfilter_list_exclude_devices "${2}"
