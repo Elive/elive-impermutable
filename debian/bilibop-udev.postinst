@@ -4,12 +4,26 @@ set -e
 
 case "${1}" in
     configure)
-        # Trigger uevents for the disk hosting the root filesystem and its
-        # partitions.
         . /lib/bilibop/common.sh
-        udev_root="$(udevadm info --root)"
-        BILIBOP_DISK="$(physical_hard_disk /)"
-        udevadm trigger --sysname-match=${BILIBOP_DISK##*/}*
+        get_udev_root
+
+        # Be sure the needed virtual filesystems are mounted, and udev is
+        # running; or do nothing:
+        if [ -h /proc/mounts -a -d /sys/block -a -c ${udev_root}/null ] &&
+            invoke-rc.d udev status >${udev_root}/null 2>&1; then
+
+            # Trigger uevents for the disk hosting the root filesystem and its
+            # partitions:
+            BILIBOP_DISK="$(physical_hard_disk /)"
+            udevadm trigger --sysname-match=${BILIBOP_DISK##*/}*
+
+            # But it can happen that this doesn't work and new rules must be
+            # explicitly loaded before triggering uevents:
+            if ls -l ${BILIBOP_DISK} | grep -q '^\([^[:blank:]]\+\s\+\)\{3\}floppy\s'; then
+                udevadm control --reload-rules
+                udevadm trigger --sysname-match=${BILIBOP_DISK##*/}*
+            fi
+        fi
         ;;
 esac
 
