@@ -15,6 +15,6 @@ GOTO="bilibop_end"
 LABEL="bilibop_disk"
 
 KERNEL=="sd?|mmcblk?|mspblk?", \
-	SYMLINK+="bootdisk"
+	SYMLINK+="$result"
 
 LABEL="bilibop_end"

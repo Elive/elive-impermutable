@@ -1,7 +1,25 @@
 #!/bin/sh
+set -e
+
 # Test if the argument (file/directory/device) is on the same underlying
-# device than the root filesystem.
+# device than the root filesystem; if this is the case and -q option is
+# not used, then output something.
 . /lib/bilibop/common.sh
 get_udev_root
 DISK="$(physical_hard_disk /)" || exit $?
-[ "$(physical_hard_disk ${1})" = "${DISK}" ]
+
+if [ "${1}" = "-q" ]; then
+	quiet="true"
+	shift
+else
+	quiet="false"
+fi
+
+[ -e "${1}" ] && [ "$(physical_hard_disk ${1})" = "${DISK}" ] || exit 1
+
+if [ "${quiet}" = "false" ]; then
+	if [ -f /etc/bilibop/bilibop.conf ]; then
+		. /etc/bilibop/bilibop.conf
+	fi
+	echo ${BILIBOP_COMMON_BASENAME:-bilibop}
+fi
