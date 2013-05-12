@@ -1,3 +1,18 @@
+bilibop (0.4.11) experimental; urgency=low
+
+  * bilibop-common: modify /lib/bilibop/test to output the value of
+    BILIBOP_COMMON_BASENAME, unless the -q option is used.
+  * bilibop-udev:
+    - Modify the udev rules file to create a symlink with the output of
+      /lib/bilibop/test.
+    - Rewrite postinst script to not fail when the package is installed in a
+      chrooted or debootstraped environment, and explicitly load the udev
+      rules before triggering uevents.
+  * bilibop-rules: fix an error (typo) about -x option in the
+    physical_volumes_filter script.
+
+ -- bilibop project <quidame@poivron.org>  Mon, 13 May 2013 01:21:57 +0200
+
 bilibop (0.4.10) experimental; urgency=low
 
   * debian/compat: bump to compatibility level 9.
