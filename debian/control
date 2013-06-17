@@ -5,8 +5,8 @@ Maintainer: bilibop project <quidame@poivron.org>
 Uploaders: Alexandre Martin <alemar@Safe-mail.net>
 Build-Depends: debhelper (>= 9)
 Standards-Version: 3.9.4
-Homepage: https://poivron.org/~quidame/bilibop_project
-Vcs-Git: http://poivron.org/~quidame/bilibop_project/bilibop.git
+Homepage: https://un.poivron.org/~quidame/wiki/bilibop
+Vcs-Git: http://poivron.org/~quidame/git/bilibop.git
 
 Package: bilibop
 Section: metapackages
