@@ -385,14 +385,23 @@ underlying_device_from_loop() {
 # underlying_device_from_aufs() ============================================={{{
 # What we want is: output the underlying device of the (generally) readonly
 # branch of an aufs mountpoint given as argument. We assume that there is only
-# and at least one real device used to build the aufs, other branch(s) being
+# and at least one physical device used to build the aufs (but the directory
+# is not necessarly the mountpoint of this device), other branch(s) being
 # virtual fs.
 underlying_device_from_aufs() {
     ${DEBUG} && echo "> underlying_device_from_aufs $@" >&2
     local   dir dev
     for dir in $(aufs_dirs "${1}")
     do
-        dev="$(grep "^/[^ ]\+ ${dir%\=r?*} " /proc/mounts | sed -e 's,^\(/[^ ]\+\) .*,\1,')"
+        dev="$(device_id_of_file ${dir%\=r?*})"
+        case "${dev}" in
+            0:*)
+                continue
+                ;;
+            *)
+                dev="$(device_node_from_major_minor "${dev}")"
+                ;;
+        esac
         if      [ -b "${dev}" ]
         then    readlink -f "${dev}"
                 return 0
