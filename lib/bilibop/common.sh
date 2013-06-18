@@ -215,18 +215,21 @@ EOF
 #    |     |__underlying_device_from_aufs
 #    |        |
 #    |        |__aufs_dirs
-#    |           |
-#    |           |__aufs_dirs_if_brs0
-#    |           |  |
-#    |           |  |__is_aufs_mountpoint
-#    |           |     |
-#    |           |     |_canonical
-#    |           |
-#    |           |__aufs_si_directory
-#    |              |
-#    |              |__is_aufs_mountpoint
-#    |                 |
-#    |                 |__canonical
+#    |        |  |
+#    |        |  |__aufs_dirs_if_brs0
+#    |        |  |  |
+#    |        |  |  |__is_aufs_mountpoint
+#    |        |  |     |
+#    |        |  |     |_canonical
+#    |        |  |
+#    |        |  |__aufs_si_directory
+#    |        |     |
+#    |        |     |__is_aufs_mountpoint
+#    |        |        |
+#    |        |        |__canonical
+#    |        |
+#    |        |__device_id_of_file
+#    |        |__device_node_from_major_minor
 #    |
 #    |__underlying_device_from_device
 #       |
