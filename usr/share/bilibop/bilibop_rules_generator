@@ -277,7 +277,7 @@ else
 fi
 
 case "${target}" in
-	${udev_root}/sd[a-z])
+	${udev_root}/sd[a-z]|${udev_root}/mmcblk[0-9]|${udev_root}/mspblk[0-9])
 		NODE="${target}"
 		;;
 	*)
@@ -286,14 +286,7 @@ case "${target}" in
 esac
 
 case "${NODE}" in
-	${udev_root}/sd*)
-		KERN="sd"
-		;;
-	${udev_root}/mmcblk*)
-		KERN="mmcblk"
-		;;
-	${udev_root}/mspblk*)
-		KERN="mspblk"
+	${udev_root}/sd*|${udev_root}/mmcblk*|${udev_root}/mspblk*)
 		;;
 	*)
 		cat >&2 <<EOF
@@ -445,7 +438,7 @@ KERNEL=="sd?*", TAG+="INSIDEV"
 GOTO="bilibop_end"
 LABEL="bilibop_rules"
 
-KERNEL=="${KERN}?", \\
+ATTR{removable}=="?*", \\
 	SYMLINK+="${BILIBOP_COMMON_BASENAME}/disk", \\
 	ENV{BILIBOP_DISK}="%r/%k", \\
 	ENV{ID_DRIVE_DETACHABLE}:="0", \\
