@@ -146,15 +146,15 @@ udev_envvar_rule() {
 sysfs_attrs_rule() {
 	case "${1}" in
 		vendor|model)
-			VALUE="$(query_sysfs_attrs "${NODE}" | grep "ATTRS{${1}}==" | grep -v '=="0x' | sed -e 's,.*=="\(.*\)"$,\1, ; s, *$,,')"
+			VALUE="$(query_sysfs_attrs "${NODE}" | grep "ATTRS{${1}}==" | grep -v '=="0x' | sed -e 's,.*=="\(.*\)"$,\1, ; s, *$,, ; s,",?,g')"
 			[ -n "${VALUE}" ] || return 1
 			;;
 		manufacturer)
-			VALUE="$(query_sysfs_attrs "${NODE}" | grep "ATTRS{${1}}==" | grep -v "$(uname -sr)\|==\"0x" | sed -e 's,.*=="\(.*\)"$,\1, ; s, *$,,')"
+			VALUE="$(query_sysfs_attrs "${NODE}" | grep "ATTRS{${1}}==" | grep -v "$(uname -sr)\|==\"0x" | sed -e 's,.*=="\(.*\)"$,\1, ; s, *$,, ; s,",?,g')"
 			[ -n "${VALUE}" ] || return 1
 			;;
 		product)
-			VALUE="$(query_sysfs_attrs "${NODE}" | grep "ATTRS{${1}}==" | grep -v 'Host Controller\|=="0x' | sed -e 's,.*=="\(.*\)"$,\1, ; s, *$,,')"
+			VALUE="$(query_sysfs_attrs "${NODE}" | grep "ATTRS{${1}}==" | grep -v 'Host Controller\|=="0x' | sed -e 's,.*=="\(.*\)"$,\1, ; s, *$,, ; s,",?,g')"
 			[ -n "${VALUE}" ] || return 1
 			;;
 		serial)
@@ -169,11 +169,6 @@ sysfs_attrs_rule() {
 			return 1
 			;;
 	esac
-
-	if echo "${VALUE}" | grep -q '"'; then
-		VALUE=
-		return 1
-	fi
 
 	KEY="ATTRS"
 	CLASS="${1}"
