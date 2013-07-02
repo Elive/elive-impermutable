@@ -107,14 +107,20 @@ case	"${BILIBOP_LOCKFS}" in
 		;;
 	false)
 		log_warning_msg "${0##*/}: Nothing to do."
-		plymouth_message "${0##*/} is disabled"
+		case "${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
+			never|lockfs) ;;
+			*) plymouth_message "${0##*/} is disabled" ;;
+		esac
 		exit 0
 		;;
 	*)
 		if	is_removable $(physical_hard_disk ${rootmnt})
 		then	log_warning_msg "${0##*/}: Locking filesystem."
 		else	log_warning_msg "${0##*/}: Nothing to do."
-			plymouth_message "${0##*/} is disabled"
+			case "${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
+				never|lockfs) ;;
+				*) plymouth_message "${0##*/} is disabled" ;;
+			esac
 			exit 0
 		fi
 		;;
@@ -230,7 +236,10 @@ fi
 
 log_end_msg
 log_success_msg "${0##*/}: Root filesystem is now locked (${BILIBOP_LOCKFS_POLICY} policy)."
-plymouth_message "${0##*/}: ${BILIBOP_LOCKFS_POLICY} policy is enabled"
+case "${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
+	never|nolockfs) ;;
+	*) plymouth_message "${0##*/}: ${BILIBOP_LOCKFS_POLICY} policy is enabled" ;;
+esac
 
 # Avoid filesystems check:
 >${rootmnt}/fastboot
