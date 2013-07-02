@@ -6,9 +6,14 @@
 %:
 	dh $@
 
+# This is mandatory; see po-debconf(7).
+override_dh_clean:
+	debconf-updatepo
+	dh_clean
+
 # bilibop rules must be triggered after 60-persistent-storage*.rules.
 override_dh_installudev:
-	dh_installudev -n --priority=66 --name=bilibop
+	dh_installudev --noscripts --priority=66 --name=bilibop
 
 # Include the same text at the beginning of the extended description of
 # each package, and the same requirement at the end.
