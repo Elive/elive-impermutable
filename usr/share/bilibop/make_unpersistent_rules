@@ -4,7 +4,7 @@ set -e
 # /usr/share/bilibop/make_unpersistent_rules
 
 # Remove some persistent udev rules files (cd & net) and replace them by links
-# to unpersistent files (in /run/bilibop); ...or restore them.
+# to unpersistent files (in /run/udev/rules.d); ...or restore them.
 # This is made because these persistent rules files are cumulative, and so are
 # not very adapted for an operating system on external hard disk or usb key.
 
@@ -12,15 +12,19 @@ set -e
 
 PATH="/sbin:/bin:/usr/bin"
 PROG="${0##*/}"
-SOPTS="ho:rv"
-LOPTS="help,only:,restore,verbose"
-
-. /lib/bilibop/common.sh
-
-#get_udev_root
-get_bilibop_variables
+SOPTS="ho:rsv"
+LOPTS="help,only:,restore,status,verbose"
 
 ETC_RULES_DIR="/etc/udev/rules.d"
+RUN_RULES_DIR="/run/udev/rules.d"
+
+if [ -f /etc/udev/udev.conf ]; then
+	. /etc/udev/udev.conf
+fi
+udev_root="${udev_root:-/dev}"
+udev_root="${udev_root%/}"
+
+status=""
 restore=""
 verbose=""
 only=""
@@ -31,6 +35,7 @@ short_usage() {
 	cat <<EOF
 Usage:
   ${PROG} -h|--help
+  ${PROG} -s|--status
   ${PROG} [-v|--verbose] [-r|--restore] [-o|--only cd|net]
 EOF
 }
@@ -38,7 +43,7 @@ EOF
 usage() {
 	cat <<EOF
 ${PROG} replaces some persistent udev rules files by
-links to unpersistent files (in ${BILIBOP_RUNDIR}).
+links to unpersistent files (in ${RUN_RULES_DIR}).
 This is done to avoid cumulative informations about optical drives
 and network interfaces.
 
@@ -54,6 +59,9 @@ OPTIONS:
   -r, --restore
       Remove links to unpersistent rules files and restore persistent
       (static) udev rules files.
+
+  -s, --status
+      Display the status of each rules file and exit.
 
   -v, --verbose
       Be verbose.
@@ -95,6 +103,10 @@ while true; do
 			restore="true"
 			shift
 			;;
+		-s|--status)
+			status="true"
+			shift
+			;;
 		-v|--verbose)
 			verbose="-v"
 			shift
@@ -110,6 +122,22 @@ while true; do
 			;;
 	esac
 done
+
+if [ "${status}" = "true" ]; then
+	for rules in 70-persistent-cd.rules 70-persistent-net.rules; do
+		printf "%s\t" "${rules}"
+		if [ -h "${ETC_RULES_DIR}/${rules}" ]; then
+			printf "%s " ":link: ->"
+			readlink -f ${ETC_RULES_DIR}/${rules}
+		elif [ -f "${ETC_RULES_DIR}/${rules}" ]; then
+			printf "%s " ":file: =="
+			ls ${ETC_RULES_DIR}/${rules}
+		else
+			printf "%s\n"   ":none: ()"
+		fi
+	done
+	exit 0
+fi
 
 # Now, analyse the results.
 case "${only}" in
@@ -133,7 +161,7 @@ case "${only}" in
 esac
 
 make_regular() {
-	persistent="${ETC_RULES_DIR}/70-persistent-${i}.rules"
+	persistent="${ETC_RULES_DIR}/70-persistent-${1}.rules"
 	if [ -h "${persistent}" ]; then
 		unpersistent="$(readlink -f ${persistent})"
 		execute rm ${verbose} ${persistent}
@@ -144,7 +172,7 @@ make_regular() {
 		fi
 
 	elif [ ! -f "${persistent}" ]; then
-		unpersistent="${BILIBOP_RUNDIR}/unpersistent-${i}.rules"
+		unpersistent="${RUN_RULES_DIR}/70-persistent-${1}.rules"
 		if [ -f "${unpersistent}" ]; then
 			execute mv ${verbose} ${unpersistent} ${persistent}
 		else
@@ -154,8 +182,8 @@ make_regular() {
 }
 
 make_symlink() {
-	persistent="${ETC_RULES_DIR}/70-persistent-${i}.rules"
-	unpersistent="${BILIBOP_RUNDIR}/unpersistent-${i}.rules"
+	persistent="${ETC_RULES_DIR}/70-persistent-${1}.rules"
+	unpersistent="${RUN_RULES_DIR}/70-persistent-${1}.rules"
 	if [ -h "${persistent}" ]; then
 		target="$(readlink -f ${persistent})"
 		if	[ "${target}" = "${unpersistent}" ]; then
@@ -163,16 +191,17 @@ make_symlink() {
 			# nothing else to do:
 			continue
 		else
-			[ -d "${BILIBOP_RUNDIR}" ] || execute mkdir -p ${BILIBOP_RUNDIR}
+			#[ -d "${RUN_RULES_DIR}" ] || execute mkdir -p ${RUN_RULES_DIR}
 			[ -f "${target}" ] && execute mv ${verbose} ${target} ${unpersistent}
+			execute rm ${verbose} ${persistent}
 		fi
 
 	elif [ -f "${persistent}" ]; then
-		[ -d "${BILIBOP_RUNDIR}" ] || execute mkdir -p ${BILIBOP_RUNDIR}
+		#[ -d "${RUN_RULES_DIR}" ] || execute mkdir -p ${RUN_RULES_DIR}
 		execute mv ${verbose} ${persistent} ${unpersistent}
 	fi
 
-	[ -e "${persistent}" ] && execute rm ${verbose} ${persistent}
+	#[ -e "${persistent}" ] && execute rm ${verbose} ${persistent}
 	[ -e "${unpersistent}" ] || execute touch ${unpersistent}
 	execute ln -s ${verbose} ${unpersistent} ${persistent}
 }

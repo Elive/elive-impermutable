@@ -8,24 +8,25 @@ prereqs()
 }
 
 case $1 in
-prereqs)
-	prereqs
-	exit 0
-	;;
+	prereqs)
+		prereqs
+		exit 0
+		;;
 esac
 
-# Create a bilibop-specific temporary directory (in /run), and populate it.
+# Create non-empty symlinked files in temporary directories under /run.
+# bilibop-specific temporary directory (in /run), and populate it.
 
 ### BEGIN ###
 
-if	[ -f /etc/udev/udev.conf ]
-then	. /etc/udev/udev.conf
+if [ -f /etc/udev/udev.conf ]; then
+	. /etc/udev/udev.conf
 fi
 udev_root="${udev_root:-/dev}"
 udev_root="${udev_root%/}"
 
-if	[ -f ${rootmnt}/etc/bilibop/bilibop.conf ]
-then	. ${rootmnt}/etc/bilibop/bilibop.conf
+if [ -f ${rootmnt}/etc/bilibop/bilibop.conf ]; then
+	. ${rootmnt}/etc/bilibop/bilibop.conf
 fi
 BILIBOP_RUNDIR="/run/${BILIBOP_COMMON_BASENAME:=bilibop}"
 
@@ -37,8 +38,11 @@ echo "(hd0)	${udev_root}/${BILIBOP_COMMON_BASENAME}/disk" >${BILIBOP_RUNDIR}/gru
 
 # Create two non-empty files. This last action is not absolutely necessary,
 # but avoids some udev complaints.
-for	rules in cd.rules net.rules
-do	echo "# unpersistent-${rules}" >${BILIBOP_RUNDIR}/unpersistent-${rules}
+ETC_RULES_DIR="${rootmnt}/etc/udev/rules.d"
+RUN_RULES_DIR="$(udevadm info --run)/rules.d"
+for rules in cd.rules net.rules; do
+	[ -e "${ETC_RULES_DIR}/70-persistent-${rules}" ] ||
+	echo "# 70-(un)persistent-${rules}" >${RUN_RULES_DIR}/70-persistent-${rules}
 done
 
 :
