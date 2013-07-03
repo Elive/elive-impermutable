@@ -1,3 +1,48 @@
+bilibop (0.4.12) experimental; urgency=low
+
+  * bilibop-common:
+    - Modify 'underlying_device_from_aufs()'; take into account that an aufs
+      branch is not necessarly the mountpoint of a device.
+    - Update the copyright date of the shell library (common.sh).
+    - Update main function's dependency tree in common.sh
+    - Fix a typo in the french bilibop.conf manpage.
+    - Update README.Debian
+
+  * bilibop-lockfs:
+    - In the local-bottom initramfs script, follow
+      BILIBOP_LOCKFS_NOTIFY_POLICY to display non-error messages in plymouth.
+    - debian/control: add plymouth in the 'Suggests:' field.
+
+  * bilibop-rules:
+    - Modify bilibop_rules_generator to ease the build of rules that can be
+      applied to dual port devices (especially USB and MMC/MSP/SD).
+    - Modify sysfs_attrs_rule() in bilibop_rules_generator: replace occurences
+      of double quotes (") by a question mark (?) in values of attributes (as
+      " means inch) instead of removing these attributes.
+    - Modify make_unpersistent_rules and the initramfs script to fix a design
+      error in the 'unpersistent rules' feature. This mainly affected the cd
+      rules (symlinks to /dev/sr* were not always created or updated).
+    - Make the package debconf-configurable: rewrite existing maintscripts;
+      add bilibop-rules.config and bilibop-rules.templates; add debian/po/
+      and populate it; modify debian/control and debian/rules.
+    - Add french translation for debconf.
+    - Update README.Debian
+
+  * bilibop-udev:
+    - Modify postinst script: if the disk hosting the system (or one of its
+      partitions) still belong to 'floppy' group, then exit with error, unless
+      a custom rules file exists.
+    - modify postrm script: be sure /sys/block exists before doing things; use
+      ERE instead of BRE in grep commands.
+    - Update README.Debian
+
+  * debian/control: update Homepage: and Vcs-Git: fields.
+  * debian/copyright: remove the 'Source: ' field and update copyright dates.
+  * debian/substvars: replace the strict requirement by something more soft,
+    as an advice.
+
+ -- bilibop project <quidame@poivron.org>  Wed, 03 Jul 2013 20:58:40 +0200
+
 bilibop (0.4.11) experimental; urgency=low
 
   * bilibop-common: modify /lib/bilibop/test to output the value of
