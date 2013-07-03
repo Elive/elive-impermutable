@@ -8,7 +8,7 @@
 
 # This is mandatory; see po-debconf(7).
 override_dh_clean:
-	debconf-updatepo
+	debconf-updatepo --msgid-bugs-address="quidame@poivron.org"
 	dh_clean
 
 # bilibop rules must be triggered after 60-persistent-storage*.rules.
