@@ -2,70 +2,302 @@
 
 set -e
 
+# Source debconf library:
+. /usr/share/debconf/confmodule
+
+# Source bilibop library:
+. /lib/bilibop/common.sh
+get_udev_root
+
+PATH="${PATH}:/usr/share/bilibop"
+ETC_RULES_DIR="/etc/udev/rules.d"
+
+belongs_to_floppy_group() {
+    stat -c %G ${1}* | grep -q '^floppy$'
+}
+
 case "${1}" in
-    configure)
-        # Add a new script in the initramfs:
-        if [ -x /usr/sbin/update-initramfs ]; then
-            update-initramfs -u
+    configure|reconfigure)
+
+        # Debconf specific configuration
+        # ==============================
+
+        # At first, backup some values if this is not already done.
+        HELPER="physical_volumes_filter"
+        LVMCONF="/etc/lvm/lvm.conf"
+        if [ -f "${LVMCONF}" ]; then
+            for lvmvar in filter obtain_device_list_from_udev; do
+                db_fget bilibop-rules/${HELPER}/${lvmvar} seen
+                [ "${RET}" = "true" ] && continue || true
+                lvmval="$(grep "^\s*${lvmvar}\s*=" ${LVMCONF} | sed 's,^[^=]\+=\s*,,')"
+                if [ -n "${lvmval}" ]; then
+                    db_set bilibop-rules/${HELPER}/${lvmvar} ${lvmval}
+                    db_fset bilibop-rules/${HELPER}/${lvmvar} seen true
+                fi
+            done
         fi
 
-        # Trigger uevents for block devices owned by 'disk' group
-        # or being on the same disk than the root filesystem.
-        . /lib/bilibop/common.sh
-        get_udev_root
-        BILIBOP_DISK="$(physical_hard_disk /)" &&
-        if [ -x /sbin/udevadm ]; then
+        # Modify system settings only if the package is not intended to be
+        # installed on a Live System.
+        db_get bilibop-rules/on-live-system
+        if [ "${RET}" = "false" ]; then
+
+            # make_unpersistent_rules
+            # -----------------------
+
+            # Replace persistent rules files by symlinks in a per-file basis
+            # (this can be useful if the external system travels with a PCMCIA
+            # ethernet card or an external CD/DVD burner)
+            HELPER="make_unpersistent_rules"
+            db_get bilibop-rules/${HELPER}
+            case "${RET}" in
+                keep)
+                    ;;
+                cd|net)
+                    ${HELPER} --only ${RET}
+                    ;;
+                none)
+                    ${HELPER} --restore
+                    ;;
+                all)
+                    ${HELPER}
+                    ;;
+            esac
+
+            # grub_device_map_manager
+            # -----------------------
+
+            # Set GRUB device map only if GRUB is installed (both as package
+            # and as bootloader):
+            # This is for MBR/ms-dos partition tables:
+            #GRUB="$(dd if=${BILIBOP_DISK} bs=1 skip=384 count=4 2>/dev/null)"
+            HELPER="grub_device_map_manager"
+            if [ -d "/boot/grub" -a -x "/usr/sbin/grub-mkdevicemap" ]; then
+                db_get bilibop-rules/${HELPER}
+                if [ "${RET}" != "keep" ]; then
+                    CONFFILE="/etc/bilibop/bilibop.conf"
+                    KEY="BILIBOP_RULES_FAKE_DEVICE_MAP"
+                    case "${RET}" in
+                        static)
+                            opt="--update"
+                            if [ -h "/boot/grub/device.map" ]; then
+                                opt="--remove ${opt}"
+                            fi
+                            ;;
+                        fake)
+                            opt="--fake"
+                            if [ -h "/boot/grub/device.map" ]; then
+                                opt="--remove ${opt}"
+                            fi
+                            ;;
+                        dynamic)
+                            opt="--link"
+                            if [ -f "${CONFFILE}" ]; then
+                                # Override the variable ?
+                                #echo "${KEY}=\"true\"" >>${CONFFILE}
+                                # Change the value ?
+                                #sed -i "s:^\(\s*${KEY}\)=\([\"\']\?\)false\2:\1=\2true\2:" ${CONFFILE}
+                                # Comment the line ?
+                                #sed -i "s:^\(\s*${KEY}\)=\([\"\']\?\)false\2:#&:" ${CONFFILE}
+                                # Delete the line ?
+                                sed -Ei "/^(\s*${KEY})=([\"\']?)false\2/d" ${CONFFILE}
+                            fi
+                            ;;
+                        ondemand)
+                            opt="--link --update"
+                            if grep -qs "^\s*${KEY}=" ${CONFFILE}; then
+                                grep -Eq "^\s*${KEY}=([\"\']?)false\1" ${CONFFILE} ||
+                                sed -Ei "s:^(\s*${KEY})=.*:\1=\"false\":" ${CONFFILE}
+                            elif grep -Eqs "^\s*(#\s*)+${KEY}=([\"\']?)false\2" ${CONFFILE}; then
+                                sed -Ei "s:^(\s*)(#\s*)+(${KEY})=([\"\']?)false\4:\1\3=\"false\":" ${CONFFILE}
+                            else
+                                echo "${KEY}=\"false\"" >>${CONFFILE}
+                            fi
+                            ;;
+                    esac
+                    ${HELPER} ${opt}
+                fi
+            fi
+        fi
+
+        # Now we have to take care of the order of the processes:
+        # 1. Ask the user if she wants to use a custom rules file
+        # 2. Trigger uevents to apply bilibop (custom or generic)
+        #    udev rules
+        # 3. Then ask the user if she wants to modify lvm.conf
+        #    (needs BILIBOP udev-tagged devices)
+        # 4. Update initramfs by including the (modified or not)
+        #    lvm.conf
+
+        if [ -h /proc/mounts -a -d /sys/block -a -c ${udev_root}/null ] &&
+            invoke-rc.d udev status >${udev_root}/null 2>&1 &&
+            BILIBOP_DISK="$(physical_hard_disk /)" &&
+            query_sysfs_attrs ${BILIBOP_DISK} | grep -Eq '^\s*SUBSYSTEMS=="(usb|firewire|memstick|mmc)"'; then
+            db_get bilibop-rules/on-live-system
+            if [ "${RET}" = "false" ]; then
+
+                # bilibop_rules_generator
+                # -----------------------
+
+                # Maybe build custom rules
+                CUSTOM_RULES="false"
+                HELPER="bilibop_rules_generator"
+                if [ -f ${ETC_RULES_DIR}/66-bilibop.rules ]; then
+                    db_get bilibop-rules/${HELPER}/overwrite
+                    if [ "${RET}" = "rebuild" ]; then
+                        CUSTOM_RULES="true"
+                    elif [ "${RET}" = "remove" ]; then
+                        rm ${ETC_RULES_DIR}/66-bilibop.rules
+                    fi
+                else
+                    db_get bilibop-rules/${HELPER}/customize
+                    if [ "${RET}" = "true" ]; then
+                        CUSTOM_RULES="true"
+                    fi
+                fi
+
+                # Build the custom rules:
+                if [ "${CUSTOM_RULES}" = "true" ]; then
+                    db_get bilibop-rules/${HELPER}/options
+                    ${HELPER} ${RET} -t ${BILIBOP_DISK} 2>${udev_root}/null ||
+                        CUSTOM_RULES="false"
+                fi
+            fi
+
+            # Udev specific configuration
+            # ===========================
+
+            # Trigger uevents for block devices owned by 'disk' group
+            # or being on the same disk than the root filesystem.
+            BILIBOP_LIST="$(lsbilibop -l)"
             opt="--sysname-match=${BILIBOP_DISK##*/}*"
-            dm=
-            lo=
-            for dev in $(ls /sys/block); do
+            for dev in ${BILIBOP_LIST}; do
                 case "${dev}" in
-                    ${BILIBOP_DISK##*/})
-                        ;;
-                    dm-*)
-                        [ "${dm}" = "done" ] && continue
-                        opt="${opt} --sysname-match=dm-*"
-                        dm="done"
-                        ;;
-                    loop*)
-                        [ "${lo}" = "done" ] && continue
-                        if grep -q "\s${dev}$" /proc/partitions; then
-                            opt="${opt} --sysname-match=loop*"
-                            lo="done"
-                        fi
+                    ${BILIBOP_DISK}*)
                         ;;
                     *)
-                        ls -l ${udev_root}/${dev}* |
-                        grep -q '^\([^[:blank:]]\+\s\+\)\{3\}\disk\s' &&
-                        opt="${opt} --sysname-match=${dev}*"
+                        opt="${opt} --sysname-match=${dev##*/}"
                         ;;
                 esac
             done
             udevadm trigger ${opt}
+            udevadm settle
+
+            # But it can happen that this doesn't work and new rules must be
+            # explicitly loaded before triggering uevents:
+            if belongs_to_floppy_group ${BILIBOP_DISK}; then
+                udevadm control --reload-rules
+                udevadm trigger ${opt}
+                udevadm settle
+
+                # Now do something if the drive and its partitions still belong
+                # to the floppy group.
+                if belongs_to_floppy_group ${BILIBOP_DISK}; then
+                    for dev in $(find ${BILIBOP_DISK}* -group floppy); do
+                        flop="${flop:+${flop} }${dev}"
+                    done
+                    if [ -f "${ETC_RULES_DIR}/66-bilibop.rules" -a "${CUSTOM_RULES}" != "true" ]; then
+                        # Custom rules file exists, but it has not been created
+                        # just before:
+                        db_subst bilibop-rules/belongs_to_floppy_group/custom_rules_error DEVICE "${flop}"
+                        db_input critical bilibop-rules/belongs_to_floppy_group/custom_rules_error || true
+                        db_go || true
+                    else
+                        # Custom rules file does not exist, or it has just been
+                        # created:
+                        db_subst bilibop-rules/belongs_to_floppy_group/internal_error DEVICE "${flop}"
+                        db_input critical bilibop-rules/belongs_to_floppy_group/internal_error || true
+                        db_go || true
+                    fi
+                fi
+            fi
+
+            # Debconf stuff... again (because we need updated udev tags to do it)
+            # ======================
+            db_get bilibop-rules/on-live-system
+            if [ "${RET}" = "false" ]; then
+
+                # physical_volumes_filter
+                # -----------------------
+
+                HELPER="physical_volumes_filter"
+                # The file copied into the initrd is always /etc/lvm/lvm.conf
+                # (the hook does not care about LVM_SYSTEM_DIR); so we reset
+                # LVM_SYSTEM_DIR to be sure the helper script will apply to
+                # this file.
+                export LVM_SYSTEM_DIR="/etc/lvm"
+                LVMCONF_RECONFIGURE="0"
+
+                if lsblk ${BILIBOP_DISK} --noheadings -o type | grep -Eq '^(lvm|LVM2_member)$'; then
+
+                    OLDPVFILTER="$(${HELPER})" || true
+                    db_get bilibop-rules/${HELPER}/system-only
+
+                    if [ "${RET}" = "true" ]; then
+                        unlinked=
+                        untagged=
+                        PV_LIST="$(lsblk --noheadings -o fstype,kname ${BILIBOP_DISK} | awk '/^LVM2_member/ {print $2}')"
+                        for dev in ${PV_LIST}; do
+                            linked="false"
+                            for symlink in $(udevadm info --query symlink --name ${dev}); do
+                                case "${symlink}" in
+                                    disk/by-id/*|mapper/*)
+                                        linked="true"
+                                        break
+                                        ;;
+                                esac
+                            done
+                            [ "${linked}" = "true" ] ||
+                                unlinked="${unlinked:+${unlinked} }${udev_root}/${dev}"
+                            [ "$(lsbilibop ${udev_root}/${dev})" = "${udev_root}/${dev}" ] ||
+                                untagged="${untagged:+${untagged} }${udev_root}/${dev}"
+                        done
+                    fi
+
+                    if [ "${RET}" = "true" -a -z "${untagged}" -a -z "${unlinked}" ]; then
+                        [ -f "${LVMCONF}" ] || ${HELPER} --init
+                        ${HELPER} --overwrite --udev --accept bilibop --reject all
+                    else
+                        if [ "${RET}" = "true" ]; then
+                            db_reset bilibop-rules/physical_volumes_filter/system-only
+                            db_subst bilibop-rules/physical_volumes_filter/warning UNTAGGED "${untagged}"
+                            db_subst bilibop-rules/physical_volumes_filter/warning UNLINKED "${unlinked}"
+
+                            db_get bilibop-rules/physical_volumes_filter/filter
+                            db_subst bilibop-rules/physical_volumes_filter/warning FILTER "${RET}"
+                            db_get bilibop-rules/physical_volumes_filter/obtain_device_list_from_udev
+                            db_subst bilibop-rules/physical_volumes_filter/warning FROMUDEV "${RET}"
+
+                            db_input critical bilibop-rules/physical_volumes_filter/warning || true
+                            db_go || true
+                        fi
+                        for lvmvar in filter obtain_device_list_from_udev; do
+                            db_get bilibop-rules/physical_volumes_filter/${lvmvar}
+                            if [ -n "${RET}" ] && grep -qs "^\s*${lvmvar}\s*=" ${LVMCONF}; then
+                                grep -Eq "^\s*${lvmvar}\s*=\s*${RET}\s*(#|$)" ${LVMCONF} ||
+                                sed -Ei "s@^(\s*${lvmvar}\s*=).*@\1 ${RET}@" ${LVMCONF}
+                            fi
+                        done
+                    fi
+
+                    NEWPVFILTER="$(${HELPER})" || true
+                    [ "${NEWPVFILTER}" = "${OLDPVFILTER}" ] || LVMCONF_RECONFIGURE="1"
+                fi
+            fi
         fi
+        db_stop
 
-        # Replace /etc/udev/rules.d/70-persistent-*.rules by
-        # symlinks to temporary files:
-        /usr/share/bilibop/make_unpersistent_rules
-
-        # GRUB device.map management (only if GRUB is installed on MBR)
-        GRUB_MARK="$(dd if=${BILIBOP_DISK} bs=4 skip=96 count=1 2>${udev_root}/null)"
-        if [ -d "/boot/grub" -a "${GRUB_MARK}" = "GRUB" ]; then
-            DEVICE_MAP="/boot/grub/device.map"
-
-            if [ -h "${DEVICE_MAP}" ]; then
-                # Replace the symlink if it cannot be resolved:
-                DEVICE_MAP="$(readlink -f ${DEVICE_MAP})" ||
-                /usr/share/bilibop/grub_device_map_manager --link
+        # Add a new script in the initramfs. And modify it also if LVM has
+        # been reconfigured (see above):
+        UPDATE_INITRD=""
+        if [ -x /usr/sbin/update-initramfs ]; then
+            if [ "${DEBCONF_RECONFIGURE}" = "1" ]; then
+                if [ "${LVMCONF_RECONFIGURE}" = "1" ]; then
+                    update-initramfs -u
+                fi
+            else
+                update-initramfs -u
             fi
-
-            if [ -f "/etc/bilibop/bilibop.conf" ]; then
-                . /etc/bilibop/bilibop.conf
-            fi
-
-            # Build a fake device map:
-            [ "${BILIBOP_RULES_FAKE_DEVICE_MAP}" = "false" ] ||
-            /usr/share/bilibop/grub_device_map_manager --fake
         fi
         ;;
 esac

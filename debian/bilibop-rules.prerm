@@ -8,7 +8,10 @@ case "${1}" in
         # files:
         /usr/share/bilibop/make_unpersistent_rules --restore
 
-        # GRUB device.map management:
+        # GRUB device.map management: if the device map is a symlink,
+        # replace it by a symlink to a temporary file in an existing
+        # directory. This is safe (update-grub calls grub-mkdevicemap
+        # if the device map is missing or is a broken symlink).
         DEVICE_MAP="/boot/grub/device.map"
         if [ -h "${DEVICE_MAP}" ]; then
 
@@ -19,7 +22,15 @@ case "${1}" in
             case "$(readlink -f ${DEVICE_MAP})" in
                 /run/${BILIBOP_COMMON_BASENAME:-bilibop}/*|"")
                     rm -f ${DEVICE_MAP}
-                    ln -s /run/grub-device.map ${DEVICE_MAP}
+                    case "${BILIBOP_RULES_FAKE_DEVICE_MAP}" in
+                        false)
+                            ln -s /run/grub-device.map ${DEVICE_MAP}
+                            ;;
+                        *)
+                            /usr/share/bilibop/grub_device_map_manager --fake
+                            ;;
+                    esac
+
                     ;;
             esac
         fi
