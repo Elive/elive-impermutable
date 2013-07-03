@@ -1,6 +1,0 @@
-bilibop-rules - TODO
-
-  * Translate manpages
-  * Use debconf, at least for installation time, instead of silently modify
-    grub device.map location or content.
-
