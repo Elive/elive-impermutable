@@ -15,6 +15,10 @@ override_dh_clean:
 override_dh_installudev:
 	dh_installudev --noscripts --priority=66 --name=bilibop
 
+# We need to manage some debconf stuff ourselves in the postrm script.
+override_dh_installdebconf:
+	dh_installdebconf --noscripts
+
 # Include the same text at the beginning of the extended description of
 # each package, and the same requirement at the end.
 override_dh_gencontrol:
