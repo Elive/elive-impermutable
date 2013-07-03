@@ -228,7 +228,7 @@ case "${1}" in
                 export LVM_SYSTEM_DIR="/etc/lvm"
                 LVMCONF_RECONFIGURE="0"
 
-                if lsblk ${BILIBOP_DISK} --noheadings -o type | grep -Eq '^(lvm|LVM2_member)$'; then
+                if lsblk ${BILIBOP_DISK} --noheadings -o type,fstype | grep -Eq '\<(lvm|LVM2_member)\>'; then
 
                     OLDPVFILTER="$(${HELPER})" || true
                     db_get bilibop-rules/${HELPER}/system-only
@@ -302,6 +302,6 @@ case "${1}" in
         ;;
 esac
 
-#DEBHELPER#
+
 :
 # vim: et ts=4 sts=4 sw=4
