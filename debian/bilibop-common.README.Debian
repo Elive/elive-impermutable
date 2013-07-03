@@ -35,6 +35,7 @@ $ physical_hard_disk /
 The second line (get_udev_root) is mandatory. For the three last functions,
 / can be replaced by any (symlink to a) directory (even if it is not a mount
 point), regular file or block device.
+
 If something goes wrong or gives unexpected result, set DEBUG to true and
 retry:
 $ DEBUG=true
@@ -140,15 +141,29 @@ and finally:
 SCRIPTS
 =======
 
-Bilibop-common is shipped with two shell scripts:
+Bilibop-common is shipped with three shell scripts:
+
 /lib/bilibop/disk
-/usr/bin/drivemap
-The first one is very small; it just outputs the physical disk name that
+-----------------
+
+This script is very small; it just outputs the physical disk name that
 contains the root filesystem (or the disk name containing a file, device
 or directory given as argument). This is a kind of 'proof of concept'.
-The second one is more complicated; it is fully described in its own
-manual page: drivemap(1).
+
+/lib/bilibop/test
+-----------------
+
+This script tests if the argument (file/directory/device) is on the same
+physical disk than the root filesystem. If it is the case and -q is not
+used, then it outputs the value of BILIBOP_COMMON_BASENAME. This is also
+a kind of 'proof of concept'.
+
+/usr/bin/drivemap
+-----------------
+
+This script is a little bit more complicated; it is fully described in its
+own manual page: drivemap(1).
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
- -- bilibop project <quidame@poivron.org>  Tue, 20 Nov 2012 12:49:54 +0100
+ -- bilibop project <quidame@poivron.org>  Wed, 03 Jul 2013 15:34:59 +0200
