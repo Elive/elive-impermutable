@@ -30,8 +30,8 @@ sections, as follows:
 .SH BILIBOP COMMON VARIABLES
 
 .SS BILIBOP_COMMON_BASENAME
-This variable defines the basename of bilibop subdirectories that will be
-created in
+This variable defines the basename of bilibop subdirectories (or symlink)
+that will be created in
 .I /dev
 and
 .I /run
@@ -42,7 +42,10 @@ If you modify it to anything else, you have to take care that some symlinks
 or custom settings of your system reflect the new location. At least, if
 .B bilibop\-rules
 is installed, you should execute the helper scripts provided by this
-package. So, maybe it is not a good idea to modify it.
+package, either by hand or with
+.RB \(aq dpkg\-reconfigure
+.BR bilibop\-rules \(aq.
+So, maybe it is not a good idea to modify it.
 .br
 Default is unset.
 

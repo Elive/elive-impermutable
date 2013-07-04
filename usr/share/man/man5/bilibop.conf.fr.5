@@ -31,8 +31,8 @@ Les options de configuration valides peuvent être divisées en sections
 .SH VARIABLES COMMUNES
 
 .SS BILIBOP_COMMON_BASENAME
-Cette variable définit le nom des sous\-répertoires propres à bilibop qui
-seront créés dans
+Cette variable définit le nom des sous\-répertoires (ou d'un lien
+symbolique) propres à bilibop qui seront créés dans
 .I /dev
 et
 .I /run
@@ -45,7 +45,10 @@ symboliques ou réglages personnels de votre système reflètent correctement
 cette nouvelle valeur. Au minimum, si
 .B bilibop\-rules
 est installé, vous devriez exécuter les scripts d'aide fournis par ce
-paquet. Donc ce n'est peut\-être pas une bonne idée de la modifier.
+paquet, soit à la main, soit avec
+.RB \(aq dpkg\-reconfigure
+.BR bilibop\-rules \(aq.
+Donc ce n'est peut\-être pas une bonne idée de la modifier.
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
