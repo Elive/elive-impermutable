@@ -1,3 +1,19 @@
+bilibop (0.4.13) unstable; urgency=low
+
+  * bilibop-common: update bilibop.conf(5) manual pages.
+
+  * bilibop-rules:
+    - Modify maintainer scripts: fix syntax errors; keep variable names
+      consistency between scripts; backup GRUB device.map in postinst, and
+      restore it in postrm (purge); do not create a fake device.map in prerm,
+      just a broken symlink.
+    - Add a sample script (in the doc) to ease the use of the
+      physical_volumes_filter helper script.
+    - Update README.Debian
+    - Remove the TODO
+
+ -- bilibop project <quidame@poivron.org>  Thu, 04 Jul 2013 15:17:21 +0200
+
 bilibop (0.4.12) experimental; urgency=low
 
   * bilibop-common:
