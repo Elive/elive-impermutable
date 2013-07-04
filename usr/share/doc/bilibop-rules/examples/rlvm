@@ -1,0 +1,55 @@
+#!/bin/bash
+set -e
+
+# rlvm: restricted lvm; allow the admin to run lvm commands in a safe way:
+# - local PV and LV are filtered (hidden); there is no risk to modify them
+#   by mistake.
+# - /etc/lvm/lvm.conf is not modified to filter local PV; there is no risk
+#   to compromise next boot process if the initramdisk is rebuild during the
+#   session.
+
+[ -x /usr/share/bilibop/physical_volumes_filter ] || exit 9
+
+pvfilter() { /usr/share/bilibop/physical_volumes_filter "$@"; }
+
+export LVM_SYSTEM_DIR="/tmp/lvm2"
+mkdir -p ${LVM_SYSTEM_DIR}
+LVMCONF="${LVM_SYSTEM_DIR}/lvm.conf"
+
+clear
+cat <<EOF
+rlvm (restricted lvm) allows you to run LVM commands in a safe way:
+* Discard the risk to modify local PV and LV by filtering them.
+* Discard the risk to compromise next boot by applying the PV filter
+  on a temporary file.
+
+LVM_SYSTEM_DIR=${LVM_SYSTEM_DIR}
+
+${LVMCONF}:
+EOF
+
+if [ -f "${LVMCONF}" ]; then
+    pvfilter
+else
+   if [ -f "/etc/lvm/lvm.conf" ]; then
+        cp /etc/lvm/lvm.conf ${LVMCONF}
+    else
+        pvfilter --init
+    fi
+    pvfilter -obus -r bilibop
+fi
+
+echo
+
+case "${1}" in
+    lvm)
+        exec lvm
+        ;;
+    *)
+        export -f pvfilter
+        myshell="$(awk -F: "\$1 ~ /$(whoami)/ {print \$NF}" /etc/passwd)"
+        exec ${myshell:-bash}
+        ;;
+esac
+
+# vim: et sts=4 ts=4 sw=4
