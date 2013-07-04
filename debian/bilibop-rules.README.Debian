@@ -244,6 +244,9 @@ boot will not be compromised. In this context, you can safely run:
 
 And then you can perform operations on Physical or Logical Volumes by
 using LVM commands without take the risk to modify your owns by mistake.
+This can be automated by copying /usr/share/doc/bilibop-rules/examples/rlvm
+somewhere in your PATH (probably in /usr/local/sbin) and enabling its
+executable bit; then run 'rlvm' (restricted lvm) and work.
 
 See also lvm.conf(5) manual page for details.
 
