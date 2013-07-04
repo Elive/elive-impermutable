@@ -72,8 +72,8 @@ case "${1}" in
 
         # Udev does not remove empty tag directories; so we do it here.
         for tag in BILIBOP INSIDEV; do
-            if [ -d /run/udev/${tag} ]; then
-                rmdir --ignore-fail-on-non-empty /run/udev/${tag}
+            if [ -d /run/udev/tags/${tag} ]; then
+                rmdir --ignore-fail-on-non-empty /run/udev/tags/${tag}
             fi
         done
         ;;
