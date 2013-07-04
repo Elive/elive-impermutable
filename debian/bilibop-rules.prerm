@@ -22,15 +22,7 @@ case "${1}" in
             case "$(readlink -f ${DEVICE_MAP})" in
                 /run/${BILIBOP_COMMON_BASENAME:-bilibop}/*|"")
                     rm -f ${DEVICE_MAP}
-                    case "${BILIBOP_RULES_FAKE_DEVICE_MAP}" in
-                        false)
-                            ln -s /run/grub-device.map ${DEVICE_MAP}
-                            ;;
-                        *)
-                            /usr/share/bilibop/grub_device_map_manager --fake
-                            ;;
-                    esac
-
+                    ln -s /run/grub-device.map ${DEVICE_MAP}
                     ;;
             esac
         fi

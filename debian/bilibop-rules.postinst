@@ -19,6 +19,16 @@ belongs_to_floppy_group() {
 case "${1}" in
     configure|reconfigure)
 
+        # GRUB device.map management
+        # ==========================
+
+        # Backup device.map; it will be restored when (if) the package will be
+        # purged.
+        DEVICE_MAP="/boot/grub/device.map"
+        if [ -f "${DEVICE_MAP}" -a ! -f "${DEVICE_MAP}.bak" ]; then
+            cp -a ${DEVICE_MAP} ${DEVICE_MAP}.bak
+        fi
+
         # Debconf specific configuration
         # ==============================
 
@@ -75,43 +85,43 @@ case "${1}" in
             if [ -d "/boot/grub" -a -x "/usr/sbin/grub-mkdevicemap" ]; then
                 db_get bilibop-rules/${HELPER}
                 if [ "${RET}" != "keep" ]; then
-                    CONFFILE="/etc/bilibop/bilibop.conf"
+                    CONFIGFILE="/etc/bilibop/bilibop.conf"
                     KEY="BILIBOP_RULES_FAKE_DEVICE_MAP"
                     case "${RET}" in
                         static)
                             opt="--update"
-                            if [ -h "/boot/grub/device.map" ]; then
+                            if [ -h "${DEVICE_MAP}" ]; then
                                 opt="--remove ${opt}"
                             fi
                             ;;
                         fake)
                             opt="--fake"
-                            if [ -h "/boot/grub/device.map" ]; then
+                            if [ -h "${DEVICE_MAP}" ]; then
                                 opt="--remove ${opt}"
                             fi
                             ;;
                         dynamic)
                             opt="--link"
-                            if [ -f "${CONFFILE}" ]; then
+                            if [ -f "${CONFIGFILE}" ]; then
                                 # Override the variable ?
-                                #echo "${KEY}=\"true\"" >>${CONFFILE}
+                                #echo "${KEY}=\"true\"" >>${CONFIGFILE}
                                 # Change the value ?
-                                #sed -i "s:^\(\s*${KEY}\)=\([\"\']\?\)false\2:\1=\2true\2:" ${CONFFILE}
+                                #sed -i "s:^\(\s*${KEY}\)=\([\"\']\?\)false\2:\1=\2true\2:" ${CONFIGFILE}
                                 # Comment the line ?
-                                #sed -i "s:^\(\s*${KEY}\)=\([\"\']\?\)false\2:#&:" ${CONFFILE}
+                                #sed -i "s:^\(\s*${KEY}\)=\([\"\']\?\)false\2:#&:" ${CONFIGFILE}
                                 # Delete the line ?
-                                sed -Ei "/^(\s*${KEY})=([\"\']?)false\2/d" ${CONFFILE}
+                                sed -Ei "/^(\s*${KEY})=([\"\']?)false\2/d" ${CONFIGFILE}
                             fi
                             ;;
                         ondemand)
                             opt="--link --update"
-                            if grep -qs "^\s*${KEY}=" ${CONFFILE}; then
-                                grep -Eq "^\s*${KEY}=([\"\']?)false\1" ${CONFFILE} ||
-                                sed -Ei "s:^(\s*${KEY})=.*:\1=\"false\":" ${CONFFILE}
-                            elif grep -Eqs "^\s*(#\s*)+${KEY}=([\"\']?)false\2" ${CONFFILE}; then
-                                sed -Ei "s:^(\s*)(#\s*)+(${KEY})=([\"\']?)false\4:\1\3=\"false\":" ${CONFFILE}
+                            if grep -qs "^\s*${KEY}=" ${CONFIGFILE}; then
+                                grep -Eq "^\s*${KEY}=([\"\']?)false\1" ${CONFIGFILE} ||
+                                sed -Ei "s:^(\s*${KEY})=.*:\1=\"false\":" ${CONFIGFILE}
+                            elif grep -Eqs "^\s*(#\s*)+${KEY}=([\"\']?)false\2" ${CONFIGFILE}; then
+                                sed -Ei "s:^(\s*)(#\s*)+(${KEY})=([\"\']?)false\4:\1\3=\"false\":" ${CONFIGFILE}
                             else
-                                echo "${KEY}=\"false\"" >>${CONFFILE}
+                                echo "${KEY}=\"false\"" >>${CONFIGFILE}
                             fi
                             ;;
                     esac
