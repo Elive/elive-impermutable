@@ -31,7 +31,7 @@ EOF
 if [ -f "${LVMCONF}" ]; then
     pvfilter
 else
-   if [ -f "/etc/lvm/lvm.conf" ]; then
+    if [ -f "/etc/lvm/lvm.conf" ]; then
         cp /etc/lvm/lvm.conf ${LVMCONF}
     else
         pvfilter --init
@@ -47,8 +47,7 @@ case "${1}" in
         ;;
     *)
         export -f pvfilter
-        myshell="$(awk -F: "\$1 ~ /$(whoami)/ {print \$NF}" /etc/passwd)"
-        exec ${myshell:-bash}
+        exec ${SHELL:-/bin/bash}
         ;;
 esac
 
