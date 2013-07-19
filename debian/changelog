@@ -1,3 +1,13 @@
+bilibop (0.4.14) unstable; urgency=low
+
+  * bilibop-common: fix spelling errors in manpages.
+  * bilibop-rules:
+    - Modify postrm script: fix an error about udev tags directory path.
+    - Include missing 'rlvm' sample script in the package.
+    - Modify 'rlvm' sample (rely on $SHELL environment variable).
+
+ -- bilibop project <quidame@poivron.org>  Sat, 20 Jul 2013 00:28:48 +0200
+
 bilibop (0.4.13) unstable; urgency=low
 
   * bilibop-common: update bilibop.conf(5) manual pages.
