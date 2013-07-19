@@ -62,7 +62,7 @@ hosting it. FILE can be a regular file, a directory or a block device.
 .PP
 .B \-\-debug
 .RS
-Display debug informations on stderr. When this option is invoked, each
+Display debug information on stderr. When this option is invoked, each
 called function prints its name. See also
 .RB \(aq \-\-set\-x \(aq.
 .RE
@@ -97,7 +97,7 @@ Print a summary of options on stdout and exit.
 .BR \-i ,
 .B \-\-info
 .RS
-Display additional informations about block devices. For drives, this
+Display additional information about block devices. For drives, this
 includes the ID (as found in
 .IR /dev/disk/by\-id ),
 and the size (human readable). For other devices (partitions and virtual
@@ -150,7 +150,7 @@ used, then the default is to display the result on 70 columns.
 .BR \-x ,
 .B \-\-set\-x
 .RS
-Display debug informations on stderr. When this option is invoked, the
+Display debug information on stderr. When this option is invoked, the
 shell script is set as
 .BR \-x ,
 for more debug details. See also
@@ -169,7 +169,7 @@ devices, and will never support them. Another design issue is that
 Volume Groups should contain only one Physical Volume. We assume that there
 is no sense to use several Physical Volumes on the same drive for the same
 Volume Group. Adopting a parent/child mindview, we say that each device can
-have at most one parent but zero to several childs. Since the script has
+have at most one parent but zero to several children. Since the script has
 been extended to be applied to all drives connected to the computer, this
 sounds like a bug.
 .PP
@@ -192,7 +192,7 @@ And then it appears that
 .I slaves
 and
 .I holders
-informations in sysfs are not sufficient to organize block devices in a
+information in sysfs are not sufficient to organize block devices in a
 tree, or should be extended. For the same reason, logical partitions are
 shown as subdevices of primary extended partitions.
 .PP
