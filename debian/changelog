@@ -1,3 +1,11 @@
+bilibop (0.4.15) unstable; urgency=low
+
+  * bilibop-rules: modify bilibop-rules.bilibop.udev to avoid direct access
+    (with blkid -p) to suspended dm devices; then create the symlink (as
+    mapper/dm_name) earlier; update bilibop_rules_generator for consistency.
+
+ -- bilibop project <quidame@poivron.org>  Fri, 09 Aug 2013 20:19:40 +0200
+
 bilibop (0.4.14) unstable; urgency=low
 
   * bilibop-common: fix spelling errors in manpages.
