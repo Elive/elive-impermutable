@@ -456,6 +456,7 @@ KERNEL=="dm-?*", \\
 	PROGRAM=="bilibop_disk --test %r/%k", \\
 	PROGRAM=="bilibop_disk --part %r/%k", \\
 	ENV{BILIBOP_UNDERLYING_PARTITION}="%c", \\
+	SYMLINK+="mapper/%s{dm/name}", \\
 	TAG+="BILIBOP"
 
 TAG=="BILIBOP", GOTO="bilibop_device"
@@ -464,20 +465,19 @@ LABEL="bilibop_device"
 
 PROGRAM=="bilibop_disk --root %r/%k", SYMLINK+="%c"
 
+ENV{DM_SUSPENDED}=="1", GOTO="bilibop_dm_end"
+
 ENV{ID_FS_USAGE}=="", IMPORT{program}="/sbin/blkid -o udev -p %r/%k"
 
-KERNEL=="dm-?*", \\
-	ENV{DM_UUID}=="LVM-?*", \\
-	ENV{DM_LV_NAME}!="?*" , \\
+KERNEL!="dm-?*", GOTO="bilibop_dm_end"
+
+ATTR{dm/uuid}=="LVM-?*", ENV{DM_LV_NAME}=="", \\
 	IMPORT{program}="/sbin/dmsetup splitname --nameprefixes --noheadings --rows %s{dm/name}"
 
-KERNEL=="dm-?*", \\
-	ENV{DM_LV_NAME}=="?*", \\
-	ENV{DM_VG_NAME}=="?*", \\
-	ENV{DM_LV_LAYER}=="", \\
+ENV{DM_LV_NAME}=="?*", ENV{DM_VG_NAME}=="?*", ENV{DM_LV_LAYER}=="", \\
 	SYMLINK+="%E{DM_VG_NAME}/%E{DM_LV_NAME}"
 
-KERNEL=="dm-?*", SYMLINK+="mapper/%s{dm/name}"
+LABEL="bilibop_dm_end"
 
 TEST=="/lib/udev/rules.d/80-udisks.rules", GOTO="bilibop_udisks"
 GOTO="bilibop_end"

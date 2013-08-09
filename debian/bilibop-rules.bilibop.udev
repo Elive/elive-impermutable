@@ -46,6 +46,7 @@ ATTR{partition}=="?*", ENV{BILIBOP_PARTITION}="%r/%k"
 # udev database:
 LABEL="bilibop_virtual_block"
 
+# Process only on associated loop devices
 KERNEL=="loop?*", \
 	TEST=="loop/backing_file", \
 	PROGRAM=="bilibop_disk --test %r/%k", \
@@ -53,10 +54,18 @@ KERNEL=="loop?*", \
 	ENV{BILIBOP_UNDERLYING_PARTITION}="%c", \
 	TAG+="BILIBOP"
 
+# When a dm device has been added from the initrd environment (and this is the
+# case for bilibop's encrypted LVM), the udev instance launched by init in the
+# system environment triggers a spurious 'add' event, leading udev to be out
+# of sync (see 55-dm.rules): it can happen that a dm device has no symlink at
+# all in the udev database, and symlinks existing in /dev are no more managed
+# by udev. Then 'update-grub' can fail; and bilibop's physical_volumes_filter
+# script needs at least one symlink, so we restore it here.
 KERNEL=="dm-?*", \
 	PROGRAM=="bilibop_disk --test %r/%k", \
 	PROGRAM=="bilibop_disk --part %r/%k", \
 	ENV{BILIBOP_UNDERLYING_PARTITION}="%c", \
+	SYMLINK+="mapper/$attr{dm/name}", \
 	TAG+="BILIBOP"
 
 # Now all bilibop devices are tagged; so we use the tag to filter them here:
@@ -68,30 +77,26 @@ LABEL="bilibop_device"
 # the other targetting the root filesystem (root).
 PROGRAM=="bilibop_disk --root %r/%k", SYMLINK+="%c"
 
+# Do not perform direct access (with blkid -p) to suspended dm devices.
+ENV{DM_SUSPENDED}=="1", GOTO="bilibop_dm_end"
+
 # Due to the bilibop configuration file, based on ID_FS_* udev variables, we
 # need additional information here, and we want to be sure this information
 # is available for the next rules. Additionnaly, drivemap(1) and lsbilibop(8)
 # commands can need to query ID_FS_* values, even if udisks is not installed.
 ENV{ID_FS_USAGE}=="", IMPORT{program}="/sbin/blkid -o udev -p %r/%k"
 
-# Restore *broken* symlinks: at least /dev/mapper/* and, if device is a Logical
-# Volume, /dev/vg_name/lv_name. This overrides the *-dm.rules and *-lvm.rules,
-# but if this is not done, dm devices added in the initrd (and this is the case
-# for bilibop devices) have no symlink in the udev database... but pvfilter
-# needs at least one symlink. See the comments in /lib/udev/rules.d/55-dm.rules
-# for details.
-KERNEL=="dm-?*", \
-	ENV{DM_UUID}=="LVM-?*", \
-	ENV{DM_LV_NAME}!="?*" , \
+# If the device is a Logical Volume, we *restore* /dev/vg_name/lv_name symlink
+# in udev database (see above). This overrides the *-dm.rules and *-lvm.rules.
+KERNEL!="dm-?*", GOTO="bilibop_dm_end"
+
+ATTR{dm/uuid}=="LVM-?*", ENV{DM_LV_NAME}=="", \
 	IMPORT{program}="/sbin/dmsetup splitname --nameprefixes --noheadings --rows $attr{dm/name}"
 
-KERNEL=="dm-?*", \
-	ENV{DM_LV_NAME}=="?*", \
-	ENV{DM_VG_NAME}=="?*", \
-	ENV{DM_LV_LAYER}=="", \
+ENV{DM_LV_NAME}=="?*", ENV{DM_VG_NAME}=="?*", ENV{DM_LV_LAYER}=="", \
 	SYMLINK+="$env{DM_VG_NAME}/$env{DM_LV_NAME}"
 
-KERNEL=="dm-?*", SYMLINK+="mapper/$attr{dm/name}"
+LABEL="bilibop_dm_end"
 
 # The following rules are for the desktop environment; they make sense only if
 # Udisks is installed:
