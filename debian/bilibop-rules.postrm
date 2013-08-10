@@ -25,8 +25,8 @@ case "${1}" in
         fi
 
         # Reset some LVM settings to what they were before the installation of
-        # this package, but if, and only if lvm.conf has been modified with
-        # 'dpkg-reconfigure bilibop-rules':
+        # this package, but if, and only if lvm.conf has been modified through
+        # debconf (during installation or with 'dpkg-reconfigure bilibop-rules')
         LVMCONF="/etc/lvm/lvm.conf"
         db_get bilibop-rules/physical_volumes_filter/system-only
         if [ -f "${LVMCONF}" -a "${RET}" = "true" ]; then

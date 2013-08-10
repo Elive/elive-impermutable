@@ -43,6 +43,9 @@ case "${1}" in
                 if [ -n "${lvmval}" ]; then
                     db_set bilibop-rules/${HELPER}/${lvmvar} ${lvmval}
                     db_fset bilibop-rules/${HELPER}/${lvmvar} seen true
+                    # Now the initial values of 'obtain_device_list_from_udev'
+                    # and 'filter' are stored in the debconf db. They will be
+                    # restored if the package is purged.
                 fi
             done
         fi
@@ -158,6 +161,15 @@ case "${1}" in
                         CUSTOM_RULES="true"
                     elif [ "${RET}" = "remove" ]; then
                         rm ${ETC_RULES_DIR}/66-bilibop.rules
+                        # Now that the custom rules file has been removed,
+                        # say to debconf the user does not want to build it.
+                        db_reset bilibop-rules/bilibop_rules_generator/customize
+                        db_fset bilibop-rules/bilibop_rules_generator/customize seen true
+                        # But also say to keep it if it is rebuilt manually.
+                        # We don't set the seen flag to true: if the custom
+                        # rules file has been built manually, the question
+                        # should be asked on next package upgrade.
+                        db_reset bilibop-rules/bilibop_rules_generator/overwrite
                     fi
                 else
                     db_get bilibop-rules/${HELPER}/customize
@@ -169,8 +181,15 @@ case "${1}" in
                 # Build the custom rules:
                 if [ "${CUSTOM_RULES}" = "true" ]; then
                     db_get bilibop-rules/${HELPER}/options
-                    ${HELPER} ${RET} -t ${BILIBOP_DISK} 2>${udev_root}/null ||
+                    if ${HELPER} ${RET} -t ${BILIBOP_DISK} 2>${udev_root}/null; then
+                        # Custom rules file has been successfully created;
+                        # so say debconf to keep it the next time the package
+                        # is configured:
+                        db_reset bilibop-rules/bilibop_rules_generator/overwrite
+                        db_fset bilibop-rules/bilibop_rules_generator/overwrite seen true
+                    else
                         CUSTOM_RULES="false"
+                    fi
                 fi
             fi
 
@@ -299,7 +318,6 @@ case "${1}" in
 
         # Add a new script in the initramfs. And modify it also if LVM has
         # been reconfigured (see above):
-        UPDATE_INITRD=""
         if [ -x /usr/sbin/update-initramfs ]; then
             if [ "${DEBCONF_RECONFIGURE}" = "1" ]; then
                 if [ "${LVMCONF_RECONFIGURE}" = "1" ]; then
