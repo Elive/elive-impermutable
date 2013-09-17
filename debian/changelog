@@ -1,3 +1,14 @@
+bilibop (0.4.16) unstable; urgency=low
+
+  * bilibop-rules: move db_reset and db_fset commands from config to postinst
+    script; this should improve the behavior of the scripts during package
+    upgrade if a custom rules file has been built manually. Add comments.
+  * debian/substvars: remove trailing ${Newline} in the "Description"
+    variable. It had been added to work around bug #659814 (dpkg-dev),
+    which has been recently fixed.
+
+ -- bilibop project <quidame@poivron.org>  Tue, 17 Sep 2013 11:46:55 +0000
+
 bilibop (0.4.15) unstable; urgency=low
 
   * bilibop-rules: modify bilibop-rules.bilibop.udev to avoid direct access
