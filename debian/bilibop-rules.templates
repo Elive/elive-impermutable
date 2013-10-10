@@ -17,13 +17,13 @@ Template: bilibop-rules/bilibop_rules_generator/customize
 Type: boolean
 Default: false
 _Description: Do you want to use custom bilibop rules and build them now ?
- If tenths of removable media are plugged on the computer your system boots
+ If tens of removable media are plugged on the computer your system boots
  from, bilibop udev rules can significantly increase boot time. This can be
  avoided by using custom udev rules, which are specific to the device your
  system is installed on.
  .
  That said, if this device can boot from different hardware port types (as
- USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), you should ckeck the resulting
+ USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), you should check the resulting
  rules by booting your system on the alternative port type, and if necessary
  by running 'dpkg-reconfigure bilibop-rules' again with proper options, or
  even by editing '/etc/udev/rules.d/66-bilibop.rules'.
@@ -98,7 +98,7 @@ _Description: What kind of GRUB device map do you want to use ?
  this can lead to failures when the GRUB bootloader menu is updated. To avoid
  that, it is possible to replace the device map by a fake one, mapping only
  the physical drive hosting your system; or by a link to a temporary file,
- which may be created either at boot time with a fake content, or ondemand
+ which may be created either at boot time with a fake content, or on demand
  with an updated content.
  .
  If your external system is embedded on a device able to boot from different
