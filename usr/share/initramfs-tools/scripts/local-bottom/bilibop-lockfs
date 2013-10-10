@@ -98,6 +98,24 @@ then	BILIBOP_LOCKFS="false"
 	BILIBOP_LOCKFS="true"
 fi
 
+# Collect information that will be used later:
+BILIBOP_ROOT="$(underlying_device_from_file ${rootmnt})"
+BILIBOP_PART="$(underlying_partition ${BILIBOP_ROOT})"
+BILIBOP_DISK="$(physical_hard_disk ${BILIBOP_PART})"
+
+# Check if the drive is physically locked (write protected); if it is the case,
+# this will override several variables.
+if dmesg | grep -q "\[${BILIBOP_DISK##*/}\] [Ww]rite [Pp]rotect is [Oo]n"; then
+	mkdir -p "${BILIBOP_RUNDIR}"
+	cat >${BILIBOP_RUNDIR}/plocked <<EOF
+# It seems that ${BILIBOP_DISK} is physically locked.
+BILIBOP_LOCKFS="true"
+BILIBOP_LOCKFS_POLICY="hard"
+BILIBOP_LOCKFS_SWAP_POLICY="hard"
+BILIBOP_LOCKFS_WHITELIST=""
+EOF
+	. ${BILIBOP_RUNDIR}/plocked
+fi
 
 # Now, if BILIBOP_LOCKFS is not explicitly set to "true" or "false", then
 # check the sysfs 'removable' flag to know what to do.
@@ -147,12 +165,6 @@ then
 	plymouth_message "${0##*/}: ERROR"
 	exit 1
 fi
-
-# Now we can work. At first, we have to collect some informations to use them
-# later:
-BILIBOP_ROOT="$(underlying_device_from_file ${rootmnt})"
-BILIBOP_PART="$(underlying_partition ${BILIBOP_ROOT})"
-BILIBOP_DISK="$(physical_hard_disk ${BILIBOP_PART})"
 
 # If BILIBOP_LOCKFS_POLICY is not explicitly set to 'soft', then apply a hard
 # policy: set readonly branch as 'rr' (real readonly) instead of just 'ro' and

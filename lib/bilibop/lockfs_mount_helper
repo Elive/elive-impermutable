@@ -85,6 +85,11 @@ do
 	esac
 done
 
+# But if there is a physical lock, it takes precedence:
+if [ -f "${BILIBOP_RUNDIR}/plocked" ]; then
+	. ${BILIBOP_RUNDIR}/plocked
+fi
+
 # the mount command always provides arguments to the helper scipts in this
 # order: FILESYSTEM MOUNTPOINT -o OPTIONS. We take advantage of this fixed
 # format.
