@@ -1,8 +1,7 @@
 Source: bilibop
 Section: admin
 Priority: optional
-Maintainer: bilibop project <quidame@poivron.org>
-Uploaders: Alexandre Martin <alemar@Safe-mail.net>
+Maintainer: Yann Amar <quidame@poivron.org>
 Build-Depends: debhelper (>= 9), po-debconf
 Standards-Version: 3.9.4
 Homepage: https://un.poivron.org/~quidame/wiki/bilibop
