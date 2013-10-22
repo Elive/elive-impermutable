@@ -1,0 +1,398 @@
+# Japanese translation of bilibop's debconf templates.
+# This file is distributed under the same license as the bilibop package.
+# victory <victory.deb@gmail.com>, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: bilibop 0.4.17\n"
+"Report-Msgid-Bugs-To: quidame@poivron.org\n"
+"POT-Creation-Date: 2013-10-10 15:37+0200\n"
+"PO-Revision-Date: 2013-10-10 22:37+0900\n"
+"Last-Translator: victory <victory.deb@gmail.com>\n"
+"Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:1001
+msgid "Do you intend to install bilibop-rules on a Live System ?"
+msgstr "bilibop-rules を Live システムにインストールしようとしていますか?"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:1001
+msgid ""
+"Some bilibop-rules settings can be useful on non-volatile Operating Systems, "
+"when running from a removable and writable media (USB sticks, external HDD "
+"or SD cards); but they are currently useless or even harmful for LiveCD or "
+"LiveUSB systems."
+msgstr ""
+"一部の bilibop-rules 設定は不揮発性のオペレーティングシステム上で、脱着可能で"
+"書き込み可能なメディア (USB メモリや外部 HDD、SD カード等) から実行した場合に"
+"有用ですが、現在 LiveCD や LiveUSB システムでは無意味、あるいは有害でさえある"
+"かもしれません。"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:1001
+msgid ""
+"If you choose this option, no other question will be asked; bilibop udev "
+"rules will be applied but nothing else will be modified on your system. Note "
+"that in that case, this package is overkill and you should probably replace "
+"it by the lighter but as much as efficient bilibop-udev package."
+msgstr ""
+"このオプションを選択した場合、他の質問は行われません。bilibop udev 規則が適用"
+"されますが、他には一切システムを変更しません。その場合このパッケージを使うのは"
+"やりすぎで、もっと軽く効率的な bilibop-udev パッケージに恐らく置き換えるべきだ"
+"ということに注意してください。"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:2001
+msgid "Do you want to use custom bilibop rules and build them now ?"
+msgstr "独自の bilibop 規則を使ってここでビルドしますか?"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:2001
+msgid ""
+"If tens of removable media are plugged on the computer your system boots "
+"from, bilibop udev rules can significantly increase boot time. This can be "
+"avoided by using custom udev rules, which are specific to the device your "
+"system is installed on."
+msgstr ""
+"システムをブートするコンピュータに多くの脱着可能メディアが接続されている場合、"
+"bilibop udev 規則が原因でブートにかかる時間が著しく増加する可能性があります。"
+"これはシステムがインストールされている機器について専用の udev 規則を使って避け"
+"ることができます。"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:2001
+msgid ""
+"That said, if this device can boot from different hardware port types (as "
+"USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), you should check the resulting "
+"rules by booting your system on the alternative port type, and if necessary "
+"by running 'dpkg-reconfigure bilibop-rules' again with proper options, or "
+"even by editing '/etc/udev/rules.d/66-bilibop.rules'."
+msgstr ""
+"これはこの機器が異なる種類のハードウェアポート (USB/Firewire や USB/eSATA、"
+"USB/MMC/SD 等) からブートできる場合、別のポートからシステムをブートしてできた"
+"規則を、必要であれば適切なオプションを付けて「dpkg-reconfigure bilibop-rules」"
+"を再び実行、あるいは「/etc/udev/rules.d/66-bilibop.rules」を編集することで確認"
+"すべきだということです。"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:3001
+msgid "keep existing custom rules"
+msgstr "既存の独自規則を維持"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:3001
+msgid "rebuild custom rules"
+msgstr "独自規則を再ビルド"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:3001
+msgid "remove custom rules"
+msgstr "独自規則を削除"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:3002
+msgid "What do you want to do with your custom rules ?"
+msgstr "独自規則をどうしますか?"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:3002
+msgid ""
+"The file '/etc/udev/rules.d/66-bilibop.rules' exists. It is specific to the "
+"drive on which your system is installed and overrides the one, more generic, "
+"that is provided by the bilibop-rules package (in '/lib/udev/rules.d')."
+msgstr ""
+"ファイル「/etc/udev/rules.d/66-bilibop.rules」が存在します。これはシステムが"
+"インストールされているドライブに特有の規則で、bilibop-rules パッケージにより提"
+"供される、(「/lib/udev/rules.d」にある) もっと一般的なものを上書きします。"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:3002
+msgid ""
+"If the device hosting the running system is able to boot from different "
+"hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD-card, etc.), you "
+"should boot it from the alternative port type and check if your custom rules "
+"work fine in all cases. In the doubt, you should remove the custom rules "
+"file."
+msgstr ""
+"実行しているシステムのホストとなっている機器が異なる種類のハードウェアポート "
+"(USB/Firewire や USB/eSATA、USB/MMC/SDカード等) からブートできる場合、別の種類"
+"のポートからブートして、作成した独自規則があらゆる状況でうまく動作するか確認す"
+"べきです。疑わしい場合は独自規則を削除すべきです。"
+
+#. Type: string
+#. Description
+#: ../bilibop-rules.templates:4001
+msgid "Options to pass to the bilibop rules generator:"
+msgstr "bilibop 規則生成器に渡すオプション:"
+
+#. Type: string
+#. Description
+#: ../bilibop-rules.templates:4001
+msgid ""
+"Possible options you can pass to the bilibop rules generator are the "
+"followings:"
+msgstr "bilibop 規則生成器に渡せるオプションは以下の通りです:"
+
+#. Type: string
+#. Description
+#: ../bilibop-rules.templates:4001
+msgid ""
+"The two first ones cannot be mixed; for example, '-a model,serial' is not a "
+"valid option; use '-a model -e ID_SERIAL' instead. In the doubt, you should "
+"probably set it to an empty string (defaults to '-a manufacturer,product,"
+"serial')."
+msgstr ""
+"最初の2つを1つに合わせることはできません。例えば「-a model,serial」は正しいオ"
+"プションではありません。代わりに「-a model -e ID_SERIAL」とします。迷ったとき"
+"は恐らく空白文字列をセットすべきです (デフォルトは「-a manufacturer,product,"
+"serial」です)。"
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:5001
+msgid "Options given to the bilibop rules generator seem to be invalid."
+msgstr "bilibop 規則生成器に渡したオプションが正しくないようです。"
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:5001
+msgid ""
+"You can go back by hitting the <Escape> key and then modify the options. "
+"Otherwise, the custom rules file '/etc/udev/rules.d/66-bilibop.rules' will "
+"not be written."
+msgstr ""
+"<Esc> キーを押して戻り、オプションを変更してください。変更しない場合は独自規則"
+"ファイル「/etc/udev/rules.d/66-bilibop.rules」は書き込まれません。"
+
+#. Type: error
+#. Description
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:6001 ../bilibop-rules.templates:7001
+msgid "The following device(s) still belong to floppy group:"
+msgstr "以下の機器はまだフロッピーグループに属しています:"
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:6001
+msgid "You should rewrite or remove your custom rules file:"
+msgstr "以下の独自規則ファイルを書き換えるか削除すべきです:"
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:7001
+msgid "Internal error"
+msgstr "内部エラー"
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:7001
+msgid "You should send a bug report to the maintainer of the package."
+msgstr "パッケージのメンテナにバグ報告を送ってください。"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:8001
+msgid "the existing one"
+msgstr "既存のデバイスマップを選択"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:8001
+msgid "a static device map (not recommended)"
+msgstr "静的デバイスマップ (非推奨)"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:8001
+msgid "a static fake device map"
+msgstr "静的、偽デバイスマップ"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:8001
+msgid "a dynamic fake device map"
+msgstr "動的、偽デバイスマップ"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:8001
+msgid "a dynamically updated device map"
+msgstr "動的に更新したデバイスマップ"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:8002
+msgid "What kind of GRUB device map do you want to use ?"
+msgstr "どの種類の GRUB デバイスマップを使いますか?"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:8002
+msgid ""
+"The '/boot/grub/device.map' file can store obsolete information. In some "
+"cases, this can lead to failures when the GRUB bootloader menu is updated. "
+"To avoid that, it is possible to replace the device map by a fake one, "
+"mapping only the physical drive hosting your system; or by a link to a "
+"temporary file, which may be created either at boot time with a fake "
+"content, or on demand with an updated content."
+msgstr ""
+"「/boot/grub/device.map」ファイルには古くなった情報を残しておくことができま"
+"す。状況によってはこれが GRUB ブートローダのメニュー更新時の失敗につながる可能"
+"性があります。それを避けるため、システムのホストとなっている実際のドライブの割"
+"り当てだけを記述した、偽のデバイスマップに置き換える、あるいは一時ファイルを"
+"ブート時に偽の内容によりまたは更新した内容をオンデマンドにより作成し、その一時"
+"ファイルへのリンクを作成することができます。"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:8002
+msgid ""
+"If your external system is embedded on a device able to boot from different "
+"hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), it is not "
+"recommended to use a static device map. The dynamic fake device map should "
+"work in all cases."
+msgstr ""
+"外部システムが異なる種類のハードウェアポート (USB/Firewire や USB/eSATA、USB/"
+"MMC/SD 等) からブートできるデバイスに組み込まれている場合、静的デバイスマップ"
+"を使うことは勧めません。どの場合でも動的な偽のデバイスマップが機能するはずで"
+"す。"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:9001
+msgid "keep them in their current state"
+msgstr "現在の状態を維持"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:9001
+msgid "make unpersistent cd rules only"
+msgstr "cd 規則だけを維持しないようにする"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:9001
+msgid "make unpersistent net rules only"
+msgstr "net 規則だけを維持しないようにする"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:9001
+msgid "make unpersistent rules for all (recommended)"
+msgstr "規則を全て維持しないようにする (推奨)"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:9001
+msgid "make persistent rules for all"
+msgstr "規則を全て維持するようにする"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:9002
+msgid "What persistent rules do you want to make unpersistent ?"
+msgstr "どの規則を維持しないようにしますか?"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:9002
+msgid ""
+"Some udev rules files can store information about components of the computer "
+"your system is plugged on:"
+msgstr ""
+"udev 規則ファイルの一部には、システムが接続しているコンピュータの構成要素につ"
+"いての情報を残しておけるものがあります:"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:9002
+msgid ""
+"These files are cumulative and can store obsolete information, possibly "
+"leading to unexpected behaviour of your network manager or CD burner "
+"application. It is possible to replace them by symlinks to temporary files "
+"to keep them always up to date. Note that it is possible to do or undo that "
+"at any time by running"
+msgstr ""
+"こういった古くなった情報を残しておけるファイルが貯まっていくことで、ネットワー"
+"ク管理プログラムやCD書き込みアプリケーションの予期しない挙動につながる可能性が"
+"あります。一時ファイルへのシンボリックリンクに置き換えることで常に最新を保つこ"
+"とができるようになります。以下を実行することでいつでも実行や差し戻しができるこ"
+"とに注意してください。"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:10001
+msgid "Do you want to hide Physical Volumes your system does not need ?"
+msgstr "システムに必要のない物理ボリュームを非表示にしますか?"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:10001
+msgid ""
+"It seems that the drive on which your system is installed contains Logical "
+"Volumes. It is possible to set LVM to activate only the Physical Volumes "
+"that your system needs. This can mainly avoid name conflicts between the "
+"Volumes used by your system and those that could be found on internal or "
+"external drives plugged on the same computer."
+msgstr ""
+"システムがインストールされているドライブには論理ボリュームが収録されているよう"
+"です。システムに必要な物理ボリュームだけを有効化するように LVM を設定すること"
+"ができます。これにより、システムがインストールされているドライブと、同一のコン"
+"ピュータに接続した内部及び外部ドライブとの間で、利用しているボリュームの名前が"
+"競合することを主に避けられます。"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:10001
+msgid ""
+"If you choose to use this feature, this will overwrite '/etc/lvm/lvm.conf', "
+"and you should read 'README.Debian' in the documentation of the package. "
+"Otherwise, you can do it later with"
+msgstr ""
+"この機能の利用を選択すると「/etc/lvm/lvm.conf」を上書きします。パッケージ付属"
+"文書の「README.Debian」を読むようにしてください。後で読んでも構いません。"
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:13001
+msgid "Physical Volumes Filter will not be applied."
+msgstr "物理ボリュームのフィルタは適用されません。"
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:13001
+msgid ""
+"Probably due to an error in '66-bilibop.rules', the following device(s) have "
+"not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
+msgstr ""
+"恐らく「66-bilibop.rules」中の誤りのため、以下のデバイスには udev により"
+"「BILIBOP」というタグが付けられていないか udev により管理される有効なシンボ"
+"リックリンクがありません:"
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:13001
+msgid ""
+"This means some variables in '/etc/lvm/lvm.conf' will be left or reset to "
+"their initial values:"
+msgstr ""
+"これは「/etc/lvm/lvm.conf」中の設定値の一部がそのままにされるか初期値にリセッ"
+"トされるということです:"
