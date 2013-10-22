@@ -1,8 +1,7 @@
-# Debconf french translation.
-# Copyright (C) 2013, bilibop project <quidame@poivron.org>
+# French translation of bilibop's debconf templates.
 # This file is distributed under the same license as the bilibop package.
+# Alexandre Martin <alemar@safe-mail.net>, 2013.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: bilibop 0.4.17\n"
