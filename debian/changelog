@@ -1,3 +1,11 @@
+bilibop (0.4.18) unstable; urgency=low
+
+  * Add japanese translation for the debconf templates; thanks to
+    <victory.deb@gmail.com> (closes: #726975).
+  * debian/copyright: fix my name also here.
+
+ -- Yann Amar <quidame@poivron.org>  Wed, 23 Oct 2013 18:11:08 +0000
+
 bilibop (0.4.17) unstable; urgency=low
 
   * bilibop-lockfs: modify local-bottom initramfs script and
