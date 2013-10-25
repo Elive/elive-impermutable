@@ -93,6 +93,14 @@ then	BILIBOP_LOCKFS="false"
 	BILIBOP_LOCKFS="true"
 fi
 
+# But it may also happen that a drive is physically locked by a switch (write
+# protected). Unfortunately, at this step, there is no way to know if the
+# write-protected drive is the one that hosts the system, or not.
+if dmesg | grep -q '\([Ww]rite [Pp]rotect [Ii]s [Oo]n\|[MG]i\?B (ro)\)$'; then
+	BILIBOP_LOCKFS="true"
+	BILIBOP_LOCKFS_POLICY="hard"
+fi
+
 # If bilibop-lockfs is disabled, or enabled with a 'soft' policy, do nothing:
 if	[ "${BILIBOP_LOCKFS}" = "true" ] &&
 	[ "${BILIBOP_LOCKFS_POLICY}" = "hard" ]
