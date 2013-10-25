@@ -1,3 +1,30 @@
+bilibop (0.4.19) unstable; urgency=high
+
+  * bilibop-lockfs:
+    - Modify parse_and_modify_fstab() in lockfs.sh: skip 'rbind' mounts as
+      well as 'bind' mounts.
+    - Modify lockfs_mount_helper script: set -e.
+    - Simplify lockfs_mount_helper; especially, rewrite the mount_fallback()
+      function to parse the arguments provided by the parent process (mount)
+      'as is', and do not 'exec mount', but just 'mount' instead, to be able
+      to exit with a code != 0 when mount_fallback() is called.
+    - Modify lockfs_mount_helper and the local-bottom initramfs script to
+      parse options (BILIBOP_LOCKFS_SIZE and boot commandline) and set the
+      size of the tmpfs in a better and more reliable way (use regex instead
+      of glob patterns).
+    - Add new function 'is_write_protected()' in lockfs.sh (takes into account
+      sd, mmcblk and mspblk devices) and call it from the local-bottom
+      initramfs script.
+    - Modify init-top initramfs script: in the case any drive is physically
+      locked, override BILIBOP_LOCKFS and BILIBOP_LOCKFS_POLICY.
+
+  * bilibop-rules:
+    Fix a bug in lsbilibop: since udev is now a part of systemd, 'udevadm info
+    --root' no more works to query the udev_root value; so query it directly
+    from udev.conf instead. (Closes: #727682)
+
+ -- Yann Amar <quidame@poivron.org>  Fri, 25 Oct 2013 13:46:29 +0000
+
 bilibop (0.4.18) unstable; urgency=low
 
   * Add japanese translation for the debconf templates; thanks to
