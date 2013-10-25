@@ -33,14 +33,24 @@ EOF
 
 # mount_fallback() =========================================================={{{
 # What we want is: mount a device on its original mountpoint and rewrite the
-# fstab entry to keep it coherent. This function should be called in case of
-# error or if the device is whitelisted. Device, mountpoint, type and options
-# must be given as argument (in this order), each of them being inserted
-# between double quotes.
+# fstab entry to keep it consistent. This function should be called in case of
+# error or if the device is whitelisted. This function parses the arguments of
+# the script itself (i.e. mount_fallback "$@").
 mount_fallback() {
     ${DEBUG} && echo "> mount_fallback $@" >&2
-    sed -i "s;^\s*[^#][^ ]\+\s\+${2}\s\+lockfs\s.*;${1} ${2} ${3:-auto} ${4:-defaults} 0 0;" /etc/fstab
-    exec mount ${1} ${2} ${3:+-t ${3}} ${4:+-o ${4}}
+    local opt options= fstype=
+    for opt in $(IFS=','; echo ${4}); do
+        case "${opt}" in
+            fstype=*)
+                eval "${opt}"
+                ;;
+            *)
+                options="${options:+${options},}${opt}"
+                ;;
+        esac
+    done
+    sed -i "s;^\s*\([^#][^ ]\+\s\+${2}\s\+\)lockfs\s.*;\1${fstype:-auto} ${options:-defaults} 0 0;" /etc/fstab
+    mount ${1} ${2} ${fstype:+-t ${fstype}} ${options:+-o ${options}}
 }
 # ===========================================================================}}}
 
@@ -68,7 +78,7 @@ fi
 for param in $(cat /proc/cmdline); do
     case "${param}" in
         lockfs=*)
-            for policy in $(IFS=',' ; echo ${param#lockfs=}); do
+            for policy in $(IFS=','; echo ${param#lockfs=}); do
                 case "${policy}" in
                     hard|soft)
                         BILIBOP_LOCKFS_POLICY="${policy}"
@@ -87,7 +97,7 @@ if [ -f "${BILIBOP_RUNDIR}/plocked" ]; then
     . ${BILIBOP_RUNDIR}/plocked
 fi
 
-# the mount command always provides arguments to the helper scipts in this
+# the mount command always provides arguments to the helper scripts in this
 # order: FILESYSTEM MOUNTPOINT -o OPTIONS. We take advantage of this fixed
 # format.
 if [ -b "${1}" ]; then
@@ -122,9 +132,15 @@ else
     LOCKFS="false"
 fi
 
+# If bilibop-lockfs is not enabled (the device is whitelisted, or we don't
+# know how to manage it), rewrite the fstab entry and do a normal mount:
+if [ "${LOCKFS}" != "true" ]; then
+    mount_fallback "${@}"
+    exit $?
+fi
+
 mntpnt="${2}"
 options="${4}"
-
 
 # Parse mount options. Two cases:
 # 1. the block device will be mounted with the same options than in the
@@ -132,7 +148,7 @@ options="${4}"
 # 2. the tmpfs will be mounted with only some options of the previous:
 #    ro, nodev, noexec, nosuid, if they exist.
 
-for opt in $(IFS=',' ; echo ${options}); do
+for opt in $(IFS=','; echo ${options}); do
     # 1. Options for the readonly branch:
     case "${opt}" in
         fstype=*)
@@ -155,21 +171,11 @@ for opt in $(IFS=',' ; echo ${options}); do
     esac
 done
 
-
-# If bilibop-lockfs is not enabled (the device is whitelisted), rewrite the
-# fstab entry and do a normal mount:
-if [ "${LOCKFS}" != "true" ]; then
-    mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
-    exit $?
-fi
-
-
 # Each readonly branch is mounted under the subtree of the main readonly
 # branch (/aufs/ro) and each writable branch is mounted under the subtree
 # of the main writable branch (/aufs/rw):
 robr="${robr}${mntpnt}"
 rwbr="${rwbr}${mntpnt}"
-
 
 # If the policy is not explicitly set to 'soft', set the block device as
 # readonly, and use 'rr' aufs option to improve performances:
@@ -181,11 +187,11 @@ else
 fi
 
 # Try to mount the readonly branch. In case of failure, undo what has been
-# done before, do a normal mount, rewrite the fstab entry to be coherent
+# done before, do a normal mount, rewrite the fstab entry to be consistent
 # with that, and exit:
 if ! mount ${fstype:+-t ${fstype}} -o ${robr_opts:+${robr_opts},}ro ${device:-${LOFILE}} ${robr}; then
     [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
-    mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
+    mount_fallback "${@}"
     exit 3
 fi
 
@@ -212,7 +218,7 @@ fi
 if ! mount -t tmpfs -o ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},}mode=0755 tmpfs ${rwbr}; then
     umount ${robr}
     [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
-    mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
+    mount_fallback "${@}"
     exit 3
 fi
 
@@ -232,14 +238,13 @@ if [ "${group}" != "root" ]; then
     gid="$(grep "^${group}:" /etc/group | sed 's;^\([^:]*:\)\{2\}\([^:]\+\):.*;\2;')"
 fi
 
-
 # Try to mount the aufs now. In case of failure, undo what has been done
 # before, etc.
 if ! mount -t aufs -o br:${rwbr}=rw:${robr}=${RO} none ${mntpnt}; then
     umount ${robr}
     umount ${rwbr}
     [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
-    mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
+    mount_fallback "${@}"
     exit 3
 fi
 
