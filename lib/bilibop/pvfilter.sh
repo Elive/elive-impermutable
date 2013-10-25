@@ -41,7 +41,7 @@ _pvfilter_delimiter() {
 _pvfilter_find_dev_links() {
     ${DEBUG} && echo "> _pvfilter_find_dev_links $@" >&2
     if  eval ${udev} ; then
-        /sbin/udevadm info --query symlink --name ${1} |
+        udevadm info --query symlink --name ${1} |
         sed 's, ,\n,g'
     else
         cd ${udev_root}

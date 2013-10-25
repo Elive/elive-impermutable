@@ -100,7 +100,7 @@
 # /bin/grep                 YES                             -
 # /bin/readlink             YES                             NO
 # /bin/sed                  YES                             -
-# /sbin/udevadm             -                               -
+# /bin/udevadm              -                               -
 #
 # Now we can say:
 # - there is no need to add 'cat'.
@@ -288,7 +288,7 @@ device_node_from_major_minor() {
 # databases instead of direct access to the devices.
 device_id_of_file() {
     ${DEBUG} && echo "> device_id_of_file $@" >&2
-    /sbin/udevadm info --device-id-of-file "${1}"
+    udevadm info --device-id-of-file "${1}"
 }
 # ===========================================================================}}}
 # is_aufs_mountpoint() ======================================================{{{
@@ -807,7 +807,7 @@ major_minor_from_device_node() {
 # the command.
 query_sysfs_attrs() {
     ${DEBUG} && echo "> query_sysfs_attrs $@" >&2
-    /sbin/udevadm info --attribute-walk --name "${1}"
+    udevadm info --attribute-walk --name "${1}"
 }
 # ===========================================================================}}}
 # query_udev_envvar() ======================================================={{{
@@ -817,7 +817,7 @@ query_sysfs_attrs() {
 # command.
 query_udev_envvar() {
     ${DEBUG} && echo "> query_udev_envvar $@" >&2
-    /sbin/udevadm info --query property --name "${1}" --export
+    udevadm info --query property --name "${1}" --export
 }
 # ===========================================================================}}}
 
