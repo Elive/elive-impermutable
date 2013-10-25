@@ -49,7 +49,9 @@ Description: lock filesystems and write changes into RAM
  If the lockfs feature is enabled (in a configuration file, in the boot
  commandline or by a heuristic), nothing will be written on the filesystems
  listed in /etc/fstab, except for those that have been whitelisted, or for
- the encrypted swap devices.
+ the encrypted swap devices. More, bilibop-lockfs now is able to detect if
+ the drive has been locked by a physical switch, and then overrides its own
+ settings to unconditionally apply a 'hard' policy.
  .
  The root filesystem is locked (set readonly, using aufs) by an initramfs
  script which also modifies the temporary fstab to prepare other filesystems
@@ -61,15 +63,17 @@ Description: lock filesystems and write changes into RAM
   * not only filesystems are set read-only, but also block devices: this
     forbids changes of the partition table, boot sectors, LUKS headers and
     LVM metadata.
-  * management of swap devices, that can be used as is, noauto, only if
-    encrypted or not used at all.
+  * management of swap devices, that can be used 'as is', noauto, only if
+    encrypted, or not used at all.
+  * plymouth messages to know at boot time if bilibop-lockfs is enabled or
+    not.
   * desktop notifications at startup about filesystems status, to inform the
     user that volatile or persistent changes are allowed or not, and where.
  .
- This package can be used as an alternative to fsprotect, especially for
- writable operating systems embedded on a USB stick; but it may also be
- installed on public or personal computers, for daily use, testing purposes
- or as a tool in anti-forensics strategies.
+ This package can be used as an alternative to fsprotect or overlayroot,
+ especially for writable operating systems embedded on a USB stick; but it
+ may also be installed on public or personal computers, for daily use,
+ testing purposes, or as a tool in anti-forensics strategies.
  .
  ${Requirement}
 
