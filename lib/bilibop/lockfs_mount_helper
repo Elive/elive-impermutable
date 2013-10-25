@@ -199,8 +199,8 @@ fi
 SIZE=
 for size in ${BILIBOP_LOCKFS_SIZE}; do
     case "${size}" in
-        ${mntpnt}=[0-9]*[0-9KkMmGg%])
-            SIZE="${size#${mntpnt}=}"
+        ${mntpnt}=[1-9]*)
+            SIZE="$(printf "${size#${mntpnt}=}" | grep '^[1-9][0-9]*[KkMmGg%]\?$')"
             break
             ;;
     esac

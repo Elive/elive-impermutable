@@ -76,8 +76,8 @@ do
 					hard|soft)
 						BILIBOP_LOCKFS_POLICY="${opt}"
 						;;
-					[1-9]*[0-9KkMmGg%])
-						SIZE="${opt}"
+					[1-9]*)
+						SIZE="$(printf ${opt} | grep '^[1-9][0-9]*[KkMmGg%]\?$')"
 						;;
 					all)
 						BILIBOP_LOCKFS_WHITELIST=""
@@ -183,8 +183,8 @@ then
 	for	size in ${BILIBOP_LOCKFS_SIZE}
 	do
 		case	"${size}" in
-			/=[1-9]*[0-9KkMmGg%])
-				SIZE="${size#/=}"
+			/=[1-9]*)
+				SIZE="$(printf ${size#/=} | grep '^[1-9][0-9]*[KkMmGg%]\?$')"
 				break
 				;;
 		esac
