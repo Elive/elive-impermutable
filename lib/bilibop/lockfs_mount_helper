@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 # /lib/bilibop/lockfs_mount_helper {{{
 # Mount helper script for 'lockfs' filesystem type entries in /etc/fstab.
@@ -286,3 +287,4 @@ aufs_line="none ${mntpnt} aufs br:${rwbr}=rw:${robr}=${RO} 0 0"
 
 sed -i "s;^\s*[^#][^ ]\+\s\+${mntpnt}\s\+lockfs\s.*;${robr_line}\n${rwbr_line}\n${aufs_line};" /etc/fstab
 
+# vim: et sts=4 sw=4 ts=4
