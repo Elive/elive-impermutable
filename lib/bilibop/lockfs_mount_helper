@@ -24,7 +24,7 @@ set -e
 PATH="/sbin:/bin"
 
 usage() {
-	cat <<EOF
+    cat <<EOF
 ${0##*/}: mount helper script for bilibop-lockfs.
 This script can not be run manually, but only by a mount process,
 and only if bilibop-lockfs is enabled.
@@ -45,89 +45,81 @@ mount_fallback() {
 # ===========================================================================}}}
 
 # Works only if the parent process is /bin/mount:
-if	[ "$(readlink -f /proc/${PPID}/exe)" != "/bin/mount" ]
-then	usage >&2
-	exit 3
+if [ "$(readlink -f /proc/${PPID}/exe)" != "/bin/mount" ]; then
+    usage >&2
+    exit 3
 fi
-
 
 . /lib/bilibop/common.sh
 get_bilibop_variables
 get_udev_root
 
 # Works only if the root filesystem is already managed by bilibop-lockfs:
-if	is_aufs_mountpoint -q / && [ -f "${BILIBOP_RUNDIR}/lock" ]
-then
-	LOCKFS="true"
-	robr="$(aufs_readonly_branch /)"
-	rwbr="$(aufs_writable_branch /)"
+if is_aufs_mountpoint -q / && [ -f "${BILIBOP_RUNDIR}/lock" ]; then
+    LOCKFS="true"
+    robr="$(aufs_readonly_branch /)"
+    rwbr="$(aufs_writable_branch /)"
 else
-	echo "${0##*/}: bilibop-lockfs is disabled." >&2
-	exit 1
+    echo "${0##*/}: bilibop-lockfs is disabled." >&2
+    exit 1
 fi
 
 # Some configurations can have been overridden from the boot commandline:
-for	param in $(cat /proc/cmdline)
-do
-	case	"${param}" in
-		lockfs=*)
-			for	policy in $(IFS=',' ; echo ${param#lockfs=})
-			do
-				case	"${policy}" in
-					hard|soft)
-						BILIBOP_LOCKFS_POLICY="${policy}"
-						;;
-					all)
-						BILIBOP_LOCKFS_WHITELIST=""
-						;;
-				esac
-			done
-			;;
-	esac
+for param in $(cat /proc/cmdline); do
+    case "${param}" in
+        lockfs=*)
+            for policy in $(IFS=',' ; echo ${param#lockfs=}); do
+                case "${policy}" in
+                    hard|soft)
+                        BILIBOP_LOCKFS_POLICY="${policy}"
+                        ;;
+                    all)
+                        BILIBOP_LOCKFS_WHITELIST=""
+                        ;;
+                esac
+            done
+            ;;
+    esac
 done
 
 # But if there is a physical lock, it takes precedence:
 if [ -f "${BILIBOP_RUNDIR}/plocked" ]; then
-	. ${BILIBOP_RUNDIR}/plocked
+    . ${BILIBOP_RUNDIR}/plocked
 fi
 
 # the mount command always provides arguments to the helper scipts in this
 # order: FILESYSTEM MOUNTPOINT -o OPTIONS. We take advantage of this fixed
 # format.
-if	[ -b "${1}" ]
-then
-	device="${1}"
-	# Check if this device is whitelisted:
-	if	[ -n "${BILIBOP_LOCKFS_WHITELIST}" ]
-	then
-		# Query ID_FS_* udev environment variables of the device:
-		eval $(query_udev_envvar $(readlink -f ${device}))
-		if	[ -z "${ID_FS_USAGE}" ]
-		then	eval $(blkid -o udev -p ${device})
-		fi
-		[ "${ID_FS_USAGE}" = "filesystem" -o "${ID_FS_USAGE}" = "crypto" ] &&
-		for	skip in ${BILIBOP_LOCKFS_WHITELIST}
-		do
-			case	"${skip}" in
-				UUID=${ID_FS_UUID}|LABEL=${ID_FS_LABEL}|TYPE=${ID_FS_TYPE})
-					LOCKFS="false"
-					break
-					;;
-			esac
-		done
-	fi
+if [ -b "${1}" ]; then
+    device="${1}"
+    # Check if this device is whitelisted:
+    if [ -n "${BILIBOP_LOCKFS_WHITELIST}" ]; then
+        # Query ID_FS_* udev environment variables of the device:
+        eval $(query_udev_envvar $(readlink -f ${device}))
+        if [ -z "${ID_FS_USAGE}" ]; then
+            eval $(blkid -o udev -p ${device})
+        fi
+        [ "${ID_FS_USAGE}" = "filesystem" -o "${ID_FS_USAGE}" = "crypto" ] &&
+        for skip in ${BILIBOP_LOCKFS_WHITELIST}; do
+            case "${skip}" in
+                UUID=${ID_FS_UUID}|LABEL=${ID_FS_LABEL}|TYPE=${ID_FS_TYPE})
+                    LOCKFS="false"
+                    break
+                    ;;
+            esac
+        done
+    fi
 
-elif	[ -f "${1}" ]
-then
-	lofile="${1}"
-	LOFILE="${robr}${lofile}"
+elif [ -f "${1}" ]; then
+    lofile="${1}"
+    LOFILE="${robr}${lofile}"
 
 else
-	# There is no block device to mount (here 'block device' includes
-	# files associated to a loop device). Bind mounts and remote fs
-	# should have been discarded by the bilibop-lockfs script in the
-	# initramfs...
-	LOCKFS="false"
+    # There is no block device to mount (here 'block device' includes
+    # files associated to a loop device). Bind mounts and remote fs
+    # should have been discarded by the bilibop-lockfs script in the
+    # initramfs...
+    LOCKFS="false"
 fi
 
 mntpnt="${2}"
@@ -140,37 +132,35 @@ options="${4}"
 # 2. the tmpfs will be mounted with only some options of the previous:
 #    ro, nodev, noexec, nosuid, if they exist.
 
-for	opt in $(IFS=',' ; echo ${options})
-do
-	# 1. Options for the readonly branch:
-	case	"${opt}" in
-		fstype=*)
-			eval "${opt}"
-			;;
-		rw)
-			;;
-		*)
-			robr_opts="${robr_opts:+${robr_opts},}${opt}"
-			;;
-	esac
+for opt in $(IFS=',' ; echo ${options}); do
+    # 1. Options for the readonly branch:
+    case "${opt}" in
+        fstype=*)
+            eval "${opt}"
+            ;;
+        rw)
+            ;;
+        *)
+            robr_opts="${robr_opts:+${robr_opts},}${opt}"
+            ;;
+    esac
 
-	# 2. Options for the writable branch:
-	case	"${opt}" in
-		ro|nodev|noexec|nosuid)
-			rwbr_opts="${rwbr_opts:+${rwbr_opts},}${opt}"
-			;;
-		*)
-			;;
-	esac
+    # 2. Options for the writable branch:
+    case "${opt}" in
+        ro|nodev|noexec|nosuid)
+            rwbr_opts="${rwbr_opts:+${rwbr_opts},}${opt}"
+            ;;
+        *)
+            ;;
+    esac
 done
 
 
 # If bilibop-lockfs is not enabled (the device is whitelisted), rewrite the
 # fstab entry and do a normal mount:
-if	[ "${LOCKFS}" != "true" ]
-then
-	mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
-	exit $?
+if [ "${LOCKFS}" != "true" ]; then
+    mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
+    exit $?
 fi
 
 
@@ -183,54 +173,48 @@ rwbr="${rwbr}${mntpnt}"
 
 # If the policy is not explicitly set to 'soft', set the block device as
 # readonly, and use 'rr' aufs option to improve performances:
-if	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ]
-then
-	RO="ro"
+if [ "${BILIBOP_LOCKFS_POLICY}" = "soft" ]; then
+    RO="ro"
 else
-	RO="rr"
-	[ -b "${device}" ] && blockdev --setro ${device}
+    RO="rr"
+    [ -b "${device}" ] && blockdev --setro ${device}
 fi
 
 # Try to mount the readonly branch. In case of failure, undo what has been
 # done before, do a normal mount, rewrite the fstab entry to be coherent
 # with that, and exit:
-if	! mount ${fstype:+-t ${fstype}} -o ${robr_opts:+${robr_opts},}ro ${device:-${LOFILE}} ${robr}
-then
-	[ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
-	mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
-	exit 3
+if ! mount ${fstype:+-t ${fstype}} -o ${robr_opts:+${robr_opts},}ro ${device:-${LOFILE}} ${robr}; then
+    [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
+    mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
+    exit 3
 fi
 
 # The amount of RAM to allow to this mountpoint:
 SIZE=
-for	size in ${BILIBOP_LOCKFS_SIZE}
-do
-	case	"${size}" in
-		${mntpnt}=[0-9]*[0-9KkMmGg%])
-			SIZE="${size#${mntpnt}=}"
-			break
-			;;
-	esac
+for size in ${BILIBOP_LOCKFS_SIZE}; do
+    case "${size}" in
+        ${mntpnt}=[0-9]*[0-9KkMmGg%])
+            SIZE="${size#${mntpnt}=}"
+            break
+            ;;
+    esac
 done
 
 # Create the mountpoint (it should not exist before this step):
-if	[ ! -d "${rwbr}" ]
-then
-	mkdir -p ${rwbr}
-	grep -q "^${mntpnt}$" ${BILIBOP_RUNDIR}/lock ||
-	echo "${mntpnt}" >>${BILIBOP_RUNDIR}/lock
+if [ ! -d "${rwbr}" ]; then
+    mkdir -p ${rwbr}
+    grep -q "^${mntpnt}$" ${BILIBOP_RUNDIR}/lock ||
+    echo "${mntpnt}" >>${BILIBOP_RUNDIR}/lock
 fi
 
 # Try to mount the writable branch, and in case of failure, undo what
 # has been done before, etc.
-if	! mount -t tmpfs -o ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},}mode=0755 tmpfs ${rwbr}
-then
-	umount ${robr}
-	[ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
-	mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
-	exit 3
+if ! mount -t tmpfs -o ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},}mode=0755 tmpfs ${rwbr}; then
+    umount ${robr}
+    [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
+    mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
+    exit 3
 fi
-
 
 # Fix permissions and ownership of the writable branch (and catch the values;
 # they will be reused later):
@@ -239,25 +223,24 @@ mod="$(LC_ALL=C chmod -v --reference="${robr}" "${rwbr}" | sed 's;.* \([0-7]\{4\
 own="$(LC_ALL=C chown -v --reference="${robr}" "${rwbr}" | sed 's;.* \([^:]\+:[^:]\+\)$;\1;')"
 
 owner="${own%:*}"
-if	[ "${owner}" != "root" ]
-then	uid="$(grep "^${owner}:" /etc/passwd | sed 's;^\([^:]*:\)\{2\}\([^:]\+\):.*;\2;')"
+if [ "${owner}" != "root" ]; then
+    uid="$(grep "^${owner}:" /etc/passwd | sed 's;^\([^:]*:\)\{2\}\([^:]\+\):.*;\2;')"
 fi
 
 group="${own#*:}"
-if	[ "${group}" != "root" ]
-then	gid="$(grep "^${group}:" /etc/group | sed 's;^\([^:]*:\)\{2\}\([^:]\+\):.*;\2;')"
+if [ "${group}" != "root" ]; then
+    gid="$(grep "^${group}:" /etc/group | sed 's;^\([^:]*:\)\{2\}\([^:]\+\):.*;\2;')"
 fi
 
 
 # Try to mount the aufs now. In case of failure, undo what has been done
 # before, etc.
-if	! mount -t aufs -o br:${rwbr}=rw:${robr}=${RO} none ${mntpnt}
-then
-	umount ${robr}
-	umount ${rwbr}
-	[ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
-	mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
-	exit 3
+if ! mount -t aufs -o br:${rwbr}=rw:${robr}=${RO} none ${mntpnt}; then
+    umount ${robr}
+    umount ${rwbr}
+    [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
+    mount_fallback "${device:-${lofile}}" "${mntpnt}" "${fstype}" "${robr_opts}"
+    exit 3
 fi
 
 # Special case for 'crypt', 'crypt_LUKS' and 'crypto_LUKS' fstypes, when
@@ -265,17 +248,16 @@ fi
 # the second one is created by mount.crypt by using dm-crypt, and its dm
 # name is the full path of the underlying device, whose the '/' have been
 # replaced by '_'.
-if	[ "${BILIBOP_LOCKFS_POLICY}" != "soft" ]
-then
-	case	"${fstype}" in
-		crypt|crypt_LUKS|crypto_LUKS)
-			DM_NAME="$(echo "${device}" | sed 's,/,_,g')"
-			[ -b "${udev_root}/mapper/${DM_NAME}" ] ||
-			DM_NAME="$(readlink -f "${device}" | sed 's,/,_,g')"
-			[ -b "${udev_root}/mapper/${DM_NAME}" ] &&
-			blockdev --setro $(readlink -f "${udev_root}/mapper/${DM_NAME}")
-			;;
-	esac
+if [ "${BILIBOP_LOCKFS_POLICY}" != "soft" ]; then
+    case "${fstype}" in
+        crypt|crypt_LUKS|crypto_LUKS)
+            DM_NAME="$(echo "${device}" | sed 's,/,_,g')"
+            [ -b "${udev_root}/mapper/${DM_NAME}" ] ||
+            DM_NAME="$(readlink -f "${device}" | sed 's,/,_,g')"
+            [ -b "${udev_root}/mapper/${DM_NAME}" ] &&
+            blockdev --setro $(readlink -f "${udev_root}/mapper/${DM_NAME}")
+            ;;
+    esac
 fi
 
 # All is OK. So we can rewrite fstab entry to reflect the real mounts. This
