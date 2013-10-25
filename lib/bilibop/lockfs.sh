@@ -550,4 +550,28 @@ plymouth_message() {
     fi
 }
 # ===========================================================================}}}
+# is_physically_locked() ===================================================={{{
+# What we want is: return 0 if a drive given as argument (generally a USB key
+# or a SD/MMC card) is write-protected, i.e. physically locked by a switch,
+# and 1 otherwise. Since this function relies on the output of dmesg, it must
+# be called very early (or it may happen that the relevant info is flushed or
+# unbuffered). As far as I know, only USB keys and Flash memory cards may have
+# a switch to lock them; there are two 'syntaxes', depending on the media type.
+is_phycally_locked() {
+    ${DEBUG} && echo "> is_physically_locked $@" >&2
+    case "${1}" in
+        sd?)
+            if dmesg | grep -q "\[${1}\] [Ww]rite [Pp]rotect [Ii]s [Oo]n"; then
+                return 0
+            fi
+            ;;
+        mmcblk?|mspblk?)
+            if dmesg | grep -q "\<${1}: .* [1-9][0-9]*\(\.[0-9]\+\)\? [GM]i\?B (ro)$"; then
+                return 0
+            fi
+            ;;
+    esac
+    return 1
+}
+# ===========================================================================}}}
 

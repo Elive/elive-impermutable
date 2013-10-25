@@ -105,7 +105,7 @@ BILIBOP_DISK="$(physical_hard_disk ${BILIBOP_PART})"
 
 # Check if the drive is physically locked (write protected); if it is the case,
 # this will override several variables.
-if dmesg | grep -q "\[${BILIBOP_DISK##*/}\] [Ww]rite [Pp]rotect is [Oo]n"; then
+if is_write_protected ${BILIBOP_DISK##*/}; then
 	mkdir -p "${BILIBOP_RUNDIR}"
 	cat >${BILIBOP_RUNDIR}/plocked <<EOF
 # It seems that ${BILIBOP_DISK} is physically locked.
