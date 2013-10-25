@@ -220,7 +220,7 @@ parse_and_modify_fstab() {
         esac
 
         # Don't modify the "noauto" mount lines nor the binded mounts:
-        echo "${option}" | grep -q '\<\(noauto\|bind\)\>' && continue
+        echo "${option}" | grep -q '\<\(noauto\|r\?bind\)\>' && continue
 
         # Skip what we are sure that it is not a local block device (or a
         # local file):
