@@ -7,8 +7,7 @@ OVERVIEW
 This package mainly provides shell functions that can be called by any user,
 either manually or from a shell script. Some of them require Linux kernel
 2.6.37 or higher to work properly: this requirement can be bypassed if you
-don't use loop devices, or if they are set during the boot process (from the
-initramfs environment). One of the main goals of these functions is to
+don't use loop devices. One of the main goals of these functions is to
 easily find the device name of the disk hosting the running system.
 
 We assume that the commands in /usr/bin (awk, cut, tail, and others) can be
@@ -56,8 +55,8 @@ disk) and the upper writable (in RAM).
 For loop devices, there is a small limitation, concerning the fact that in
 some cases, some functions cannot be run by any unprivileged user: if the
 loop device has been associated from into the initramdisk environment, then
-the filename stored in /sys/block/loop?*/loop/backing_file is obsolete in
-the system environment, and a call to losetup is needed to access relevant
+the filename stored in /sys/block/loop?*/loop/backing_file may be obsolete
+in the system environment, and a call to losetup is needed to access relevant
 information about the filesystem the backing file resides on.
 
 People who are interested by issues concerning multilayered block devices
@@ -166,4 +165,4 @@ own manual page: drivemap(1).
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
- -- bilibop project <quidame@poivron.org>  Wed, 03 Jul 2013 15:34:59 +0200
+ -- bilibop project <quidame@poivron.org>  Sat, 26 Oct 2013 21:27:07 +0000
