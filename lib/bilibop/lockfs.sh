@@ -78,7 +78,7 @@ blockdev_root_subtree() {
 get_swap_policy() {
     ${DEBUG} && echo "> get_swap_policy $@" >&2
     case    "${BILIBOP_LOCKFS_SWAP_POLICY}" in
-        soft|hard|noauto|crypt)
+        soft|hard|noauto|crypt|random)
             echo "${BILIBOP_LOCKFS_SWAP_POLICY}"
             ;;
         *)
@@ -152,6 +152,29 @@ is_encrypted() {
     return 1
 }
 # ===========================================================================}}}
+# is_randomly_encrypted() ==================================================={{{
+# What we want is: parse /etc/crypttab and if the device (/dev/mapper/*) is
+# encountered as being the target with a random key, return 0; otherwise,
+# return 1.
+is_randomly_encrypted() {
+    ${DEBUG} && echo "> is_randomly_encrypted $@" >&2
+    while   read TARGET SOURCE KEY_FILE CRYPT_OPTS
+    do
+            if      [ "${TARGET}" != "${1##*/}" ]
+            then    unset TARGET SOURCE KEY_FILE CRYPT_OPTS
+            else
+                    case "${KEY_FILE}" in
+                        ${UDEV_ROOT}/random|${UDEV_ROOT}/urandom)
+                            return 0
+                            ;;
+                        *)
+                            ;;
+                    esac
+            fi
+    done <${CRYPTTAB}
+    return 1
+}
+# ===========================================================================}}}
 # apply_swap_policy() ======================================================={{{
 # What we want is: modify temporary /etc/fstab and /etc/crypttab by commenting
 # swap entries or modifying their options.
@@ -186,6 +209,11 @@ apply_swap_policy() {
         crypt)
             CRYPTTAB="${rootmnt}/etc/crypttab"
             is_encrypted "${1}" ||
+            sed -i "s|^\s*${1}\s\+none\s\+swap\s.*|${comment}\n#&\n|" ${FSTAB}
+            ;;
+        random)
+            CRYPTTAB="${rootmnt}/etc/crypttab"
+            is_randomly_encrypted "${1}" ||
             sed -i "s|^\s*${1}\s\+none\s\+swap\s.*|${comment}\n#&\n|" ${FSTAB}
             ;;
     esac
@@ -561,12 +589,12 @@ is_phycally_locked() {
     ${DEBUG} && echo "> is_physically_locked $@" >&2
     case "${1}" in
         sd?)
-            if dmesg | grep -q "\[${1}\] [Ww]rite [Pp]rotect [Ii]s [Oo]n"; then
+            if dmesg | grep -q "\[${1}\] [Ww]rite [Pp]rotect [Ii]s [Oo]n$"; then
                 return 0
             fi
             ;;
         mmcblk?|mspblk?)
-            if dmesg | grep -q "\<${1}: .* [1-9][0-9]*\(\.[0-9]\+\)\? [GM]i\?B (ro)$"; then
+            if dmesg | grep -q "\s${1}: .* [1-9][0-9]*\(\.[0-9]\+\)\? [GM]i\?B (ro)$"; then
                 return 0
             fi
             ;;
