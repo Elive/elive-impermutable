@@ -1,4 +1,4 @@
-.TH BILIBOP.CONF 5 2012\-05\-22 bilibop "Bilibop Project"
+.TH BILIBOP.CONF 5 2013\-10\-26 bilibop "Bilibop Project"
 
 .SH NOM
 bilibop.conf \- fichier de configuration des paquets bilibop
@@ -92,7 +92,12 @@ ligne de commande de démarrage en ajoutant
 .RB \(aq lockfs \(aq
 ou
 .RB \(aq nolockfs \(aq
-aux paramètres du noyau.
+aux paramètres du noyau. Cependant, si le périphérique est verrouillé
+physiquement par un commutateur, cela sera detecté et les paramétrages
+précédents seront écrasés pour fixer
+.B BILIBOP_LOCKFS
+à
+.IR true .
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
@@ -138,6 +143,10 @@ lecture\-écriture.
 Si cette variable ne vaut rien ou vaut n'importe quoi d'autre, sa valeur
 retombera à
 .IR hard .
+Cependant, si le périphérique est verrouillé physiquement, les paramétrages
+précédents seront écrasés et la politique
+.I hard
+sera automatiquement appliquée.
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
@@ -180,6 +189,12 @@ ce qui est plus rapide. Autrement,
 .BR mount.lockfs (8)
 cherchera à partir des métadonnées du périphérique s'il doit le sauter ou
 pas.
+.PP
+Notez aussi qu'il est possible d'écraser (et de vider) la valeur de cette
+variable en ajoutant
+.RB \(aq lockfs=all \(aq
+sur la ligne de commmande de démarrage. Cela est fait automatiquement quand
+le périphérique est verrouillé physiquement.
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
@@ -210,7 +225,7 @@ d'échange (swap) listés dans
 .IR /etc/crypttab ).
 Generalement, il n'y a pas de sens a paramètrer un espace d'échange sur de
 la mémoire flash, mais cela peut se faire sur des disques durs externes
-USB, FireWire ou eSATA. Quatre politiques sont disponibles:
+USB, FireWire ou eSATA. Cinq politiques sont disponibles:
 .IP \(bu 2
 .I soft
 .br
@@ -238,6 +253,17 @@ activés manuellement avec
 .br
 Les entrées relatives aux périphériques \(aqswap\(aq chiffrés sont
 conservées, les autres sont désactivées.
+.BR ATTENTION :
+cette option ne fait pas de distinction entre les périphériques swap
+chiffrés avec une clef aléatoire (et dont le contenu est irrécupérable
+après l'arrêt du système) et ceux dont le contenu est écrit en clair
+sur un Volume Logique faisant lui-même partie d'un Groupe de Volumes
+chiffré.
+.IP \(bu 2
+.I random
+.br
+Les entrées relatives aux périphériques \(aqswap\(aq chiffrés avec une
+clef aléatoire sont conservées, les autres sont désactivées.
 .PP
 Si BILIBOP_LOCKFS_SWAP_POLICY n'est pas fixée à une valeur connue, elle
 retombera à
@@ -256,15 +282,24 @@ qui n'est pas une option de démarrage spécifique à
 .BR bilibop (7),
 mais fixe la valeur de BILIBOP_LOCKFS_SWAP_POLICY à
 .IR hard .
+C'est aussi le cas si le script détecte que le périphérique est verrouillé
+physiquement.
 .br
 Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SS BILIBOP_LOCKFS_NOTIFY_POLICY
 Cette variable définit à quelles conditions une notification doit être
 envoyée à l'utilisatrice pour lui signifier que des systèmes de fichiers
-sont ou non verrouillés (nécessite que le paquet
+sont ou non verrouillés. De telles notifications peuvent être envoyées
+aussi bien au démarrage du système (nécessite que le paquet
+.B plymounth
+soit installé) qu'au lancement d'une session de bureau (nécessite que le
+paquet
 .B libnotify\-bin
-soit installé). Quatre politiques sont disponibles:
+soit installé). Ce qui suit décrit les notifications de bureau; les
+messages de
+.BR plymouth (8)
+sont moins bavards. Quatre politiques sont disponibles:
 .IP \(bu 2
 .I always
 .br
@@ -306,8 +341,8 @@ Si la fonctionnalité est activée et que des systèmes de fichiers ne sont
 pas verrouillés, alors une notification sera envoyée pour dire que leurs
 modifications seront conservées après l'arrêt du système.
 .PP
-Dans tous les cas, n'importe quelle utilisatrice peut écraser le règlage de
-l'administratrice en copiant
+Dans tous les cas, n'importe quelle utilisatrice peut (pour sa propre
+session de bureau) écraser le règlage de l'administratrice en copiant
 .I lockfs\-notify.desktop
 (normalement dans
 .IR /etc/xdg/autostart )
@@ -539,6 +574,7 @@ Par défaut, la valeur de cette variable n'est pas fixée.
 .BR mount (8),
 .BR mount.lockfs (8),
 .BR notify\-send (1),
+.BR plymouth (8),
 .BR proc (5),
 .BR udev (7),
 .BR udevadm (8),
