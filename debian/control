@@ -60,13 +60,13 @@ Description: lock filesystems and write changes into RAM
  bilibop-lockfs provides the following features:
   * whitelist based policy: filesystems on which you want to allow persistent
     changes must be explicitly listed in a configuration file.
+  * swap devices policy: they can be used 'as is', noauto, only if encrypted,
+    only if encrypted with a random key, or not used at all.
   * not only filesystems are set read-only, but also block devices: this
     forbids changes of the partition table, boot sectors, LUKS headers and
     LVM metadata.
-  * management of swap devices, that can be used 'as is', noauto, only if
-    encrypted, or not used at all.
   * plymouth messages to know at boot time if bilibop-lockfs is enabled or
-    not.
+    not, or if an error occured.
   * desktop notifications at startup about filesystems status, to inform the
     user that volatile or persistent changes are allowed or not, and where.
  .
