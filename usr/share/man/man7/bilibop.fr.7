@@ -1,4 +1,4 @@
-.TH BILIBOP 7 2012\-05\-31 bilibop "Bilibop Project"
+.TH BILIBOP 7 2013\-10\-26 bilibop "Bilibop Project"
 
 .SH NAME
 bilibop \- éxécuter Debian GNU/Linux depuis un support externe
@@ -40,7 +40,8 @@ signifie
 .BR B oot
 .BR O n
 .BR P endrive\(aq.
-Cet accronyme est maintenant obsolète, mais le nom a été conservé. Le
+Cet accronyme récursif est maintenant obsolète, mais le nom a été conservé.
+Le
 .B projet bilibop
 est né comme une alternative aux systèmes
 .BR LiveUSB .
@@ -74,16 +75,20 @@ conçu comme un petit ensemble de paquets Debian.
 .B bilibop\-lockfs
 peut aussi être installé sur un ordinateur portable ou sur un ordinateur
 public comme une alternative à
-.B fsprotect,
+.B fsprotect
+ou
+.BR overlayroot ,
 et
-.B bilibop\-rules
+.B bilibop\-udev
+(ou
+.BR bilibop\-rules )
 .I devrait
 aussi être installé sur un LiveUSB.
 
 .SH PAQUETS BILIBOP
 .TP 2
 .I bilibop
-C'est un métapaquet, dépendant de tous les autres paquets binaires issus
+C'est un métapaquet, dépendant de plusieurs autres paquets binaires issus
 du même paquet source
 .BR bilibop .
 .TP
@@ -118,7 +123,25 @@ inclut aussi la commande
 .BR lsbilibop (8),
 et quelques scripts d'aide dans
 .IR /usr/share/bilibop ,
-qui peuvent être éxécutés manuellement. Voir
+qui peuvent être éxécutés manuellement ou avec
+.RB \(aq dpkg\-reconfigure
+.BR bilibop\-rules \(aq.
+Voir
+.I README.Debian
+dans la documentation du paquet pour les détails.
+.TP
+.I bilibop\-udev
+Ce paquet est une sorte de sous-ensemble de
+.BR bilibop\-rules ,
+et est plus adapté aux systèmes LiveUSB. Il fait juste en sorte que le
+disque hébergeant le système, et toutes ses partitions, appartiennent
+au groupe
+.RB \(aq disk \(aq
+plutôt que
+.RB \(aq floppy \(aq.
+Ses règles udev créent aussi un lien symbolique
+.BI ( /dev/bilibop )
+pointant sur le nom du disque. Voir
 .I README.Debian
 dans la documentation du paquet pour les détails.
 .TP
@@ -141,13 +164,13 @@ dans la documentation du paquet pour les détails.
 peut être installée sur un disque amovible comme elle le serait sur un
 disque interne, avec les restrictions suivantes:
 .IP \(bu 2
-Il est hautement recommendé d'installé un système chiffré. Autrement, que
+Il est hautement recommandé d'installer un système chiffré. Autrement, que
 peut-il se passer si la clé USB ou le DD externe a été perdu ou oublié
 quelque part, ou même volé ? Malheureusement (mais il y a des raisons de
-sécurité évidentes), cela ne peut pas être automatisé.
+sécurité évidentes), cela ne peut pas être complètement automatisé.
 .IP \(bu
 En raison des limites du nombre de cycles d'écriture sur la mémoire flash,
-il n'est pas recommendé d'y installer un espace d'échange (swap): cela
+il n'est pas recommandé d'y installer un espace d'échange (swap): cela
 peut réduire considérablement la durée de vie du support.
 .IP \(bu
 Même si l'architecture
@@ -177,7 +200,7 @@ avec  l'option
 .RB \(aq Auto
 .BR Install \(aq
 dans le menu de démarrage de l'installeur. Si vous avez vraiment besoin
-d'atomatiser ce processus pour gagner du temps, utilisez plutôt un fichier
+d'automatiser ce processus pour gagner du temps, utilisez plutôt un fichier
 .BR preseed .
 
 .SH PARAMÈTRES ET CONFIGURATION
