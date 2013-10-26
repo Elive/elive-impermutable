@@ -1,4 +1,4 @@
-.TH BILIBOP.CONF 5 2012\-10\-05 bilibop "Bilibop Project"
+.TH BILIBOP.CONF 5 2013\-10\-26 bilibop "Bilibop Project"
 
 .SH NAME
 bilibop.conf \- configuration file of bilibop packages
@@ -88,7 +88,12 @@ commandline by adding
 .RB \(aq lockfs \(aq
 or
 .RB \(aq nolockfs \(aq
-to the line of kernel parameters.
+to the line of kernel parameters. However, if the drive is physically locked
+by a switch, this will be detected and all previous settings will be
+overridden to set
+.B BILIBOP_LOCKFS
+as
+.IR true .
 .br
 Default is unset.
 
@@ -128,6 +133,10 @@ filesystems to be remounted later as writable.
 .PP
 If empty, unset, or set to anything else, the value will fallback to
 .IR hard .
+However, if the drive is physically locked, previous settings will be
+overridden and the
+.I hard
+policy will be automatically applied.
 .br
 Default is unset.
 
@@ -166,6 +175,12 @@ matching the corresponding fstab entry makes the device is whitelisted
 by the initramfs script, that is faster. Otherwise,
 .BR mount.lockfs (8)
 will query metadata about the device to check if it must skip it or not.
+.PP
+Also note that it is possible to override (and blank) the value of this
+variable by adding
+.RB \(aq lockfs=all \(aq
+on the boot commandline. This is also automatically done when the drive
+is physically locked.
 .br
 Default is unset.
 
@@ -192,7 +207,7 @@ This variable defines what to do with swap devices listed in
 (and optionally in
 .IR /etc/crypttab ).
 Generally, there is no sense to setup a swap device on a flash memory
-stick, but this can be done on USB, FireWire or eSATA HDDs. Four policies
+stick, but this can be done on USB, FireWire or eSATA HDDs. Five policies
 are available:
 .IP \(bu 2
 .I soft
@@ -218,6 +233,16 @@ crypttab. This means swap devices can be enabled manually with
 .I crypt
 .br
 Entries about encrypted swap devices are kept as is, others are disabled.
+.BR ATTENTION :
+this option makes no difference between swap devices encrypted with a
+random key (and whose the content is unrecoverable after system halt)
+and those whose the content is written in clear on a Logical Volume
+being itself included in an encrypted Volume Group.
+.IP \(bu 2
+.I random
+.br
+Entries about swap devices encrypted with a random key are kept as is,
+others are disabled.
 .PP
 If BILIBOP_LOCKFS_SWAP_POLICY is not set to a known value,
 .I crypt
@@ -234,14 +259,20 @@ kernel parameter, which is not a
 .BR bilibop (7)
 specific boot option, but leads to set BILIBOP_LOCKFS_SWAP_POLICY to
 .IR hard .
+This is also the case if the script detects that the drive is physically
+locked.
 .br
 Default is unset.
 
 .SS BILIBOP_LOCKFS_NOTIFY_POLICY
-This variable defines when to notify the user that filesystems are locked
-or not (needs
+This variable defines when to notify the user that filesystems are
+locked or not. Such notifications can be sent at system boot (needs
+.B plymouth
+package installed to work) as well as desktop session startup (needs
 .B libnotify\-bin
-package installed to work). There are four available policies:
+package installed to work). What follows describes desktop notifications;
+.BR plymouth (8)
+messages are less verbose. There are four available policies:
 .IP \(bu 2
 .I always
 .br
@@ -281,7 +312,8 @@ If the feature is enabled and some mountpoints have been whitelisted,
 then a notification will be send to say that all changes under them will
 be kept at shutdown.
 .PP
-In all cases, any user can override the admin settings by copying
+In all cases, any user can (for its own desktop session) override the
+admin settings by copying
 .I lockfs\-notify.desktop
 (normally in
 .IR /etc/xdg/autostart )
@@ -503,6 +535,7 @@ Default is unset.
 .BR mount (8),
 .BR mount.lockfs (8),
 .BR notify\-send (1),
+.BR plymouth (8),
 .BR proc (5),
 .BR udev (7),
 .BR udevadm (8),
