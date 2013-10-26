@@ -1,11 +1,11 @@
-.TH BILIBOP 7 2012\-05\-31 bilibop "Bilibop Project"
+.TH BILIBOP 7 2013\-10\-26 bilibop "Bilibop Project"
 
 .SH NAME
 bilibop \- run Debian GNU/Linux from an external media
 
 .SH DESCRIPTION
 A lot of GNU/Linux distributions \- at least the most popular of
-them \- provide downloadable
+them \- provide freely downloadable
 .I .iso
 or
 .I .img
@@ -35,7 +35,7 @@ stands for
 .BR B oot
 .BR O n
 .BR P endrive\(aq.
-This acronym is now obsolete, but the name has been kept. The
+This recursive acronym is now obsolete, but the name has been kept. The
 .B bilibop project
 is born as an alternative to the
 .B LiveUSB
@@ -68,16 +68,20 @@ bilibop has been designed as a set of few debian packages.
 .B bilibop\-lockfs
 may also be installed on a laptop or on a public computer as an
 alternative to
-.B fsprotect,
+.B fsprotect
+or
+.BR overlayroot ,
 and
-.B bilibop\-rules
+.B bilibop\-udev
+(or
+.BR bilibop\-rules )
 .I should
 also be installed on a LiveUSB.
 
 .SH BILIBOP PACKAGES
 .TP 2
 .I bilibop
-This is a meta package, depending on all other binary packages from the
+This is a meta package, depending on several other binary packages from the
 same
 .B bilibop
 source package.
@@ -115,7 +119,24 @@ also includes the
 .BR lsbilibop (8)
 command, and some helper scripts in
 .IR /usr/share/bilibop ,
-that can be executed manually. See
+that can be executed manually or with
+.RB \(aq dpkg\-reconfigure
+.BR bilibop\-rules \(aq.
+See
+.I README.Debian
+in the documentation of the package for details.
+.TP
+.I bilibop\-udev
+This package is a kind of subset of
+.BR bilibop\-rules ,
+and is more suited for LiveUSB systems. It just makes that the drive
+hosting the running system, and all its partitions, belong to the
+.RB \(aq disk \(aq
+group instead of
+.RB \(aq floppy \(aq.
+Its udev rules also create a symlink
+.BI ( /dev/bilibop )
+pointing to the drive name. See
 .I README.Debian
 in the documentation of the package for details.
 .TP
@@ -138,9 +159,9 @@ can be installed on a removable drive as it is on an internal one, except:
 It is highly recommended to install a full encrypted system. Otherwise,
 what can happen if the USB stick or the external HDD has been lost or
 forgotten somewhere, or even thieft ? Unfortunately (but there are evident
-security reasons), this can not be preseeded.
+security reasons), this can not be fully preseeded.
 .IP \(bu
-Due to the rewrites limits on flash memory, it is not recommended to use
+Due to write-cycles limits on flash memory, it is not recommended to use
 a swap area on them: this can dramatically decrease the lifetime of the
 drive.
 .IP \(bu
