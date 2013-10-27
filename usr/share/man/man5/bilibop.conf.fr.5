@@ -1,4 +1,4 @@
-.TH BILIBOP.CONF 5 2013\-10\-26 bilibop "Bilibop Project"
+.TH BILIBOP.CONF 5 2013\-10\-27 bilibop "Bilibop Project"
 
 .SH NOM
 bilibop.conf \- fichier de configuration des paquets bilibop
@@ -49,7 +49,7 @@ paquet, soit à la main, soit avec
 .RB \(aq dpkg\-reconfigure
 .BR bilibop\-rules \(aq.
 Donc ce n'est peut\-être pas une bonne idée de la modifier.
-.br
+.PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SH VARIABLES SPÉCIFIQUES À BILIBOP\-LOCKFS
@@ -98,7 +98,7 @@ précédents seront écrasés pour fixer
 .B BILIBOP_LOCKFS
 à
 .IR true .
-.br
+.PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SS BILIBOP_LOCKFS_POLICY
@@ -147,7 +147,7 @@ Cependant, si le périphérique est verrouillé physiquement, les paramétrages
 précédents seront écrasés et la politique
 .I hard
 sera automatiquement appliquée.
-.br
+.PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SS BILIBOP_LOCKFS_WHITELIST
@@ -194,8 +194,16 @@ Notez aussi qu'il est possible d'écraser (et de vider) la valeur de cette
 variable en ajoutant
 .RB \(aq lockfs=all \(aq
 sur la ligne de commmande de démarrage. Cela est fait automatiquement quand
-le périphérique est verrouillé physiquement.
-.br
+le périphérique est verrouillé physiquement. Au contraire, pour ajouter des
+points de montage à cette liste blanche depuis la ligne de commande du
+démarrage, il est aussi possible d'utiliser une option de la forme
+.RB \(aq lockfs=\-/foobar \(aq,
+où
+.I /foobar
+est le point de montage à ne pas verrouiller; notez qu'il est précédé d'un
+signe moins
+.RB ( \- ).
+.PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SS BILIBOP_LOCKFS_SIZE
@@ -214,7 +222,7 @@ par k, K, m, M, g ou G), ou relatives à la quantité totale de mémoire RAM
 fixée ici aussi, mais peut être écrasée depuis la ligne de commade de
 démarrage avec le paramètre
 .RB \(aq lockfs = taille \(aq.
-.br
+.PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SS BILIBOP_LOCKFS_SWAP_POLICY
@@ -284,7 +292,7 @@ mais fixe la valeur de BILIBOP_LOCKFS_SWAP_POLICY à
 .IR hard .
 C'est aussi le cas si le script détecte que le périphérique est verrouillé
 physiquement.
-.br
+.PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SS BILIBOP_LOCKFS_NOTIFY_POLICY
@@ -355,7 +363,7 @@ ou
 Voir
 .BR lockfs\-notify (1)
 pour plus de détails.
-.br
+.PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SH VARIABLES SPÉCIFIQUES À BILIBOP\-RULES
@@ -395,7 +403,7 @@ vous devez explicitement fixer cette variable à
 .I false
 (les autres valeurs n'ont aucun effet, c'est à dire ont le même effet que
 .IR true ).
-.br
+.PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SS BILIBOP_RULES_SYSTEM_INTERNAL
@@ -411,7 +419,7 @@ cette variable à
 .I false
 (les autres valeurs n'ont aucun effet, c'est à dire ont le même effet que
 .IR true ).
-.br
+.PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SS BILIBOP_RULES_SYSTEM_INTERNAL_WHITELIST
@@ -444,7 +452,7 @@ pour les variables
 .I ID_FS_TYPE
 et
 .IR ID_FS_USAGE .
-.br
+.PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SS BILIBOP_RULES_PRESENTATION_HIDE
@@ -457,7 +465,7 @@ fixer cette variable à
 .I false
 (les autres valeurs n'ont aucun effet, c'est à dire ont le même effet que
 .IR true ).
-.br
+.PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SS BILIBOP_RULES_PRESENTATION_HIDE_WHITELIST
@@ -488,7 +496,7 @@ pour les variables
 .I ID_FS_TYPE
 et
 .IR ID_FS_USAGE .
-.br
+.PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SS BILIBOP_RULES_PRESENTATION_ICON
@@ -520,7 +528,7 @@ pour les variables
 .I ID_FS_TYPE
 et
 .IR ID_FS_USAGE .
-.br
+.PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SS BILIBOP_RULES_PRESENTATION_NAME
@@ -551,7 +559,7 @@ pour les variables
 .I ID_FS_TYPE
 et
 .IR ID_FS_USAGE .
-.br
+.PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SH FICHIERS

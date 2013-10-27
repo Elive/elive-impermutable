@@ -1,4 +1,4 @@
-.TH BILIBOP.CONF 5 2013\-10\-26 bilibop "Bilibop Project"
+.TH BILIBOP.CONF 5 2013\-10\-27 bilibop "Bilibop Project"
 
 .SH NAME
 bilibop.conf \- configuration file of bilibop packages
@@ -27,7 +27,7 @@ Valid configuration options can be divided in \(aqcommon\(aq and
 \(aqspecific\(aq
 sections, as follows:
 
-.SH BILIBOP COMMON VARIABLES
+.SH COMMON VARIABLES
 
 .SS BILIBOP_COMMON_BASENAME
 This variable defines the basename of bilibop subdirectories (or symlink)
@@ -46,7 +46,7 @@ package, either by hand or with
 .RB \(aq dpkg\-reconfigure
 .BR bilibop\-rules \(aq.
 So, maybe it is not a good idea to modify it.
-.br
+.PP
 Default is unset.
 
 .SH BILIBOP\-LOCKFS SPECIFIC VARIABLES
@@ -94,7 +94,7 @@ overridden to set
 .B BILIBOP_LOCKFS
 as
 .IR true .
-.br
+.PP
 Default is unset.
 
 .SS BILIBOP_LOCKFS_POLICY
@@ -137,7 +137,7 @@ However, if the drive is physically locked, previous settings will be
 overridden and the
 .I hard
 policy will be automatically applied.
-.br
+.PP
 Default is unset.
 
 .SS BILIBOP_LOCKFS_WHITELIST
@@ -180,8 +180,15 @@ Also note that it is possible to override (and blank) the value of this
 variable by adding
 .RB \(aq lockfs=all \(aq
 on the boot commandline. This is also automatically done when the drive
-is physically locked.
-.br
+is physically locked. On the contrary, to append mountpoints to this
+whitelist from the boot commandline, it is also possible to use an option
+of the form
+.RB \(aq lockfs=\-/foobar \(aq,
+where
+.I /foobar
+is the mountpoint to not lock; not that it is preceded by a minus sign
+.RB ( \- ).
+.PP
 Default is unset.
 
 .SS BILIBOP_LOCKFS_SIZE
@@ -198,7 +205,7 @@ root filesystem can be fixed here too, but can be overridden from the boot
 commandline with a
 .RB \(aq lockfs = size \(aq
 kernel parameter.
-.br
+.PP
 Default is unset.
 
 .SS BILIBOP_LOCKFS_SWAP_POLICY
@@ -261,7 +268,7 @@ specific boot option, but leads to set BILIBOP_LOCKFS_SWAP_POLICY to
 .IR hard .
 This is also the case if the script detects that the drive is physically
 locked.
-.br
+.PP
 Default is unset.
 
 .SS BILIBOP_LOCKFS_NOTIFY_POLICY
@@ -326,7 +333,7 @@ or
 See
 .BR lockfs\-notify (1)
 for details.
-.br
+.PP
 Default is unset.
 
 .SH BILIBOP\-RULES SPECIFIC VARIABLES
@@ -363,7 +370,7 @@ explicitly set this to
 .I false
 (all other values have no effect, i.e. have the same effect than
 .IR true ).
-.br
+.PP
 Default is unset.
 
 .SS BILIBOP_RULES_SYSTEM_INTERNAL
@@ -377,7 +384,7 @@ If you don't need this global behaviour, explicitly set this to
 .I false
 (all other values have no effect, i.e. have the same effect than
 .IR true ).
-.br
+.PP
 Default is unset.
 
 .SS BILIBOP_RULES_SYSTEM_INTERNAL_WHITELIST
@@ -410,7 +417,7 @@ for
 and
 .I ID_FS_USAGE
 variables.
-.br
+.PP
 Default is unset.
 
 .SS BILIBOP_RULES_PRESENTATION_HIDE
@@ -422,7 +429,7 @@ If you don't want to hide the bilibop volumes, explicitly set this to
 .I false
 (all other values have no effect, i.e. have the same effect than
 .IR true ).
-.br
+.PP
 Default is unset.
 
 .SS BILIBOP_RULES_PRESENTATION_HIDE_WHITELIST
@@ -453,7 +460,7 @@ for
 and
 .I ID_FS_USAGE
 variables.
-.br
+.PP
 Default is unset.
 
 .SS BILIBOP_RULES_PRESENTATION_ICON
@@ -483,7 +490,7 @@ for
 and
 .I ID_FS_USAGE
 variables.
-.br
+.PP
 Default is unset.
 
 .SS BILIBOP_RULES_PRESENTATION_NAME
@@ -512,7 +519,7 @@ for
 and
 .I ID_FS_USAGE
 variables.
-.br
+.PP
 Default is unset.
 
 .SH FILES
