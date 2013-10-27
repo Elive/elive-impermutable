@@ -74,6 +74,10 @@ do
 			for	opt in $(IFS=',' ; echo ${param#lockfs=})
 			do
 				case	"${opt}" in
+					default)
+						BILIBOP_LOCKFS_POLICY="hard"
+						_force="false"
+						;;
 					force)
 						_force="true"
 						;;

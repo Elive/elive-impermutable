@@ -80,6 +80,11 @@ for param in $(cat /proc/cmdline); do
         lockfs=*)
             for policy in $(IFS=','; echo ${param#lockfs=}); do
                 case "${policy}" in
+                    default)
+                        BILIBOP_LOCKFS_POLICY=""
+                        BILIBOP_LOCKFS_WHITELIST=""
+                        BILIBOP_LOCKFS_SIZE=""
+                        ;;
                     hard|soft)
                         BILIBOP_LOCKFS_POLICY="${policy}"
                         ;;
