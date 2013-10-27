@@ -30,8 +30,8 @@ than one disk (by using LVM or RAID). It can be used:
 - as a tool in anti-forensics strategies, as explained above.
 
 NOTE that the bilibop-lockfs scripts depend on the bilibop-common
-functions, which require Linux kernel 2.6.37 or higher to work
-properly.
+functions, which may need Linux kernel 2.6.37 or higher to work
+properly. See bilbiop-common documentation for details.
 
 
 2. CONFIGURATION
@@ -40,18 +40,28 @@ properly.
 All available configuration options are described in the bilibop.conf(5)
 manual page. They allow to:
 
-- Enable/Disable 'lockfs' from the configuration file or the boot
-  commandline. In last instance, a heuristic is used to enable 'lockfs'
-  on USB sticks.
+- Enable/Disable 'lockfs' from the configuration file, from the boot
+  commandline, or by physically locking the drive with a switch. In last
+  instance, a heuristic is used to enable 'lockfs' on USB sticks.
 - Apply a hard policy (as described above; this is the default), or a
   soft policy allowing the admin to manually modify both high-level and
-  low-level data or metadata.
+  low-level data or metadata. If the drive is physically locked, the hard
+  policy is automatically applied; in fact, in such cases there is no
+  choice, but this avoids some errors by avoiding write attempts on the
+  drive by some low-level programs (e2fsck for example).
 - Disable 'lockfs' for only specified mountpoints or filesystems. This is
-  a 'whitelist' based feature.
+  a 'whitelist' based feature. Obviously, this is bypassed when the drive
+  is physically locked.
 - Apply a specific policy for swap filesystems: use them as they are set;
-  enable them manually; don't use them at all; or enable only encrypted
-  swap devices.
-- Send a notification to the user about what filesystems/mountpoints are
+  enable them manually; don't use them at all; enable only encrypted swap
+  devices; or even, enable only swap devices encrypted with a random key.
+  Here again, the settings will be overridden if the drive is physically
+  locked.
+- Send a notification to the user about the 'lockfs' status. This can be
+  done both during system boot and at desktop session startup. At boot
+  time (through Plymouth), a message is sent to say that bilibop-locks is
+  enabled (with hard|soft policy) or not, or if an error occurs. At desktop
+  session startup, a notification is send to say that filesystems are
   locked or not. More exactly, the notifications say that changes under
   such or such directories will be kept or lost at shutdown. See the
   lockfs-notify(1) manpage for details.
@@ -94,30 +104,57 @@ commandline overrides the previous ones):
   BILIBOP_LOCKFS="true"
   BILIBOP_LOCKFS_WHITELIST=""
 
+- 'lockfs=default' - enable bilibop-lockfs features with their default
+  values; all settings of the configuration file will be overridden:
+  BILIBOP_LOCKFS="true"
+  BILIBOP_LOCKFS_POLICY="hard"
+  BILIBOP_LOCKFS_WHITELIST=""
+  BILIBOP_LOCKFS_SWAP_POLICY=""	(fallbacks to 'hard' or 'crypt')
+  BILIBOP_LOCKFS_SIZE=""	(means '50%' for each tmpfs)
+  BILIBOP_LOCKFS_NOTIFY_POLICY=""
+
+- 'lockfs=-/foobar' - enable bilibop-lockfs features and add /foobar to
+  the list of whitelisted mountpoints:
+  BILIBOP_LOCKFS="true"
+  BILIBOP_LOCKFS_WHITELIST="${BILIBOP_LOCKFS_WHITELIST} /foobar"
+
 - 'noswap' - if bilibop-lockfs is enabled, then apply a more restrictive
   policy than does the checkroot.sh initscript: comment lines about swap
   in /etc/fstab and also /etc/crypttab if necessary.
   BILIBOP_LOCKFS_SWAP_POLICY="hard"
 
 Unknown keywords are silently ignored. Parameters can be used together,
-separated by comma; for example:
-  lockfs=soft,30%,force
+separated by comma; for examples:
+
+  lockfs=soft,30%,all
+  will apply a soft policy to all mountpoints, allocating 30% of the RAM
+  to /.
+
+  lockfs=default,-/var/spool/apt-mirror
+  will reset all settings to their default values, and then whitelist the
+  /var/spool/apt-mirror mountpoint. My favorite.
 
 
 4. HOW IT WORKS
 ===============
 
-If one of the devices registered in fstab(5) is a Logical Volume, and
-if the keyword 'nolockfs' is not used in the boot commandline, a first
-initramfs script is used to modify lvm.conf(5) inside the initramfs BEFORE
-LV are activated; then they are activated read-only (their metadata are
-not updated, and block devices are set readonly).
+If:
+	one of the devices registered in fstab(5) is a Logical Volume
+	and if:
+		the keyword 'nolockfs' is not used in the boot commandline
+		or:
+		a drive is physically locked (takes precedence over the
+		'nolockfs' boot option)
+then:
+a first initramfs script is used to modify lvm.conf(5) inside the initramfs
+BEFORE LV are activated; then they are activated read-only (their metadata
+are not updated, and block devices are set readonly).
 
 After what, when the root of the system has been discovered and mounted
 from the initramfs, another initramfs script (the main) is used to lock
 the root filesystem and all its (virtual or physical) parent block devices.
 Other mountpoints are managed by a mount helper script. Here is an example
-of a partition scheme on a USB stick of 16GB (this is the outputs of the
+of a partition scheme on a USB stick of 16GB (those are the outputs of the
 drivemap(1) command, when bilibop-lockfs is disabled):
 
 $ drivemap -m /
@@ -159,15 +196,18 @@ the 'rootmnt' variable) in the initramfs environment, the bilibop-lockfs
 script is executed.
 
 a. It checks if the 'lockfs' feature is enabled or not. If not, it exits.
+   One of the checks is to verify that the drive is physically locked or
+   not; if it is, all BILIBOP_LOCKFS_* variables are reset to values
+   compatible with the physical lock, and stored in /run/bilibop/plocked.
 
 b. It checks if ${rootmnt} is already an aufs mountpoint. If yes, it exits.
    This is done to not conflict with other programs such as 'fsprotect'.
 
 c. It checks the policy to apply: 'hard' or 'soft'. If 'hard', then the
    block device mounted on ${rootmnt} and the drive hosting this device are
-   set read-only with blockdev(8). Additionally, all parent block devices
-   of the root device are set read-only too. With the partition scheme
-   described above, this should give:
+   set read-only. Additionally, all parent block devices of the root device
+   are set read-only too. With the partition scheme described above, this
+   should give:
 
    sdb __ sdb1 __ dm-1 __ dm-2 __ dm-3 : RO (disk > PV > LV=LUKS > PV > LV=/)
       |       |               |__ dm-4 : rw (/home)
@@ -177,7 +217,8 @@ c. It checks the policy to apply: 'hard' or 'soft'. If 'hard', then the
    Now the root filesystem (/dev/dm-3 on ${rootmnt}) is fully protected:
    it is not possible to dd(1) or whatever dm-3, dm-2 (that contains dm-3),
    dm-1 (that contains dm-2), sdb1 (that contains dm-1) nor sdb (that
-   contains sdb1).
+   contains sdb1). At this step, only three block devices are not yet
+   locked: /dev/sdb2, /dev/dm-0 and /dev/dm-4.
 
 d. Several mount operations are performed, sometimes with --bind or --move
    options, to obtain that ${rootmnt} is now an aufs mountpoint with dm-3
@@ -188,7 +229,8 @@ d. Several mount operations are performed, sometimes with --bind or --move
 
    If, for any reason, something goes wrong, then all that has been done
    before is undone (especially the blockdev commands) and the boot process
-   will continue as if bilibop-lockfs was disabled.
+   will continue as if bilibop-lockfs was disabled. An error message is
+   sent to plymouth.
 
 e. Two files are created:
    - /run/bilibop/lock is a marker: if it don't exist, some bilibop-lockfs
@@ -201,7 +243,7 @@ f. ${rootmnt}/etc/fstab is modified:
    - The entry about the root filesystem is commented to forbid further
      possible management of / by initscrits.
    - Entries about swap devices are kept as is, commented, or modified,
-     depending on the policy to apply (soft, noauto, crypt, hard).
+     depending on the policy to apply (soft, noauto, crypt, random, hard).
    - Entries about mountpoints that have not been whitelisted in
      bilibop.conf(5) are modified: the fstype (third field) is replaced by
      'lockfs', and options are also modified to remember the real fstype
@@ -247,10 +289,12 @@ g. ${rootmnt}/etc/lvm/lvm.conf is modified (optional):
 -----------------
 
 Now /, the root of the system, is what it was previously named ${rootmnt}.
-/sbin/init is running and initscripts are executed. When 'mount -a' is
-called, it parses /etc/fstab and for each entry it encounters with a
-'lockfs' filesystem type, it calls the helper mount.lockfs(8) with the
-proper options and arguments.
+/sbin/init is running and initscripts are executed. Due to the changes in
+lvm.conf, the 'vgchange -ay' from the lvm initscript has no effect on the
+protected devices: they are even not seen. When 'mount -a' is called, it
+parses /etc/fstab and for each entry it encounters with a 'lockfs'
+filesystem type, it calls the helper mount.lockfs(8) with the proper
+options and arguments.
 
 /sbin/mount.lockfs does something very close to what the initramfs script
 did for the root of the system. This mount helper script can not be used
@@ -262,7 +306,8 @@ a. If the parent process of the script is not /bin/mount, then it exits
 b. It checks if:
    - / is an aufs mountpoint
    - /run/bilibop/lock exists
-   - what has to be mounted is really a block device
+   - what has to be mounted is really a block device, or a regular file
+     (that will be associated to a loop device)
    - the filesystem to mount is not whitelisted
 
    If one of these tests fails, then a normal mount is executed and the
@@ -294,7 +339,7 @@ b. It checks if:
 
    NOTE that the replacement of the last field (here '2') by '0' is less
    than minor: the /fastboot file created by the initramfs script already
-   disables filesystem check.
+   disables filesystem checks.
 
 c. Now the script checks if the global policy is 'hard' or 'soft'. If it
    is 'hard', then the block device is set read-only with blockdev(8).
@@ -317,7 +362,7 @@ d. The script checks if a specified size has to be allocated to the
    writable branch of the root filesystem and is used as prefix for all
    other mountpoints of writable branches.
 
-   If mount fails, then what it has been done before is undone, and a
+   If mount fails, then what has been done before is undone, and a
    'mount_fallback' is executed.
 
    The ownership and permissions of the writable branch are modified
@@ -326,7 +371,7 @@ d. The script checks if a specified size has to be allocated to the
 e. The aufs is mounted. If the global lockfs policy is 'hard', then
    the readonly branch is set 'rr' instead of 'ro'.
 
-   If mount fails, then what it has been done before is undone, and a
+   If mount fails, then what has been done before is undone, and a
    'mount_fallback' is executed.
 
 f. The last step is to modify /etc/fstab to make it matches /proc/mounts:
@@ -369,4 +414,4 @@ is writable, other block devices are read-only.
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
- -- bilibop project <quidame@poivron.org>  Tue, 27 Nov 2012 00:27:00 +0100
+ -- bilibop project <quidame@poivron.org>  Sun, 27 Oct 2013 04:48:23 +0000
