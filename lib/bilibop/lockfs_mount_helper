@@ -91,6 +91,9 @@ for param in $(cat /proc/cmdline); do
                     all)
                         BILIBOP_LOCKFS_WHITELIST=""
                         ;;
+                    -/*)
+                        BILIBOP_LOCKFS_WHITELIST="${BILIBOP_LOCKFS_WHITELIST:+${BILIBOP_LOCKFS_WHITELIST} }${policy#-}"
+                        ;;
                 esac
             done
             ;;

@@ -91,6 +91,9 @@ do
 					all)
 						BILIBOP_LOCKFS_WHITELIST=""
 						;;
+					-/*)
+						BILIBOP_LOCKFS_WHITELIST="${BILIBOP_LOCKFS_WHITELIST:+${BILIBOP_LOCKFS_WHITELIST} }${opt#-}"
+						;;
 				esac
 			done
 			;;
