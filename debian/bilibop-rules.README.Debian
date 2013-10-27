@@ -8,8 +8,8 @@ This package mainly provides a udev rules file to be applied on operating
 systems running from external media (USB stick, USB HDD, FireWire, Flash
 Memory stick, eSATA HDD). Its goal is to adapt some system behaviours to
 its particular situation, like an organ outside of the body. Bilibop-rules
-is based on the bilibop-common functions and need Linux kernel 2.6.37 or
-higher to work properly.
+is based on the bilibop-common functions and may need Linux kernel 2.6.37
+or higher to work properly (this requirement is related to loop devices).
 
 The running system being hosted on a removable device, the common udev
 rules (91-permissions.rules) will set it as owned by the 'floppy' group,
@@ -78,6 +78,15 @@ This command can be used to list 'BILIBOP' tagged devices, and display or
 update some of their udev properties. It should be used each time the
 BILIBOP_RULES_* variables are modified in /etc/bilibop/bilibop.conf.
 
+For the case the devices have not been tagged (a simple case: override
+/lib/udev/rules.d/66-bilibop.rules by an empty rules file in /etc), you
+may use the -l option: it allows lsbilibop to not rely on the 'BILIBOP'
+udev tag, and makes it lists bilibop devices by using the shell library
+provided by bilibop-common.
+
+If BILIBOP_COMMON_BASENAME has been modified in /etc/bilibop/bilibop.conf,
+then running 'lsbilibop -a' or 'lsbilibop -c' is mandatory.
+
 See the bilibop.conf(5) and lsbilibop(8) manual pages and
 /usr/share/doc/bilibop-rules/examples/bilibop.conf
 for detailed information about default or custom settings.
@@ -101,6 +110,10 @@ like:
 Except the first one, all is based on calls of helper scripts (see the next
 section).
 
+If you intend to install bilibop-rules on a LiveUSB, be sure to answer 'true'
+to the first question (on-live-system); then other questions will not be asked
+and the helper scripts will not be executed at all.
+
 To reconfigure bilibop-rules, just run (as root):
 
     dpkg-reconfigure -p low bilibop-rules
@@ -114,11 +127,11 @@ called from the maintainer scripts (postinst and prerm) but all can be
 run manually by the admin: each of them accepts the '--help' option, to
 know how to use it.
 
-If BILIBOP_COMMON_BASENAME is modified in bilibop.conf(5), then at least
-'make_unpersistent_rules' and 'grub_device_map_manager' must be executed
-to make some symlinks to reflect the new setting. 'bilibop_rules_generator'
-must be executed again, if it has been used previously to generate a custom
-rules file.
+If BILIBOP_COMMON_BASENAME is modified in bilibop.conf(5) (i.e. set to
+something else than 'bilibop' or ''), then it may be necessary to run
+'bilibop_rules_generator' (if /etc/udev/rules.d/66-bilibop.rules exists)
+and 'grub_device_map_manager' (if /boot/grub/device.map is a symlink to
+/run/bilibop/grub-device.map) to reflect the new setting.
 
 Unless you know what you are doing, you should not run these scripts
 manually, but by running 'dpkg-reconfigure bilibop-rules' instead.
@@ -159,11 +172,14 @@ The sysfs attributes possibly managed by the script are:
 
 ### 3.1.c. Generate the proper rules file:
 
-To generate a rules files matching sysfs attributes both for USB and FireWire
+To generate a rules file matching sysfs attributes both for USB and FireWire
 usage, you have to force 'vendor' and 'model' sysfs attributes, because the
 default being to use 'manufacturer', 'product' and 'serial' if they exist, as
 they don't exist when the disk is plugged on FireWire, the rules working fine
-for USB will not work for FireWire. So, in that case, use this command:
+for USB will not work for FireWire. So, in that case, if the disk is plugged
+on the FireWire port, the result of the command without option will work for
+both USB and FireWire; but if the disk is connected on the USB port when you
+want to build the rules file, use this command:
 
     /usr/share/bilibop/bilibop_rules_generator --attribute vendor,model
 
@@ -200,8 +216,20 @@ been modified in bilibop.conf(5).
 
 This program replaces some persistent and cumulative rules files in
 /etc/udev/rules.d by symlinks to unpersistent and always-up-to-date files
-in /run/udev/rules.d. There is no need to play with this program, except
-when BILIBOP_COMMON_BASENAME has been modified in bilibop.conf.
+in /run/udev/rules.d. This concerns:
+
+	70-persistent-cd.rules
+	70-persistent-net.rules
+
+For example, for 70-persistent-net.rules, each time you run your system
+on a different computer, with ethernet or wifi interfaces that are not
+already registered in this file, a new rule will be added to match the
+not-already-registered MAC addresses, and set new interface names
+corresponding to the given MAC addresses. After your system has traveled
+on several computers, you may have to use eth12 or wlan4, what is not
+very convenient. Additionally, this kind of cumulative and sorted data
+may allow adversaries to track your activities and make correlations.
+The helper script 'make_unpersistent_rules' simply avoids all that.
 
 
 3.4. physical_volumes_filter
@@ -226,18 +254,21 @@ This can be very useful, especially when the VG and LV names used on your
 system are as generic as 'vg0' and 'lv0', 'lv1', etc.
 
 One time you are satisfied of your settings, you should not modify them.
-To use other LVM filters without modifying your owns, you can do:
+Run 'update-initramfs -u' to put your lvm.conf in the initramdisk (so the
+other Physical Volumes will be hidden even from the initramfs, and never
+activated). Then, to use other LVM filters without modifying your owns,
+you can do (as root):
 
-    mkdir /tmp/lvm
-    cp /etc/lvm/lvm.conf /tmp/lvm
-    export LVM_SYSTEM_DIR=/tmp/lvm
+    mkdir /tmp/lvm2
+    cp /etc/lvm/lvm.conf /tmp/lvm2
+    export LVM_SYSTEM_DIR=/tmp/lvm2
     alias pvfilter='/usr/share/bilibop/physical_volumes_filter'
 
 And then you can use 'pvfilter' and all LVM tools from the same shell:
-changes from pvfilter will apply to /tmp/lvm/lvm.conf, and LVM tools will
+changes from pvfilter will apply to /tmp/lvm2/lvm.conf, and LVM tools will
 use the settings from this temporary file. If, for a reason or another,
 the initramdisk of your system is updated during this time, lvm.conf
-will be copied in it from /etc/lvm, not from /tmp/lvm, and so your next
+will be copied in it from /etc/lvm, not from /tmp/lvm2, and so your next
 boot will not be compromised. In this context, you can safely run:
 
     pvfilter --overwrite --blank --udev --show --reject bilibop
@@ -258,4 +289,4 @@ See /usr/share/doc/bilibop-common/misc/*
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
- -- bilibop project <quidame@poivron.org>  Wed, 03 Jul 2013 16:17:01 +0200
+ -- bilibop project <quidame@poivron.org>  Sun, 27 Oct 2013 00:49:51 +0000
