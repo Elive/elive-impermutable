@@ -56,7 +56,8 @@ file is modified.
 
 - If your system is running from flash memory (USB stick, MMC, SSD), a good
   thing is to not use swap devices on your media, because of its limitations
-  (each sector can be rewritten only some thousands times).
+  (each sector can be rewritten only some thousands times; if a sector defects,
+  your drive is dead).
   GRUB_CMDLINE_LINUX="${GRUB_CMDLINE_LINUX} noswap"
 
 - For the moment (follow bug #671734), the 'recovery mode' only adds the

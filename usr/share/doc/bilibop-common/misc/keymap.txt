@@ -41,6 +41,17 @@ is a secondary layout. Type <Alt+Shift> allows to toggle between them. This
 toggle action only applies on the current/active console (or X if you do it
 under X).
 
+Note that:
+_________________________________
+
+XKBMODEL="pc105"
+XKBLAYOUT="fr,us"
+XKBVARIANT="latin9,intl"
+XKBOPTIONS="grp:alt_shift_toggle"
+_________________________________
+
+does the same.
+
 This kind of settings may be very convenient for a system intended to be
 used on different computers, with different keyboards. It can also be useful
 for people who need to translate documents between languages using different

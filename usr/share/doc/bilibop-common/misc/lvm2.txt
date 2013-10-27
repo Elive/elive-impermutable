@@ -18,7 +18,7 @@ Disk
 ├───Partition1───PV#1
 │                ├───LV#1───Filesystem (/boot)
 │                └───LV#2───LUKS───PV#2
-│                                  ├───LV#3───Filesystem (/root)
+│                                  ├───LV#3───Filesystem (/)
 │                                  ├───LV#4───Filesystem (/home)
 │                                  └───LV#5───SWAP Filesystem
 ├───Partition2───LUKS───Filesystem
@@ -95,6 +95,10 @@ this will build a new initramdisk with the new lvm.conf into; all other
 volumes than those used by your system will never be activated at boot time
 or later, until you modify the 'filter' setting.
 
+NOTE: the bilibop-rules package provides a helper script,
+/usr/share/bilibop/physical_volumes_filter, which has been written to
+automate the previously described tasks. See README.Debian in the
+documentation of this package for details.
 
 2.2. Backups and archives
 -------------------------
