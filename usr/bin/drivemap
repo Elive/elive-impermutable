@@ -188,11 +188,11 @@ then
 	export DEVICE="$(underlying_device_from_file ${PWD})"
 fi
 
-# If the --mountpoint option is invoked, we need to know the lenght of
-# the longest mountpoint string; the shortest being / with lenght = 1.
-if	[ "${_mountpoint_}" = "true" -a -z "${lenght}" ]
+# If the --mountpoint option is invoked, we need to know the length of
+# the longest mountpoint string; the shortest being / with length = 1.
+if	[ "${_mountpoint_}" = "true" -a -z "${length}" ]
 then
-	export lenght="$(_drivemap_max_mp_lenght)"
+	export length="$(_drivemap_max_mp_length)"
 fi
 
 # If no DEVICE, DIR or FILE has been given as argument, process on all known
