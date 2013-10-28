@@ -98,7 +98,7 @@ Description: device management rules for OS running from external media
  .
  To ease device management, bilibop-rules also provides helper scripts to:
   * build custom bilibop udev rules running faster than the generic ones
-  * make some persistent and cumulative rules files unpersistent
+  * make some persistent and cumulative udev rules files unpersistent
   * use either a fake or an always-up-to-date grub device map
   * filter Physical Volumes, to activate only those needed by the system
  .
