@@ -10,7 +10,7 @@ get_bilibop_variables
 # _udisks_system_internal() ================================================={{{
 # What we want is: forbid user applications to (auto)mount listed filesystems.
 _udisks_system_internal() {
-    ${DEBUG} && echo "> udisks_system_internal $@" >&2
+    ${DEBUG} && echo "> _udisks_system_internal $@" >&2
     local   skip
     for skip in ${BILIBOP_RULES_SYSTEM_INTERNAL_WHITELIST}
     do
@@ -32,7 +32,7 @@ _udisks_system_internal() {
 # variables should be exported by udev, and so this functions don't need an
 # argument. The same rule applies to the two following functions.
 _udisks_presentation_hide() {
-    ${DEBUG} && echo "> udisks_presentation_hide $@" >&2
+    ${DEBUG} && echo "> _udisks_presentation_hide $@" >&2
     local   skip
     for skip in ${BILIBOP_RULES_PRESENTATION_HIDE_WHITELIST}
     do
@@ -49,7 +49,7 @@ _udisks_presentation_hide() {
 # What we want is: use another icon than the default one to show a device to
 # the user.
 _udisks_presentation_icon() {
-    ${DEBUG} && echo "> udisks_presentation_icon $@" >&2
+    ${DEBUG} && echo "> _udisks_presentation_icon $@" >&2
     local   icon
     for icon in ${BILIBOP_RULES_PRESENTATION_ICON}
     do
@@ -67,7 +67,7 @@ _udisks_presentation_icon() {
 # What we want is: use another icon than the default one to show a device to
 # the user.
 _udisks_presentation_name() {
-    ${DEBUG} && echo "> udisks_presentation_name $@" >&2
+    ${DEBUG} && echo "> _udisks_presentation_name $@" >&2
     local   name
     for name in ${BILIBOP_RULES_PRESENTATION_NAME}
     do
