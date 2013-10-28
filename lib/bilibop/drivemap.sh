@@ -28,6 +28,7 @@ _drivemap_initial_indent() {
 # What we want is: define the length of the longest mountpoint string to use it
 # in a formated output (with a fixed width), but with aligned paths.
 _drivemap_max_mp_length() {
+    ${DEBUG} && echo "> _drivemap_max_mp_length $@" >&2
     local   length=1
     for	mp in $(grep "^${udev_root}/" /proc/mounts | sed 's,^[^ ]\+ \([^ ]\+\) .*,\1,')
     do  [ ${#mp} -gt ${length} ] && length=${#mp}
