@@ -3,4 +3,6 @@ bilibop-lockfs - TODO
   * Translate manpages
   * Use debconf to notice the user that she must reboot the system to use the
     lockfs feature, and how.
+  * Improve soft policy, to automatically save some changes at shutdown, maybe
+    from a list. 
 
