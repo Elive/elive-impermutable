@@ -71,6 +71,33 @@ blockdev_root_subtree() {
     done
 }
 # ===========================================================================}}}
+# get_device_node() ========================================================={{{
+# What we want is: output the device node from a given argument of the form
+# /dev/*, LABEL=* or UUID=* such as they can be found in fstab. This means
+# the LABEL may contain '/' characters that need to be translated to their
+# hex value, but cannot contain space characters, as they are not managed by
+# fstab parsers (i.e. mount).
+get_device_node() {
+    ${DEBUG} && echo "> get_device_node $@" >&2
+    local symlink
+    case "${1}" in
+        ${UDEV_ROOT}/*)
+            symlink="$(echo "${1}" | sed "s,^${UDEV_ROOT},${udev_root},")"
+            ;;
+        UUID=*)
+            symlink="${udev_root}/disk/by-uuid/${1#UUID=}"
+            ;;
+        LABEL=*)
+            symlink="${udev_root}/disk/by-label/$(echo "${1#LABEL=}" | sed -e 's,/,\\x2f,g')"
+            ;;
+    esac
+    if [ -e "${symlink}" ]; then
+        readlink -f ${symlink}
+    else
+        return 1
+    fi
+}
+# ===========================================================================}}}
 # get_swap_policy() ========================================================={{{
 # What we want is: output the policy to apply for swap devices. If it is set in
 # bilibop.conf, apply it; otherwise, the fallback depends on the 'removable'
@@ -114,26 +141,7 @@ is_a_crypt_target() {
 is_encrypted() {
     ${DEBUG} && echo "> is_encrypted $@" >&2
     [ -f "${CRYPTTAB}" ] || return 1
-
-    case    "${1}" in
-        ${UDEV_ROOT}/*)
-            dev="$(echo "${1}" | sed "s,^${UDEV_ROOT},${udev_root},")"
-            ;;
-        LABEL=*)
-            # We translate / -> \x2f, but no need to translate space characters
-            # to \x20, as a space into a value is not allowed in /etc/fstab
-            # (and can't be escaped in any way).
-            dev="${udev_root}/disk/by-label/$(echo "${1#LABEL=}" | sed -e 's,/,\\x2f,g')"
-            ;;
-        UUID=*)
-            dev="${udev_root}/disk/by-uuid/${1#UUID=}"
-            ;;
-        *)
-            return 1
-            ;;
-    esac
-
-    dev="$(readlink -f "${dev}")"
+    local dev="$(get_device_node "${1}")"
 
     while   true
     do
@@ -544,31 +552,15 @@ activate_bilibop_lv() {
 # This function is called from parse_and_modify_fstab().
 unlock_logical_volume() {
     ${DEBUG} && echo "> unlock_logical_volume $@" >&2
+    local dev="$(get_device_node ${1})"
 
-    local   lvm node symlink dev="${1}"
     for lvm in $(cat /etc/lvm/bilibop)
     do
         [ -e "${udev_root}/${lvm}" ] || continue
-        case "${dev}" in
-            UUID=*)
-                symlink="${udev_root}/disk/by-uuid/${dev#UUID=}"
-                ;;
-            LABEL=*)
-                # We translate / -> \x2f, but no need to translate space
-                # characters to \x20, as a space into a value is not allowed
-                # in /etc/fstab (and can't be escaped in any way).
-                symlink="${udev_root}/disk/by-label/$(echo "${dev#LABEL=}" | sed 's,/,\\x2f,g')"
-                ;;
-            ${UDEV_ROOT}/*)
-                symlink="$(echo ${dev} | sed "s,^${UDEV_ROOT},${udev_root},")"
-                ;;
-        esac
-        [ -e "${symlink}" ] || continue
-        node="$(readlink -f ${symlink})"
-        if [ "$(readlink -f ${udev_root}/${lvm})" = "${node}" ]
+        if [ "$(readlink -f ${udev_root}/${lvm})" = "${dev}" ]
         then
             sed -i "/^${lvm}$/d" /etc/lvm/bilibop
-            blockdev --setrw ${node}
+            blockdev --setrw ${dev}
             break
         fi
     done
