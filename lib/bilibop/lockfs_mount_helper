@@ -256,23 +256,6 @@ if ! mount -t aufs -o br:${rwbr}=rw:${robr}=${RO} none ${mntpnt}; then
     exit 3
 fi
 
-# Special case for 'crypt', 'crypt_LUKS' and 'crypto_LUKS' fstypes, when
-# BILIBOP_LOCKFS_POLICY is hard: two block devices have to be set readonly:
-# the second one is created by mount.crypt by using dm-crypt, and its dm
-# name is the full path of the underlying device, whose the '/' have been
-# replaced by '_'.
-if [ "${BILIBOP_LOCKFS_POLICY}" != "soft" ]; then
-    case "${fstype}" in
-        crypt|crypt_LUKS|crypto_LUKS)
-            DM_NAME="$(echo "${device}" | sed 's,/,_,g')"
-            [ -b "${udev_root}/mapper/${DM_NAME}" ] ||
-            DM_NAME="$(readlink -f "${device}" | sed 's,/,_,g')"
-            [ -b "${udev_root}/mapper/${DM_NAME}" ] &&
-            blockdev --setro $(readlink -f "${udev_root}/mapper/${DM_NAME}")
-            ;;
-    esac
-fi
-
 # All is OK. So we can rewrite fstab entry to reflect the real mounts. This
 # can be important for clean unmounts at shutdown (for the case a filesystem
 # is remounted rw during a session).
