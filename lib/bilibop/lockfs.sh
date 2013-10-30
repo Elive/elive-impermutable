@@ -120,7 +120,10 @@ is_encrypted() {
             dev="$(echo "${1}" | sed "s,^${UDEV_ROOT},${udev_root},")"
             ;;
         LABEL=*)
-            dev="${udev_root}/disk/by-label/${1#LABEL=}"
+            # We translate / -> \x2f, but no need to translate space characters
+            # to \x20, as a space into a value is not allowed in /etc/fstab
+            # (and can't be escaped in any way).
+            dev="${udev_root}/disk/by-label/$(echo "${1#LABEL=}" | sed -e 's,/,\\x2f,g')"
             ;;
         UUID=*)
             dev="${udev_root}/disk/by-uuid/${1#UUID=}"
@@ -551,7 +554,10 @@ unlock_logical_volume() {
                 symlink="${udev_root}/disk/by-uuid/${dev#UUID=}"
                 ;;
             LABEL=*)
-                symlink="${udev_root}/disk/by-label/${dev#LABEL=}"
+                # We translate / -> \x2f, but no need to translate space
+                # characters to \x20, as a space into a value is not allowed
+                # in /etc/fstab (and can't be escaped in any way).
+                symlink="${udev_root}/disk/by-label/$(echo "${dev#LABEL=}" | sed 's,/,\\x2f,g')"
                 ;;
             ${UDEV_ROOT}/*)
                 symlink="$(echo ${dev} | sed "s,^${UDEV_ROOT},${udev_root},")"
