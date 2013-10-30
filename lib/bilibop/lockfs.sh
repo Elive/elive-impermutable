@@ -372,8 +372,9 @@ check_mount_lockfs() {
 }
 # ===========================================================================}}}
 # initialize_lvm_conf() ====================================================={{{
-# What we want is: create lvm.conf or modify it if one of the file itself, the
-# 'devices' section or the 'filter' array is missing.
+# What we want is: create lvm.conf or modify it if the file itself, or a
+# required (for our purpose) section, or a required (for our purpose)
+# variable/array is missing.
 initialize_lvm_conf() {
     ${DEBUG} && echo "> initialize_lvm_conf $@" >&2
 
@@ -389,6 +390,7 @@ devices {
     scan = [ "${1}" ]
     obtain_device_list_from_udev = 1
     filter = [ "a|.*|" ]
+    global_filter = [ "a|.*|" ]
     sysfs_scan = 1
 }
 
@@ -413,6 +415,7 @@ devices {
     scan = [ "${1}" ]
     obtain_device_list_from_udev = 1
     filter = [ "a|.*|" ]
+    global_filter = [ "a|.*|" ]
     sysfs_scan = 1
 }
 EOF
@@ -425,6 +428,8 @@ EOF
             sed -i 's;^\s*devices\s*{;&\n    obtain_device_list_form_udev = 1\n;' ${LVM_CONF}
             grep -q '^\s*filter\s*=' ${LVM_CONF} ||
             sed -i 's;^\s*devices\s*{;&\n    filter = [ "a|.*|" ]\n;' ${LVM_CONF}
+            grep -q '^\s*global_filter\s*=' ${LVM_CONF} ||
+            sed -i 's;^\s*devices\s*{;&\n    global_filter = [ "a|.*|" ]\n;' ${LVM_CONF}
             grep -q '^\s*sysfs_scan\s*=' ${LVM_CONF} ||
             sed -i 's;^\s*devices\s*{;&\n    sysfs_scan = 1\n;' ${LVM_CONF}
     fi
@@ -465,7 +470,7 @@ EOF
 # happen that all is mounted on / is silently unmounted (/boot, /home, /proc,
 # /sys, /dev, /tmp and more) and becomes unmountable until the next reboot.
 # So, we need to blacklist all known bilibop Physical Volumes by setting the
-# 'filter' array in lvm.conf(5).
+# 'filter' and 'global_filter' arrays in lvm.conf(5).
 blacklist_bilibop_devices() {
     ${DEBUG} && echo "> blacklist_bilibop_devices $@" >&2
 
@@ -489,7 +494,7 @@ blacklist_bilibop_devices() {
             DEVLINKS="${BILIBOP_COMMON_BASENAME}/part ${DEVLINKS}"
         blacklist="$(echo ${node} ${DEVLINKS} | sed 's, \+,|,g')"
 
-        sed -i "s;^\s*filter\s*=\s*\[\s*;&\"r#^${UDEV_ROOT}/(${blacklist})\$#\", ;" ${LVM_CONF}
+        sed -i "s;^\s*\(global_\)\?filter\s*=\s*\[\s*;&\"r#^${UDEV_ROOT}/(${blacklist})\$#\", ;" ${LVM_CONF}
     done
 }
 # ===========================================================================}}}
