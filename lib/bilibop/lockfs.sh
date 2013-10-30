@@ -585,7 +585,7 @@ plymouth_message() {
 # be called very early (or it may happen that the relevant info is flushed or
 # unbuffered). As far as I know, only USB keys and Flash memory cards may have
 # a switch to lock them; there are two 'syntaxes', depending on the media type.
-is_phycally_locked() {
+is_physically_locked() {
     ${DEBUG} && echo "> is_physically_locked $@" >&2
     case "${1}" in
         sd?)
