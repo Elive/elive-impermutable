@@ -280,12 +280,7 @@ device_node_from_major_minor() {
 # ===========================================================================}}}
 # device_id_of_file() ======================================================={{{
 # What we want is: output the major:minor of the filesystem containing the
-# file or directory given as argument. Here we use the full path of the command
-# for the case this function is called by a unprivileged user without /sbin in
-# its PATH. Since the bilibop functions do not depend on blkid, blockdev,
-# losetup or dmsetup to query information about devices/filesystems, anyone can
-# run them without special privileges. Formally, this uses udev and sysfs
-# databases instead of direct access to the devices.
+# file or directory given as argument.
 device_id_of_file() {
     ${DEBUG} && echo "> device_id_of_file $@" >&2
     udevadm info --device-id-of-file "${1}"
@@ -803,8 +798,7 @@ major_minor_from_device_node() {
 # ===========================================================================}}}
 # query_sysfs_attrs() ======================================================={{{
 # What we want is: query the sysfs attributes database for a device node given
-# as argument. See the 'device_id_of_file()' comments about the full path of
-# the command.
+# as argument.
 query_sysfs_attrs() {
     ${DEBUG} && echo "> query_sysfs_attrs $@" >&2
     udevadm info --attribute-walk --name "${1}"
@@ -812,8 +806,7 @@ query_sysfs_attrs() {
 # ===========================================================================}}}
 # query_udev_envvar() ======================================================={{{
 # What we want is: query the udev properties database for a device node given
-# as argument. See the 'device_id_of_file()' comments about the full path of
-# the command. The --export option is mandatory to eval the output of this
+# as argument. The --export option is mandatory to eval the output of this
 # command.
 query_udev_envvar() {
     ${DEBUG} && echo "> query_udev_envvar $@" >&2
