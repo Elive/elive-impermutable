@@ -4,7 +4,7 @@
 # The pvfilter functions need those of bilibop-common:
 . /lib/bilibop/common.sh
 
-# See lvm.conf(5) and pvfilter(8) manpages for details.
+# See also lvm.conf(5) manpage for details.
 
 # _pvfilter_has_global() ===================================================={{{
 # What we want is: return 0 if the 'global_filter' variable (in lvm.conf) is
