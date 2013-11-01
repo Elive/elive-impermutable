@@ -6,6 +6,16 @@
 
 # See lvm.conf(5) and pvfilter(8) manpages for details.
 
+# _pvfilter_has_global() ===================================================={{{
+# What we want is: return 0 if the 'global_filter' variable (in lvm.conf) is
+# supported, 1 otherwise. Also note that unknown variables encountered in
+# lvm.conf are silently ignored by lvm tools.
+_pvfilter_has_global() {
+    ${DEBUG} && echo "> _pvfilter_has_global $@" >&2
+    local version="$(dpkg -l lvm2 | awk '/^ii/ {print $3}')"
+    dpkg --compare-versions ${version} ge 2.02.98
+}
+# ===========================================================================}}}
 # _pvfilter_delimiter() ====================================================={{{
 # What we want is: set a valid (objective) and readable (subjective) delimiter.
 # Pipes can be used as delimiters between alternatives into the string, and
