@@ -30,7 +30,7 @@ case "${1}" in
         LVMCONF="/etc/lvm/lvm.conf"
         db_get bilibop-rules/physical_volumes_filter/system-only
         if [ -f "${LVMCONF}" -a "${RET}" = "true" ]; then
-            for lvmvar in filter obtain_device_list_from_udev; do
+            for lvmvar in filter global_filter obtain_device_list_from_udev; do
                 db_get bilibop-rules/physical_volumes_filter/${lvmvar}
                 if [ -n "${RET}" ] && grep -q "^\s*${lvmvar}\s*=" ${LVMCONF}; then
                     grep -Eq "^\s*${lvmvar}\s*=\s*${RET}\s*(#|$)" ${LVMCONF} ||
