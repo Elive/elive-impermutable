@@ -307,7 +307,7 @@ if [ ! -r "${LVM_CONF}" ]; then
 	exit 10
 
 elif [ ! -w "${LVM_CONF}" ]; then
-	if eval ${overwrite}; then
+	if [ "${overwrite}" = "true" ]; then
 		overwrite="false"
 		show="true"
 		exit_code="11"
@@ -377,7 +377,7 @@ while true; do
 					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }\"r${B}${verbatim}${E}\""
 					;;
 				bilibop|insidev|other|${udev_root}/*)
-					if eval ${accept_all}; then
+					if [ "${accept_all}" = "true" ]; then
 						_pvfilter_list_exclude_devices "${2}"
 						[ -n "${devlist}" ] &&
 						devlist="$(_pvfilter_reject_string "" ${devlist} -f)" &&

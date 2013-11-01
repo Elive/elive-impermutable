@@ -40,7 +40,7 @@ _pvfilter_delimiter() {
 # some links being 'omitted' (not managed by udev, even if it has created them).
 _pvfilter_find_dev_links() {
     ${DEBUG} && echo "> _pvfilter_find_dev_links $@" >&2
-    if  eval ${udev} ; then
+    if  [ "${udev}" = "true" ]; then
         udevadm info --query symlink --name ${1} |
         sed 's, ,\n,g'
     else
@@ -269,7 +269,7 @@ _pvfilter_list_pv() {
         eval $(query_udev_envvar ${node})
         [ "${ID_FS_TYPE}" = "LVM2_member" ] || continue
         echo ${udev_root}/${node}
-        eval ${show} || eval ${udev} &&
+        [ "${show}" = "true" -o "${udev}" = "true" ] &&
             _pvfilter_find_dev_links ${node} | grep -v '^$' |
             sed "s,^,\t${udev_root}/,"
     done
@@ -282,7 +282,7 @@ _pvfilter_list_pv() {
 _pvfilter_init_lvm_configfile() {
     ${DEBUG} && echo "> _pvfilter_init_lvm_configfile $@" >&2
     if  [ ! -f "${LVM_CONF}" ] ; then
-        if  eval ${init} ; then
+        if  [ "${init}" = "true" ]; then
             if  ! mkdir -p ${LVM_CONF%/*} 2>/dev/null ; then
                 echo "${PROG}: unable to create ${LVM_CONF%/*}." >&2
                 return 10
@@ -311,7 +311,7 @@ EOF
             return 10
         fi
     else
-        if  eval ${init} ; then
+        if  [ "${init}" = "true" ]; then
             echo "${PROG}: what's the need to use '--init' option ?" >&2
             return 1
         else
@@ -341,7 +341,7 @@ _pvfilter_init_device_filters() {
 
     elif [ "${have_devices}" = "1" ] ; then
         # Add devices section with minimal content
-        if  eval ${init} ; then
+        if  [ "${init}" = "true" ]; then
             if  [ ! -w "${LVM_CONF}" ] ; then
                 echo "${PROG}: no write permission on ${LVM_CONF}" >&2
                 return 10
@@ -362,7 +362,7 @@ EOF
         fi
 
     elif [ "${have_filter}" = "0" -a "${have_obtain}" = "0" ] ; then
-        if  eval ${init} ; then
+        if  [ "${init}" = "true" ]; then
             echo "${PROG}: what's the need to use '--init' option ?" >&2
             return 1
         else
@@ -370,13 +370,13 @@ EOF
         fi
 
     else
-        if  eval ${init} && [ ! -w "${LVM_CONF}" ] ; then
+        if  [ "${init}" = "true" -a ! -w "${LVM_CONF}" ] ; then
             echo "${PROG}: no write permission on ${LVM_CONF}" >&2
             return 10
         fi
         [ "${have_filter}" = "1" ] &&
         # Add 'filter' variable
-        if  eval ${init} ; then
+        if  [ "${init}" = "true" ]; then
             sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n    filter = [ "a|.*|" ],' ${LVM_CONF}
         else
             echo "${PROG}: 'filter' variable is missing in ${LVM_CONF}." >&2
@@ -385,7 +385,7 @@ EOF
         fi
         [ "${have_obtain}" = "1" ] &&
         # Add 'obtain_device_list_from_udev' variable
-        if  eval ${init} ; then
+        if  [ "${init}" = "true" ]; then
             sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n    obtain_device_list_from_udev = 1,' ${LVM_CONF}
         else
             echo "${PROG}: 'obtain_device_list_from_udev' variable is missing in ${LVM_CONF}." >&2
