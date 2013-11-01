@@ -36,16 +36,16 @@ case "${1}" in
         HELPER="physical_volumes_filter"
         LVMCONF="/etc/lvm/lvm.conf"
         if [ -f "${LVMCONF}" ]; then
-            for lvmvar in filter obtain_device_list_from_udev; do
+            for lvmvar in filter global_filter obtain_device_list_from_udev; do
                 db_fget bilibop-rules/${HELPER}/${lvmvar} seen
                 [ "${RET}" = "true" ] && continue || true
                 lvmval="$(grep "^\s*${lvmvar}\s*=" ${LVMCONF} | sed 's,^[^=]\+=\s*,,')"
                 if [ -n "${lvmval}" ]; then
                     db_set bilibop-rules/${HELPER}/${lvmvar} ${lvmval}
                     db_fset bilibop-rules/${HELPER}/${lvmvar} seen true
-                    # Now the initial values of 'obtain_device_list_from_udev'
-                    # and 'filter' are stored in the debconf db. They will be
-                    # restored if the package is purged.
+                    # Now the initial values of 'obtain_device_list_from_udev',
+                    # 'filter' and 'global_filter' are stored in the debconf
+                    # db. They will be restored if the package is purged.
                 fi
             done
         fi
@@ -294,6 +294,8 @@ case "${1}" in
 
                             db_get bilibop-rules/physical_volumes_filter/filter
                             db_subst bilibop-rules/physical_volumes_filter/warning FILTER "${RET}"
+                            db_get bilibop-rules/physical_volumes_filter/global_filter
+                            db_subst bilibop-rules/physical_volumes_filter/warning GLOBAL_FILTER "${RET}"
                             db_get bilibop-rules/physical_volumes_filter/obtain_device_list_from_udev
                             db_subst bilibop-rules/physical_volumes_filter/warning FROMUDEV "${RET}"
 
