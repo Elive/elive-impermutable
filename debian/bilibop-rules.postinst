@@ -310,7 +310,11 @@ case "${1}" in
                     fi
 
                     NEWPVFILTER="$(${HELPER})" || true
-                    [ "${NEWPVFILTER}" = "${OLDPVFILTER}" ] || LVMCONF_RECONFIGURE="1"
+                    if [ "${NEWPVFILTER}" != "${OLDPVFILTER}" ]; then
+                        LVMCONF_RECONFIGURE="1"
+                        # Regenerate cache file:
+                        vgscan --ignorelockingfailure
+                    fi
                 fi
             fi
         fi
