@@ -7,7 +7,7 @@ set -e
 
 ### BEGIN ###
 
-PATH="/bin:/usr/bin"
+PATH="/sbin:/bin:/usr/bin"
 PROG="${0##*/}"
 SOPTS="a:bDd:f:hilor:sux:"
 LOPTS="accept:,blank,default,delimiter:,exclude:,file:,help,init,list-pv,overwrite,reject:,show,udev"

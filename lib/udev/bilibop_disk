@@ -22,7 +22,7 @@
 # No option is the same as --test.
 # }}}
 
-PATH="/bin"
+PATH="/sbin:/bin"
 
 device=""
 option="test"

@@ -24,7 +24,7 @@ set -e
 
 ### BEGIN ###
 
-PATH="/bin:/usr/bin"
+PATH="/sbin:/bin:/usr/bin"
 PROG="${0##*/}"
 SOPTS="a:e:hn:o:t:"
 LOPTS="attribute:,environment:,help,name:,output:,target:"

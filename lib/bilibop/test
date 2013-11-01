@@ -4,6 +4,7 @@ set -e
 # Test if the argument (file/directory/device) is on the same underlying
 # device than the root filesystem; if this is the case and -q option is
 # not used, then output something.
+PATH="/sbin:/bin"
 . /lib/bilibop/common.sh
 get_udev_root
 DISK="$(physical_hard_disk /)" || exit $?
