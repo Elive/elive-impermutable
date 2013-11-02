@@ -144,7 +144,7 @@ case	"${BILIBOP_LOCKFS}" in
 		exit 0
 		;;
 	*)
-		if	is_removable $(physical_hard_disk ${rootmnt})
+		if	is_removable ${BILIBOP_DISK}
 		then	log_warning_msg "${0##*/}: Locking filesystem."
 		else	log_warning_msg "${0##*/}: Nothing to do."
 			case "${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
