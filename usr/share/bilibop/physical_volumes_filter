@@ -2,15 +2,15 @@
 set -e
 
 # /usr/share/bilibop/physical_volumes_filter
-# Get|set the 'filter' and 'obtain_device_list_from_udev' variables in
-# lvm.conf(5).
+# Get|set the 'filter' (or 'global_filter') and 'obtain_device_list_from_udev'
+# variables in lvm.conf(5).
 
 ### BEGIN ###
 
 PATH="/sbin:/bin:/usr/bin"
 PROG="${0##*/}"
-SOPTS="a:bDd:f:hilor:sux:"
-LOPTS="accept:,blank,default,delimiter:,exclude:,file:,help,init,list-pv,overwrite,reject:,show,udev"
+SOPTS="a:bDd:f:ghilor:sux:"
+LOPTS="accept:,blank,default,delimiter:,exclude:,file:,global,help,init,list-pv,overwrite,reject:,show,udev"
 
 # Check if 'lvm' is installed; if not, exit unconditionally.
 have_lvm="1"
@@ -39,6 +39,7 @@ show="false"        # --show
 udev="false"        # --udev
 accept_all="false"  # --accept all
 filter="false"      # --accept, --reject, --exclude
+global="false"      # --global
 B="|"; E="${B}"     # --delimiter
 
 exit_code=""        # for -o with unwritable file
@@ -70,10 +71,10 @@ See also lvm.conf(5) for some details.
 Usage:
   ${PROG} [--file FILE]
   ${PROG} --help
-  ${PROG} --init [--file FILE]
+  ${PROG} --init [--file FILE] [--global]
   ${PROG} --default [--show] [--file FILE]
   ${PROG} --list-pv [--show] [--udev]
-  ${PROG} [--blank] [--file FILE] [--overwrite] [--show] [--udev] [--delimiter ?] [--accept ARG] [--reject ARG] [--exclude ARG]
+  ${PROG} [--blank] [--file FILE] [--global] [--overwrite] [--show] [--udev] [--delimiter ?] [--accept ARG] [--reject ARG] [--exclude ARG]
 
 Options:
   -a ARG, --accept=ARG
@@ -106,6 +107,13 @@ Options:
 
   -f FILE, --file FILE
         Use FILE as an alternative LVM configuration file.
+
+  -g, --global
+        Set the 'global_filter' instead of 'filter'. If this variable is
+        not supported (i.e. lvm2 < 2.02.98), this option is silently
+        ignored. Note that this variable is not set by default.
+        If 'global_filter' is supported and if it is set (even with an
+        empty array), then --global is implicit.
 
   -h, --help
         Print this message on stdout and exit.
@@ -163,6 +171,10 @@ while true; do
 			;;
 		-i|--init)
 			init="true"
+			shift
+			;;
+		-g|--global)
+			global="true"
 			shift
 			;;
 		-f|--file)
@@ -229,6 +241,14 @@ done
 
 # Options will be parsed again:
 eval set -- "${ARGS}"
+
+# Fix the behaviour of the --global option:
+if _pvfilter_has_global; then
+	grep -qs '^\s*global_filter\s*=\s*\[.*\]' ${LVM_CONF} &&
+	global="true"
+else
+	global="false"
+fi
 # ===========================================================================}}}
 
 #################################################################
