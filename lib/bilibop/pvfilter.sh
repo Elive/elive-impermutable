@@ -55,8 +55,8 @@ _pvfilter_find_dev_links() {
         sed 's, ,\n,g'
     else
         cd ${udev_root}
-        find * -type l -ls |
-        awk "/ (\.\.\/)*${1}$/ {print \$11}"
+        find -L * -path fd -prune -o -samefile ${1} |
+        grep -v "^\(${1}\|fd\)$"
         cd ${OLDPWD}
     fi
 }
