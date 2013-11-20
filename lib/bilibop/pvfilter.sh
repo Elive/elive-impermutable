@@ -336,20 +336,21 @@ EOF
 # created if necessary and possible.
 _pvfilter_init_device_filters() {
     ${DEBUG} && echo "> _pvfilter_init_device_filters $@" >&2
-    grep -q '^[[:blank:]]*obtain_device_list_from_udev[[:blank:]]*=' ${LVM_CONF}
-    local have_obtain="$?"
-    grep -q '^[[:blank:]]*filter[[:blank:]]*=' ${LVM_CONF}
-    local have_filter="$?"
-    grep -q '^[[:blank:]]*devices[[:blank:]]*{' ${LVM_CONF}
-    local have_devices="$?"
+    local have_obtain="false" have_filter="false" have_devices="false"
+    grep -q '^[[:blank:]]*obtain_device_list_from_udev[[:blank:]]*=' ${LVM_CONF} &&
+    have_obtain="true"
+    grep -q '^[[:blank:]]*filter[[:blank:]]*=' ${LVM_CONF} &&
+    have_filter="true"
+    grep -q '^[[:blank:]]*devices[[:blank:]]*{' ${LVM_CONF} &&
+    have_devices="true"
 
-    if  [ "${have_devices}" = "1" ] &&
-        [ "${have_filter}" = "0" -o "${have_obtain}" = "0" ] ; then
+    if  [ "${have_devices}" = "false" ] &&
+        [ "${have_filter}" = "true" -o "${have_obtain}" = "true" ] ; then
         # Inconsistency
         echo "${PROG}: ${LVM_CONF} seems to be inconsistent." >&2
         return 13
 
-    elif [ "${have_devices}" = "1" ] ; then
+    elif [ "${have_devices}" = "false" ] ; then
         # Add devices section with minimal content
         if  [ "${init}" = "true" ]; then
             if  [ ! -w "${LVM_CONF}" ] ; then
@@ -371,7 +372,7 @@ EOF
             return 10
         fi
 
-    elif [ "${have_filter}" = "0" -a "${have_obtain}" = "0" ] ; then
+    elif [ "${have_filter}" = "true" -a "${have_obtain}" = "true" ] ; then
         if  [ "${init}" = "true" ]; then
             echo "${PROG}: what's the need to use '--init' option ?" >&2
             return 1
@@ -384,7 +385,7 @@ EOF
             echo "${PROG}: no write permission on ${LVM_CONF}" >&2
             return 10
         fi
-        [ "${have_filter}" = "1" ] &&
+        [ "${have_filter}" = "false" ] &&
         # Add 'filter' variable
         if  [ "${init}" = "true" ]; then
             sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n    filter = [ "a|.*|" ],' ${LVM_CONF}
@@ -393,7 +394,7 @@ EOF
             echo "Use '--init' option to create it." >&2
             return 10
         fi
-        [ "${have_obtain}" = "1" ] &&
+        [ "${have_obtain}" = "false" ] &&
         # Add 'obtain_device_list_from_udev' variable
         if  [ "${init}" = "true" ]; then
             sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n    obtain_device_list_from_udev = 1,' ${LVM_CONF}
