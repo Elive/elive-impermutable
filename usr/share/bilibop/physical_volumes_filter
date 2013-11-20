@@ -301,10 +301,11 @@ fi
 #    is not invoked but something is missing, exit too.
 if [ "${init}" = "true" ]; then
 	if [ -f "${LVM_CONF}" ]; then
-		_pvfilter_init_device_filters; exit $?
+		_pvfilter_init_device_filters || exit $?
 	else
-		_pvfilter_init_lvm_configfile; exit $?
+		_pvfilter_init_lvm_configfile || exit $?
 	fi
+	exit 0
 else
 	_pvfilter_init_lvm_configfile || exit $?
 	_pvfilter_init_device_filters || exit $?
