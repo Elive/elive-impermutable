@@ -9,8 +9,11 @@ FROM DEBIAN BTS
 #675467: ITP: bilibop -- run Debian from external media
 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=675467
 
-#675532: RFS: bilibop/0.4.6 (ITP #675467)
+#675532: RFS: bilibop/0.4.16 (ITP #675467)
 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=675532
+
+Bugs in source package bilibop
+http://bugs.debian.org/cgi-bin/pkgreport.cgi?src=bilibop
 
 ---------------
 
@@ -23,6 +26,9 @@ http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=623975
 #645466: When running from removable media, udev allows direct access by
          "floppy" group
 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=645466
+
+#651466: initramfs fails to start LVM half the time
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=651466
 
 #671546: udev: loop device: add backing file in udev database
 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=671546
@@ -39,3 +45,10 @@ http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=678954
          to system crash.
 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=691029
 
+#715184: lvm2: fails to boot with root on lvm, as wait loop for slow disk is
+         too late
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=715184
+
+#730040: lvm2: global_filter issue: lvm commands create a ????P??? directory
+         in the current one when exiting
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=730040
