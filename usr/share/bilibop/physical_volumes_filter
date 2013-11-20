@@ -82,7 +82,7 @@ Options:
         Accept or reject device(s). Each -a or -r option can be invoked
         several times, and the filter will be build in the same order
         than the commandline options. The resulting patterns will be
-        added BEFORE existing rules. ARG can be:
+        prepended to the existing rules. ARG can be:
         all         all Physical Volumes
         insidev     only PV on internal disks
         bilibop     only PV on the same disk than the root filesystem
