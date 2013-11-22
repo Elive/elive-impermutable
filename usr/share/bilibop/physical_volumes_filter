@@ -12,6 +12,9 @@ PROG="${0##*/}"
 SOPTS="a:bDd:f:ghilnor:sux:"
 LOPTS="accept:,blank,default,delimiter:,exclude:,file:,global,help,init,list-pv,noglobal,overwrite,reject:,show,udev"
 
+# Work around bug #730146:
+export LC_CTYPE="POSIX"
+
 # Check if 'lvm' is installed; if not, exit unconditionally.
 have_lvm="1"
 for dir in /sbin /usr/sbin /bin /usr/bin; do
