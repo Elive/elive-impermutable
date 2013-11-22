@@ -19,6 +19,9 @@ esac
 # process.
 # We assume that /proc, /sys and /dev are correctly mounted.
 
+# Work around bug #730146:
+export LC_CTYPE="POSIX"
+
 # /proc/cmdline will be parsed several times. We call 'cat' only one time:
 readonly CMDLINE="$(cat /proc/cmdline)"
 
