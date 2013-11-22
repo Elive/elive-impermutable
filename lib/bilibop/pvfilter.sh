@@ -309,9 +309,18 @@ _pvfilter_init_lvm_configfile() {
 
 devices {
     obtain_device_list_from_udev = 1
+EOF
+                if [ "${global}" = "true" ]; then
+                    cat >>${LVM_CONF} <<EOF
+    global_filter = [ ]
+}
+EOF
+                else
+                    cat >>${LVM_CONF} <<EOF
     filter = [ "a|.*|" ]
 }
 EOF
+                fi
                 chmod 644 ${LVM_CONF}
             fi
 
@@ -336,7 +345,8 @@ EOF
 # created if necessary and possible.
 _pvfilter_init_device_filters() {
     ${DEBUG} && echo "> _pvfilter_init_device_filters $@" >&2
-    local have_obtain="false" have_filter="false" have_devices="false"
+    local have_obtain="false" have_filter="false" have_global="false" have_devices="false"
+
     grep -q '^[[:blank:]]*obtain_device_list_from_udev[[:blank:]]*=' ${LVM_CONF} &&
     have_obtain="true"
     grep -q '^[[:blank:]]*filter[[:blank:]]*=' ${LVM_CONF} &&
@@ -344,12 +354,19 @@ _pvfilter_init_device_filters() {
     grep -q '^[[:blank:]]*devices[[:blank:]]*{' ${LVM_CONF} &&
     have_devices="true"
 
+    if [ "${global_filter_is_supported}" = "true" ]; then
+        grep -q '^[[:blank:]]*global_filter[[:blank:]]*=' ${LVM_CONF} &&
+        have_global="true"
+    fi
+
+    # 1. the 'devices' section does not exist, but one of its variables is set {{{
     if  [ "${have_devices}" = "false" ] &&
-        [ "${have_filter}" = "true" -o "${have_obtain}" = "true" ] ; then
+        [ "${have_filter}" = "true" -o "${have_global}" = "true" -o "${have_obtain}" = "true" ] ; then
         # Inconsistency
         echo "${PROG}: ${LVM_CONF} seems to be inconsistent." >&2
         return 13
-
+        # }}}
+    # 2. the 'devices' section does not exist, and then it must be created now {{{
     elif [ "${have_devices}" = "false" ] ; then
         # Add devices section with minimal content
         if  [ "${init}" = "true" ]; then
@@ -361,9 +378,18 @@ _pvfilter_init_device_filters() {
 
 devices {
     obtain_device_list_from_udev = 1
+EOF
+                if [ "${global}" = "true" ]; then
+                    cat >>${LVM_CONF} <<EOF
+    global_filter = [ ]
+}
+EOF
+                else
+                    cat >>${LVM_CONF} <<EOF
     filter = [ "a|.*|" ]
 }
 EOF
+                fi
             fi
 
         else
@@ -371,26 +397,38 @@ EOF
             echo "Use '--init' option to create it." >&2
             return 10
         fi
-
-    elif [ "${have_filter}" = "true" -a "${have_obtain}" = "true" ] ; then
+        # }}}
+    # 3. the 'devices' section exists, with all the needed variables {{{
+    elif [ "${global}" = "true" -a "${have_global}" = "true" -a "${have_obtain}" = "true" ] ||
+        [ "${global}" = "false" -a "${have_filter}" = "true" -a "${have_obtain}" = "true" ]; then
         if  [ "${init}" = "true" ]; then
             echo "${PROG}: what's the need to use '--init' option ?" >&2
             return 1
         else
             return 0
         fi
-
+        # }}}
+    # 4. the 'devices' section exists, but a needed variable is missing {{{
     else
         if  [ "${init}" = "true" -a ! -w "${LVM_CONF}" ] ; then
             echo "${PROG}: no write permission on ${LVM_CONF}" >&2
             return 10
         fi
-        [ "${have_filter}" = "false" ] &&
+        [ "${have_filter}" = "false" -a "${global}" = "false" ] &&
         # Add 'filter' variable
         if  [ "${init}" = "true" ]; then
             sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n    filter = [ "a|.*|" ],' ${LVM_CONF}
         else
             echo "${PROG}: 'filter' variable is missing in ${LVM_CONF}." >&2
+            echo "Use '--init' option to create it." >&2
+            return 10
+        fi
+        [ "${have_global}" = "false" -a "${global}" = "true" ] &&
+        # Add 'global_filter' variable
+        if  [ "${init}" = "true" ]; then
+            sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n    global_filter = [ ],' ${LVM_CONF}
+        else
+            echo "${PROG}: 'global_filter' variable is missing in ${LVM_CONF}." >&2
             echo "Use '--init' option to create it." >&2
             return 10
         fi
@@ -404,6 +442,7 @@ EOF
             return 10
         fi
     fi
+    # }}}
 }
 # ===========================================================================}}}
 
