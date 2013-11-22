@@ -171,5 +171,21 @@ _Description: Physical Volumes Filter will not be applied.
  .
   obtain_device_list_from_udev = ${FROMUDEV}
   filter = ${FILTER}
+
+Template: bilibop-rules/physical_volumes_filter/warning2
+Type: error
+#flag:translate!:3,5
+_Description: Physical Volumes Filter will not be applied.
+ Probably due to an error in '66-bilibop.rules', the following device(s) have
+ not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:
+ .
+  ${UNTAGGED}
+  ${UNLINKED}
+ .
+ This means some variables in '/etc/lvm/lvm.conf' will be left or reset to
+ their initial values:
+ .
+  obtain_device_list_from_udev = ${FROMUDEV}
+  filter = ${FILTER}
   global_filter = ${GLOBAL_FILTER}
 

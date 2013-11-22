@@ -19,6 +19,11 @@ belongs_to_floppy_group() {
     stat -c %G ${1}* | grep -q '^floppy$'
 }
 
+global_filter_is_supported() {
+    local version="$(dpkg -l lvm2 | awk '/^ii/ {print $3}')"
+    dpkg --compare-versions ${version} ge 2.02.98
+}
+
 case "${1}" in
     configure|reconfigure)
 
@@ -38,8 +43,10 @@ case "${1}" in
         # At first, backup some values if this is not already done.
         HELPER="physical_volumes_filter"
         LVMCONF="/etc/lvm/lvm.conf"
+        lvm_variables="obtain_device_list_from_udev filter"
+        global_filter_is_supported && lvm_variables="${lvm_variables} global_filter"
         if [ -f "${LVMCONF}" ]; then
-            for lvmvar in filter global_filter obtain_device_list_from_udev; do
+            for lvmvar in ${lvm_variables}; do
                 db_fget bilibop-rules/${HELPER}/${lvmvar} seen
                 [ "${RET}" = "true" ] && continue || true
                 lvmval="$(grep "^\s*${lvmvar}\s*=" ${LVMCONF} | sed 's,^[^=]\+=\s*,,')"
@@ -289,23 +296,33 @@ case "${1}" in
                     if [ "${RET}" = "true" -a -z "${untagged}" -a -z "${unlinked}" ]; then
                         [ -f "${LVMCONF}" ] || ${HELPER} --init
                         ${HELPER} --overwrite --udev --accept bilibop --reject all
+
                     else
                         if [ "${RET}" = "true" ]; then
                             db_reset bilibop-rules/physical_volumes_filter/system-only
-                            db_subst bilibop-rules/physical_volumes_filter/warning UNTAGGED "${untagged}"
-                            db_subst bilibop-rules/physical_volumes_filter/warning UNLINKED "${unlinked}"
 
-                            db_get bilibop-rules/physical_volumes_filter/filter
-                            db_subst bilibop-rules/physical_volumes_filter/warning FILTER "${RET}"
-                            db_get bilibop-rules/physical_volumes_filter/global_filter
-                            db_subst bilibop-rules/physical_volumes_filter/warning GLOBAL_FILTER "${RET}"
-                            db_get bilibop-rules/physical_volumes_filter/obtain_device_list_from_udev
-                            db_subst bilibop-rules/physical_volumes_filter/warning FROMUDEV "${RET}"
-
-                            db_input critical bilibop-rules/physical_volumes_filter/warning || true
+                            if ! global_filter_is_supported; then
+                                db_subst bilibop-rules/physical_volumes_filter/warning UNTAGGED "${untagged}"
+                                db_subst bilibop-rules/physical_volumes_filter/warning UNLINKED "${unlinked}"
+                                db_get bilibop-rules/physical_volumes_filter/obtain_device_list_from_udev
+                                db_subst bilibop-rules/physical_volumes_filter/warning FROMUDEV "${RET}"
+                                db_get bilibop-rules/physical_volumes_filter/filter
+                                db_subst bilibop-rules/physical_volumes_filter/warning FILTER "${RET}"
+                                db_input critical bilibop-rules/physical_volumes_filter/warning || true
+                            else
+                                db_subst bilibop-rules/physical_volumes_filter/warning2 UNTAGGED "${untagged}"
+                                db_subst bilibop-rules/physical_volumes_filter/warning2 UNLINKED "${unlinked}"
+                                db_get bilibop-rules/physical_volumes_filter/obtain_device_list_from_udev
+                                db_subst bilibop-rules/physical_volumes_filter/warning2 FROMUDEV "${RET}"
+                                db_get bilibop-rules/physical_volumes_filter/filter
+                                db_subst bilibop-rules/physical_volumes_filter/warning2 FILTER "${RET}"
+                                db_get bilibop-rules/physical_volumes_filter/global_filter
+                                db_subst bilibop-rules/physical_volumes_filter/warning2 GLOBAL_FILTER "${RET}"
+                                db_input critical bilibop-rules/physical_volumes_filter/warning2 || true
+                            fi
                             db_go || true
                         fi
-                        for lvmvar in filter obtain_device_list_from_udev; do
+                        for lvmvar in ${lvm_variables}; do
                             db_get bilibop-rules/physical_volumes_filter/${lvmvar}
                             if [ -n "${RET}" ] && grep -qs "^\s*${lvmvar}\s*=" ${LVMCONF}; then
                                 grep -Eq "^\s*${lvmvar}\s*=\s*${RET}\s*(#|$)" ${LVMCONF} ||
