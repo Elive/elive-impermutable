@@ -12,6 +12,9 @@ get_udev_root
 PATH="${PATH}:/usr/share/bilibop"
 ETC_RULES_DIR="/etc/udev/rules.d"
 
+# Work around bug #730146:
+export LC_CTYPE="POSIX"
+
 belongs_to_floppy_group() {
     stat -c %G ${1}* | grep -q '^floppy$'
 }
