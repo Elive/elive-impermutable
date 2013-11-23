@@ -2,9 +2,6 @@
 
 set -e
 
-# Work around bug #730146:
-export LC_CTYPE="POSIX"
-
 case "${1}" in
     purge)
         # Comment bilibop-lockfs specific configuration variables in

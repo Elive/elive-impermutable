@@ -16,9 +16,6 @@ esac
 
 # Add bilibop functions and needed commands to use them.
 
-# Work around bug #730146:
-export LC_CTYPE="POSIX"
-
 ### BEGIN ###
 . /usr/share/initramfs-tools/hook-functions
 
