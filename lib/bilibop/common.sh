@@ -292,11 +292,7 @@ find_mountpoint() {
 # corresponding device node. What is the best way?
 device_node_from_major_minor() {
     ${DEBUG} && echo "> device_node_from_major_minor $@" >&2
-    #grep "^\s*${1%:*}\s\+${1#*:}\s" /proc/partitions |
-    #    sed -e "s,^[[:blank:][:digit:]]*\(.\+\)$,${udev_root}/\1,"
-    # maybe best:
-    local   dev="$(readlink -f /sys/dev/block/${1})"
-    echo "${udev_root}/${dev##*/}"
+    readlink -f ${udev_root}/block/${1}
 }
 # ===========================================================================}}}
 # device_id_of_file() ======================================================={{{
