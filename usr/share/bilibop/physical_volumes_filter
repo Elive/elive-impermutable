@@ -266,7 +266,7 @@ eval set -- "${ARGS}"
 # 'global_filter' is not supported, --global/--noglobal are silently ignored.
 if _pvfilter_has_global; then
 	global_filter_is_supported="true"
-	if grep -qs '^\s*global_filter\s*=\s*\[.*\]' ${LVM_CONF}; then
+	if grep -qs '^[[:blank:]]*global_filter[[:blank:]]*=[[:blank:]]*\[.*\]' ${LVM_CONF}; then
 		[ "${noglobal}" = "true" ] || global="true"
 	fi
 else
@@ -285,17 +285,17 @@ if [ "${1}" = "--" ] ||
 	[ "${3}" = "--" -a "${1}" = "-f" ] ||
 	[ "${3}" = "--" -a "${1}" = "--file" ]; then
 	not_found=0
-	grep -qs '^\s*devices\s{' ${LVM_CONF} || not_found="$?"
+	grep -qs '^[[:blank:]]*devices[[:blank:]]{' ${LVM_CONF} || not_found="$?"
 	case "${not_found}" in
 		0)
-			grep '^\s*obtain_device_list_from_udev\s*=' ${LVM_CONF} ||
+			grep '^[[:blank:]]*obtain_device_list_from_udev[[:blank:]]*=' ${LVM_CONF} ||
 			not_found=$((not_found+$?))
 
 			if [ "${global_filter_is_supported}" = "true" ]; then
-				grep '^\s*\(global_\)\?filter\s*=' ${LVM_CONF} ||
+				grep '^[[:blank:]]*\(global_\)\?filter[[:blank:]]*=' ${LVM_CONF} ||
 				not_found=$((not_found+$?))
 			else
-				grep '^\s*filter\s*=' ${LVM_CONF} ||
+				grep '^[[:blank:]]*filter[[:blank:]]*=' ${LVM_CONF} ||
 				not_found=$((not_found+$?))
 			fi
 
@@ -512,17 +512,17 @@ if [ "${overwrite}" = "true" ]; then
 
 	if [ "${show}" = "true" ]; then
 		if [ "${global_filter_is_supported}" = "true" ]; then
-			grep '^\s*\(\(global_\)\?filter\|obtain_device_list_from_udev\)\s*=' ${LVM_CONF}
+			grep '^[[:blank:]]*\(\(global_\)\?filter\|obtain_device_list_from_udev\)[[:blank:]]*=' ${LVM_CONF}
 		else
-			grep '^\s*\(filter\|obtain_device_list_from_udev\)\s*=' ${LVM_CONF}
+			grep '^[[:blank:]]*\(filter\|obtain_device_list_from_udev\)[[:blank:]]*=' ${LVM_CONF}
 		fi
 	fi
 
 # Show only (--show is implicit when --overwrite is not invoked):
 elif [ "${global_filter_is_supported}" = "true" ]; then
-	grep '^\s*\(\(global_\)\?filter\|obtain_device_list_from_udev\)\s*=' ${LVM_TEMP}
+	grep '^[[:blank:]]*\(\(global_\)\?filter\|obtain_device_list_from_udev\)[[:blank:]]*=' ${LVM_TEMP}
 else
-	grep '^\s*\(filter\|obtain_device_list_from_udev\)\s*=' ${LVM_TEMP}
+	grep '^[[:blank:]]*\(filter\|obtain_device_list_from_udev\)[[:blank:]]*=' ${LVM_TEMP}
 fi
 
 exit ${exit_code}

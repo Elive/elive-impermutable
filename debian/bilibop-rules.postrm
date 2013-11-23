@@ -23,7 +23,7 @@ case "${1}" in
         # Comment bilibop-rules specific configuration variables in
         # the common bilibop config file:
         CONFIGFILE="/etc/bilibop/bilibop.conf"
-        if grep -Eqs '^\s*BILIBOP_RULES(_[A-Z]+)+=' ${CONFIGFILE}; then
+        if grep -Eqs '^[[:blank:]]*BILIBOP_RULES(_[A-Z]+)+=' ${CONFIGFILE}; then
             sed -Ei 's,^\s*BILIBOP_RULES(_[A-Z]+)+=,#&,' ${CONFIGFILE}
         fi
 
@@ -35,8 +35,8 @@ case "${1}" in
         if [ -f "${LVMCONF}" -a "${RET}" = "true" ]; then
             for lvmvar in filter global_filter obtain_device_list_from_udev; do
                 db_get bilibop-rules/physical_volumes_filter/${lvmvar}
-                if [ -n "${RET}" ] && grep -q "^\s*${lvmvar}\s*=" ${LVMCONF}; then
-                    grep -Eq "^\s*${lvmvar}\s*=\s*${RET}\s*(#|$)" ${LVMCONF} ||
+                if [ -n "${RET}" ] && grep -q "^[[:blank:]]*${lvmvar}[[:blank:]]*=" ${LVMCONF}; then
+                    grep -Eq "^[[:blank:]]*${lvmvar}[[:blank:]]*=[[:blank:]]*${RET}[[:blank:]]*(#|$)" ${LVMCONF} ||
                     sed -Ei "s@^(\s*${lvmvar}\s*=).*@\1 ${RET}@" ${LVMCONF}
                 fi
             done
@@ -65,7 +65,7 @@ case "${1}" in
             invoke-rc.d udev status >${udev_root}/null 2>&1; then
             cd ${udev_root}
             for dev in $(find * -type b -group disk); do
-                grep -q "\s${dev}$" /proc/partitions &&
+                grep -q "[[:blank:]]${dev}$" /proc/partitions &&
                 opt="${opt} --sysname-match=${dev}"
             done
             udevadm trigger ${opt}

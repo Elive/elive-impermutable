@@ -49,7 +49,7 @@ case "${1}" in
             for lvmvar in ${lvm_variables}; do
                 db_fget bilibop-rules/${HELPER}/${lvmvar} seen
                 [ "${RET}" = "true" ] && continue || true
-                lvmval="$(grep "^\s*${lvmvar}\s*=" ${LVMCONF} | sed 's,^[^=]\+=\s*,,')"
+                lvmval="$(grep "^[[:blank:]]*${lvmvar}[[:blank:]]*=" ${LVMCONF} | sed 's,^[^=]\+=\s*,,')"
                 if [ -n "${lvmval}" ]; then
                     db_set bilibop-rules/${HELPER}/${lvmvar} ${lvmval}
                     db_fset bilibop-rules/${HELPER}/${lvmvar} seen true
@@ -128,10 +128,10 @@ case "${1}" in
                             ;;
                         ondemand)
                             opt="--link --update"
-                            if grep -qs "^\s*${KEY}=" ${CONFIGFILE}; then
-                                grep -Eq "^\s*${KEY}=([\"\']?)false\1" ${CONFIGFILE} ||
+                            if grep -qs "^[[:blank:]]*${KEY}=" ${CONFIGFILE}; then
+                                grep -Eq "^[[:blank:]]*${KEY}=([\"\']?)false\1" ${CONFIGFILE} ||
                                 sed -Ei "s:^(\s*${KEY})=.*:\1=\"false\":" ${CONFIGFILE}
-                            elif grep -Eqs "^\s*(#\s*)+${KEY}=([\"\']?)false\2" ${CONFIGFILE}; then
+                            elif grep -Eqs "^[[:blank:]]*(#[[:blank:]]*)+${KEY}=([\"\']?)false\2" ${CONFIGFILE}; then
                                 sed -Ei "s:^(\s*)(#\s*)+(${KEY})=([\"\']?)false\4:\1\3=\"false\":" ${CONFIGFILE}
                             else
                                 echo "${KEY}=\"false\"" >>${CONFIGFILE}
@@ -155,7 +155,7 @@ case "${1}" in
         if [ -h /proc/mounts -a -d /sys/block -a -c ${udev_root}/null ] &&
             invoke-rc.d udev status >${udev_root}/null 2>&1 &&
             BILIBOP_DISK="$(physical_hard_disk /)" &&
-            query_sysfs_attrs ${BILIBOP_DISK} | grep -Eq '^\s*SUBSYSTEMS=="(usb|firewire|memstick|mmc)"'; then
+            query_sysfs_attrs ${BILIBOP_DISK} | grep -Eq '^[[:blank:]]*SUBSYSTEMS=="(usb|firewire|memstick|mmc)"'; then
             db_get bilibop-rules/on-live-system
             if [ "${RET}" = "false" ]; then
 
@@ -324,8 +324,8 @@ case "${1}" in
                         fi
                         for lvmvar in ${lvm_variables}; do
                             db_get bilibop-rules/physical_volumes_filter/${lvmvar}
-                            if [ -n "${RET}" ] && grep -qs "^\s*${lvmvar}\s*=" ${LVMCONF}; then
-                                grep -Eq "^\s*${lvmvar}\s*=\s*${RET}\s*(#|$)" ${LVMCONF} ||
+                            if [ -n "${RET}" ] && grep -qs "^[[:blank:]]*${lvmvar}[[:blank:]]*=" ${LVMCONF}; then
+                                grep -Eq "^[[:blank:]]*${lvmvar}[[:blank:]]*=[[:blank:]]*${RET}[[:blank:]]*(#|$)" ${LVMCONF} ||
                                 sed -Ei "s@^(\s*${lvmvar}\s*=).*@\1 ${RET}@" ${LVMCONF}
                             fi
                         done
