@@ -238,7 +238,7 @@ apply_swap_policy() {
 # used by the mount.lockfs helper.
 parse_and_modify_fstab() {
     ${DEBUG} && echo "> parse_and_modify_fstab $@" >&2
-    grep -v '^\s*\(#\|$\)' ${FSTAB} |
+    grep -v '^[[:blank:]]*\(#\|$\)' ${FSTAB} |
     while   read device mntpnt fstype option dump pass
     do
         # Due to the pipe (|) before the 'while' loop, we are now in a
@@ -406,7 +406,7 @@ EOF
     fi
 
     ##
-    if      ! grep -q '^\s*devices\s*{' ${LVM_CONF}
+    if      ! grep -q '^[[:blank:]]*devices[[:blank:]]*{' ${LVM_CONF}
     then    cat >>${LVM_CONF} <<EOF
 # Added on the fly by ${0##*/} from the initramfs.
 # See lvm.conf(5) and bilibop(7) for details.
@@ -420,22 +420,22 @@ devices {
 }
 EOF
     else
-            grep -q '^\s*dir\s*=' ${LVM_CONF} ||
+            grep -q '^[[:blank:]]*dir[[:blank:]]*=' ${LVM_CONF} ||
             sed -i "s;^\s*devices\s*{;&\n    dir = \"${1}\"\n;" ${LVM_CONF}
-            grep -q '^\s*scan\s*=' ${LVM_CONF} ||
+            grep -q '^[[:blank:]]*scan[[:blank:]]*=' ${LVM_CONF} ||
             sed -i "s;^\s*devices\s*{;&\n    scan = [ \"${1}\" ]\n;" ${LVM_CONF}
-            grep -q '^\s*obtain_device_list_from_udev\s*=' ${LVM_CONF} ||
+            grep -q '^[[:blank:]]*obtain_device_list_from_udev[[:blank:]]*=' ${LVM_CONF} ||
             sed -i 's;^\s*devices\s*{;&\n    obtain_device_list_form_udev = 1\n;' ${LVM_CONF}
-            grep -q '^\s*filter\s*=' ${LVM_CONF} ||
+            grep -q '^[[:blank:]]*filter[[:blank:]]*=' ${LVM_CONF} ||
             sed -i 's;^\s*devices\s*{;&\n    filter = [ "a|.*|" ]\n;' ${LVM_CONF}
-            grep -q '^\s*global_filter\s*=' ${LVM_CONF} ||
+            grep -q '^[[:blank:]]*global_filter[[:blank:]]*=' ${LVM_CONF} ||
             sed -i 's;^\s*devices\s*{;&\n    global_filter = [ "a|.*|" ]\n;' ${LVM_CONF}
-            grep -q '^\s*sysfs_scan\s*=' ${LVM_CONF} ||
+            grep -q '^[[:blank:]]*sysfs_scan[[:blank:]]*=' ${LVM_CONF} ||
             sed -i 's;^\s*devices\s*{;&\n    sysfs_scan = 1\n;' ${LVM_CONF}
     fi
 
     ##
-    if      ! grep -q '^\s*global\s*{' ${LVM_CONF}
+    if      ! grep -q '^[[:blank:]]*global[[:blank:]]*{' ${LVM_CONF}
     then    cat >>${LVM_CONF} <<EOF
 # Added on the fly by ${0##*/} from the initramfs.
 # See lvm.conf(5) and bilibop(7) for details.
@@ -445,14 +445,14 @@ global {
 }
 EOF
     else
-            grep -q '^\s*locking_type\s*=' ${LVM_CONF} ||
+            grep -q '^[[:blank:]]*locking_type[[:blank:]]*=' ${LVM_CONF} ||
             sed -i 's;^\s*global\s*{;&\n    locking_type = 1\n;' ${LVM_CONF}
-            grep -q '^\s*metadata_read_only\s*=' ${LVM_CONF} ||
+            grep -q '^[[:blank:]]*metadata_read_only[[:blank:]]*=' ${LVM_CONF} ||
             sed -i 's;^\s*global\s*{;&\n    metadata_read_only = 0\n;' ${LVM_CONF}
     fi
 
     ##
-    if      ! grep -q '^\s*activation\s*{' ${LVM_CONF}
+    if      ! grep -q '^[[:blank:]]*activation[[:blank:]]*{' ${LVM_CONF}
     then    cat >>${LVM_CONF} <<EOF
 # Added on the fly by ${0##*/} from the initramfs.
 # See lvm.conf(5) and bilibop(7) for details.
@@ -524,7 +524,7 @@ set_readonly_lvm_settings() {
     done
     [ -n "${ROVL}" ] || return 0
 
-    if  grep -q '^\s*read_only_volume_list\s*=' ${LVM_CONF} ; then
+    if  grep -q '^[[:blank:]]*read_only_volume_list[[:blank:]]*=' ${LVM_CONF} ; then
         sed -i "s|^\s*read_only_volume_list\s*=\s*[|& ${ROVL},|" ${LVM_CONF}
     else
         sed -i "s|^\s*activation\s*{.*|&\n    read_only_volume_list = [ ${ROVL} ]|" ${LVM_CONF}
@@ -597,7 +597,7 @@ is_physically_locked() {
             fi
             ;;
         mmcblk?|mspblk?)
-            if dmesg | grep -q "\s${1}: .* [1-9][0-9]*\(\.[0-9]\+\)\? [GM]i\?B (ro)$"; then
+            if dmesg | grep -q "[[:blank:]]${1}: .* [1-9][0-9]*\(\.[0-9]\+\)\? [GM]i\?B (ro)$"; then
                 return 0
             fi
             ;;

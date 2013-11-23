@@ -10,8 +10,8 @@ case "${1}" in
         # Comment bilibop-lockfs specific configuration variables in
         # the common bilibop config file:
         CONFIGFILE="/etc/bilibop/bilibop.conf"
-        if grep -qs '^\s*BILIBOP_LOCKFS\(_[A-Z]\+\)*=' ${CONFIGFILE}; then
-            sed -i 's,^\s*BILIBOP_LOCKFS\(_[A-Z]\+\)*=,#&,' ${CONFIGFILE}
+        if grep -qs '^[[:blank:]]*BILIBOP_LOCKFS\(_[A-Z]\+\)*=' ${CONFIGFILE}; then
+            sed -i 's,^[[:blank:]]*BILIBOP_LOCKFS\(_[A-Z]\+\)*=,#&,' ${CONFIGFILE}
         fi
         ;;
 esac

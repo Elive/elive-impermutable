@@ -303,14 +303,14 @@ lock_file "/etc/fstab"
 parse_and_modify_fstab
 
 # Be sure the lockfs mount helper script will be executed when needed:
-grep -q '\slockfs\s' ${FSTAB} &&
+grep -q '[[:blank:]]lockfs[[:blank:]]' ${FSTAB} &&
 check_mount_lockfs "${rootmnt}"
 
 # Avoid breakage of read-only settings by LVM tools:
 if	[ -f "/etc/lvm/bilibop" ] &&
 	[ "${BILIBOP_LOCKFS_POLICY}" != "soft" ]
 then
-	eval $(grep '^\s*LVM_SYSTEM_DIR=' ${rootmnt}/etc/environment)
+	eval $(grep '^[[:blank:]]*LVM_SYSTEM_DIR=' ${rootmnt}/etc/environment)
 	LVM_CONF="${rootmnt}${LVM_SYSTEM_DIR:=/etc/lvm}/lvm.conf"
 	initialize_lvm_conf "${UDEV_ROOT}"
 	set_readonly_lvm_settings

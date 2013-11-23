@@ -63,7 +63,7 @@ get_udev_root
 mkdir -p ${DESTDIR}/etc/lvm
 LV_LIST="${DESTDIR}/etc/lvm/bilibop"
 
-for dev in $(grep -v '^\s*\(#\|$\)' /etc/fstab | sed 's,^\s*\([^[:blank:]]\+\)\s.*,\1,')
+for dev in $(grep -v '^[[:blank:]]*\(#\|$\)' /etc/fstab | sed 's,^\s*\([^[:blank:]]\+\)\s.*,\1,')
 do
 	case "${dev}" in
 		UUID=*|LABEL=*)
@@ -77,7 +77,7 @@ do
 done
 
 [ -f "/etc/crypttab" ] &&
-for dev in $(grep -v '^\s*\(#\|$\)' /etc/crypttab | sed 's,^\s*[^[:blank:]]\+\s\+\([^[:blank:]]\+\)\s.*,\1,')
+for dev in $(grep -v '^[[:blank:]]*\(#\|$\)' /etc/crypttab | sed 's,^\s*[^[:blank:]]\+\s\+\([^[:blank:]]\+\)\s.*,\1,')
 do
 	case "${dev}" in
 		UUID=*|LABEL=*)
