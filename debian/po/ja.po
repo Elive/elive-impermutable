@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bilibop 0.4.17\n"
 "Report-Msgid-Bugs-To: quidame@poivron.org\n"
-"POT-Creation-Date: 2013-10-10 15:37+0200\n"
+"POT-Creation-Date: 2013-11-23 10:14+0000\n"
 "PO-Revision-Date: 2013-10-10 22:37+0900\n"
 "Last-Translator: victory <victory.deb@gmail.com>\n"
 "Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
@@ -45,9 +45,9 @@ msgid ""
 "it by the lighter but as much as efficient bilibop-udev package."
 msgstr ""
 "このオプションを選択した場合、他の質問は行われません。bilibop udev 規則が適用"
-"されますが、他には一切システムを変更しません。その場合このパッケージを使うのは"
-"やりすぎで、もっと軽く効率的な bilibop-udev パッケージに恐らく置き換えるべきだ"
-"ということに注意してください。"
+"されますが、他には一切システムを変更しません。その場合このパッケージを使うの"
+"はやりすぎで、もっと軽く効率的な bilibop-udev パッケージに恐らく置き換えるべ"
+"きだということに注意してください。"
 
 #. Type: boolean
 #. Description
@@ -64,10 +64,10 @@ msgid ""
 "avoided by using custom udev rules, which are specific to the device your "
 "system is installed on."
 msgstr ""
-"システムをブートするコンピュータに多くの脱着可能メディアが接続されている場合、"
-"bilibop udev 規則が原因でブートにかかる時間が著しく増加する可能性があります。"
-"これはシステムがインストールされている機器について専用の udev 規則を使って避け"
-"ることができます。"
+"システムをブートするコンピュータに多くの脱着可能メディアが接続されている場"
+"合、bilibop udev 規則が原因でブートにかかる時間が著しく増加する可能性がありま"
+"す。これはシステムがインストールされている機器について専用の udev 規則を使っ"
+"て避けることができます。"
 
 #. Type: boolean
 #. Description
@@ -81,9 +81,9 @@ msgid ""
 msgstr ""
 "これはこの機器が異なる種類のハードウェアポート (USB/Firewire や USB/eSATA、"
 "USB/MMC/SD 等) からブートできる場合、別のポートからシステムをブートしてできた"
-"規則を、必要であれば適切なオプションを付けて「dpkg-reconfigure bilibop-rules」"
-"を再び実行、あるいは「/etc/udev/rules.d/66-bilibop.rules」を編集することで確認"
-"すべきだということです。"
+"規則を、必要であれば適切なオプションを付けて「dpkg-reconfigure bilibop-"
+"rules」を再び実行、あるいは「/etc/udev/rules.d/66-bilibop.rules」を編集するこ"
+"とで確認すべきだということです。"
 
 #. Type: select
 #. Choices
@@ -118,8 +118,8 @@ msgid ""
 "that is provided by the bilibop-rules package (in '/lib/udev/rules.d')."
 msgstr ""
 "ファイル「/etc/udev/rules.d/66-bilibop.rules」が存在します。これはシステムが"
-"インストールされているドライブに特有の規則で、bilibop-rules パッケージにより提"
-"供される、(「/lib/udev/rules.d」にある) もっと一般的なものを上書きします。"
+"インストールされているドライブに特有の規則で、bilibop-rules パッケージにより"
+"提供される、(「/lib/udev/rules.d」にある) もっと一般的なものを上書きします。"
 
 #. Type: select
 #. Description
@@ -132,9 +132,9 @@ msgid ""
 "file."
 msgstr ""
 "実行しているシステムのホストとなっている機器が異なる種類のハードウェアポート "
-"(USB/Firewire や USB/eSATA、USB/MMC/SDカード等) からブートできる場合、別の種類"
-"のポートからブートして、作成した独自規則があらゆる状況でうまく動作するか確認す"
-"べきです。疑わしい場合は独自規則を削除すべきです。"
+"(USB/Firewire や USB/eSATA、USB/MMC/SDカード等) からブートできる場合、別の種"
+"類のポートからブートして、作成した独自規則があらゆる状況でうまく動作するか確"
+"認すべきです。疑わしい場合は独自規則を削除すべきです。"
 
 #. Type: string
 #. Description
@@ -178,8 +178,8 @@ msgid ""
 "Otherwise, the custom rules file '/etc/udev/rules.d/66-bilibop.rules' will "
 "not be written."
 msgstr ""
-"<Esc> キーを押して戻り、オプションを変更してください。変更しない場合は独自規則"
-"ファイル「/etc/udev/rules.d/66-bilibop.rules」は書き込まれません。"
+"<Esc> キーを押して戻り、オプションを変更してください。変更しない場合は独自規"
+"則ファイル「/etc/udev/rules.d/66-bilibop.rules」は書き込まれません。"
 
 #. Type: error
 #. Description
@@ -255,11 +255,11 @@ msgid ""
 "content, or on demand with an updated content."
 msgstr ""
 "「/boot/grub/device.map」ファイルには古くなった情報を残しておくことができま"
-"す。状況によってはこれが GRUB ブートローダのメニュー更新時の失敗につながる可能"
-"性があります。それを避けるため、システムのホストとなっている実際のドライブの割"
-"り当てだけを記述した、偽のデバイスマップに置き換える、あるいは一時ファイルを"
-"ブート時に偽の内容によりまたは更新した内容をオンデマンドにより作成し、その一時"
-"ファイルへのリンクを作成することができます。"
+"す。状況によってはこれが GRUB ブートローダのメニュー更新時の失敗につながる可"
+"能性があります。それを避けるため、システムのホストとなっている実際のドライブ"
+"の割り当てだけを記述した、偽のデバイスマップに置き換える、あるいは一時ファイ"
+"ルをブート時に偽の内容によりまたは更新した内容をオンデマンドにより作成し、そ"
+"の一時ファイルへのリンクを作成することができます。"
 
 #. Type: select
 #. Description
@@ -331,11 +331,11 @@ msgid ""
 "to keep them always up to date. Note that it is possible to do or undo that "
 "at any time by running"
 msgstr ""
-"こういった古くなった情報を残しておけるファイルが貯まっていくことで、ネットワー"
-"ク管理プログラムやCD書き込みアプリケーションの予期しない挙動につながる可能性が"
-"あります。一時ファイルへのシンボリックリンクに置き換えることで常に最新を保つこ"
-"とができるようになります。以下を実行することでいつでも実行や差し戻しができるこ"
-"とに注意してください。"
+"こういった古くなった情報を残しておけるファイルが貯まっていくことで、ネット"
+"ワーク管理プログラムやCD書き込みアプリケーションの予期しない挙動につながる可"
+"能性があります。一時ファイルへのシンボリックリンクに置き換えることで常に最新"
+"を保つことができるようになります。以下を実行することでいつでも実行や差し戻し"
+"ができることに注意してください。"
 
 #. Type: boolean
 #. Description
@@ -353,11 +353,11 @@ msgid ""
 "Volumes used by your system and those that could be found on internal or "
 "external drives plugged on the same computer."
 msgstr ""
-"システムがインストールされているドライブには論理ボリュームが収録されているよう"
-"です。システムに必要な物理ボリュームだけを有効化するように LVM を設定すること"
-"ができます。これにより、システムがインストールされているドライブと、同一のコン"
-"ピュータに接続した内部及び外部ドライブとの間で、利用しているボリュームの名前が"
-"競合することを主に避けられます。"
+"システムがインストールされているドライブには論理ボリュームが収録されているよ"
+"うです。システムに必要な物理ボリュームだけを有効化するように LVM を設定するこ"
+"とができます。これにより、システムがインストールされているドライブと、同一の"
+"コンピュータに接続した内部及び外部ドライブとの間で、利用しているボリュームの"
+"名前が競合することを主に避けられます。"
 
 #. Type: boolean
 #. Description
@@ -372,13 +372,17 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:13001
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
 msgid "Physical Volumes Filter will not be applied."
 msgstr "物理ボリュームのフィルタは適用されません。"
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:13001
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
 msgid ""
 "Probably due to an error in '66-bilibop.rules', the following device(s) have "
 "not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
@@ -389,7 +393,9 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:13001
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
 msgid ""
 "This means some variables in '/etc/lvm/lvm.conf' will be left or reset to "
 "their initial values:"

@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: bilibop 0.4.17\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: quidame@poivron.org\n"
-"POT-Creation-Date: 2013-10-10 15:37+0200\n"
+"POT-Creation-Date: 2013-11-23 10:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -320,13 +320,17 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:13001
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
 msgid "Physical Volumes Filter will not be applied."
 msgstr ""
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:13001
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
 msgid ""
 "Probably due to an error in '66-bilibop.rules', the following device(s) have "
 "not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
@@ -334,7 +338,9 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:13001
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
 msgid ""
 "This means some variables in '/etc/lvm/lvm.conf' will be left or reset to "
 "their initial values:"
