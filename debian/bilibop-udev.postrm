@@ -20,9 +20,9 @@ case "${1}" in
             opt=
             for dev in $(ls /sys/block | grep -Ev '^(loop|dm-)'); do
                 udevadm info --attribute-walk --name ${dev} |
-                grep -Eq '^\s*SUBSYSTEMS=="(usb|firewire|memstick|mmc)"' || continue
+                grep -Eq '^[[:blank:]]*SUBSYSTEMS=="(usb|firewire|memstick|mmc)"' || continue
                 ls -l ${udev_root}/${dev} |
-                grep -Eq '^([^ ]+\s+){3}disk\s' || continue
+                grep -Eq '^([^[:blank:]]+[[:blank:]]+){3}disk\s' || continue
                 opt="${opt} --sysname-match=${dev}*"
             done
             [ -z "${opt}" ] ||
