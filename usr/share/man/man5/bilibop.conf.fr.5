@@ -1,4 +1,4 @@
-.TH BILIBOP.CONF 5 2013\-10\-27 bilibop "Bilibop Project"
+.TH BILIBOP.CONF 5 2013\-11\-24 bilibop "Bilibop Project"
 
 .SH NOM
 bilibop.conf \- fichier de configuration des paquets bilibop
@@ -408,7 +408,11 @@ Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SS BILIBOP_RULES_SYSTEM_INTERNAL
 Par défaut, les règles bilibop utilisent les capacités de
-.BR udisks (7)
+.B udisks
+(versions 
+.B 1.x
+et
+.BR 2.x )
 pour outrepasser la détection usuelle du type de bus permettant de détecter
 si un périphérique est considéré comme \(aqsystem internal\(aq, c'est à dire
 comme disque interne de l'ordinateur. Cela signifie que des privilèges
@@ -459,7 +463,11 @@ Par défaut, la valeur de cette variable n'est pas fixée.
 Par défaut, les règles bilibop masquent (si possible) les systèmes de
 fichiers contenus sur le même disque physique que la racine du système.
 Cela s'applique aux applications de bureau basées sur
-.BR udisks (7).
+.B udisks
+(versions 
+.B 1.x
+et
+.BR 2.x ).
 Si vous ne voulez pas masquer les volumes bilibop, vous devez explicitement
 fixer cette variable à
 .I false
@@ -586,7 +594,8 @@ Par défaut, la valeur de cette variable n'est pas fixée.
 .BR proc (5),
 .BR udev (7),
 .BR udevadm (8),
-.BR udisks (7)
+.BR udisks (7),
+.BR udisks (8)
 
 .SH AUTEUR
 Cette page de manuel a été traduite de l'anglais par Alexandre Martin
