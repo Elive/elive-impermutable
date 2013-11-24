@@ -73,7 +73,7 @@ Description: lock filesystems and write changes into RAM
  This package can be used as an alternative to fsprotect or overlayroot,
  especially for writable operating systems embedded on a USB stick; but it
  may also be installed on public or personal computers, for daily use,
- testing purposes, or as a tool in anti-forensics strategies.
+ kiosks, testing purposes, or as a tool in anti-forensics strategies.
  .
  ${Requirement}
 
