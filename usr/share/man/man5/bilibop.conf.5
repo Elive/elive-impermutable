@@ -1,4 +1,4 @@
-.TH BILIBOP.CONF 5 2013\-10\-27 bilibop "Bilibop Project"
+.TH BILIBOP.CONF 5 2013\-11\-24 bilibop "Bilibop Project"
 
 .SH NAME
 bilibop.conf \- configuration file of bilibop packages
@@ -375,7 +375,11 @@ Default is unset.
 
 .SS BILIBOP_RULES_SYSTEM_INTERNAL
 By default, bilibop rules use
-.BR udisks (7)
+.B udisks
+(both versions
+.B 1.x
+and
+.BR 2.x )
 facilities to override the usual bus type detection of whether a device is
 considered \(aqsystem internal\(aq.
 This means root privileges will be needed to manage devices hosted by the
@@ -424,7 +428,11 @@ Default is unset.
 By default, bilibop rules hide (if possible) the filesystems contained on
 the same physical hard disk or memory stick than the root filesystem.
 This applies to desktop applications based on
-.BR udisks (7).
+.B udisks
+(both versions
+.B 1.x
+and
+.BR 2.x ).
 If you don't want to hide the bilibop volumes, explicitly set this to
 .I false
 (all other values have no effect, i.e. have the same effect than
@@ -546,7 +554,8 @@ Default is unset.
 .BR proc (5),
 .BR udev (7),
 .BR udevadm (8),
-.BR udisks (7)
+.BR udisks (7),
+.BR udisks (8)
 
 .SH AUTHOR
 This manual page has been written by Bilibop Project <quidame@poivron.org>.
