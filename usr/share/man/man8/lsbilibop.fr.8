@@ -1,4 +1,4 @@
-.TH LSBILIBOP 8 2013\-05\-03 bilibop "Administration système"
+.TH LSBILIBOP 8 2013\-11\-24 bilibop "Administration système"
 
 .SH NOM
 lsbilibop \- lister les périphériques étiquetés BILIBOP, afficher ou mettre à jour certaines de leurs propriétés udev
@@ -106,7 +106,12 @@ ou de tous les périphériques étiquetés
 si aucun argument n'est fourni.
 Cette option écrase les options \-a et \-c.
 .IP
-Les propriétés suivantes sont données à titre d'information:
+Les propriétés suivantes sont données à titre d'information. Les deux
+dernières ne sont définies que si
+.B udisks 1.x
+(ID_DRIVE_DETACHABLE) et/ou
+.B udisks 2.x
+(UDISKS_CAN_POWER_OFF) sont installés.
 .IP
 DEVNAME
 .br
@@ -117,8 +122,10 @@ BILIBOP_PARTITION
 BILIBOP_UNDERLYING_PARTITION
 .br
 DEVLINKS
-.br
+.IP
 ID_DRIVE_DETACHABLE
+.br
+UDISKS_CAN_POWER_OFF
 .IP
 Les propriétés suivantes peuvent être utilisées pour paramètrer les
 variables BILIBOP_RULES_*_WHITELIST et d'autres dans
@@ -134,7 +141,12 @@ ID_FS_UUID
 .IP
 Les propriétés suivantes peuvent être modifiées en changeant la valeur des
 variables BILIBOP_RULES_* correspondantes dans
-.BR bilibop.conf (5):
+.BR bilibop.conf (5).
+Elles ne sont définies que si
+.B udisks 1.x
+(pour le premier jeu) et/ou
+.B udisks 2.x
+(pour le second jeu) sont installés.
 .IP
 UDISKS_PRESENTATION_HIDE
 .br
@@ -143,6 +155,14 @@ UDISKS_PRESENTATION_ICON_NAME
 UDISKS_PRESENTATION_NAME
 .br
 UDISKS_SYSTEM_INTERNAL
+.IP
+UDISKS_IGNORE
+.br
+UDISKS_ICON_NAME
+.br
+UDISKS_NAME
+.br
+UDISKS_SYSTEM
 .TP
 .B \-l
 Liste les périphériques sans se fier à l'étiquette \(aqBILIBOP\(aq.
@@ -175,7 +195,8 @@ Le code de sortie est 8.
 .BR drivemap (1),
 .BR udev (7),
 .BR udevadm (8),
-.BR udisks (7)
+.BR udisks (7),
+.BR udisks (8)
 
 .SH AUTEUR
 Cette page de manuel a été traduite de l'anglais par Alexandre Martin
