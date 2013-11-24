@@ -425,22 +425,29 @@ KERNEL!="sd?*|mmcblk?*|mspblk?*", GOTO="bilibop_end"
 ${ALL_RULES}, \\
 	GROUP:="disk", \\
 	TAG+="BILIBOP", \\
-	GOTO="bilibop_rules"
+	GOTO="bilibop_physical_block"
 
 SUBSYSTEMS=="usb|firewire", GOTO="bilibop_end"
 KERNEL=="sd?*", TAG+="INSIDEV"
 
 GOTO="bilibop_end"
-LABEL="bilibop_rules"
+LABEL="bilibop_physical_block"
+
+ATTR{partition}=="?*", \\
+	ENV{BILIBOP_PARTITION}="%r/%k", \\
+	GOTO="bilibop_subdevice"
 
 ATTR{removable}=="?*", \\
 	SYMLINK+="${BILIBOP_COMMON_BASENAME}/disk", \\
-	ENV{BILIBOP_DISK}="%r/%k", \\
-	ENV{ID_DRIVE_DETACHABLE}:="0", \\
-	ENV{UDISKS_SYSTEM_INTERNAL}:="1", \\
-	GOTO="bilibop_end"
+	ENV{BILIBOP_DISK}="%r/%k"
 
-ATTR{partition}=="?*", ENV{BILIBOP_PARTITION}="%r/%k"
+ATTR{removable}=="?*", \\
+	TEST=="/lib/udev/rules.d/80-udisks.rules", \\
+	ENV{ID_DRIVE_DETACHABLE}:="0", \\
+	ENV{UDISKS_SYSTEM_INTERNAL}:="1"
+
+ATTR{removable}=="?*", \\
+	GOTO="bilibop_end"
 
 LABEL="bilibop_virtual_block"
 TEST!="/lib/udev/bilibop_disk", GOTO="bilibop_end"
@@ -450,18 +457,20 @@ KERNEL=="loop?*", \\
 	PROGRAM=="bilibop_disk --test %r/%k", \\
 	PROGRAM=="bilibop_disk --part %r/%k", \\
 	ENV{BILIBOP_UNDERLYING_PARTITION}="%c", \\
-	TAG+="BILIBOP"
+	TAG+="BILIBOP", \\
+	GOTO="bilibop_subdevice"
 
 KERNEL=="dm-?*", \\
 	PROGRAM=="bilibop_disk --test %r/%k", \\
 	PROGRAM=="bilibop_disk --part %r/%k", \\
 	ENV{BILIBOP_UNDERLYING_PARTITION}="%c", \\
 	SYMLINK+="mapper/%s{dm/name}", \\
-	TAG+="BILIBOP"
+	TAG+="BILIBOP", \\
+	GOTO="bilibop_subdevice"
 
-TAG=="BILIBOP", GOTO="bilibop_device"
 GOTO="bilibop_end"
-LABEL="bilibop_device"
+LABEL="bilibop_subdevice"
+TEST!="/lib/udev/bilibop_disk", GOTO="bilibop_end"
 
 PROGRAM=="bilibop_disk --root %r/%k", SYMLINK+="%c"
 
@@ -479,14 +488,12 @@ ENV{DM_LV_NAME}=="?*", ENV{DM_VG_NAME}=="?*", ENV{DM_LV_LAYER}=="", \\
 
 LABEL="bilibop_dm_end"
 
-TEST=="/lib/udev/rules.d/80-udisks.rules", GOTO="bilibop_udisks"
-GOTO="bilibop_end"
-LABEL="bilibop_udisks"
-
+TEST!="/lib/udev/rules.d/80-udisks.rules", GOTO="bilibop_udisks_end"
 PROGRAM=="bilibop_disk --lock %r/%k", ENV{UDISKS_SYSTEM_INTERNAL}:="1"
-PROGRAM=="bilibop_disk --hide %r/%k", ENV{UDISKS_PRESENTATION_HIDE}:="1", GOTO="bilibop_end"
+PROGRAM=="bilibop_disk --hide %r/%k", ENV{UDISKS_PRESENTATION_HIDE}:="1", GOTO="bilibop_udisks_end"
 PROGRAM=="bilibop_disk --icon %r/%k", ENV{UDISKS_PRESENTATION_ICON_NAME}:="%c"
 PROGRAM=="bilibop_disk --name %r/%k", ENV{UDISKS_PRESENTATION_NAME}:="%c"
+LABEL="bilibop_udisks_end"
 
 LABEL="bilibop_end"
 EOF
