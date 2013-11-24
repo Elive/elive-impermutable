@@ -1,7 +1,6 @@
-#!/bin/sh -e
+#!/bin/sh
 # Output the underlying disk name of the root filesystem or of the
 # file/device/directory given as argument.
-PATH="/sbin:/bin"
 . /lib/bilibop/common.sh
 get_udev_root
 physical_hard_disk ${1}
