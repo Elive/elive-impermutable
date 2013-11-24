@@ -1,4 +1,4 @@
-.TH LSBILIBOP 8 2013\-05\-03 bilibop "System Administration"
+.TH LSBILIBOP 8 2013\-11\-24 bilibop "System Administration"
 
 .SH NAME
 lsbilibop \- list BILIBOP tagged devices, display or update some of their udev properties
@@ -95,7 +95,12 @@ tagged block devices), or of all
 tagged block devices if none is specified.
 This option overrides \-a and \-c options.
 .IP
-The following properties are only informative:
+The following properties are only informative. The two last ones are set
+if and only if
+.B udisks 1.x
+(ID_DRIVE_DETACHABLE) and/or
+.B udisks 2.x
+(UDISKS_CAN_POWER_OFF) are installed.
 .IP
 DEVNAME
 .br
@@ -106,8 +111,10 @@ BILIBOP_PARTITION
 BILIBOP_UNDERLYING_PARTITION
 .br
 DEVLINKS
-.br
+.IP
 ID_DRIVE_DETACHABLE
+.br
+UDISKS_CAN_POWER_OFF
 .IP
 The following properties can be used to set BILIBOP_RULES_*_WHITELIST and
 other variables in
@@ -123,7 +130,12 @@ ID_FS_UUID
 .IP
 The following properties can be modified by changing the corresponding
 BILIBOP_RULES_* variables in
-.BR bilibop.conf (5):
+.BR bilibop.conf (5).
+They are set if and only if
+.B udisks 1.x
+(for the first set) and/or
+.B udisks 2.x
+(for the second set) are installed.
 .IP
 UDISKS_PRESENTATION_HIDE
 .br
@@ -132,6 +144,14 @@ UDISKS_PRESENTATION_ICON_NAME
 UDISKS_PRESENTATION_NAME
 .br
 UDISKS_SYSTEM_INTERNAL
+.IP
+UDISKS_IGNORE
+.br
+UDISKS_ICON_NAME
+.br
+UDISKS_NAME
+.br
+UDISKS_SYSTEM
 .TP
 .B \-l
 Dont't rely on the \(aqBILIBOP\(aq tag to list the devices.
@@ -163,7 +183,8 @@ filesystem (as does the \-l option). Exit code is 8.
 .BR drivemap (1),
 .BR udev (7),
 .BR udevadm (8),
-.BR udisks (7)
+.BR udisks (7),
+.BR udisks (8)
 
 .SH AUTHOR
 This manual page has been written by Bilibop Project <quidame@poivron.org>.
