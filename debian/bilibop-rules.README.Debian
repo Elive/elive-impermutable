@@ -49,26 +49,38 @@ a Logical Volume.
 2.1. Udisks facilities
 ----------------------
 
-Bilibop rules include rules to set udisks(7) environment variables for
-the devices hosted on the same disk than the root filesystem. If one of
-the Gnome, KDE, Xfce or LXDE desktop environment is installed, and then
+Bilibop rules include rules to set udisks/udisks2 environment variables
+for the devices hosted on the same disk than the root filesystem. If one
+of the Gnome, KDE, Xfce or LXDE desktop environment is installed, and then
 Udisks is used to mount/unmount removable devices from the file manager
 or the desktop (which is an instance of the file manager), it is possible
 to hide some devices, or show them with a different name or icon than the
 default, or prompt the user for su/sudo password when she attempts to
 manage them. The udisks variables bilibop rules can set are:
 
-    UDISKS_PRESENTATION_HIDE
-    UDISKS_PRESENTATION_NAME
-    UDISKS_PRESENTATION_ICON_NAME
+* For udisks (see udisks(7) manpage):
     UDISKS_SYSTEM_INTERNAL
+    UDISKS_PRESENTATION_HIDE
+    UDISKS_PRESENTATION_ICON_NAME
+    UDISKS_PRESENTATION_NAME
+
+* For udisks2 (see udisks(8) manpage):
+    UDISKS_SYSTEM
+    UDISKS_IGNORE
+    UDISKS_ICON_NAME
+    UDISKS_NAME
 
 By default, 'BILIBOP' tagged devices are hidden and set 'system internal'.
 
-The rule ENV{ID_DRIVE_DETACHABLE}:=0 is also applied to the disk, to avoid
-udisks detach it from its bus when a partition is unmounted, but it seems
-to not work correctly. Bad thing! Here the Udisks ability to detach a drive
-can lead to crash the system :(
+The rules:
+    ENV{ID_DRIVE_DETACHABLE}:=0 (udisks)
+and
+    ENV{UDISKS_CAN_POWER_OFF}:=0 (udisks2)
+
+are also applied to the disk, to avoid udisks detach it from its bus when
+a partition is unmounted, but it seems that the first one is not working
+as expected. Bad thing! Here the Udisks ability to detach a drive can lead
+to crash the system :(
 
 
 2.2. lsbilibop
@@ -119,7 +131,7 @@ To reconfigure bilibop-rules, just run (as root):
     dpkg-reconfigure -p low bilibop-rules
 
 
-3. HELPER SCRIPTS
+4. HELPER SCRIPTS
 =================
 
 bilibop-rules provides helper scripts (in /usr/share/bilibop). They are
@@ -137,7 +149,7 @@ Unless you know what you are doing, you should not run these scripts
 manually, but by running 'dpkg-reconfigure bilibop-rules' instead.
 
 
-3.1. bilibop_rules_generator
+4.1. bilibop_rules_generator
 ----------------------------
 
 This program generates a udev rules file /etc/udev/rules.d/66-bilibop.rules
@@ -152,7 +164,7 @@ Take care that if your device is able to be plugged on several port types
 type on which it was plugged when the rules have been generated. As example,
 for a 'LaCie Rugged FW/USB' external HDD:
 
-### 3.1.a. When booted as USB device
+### 4.1.a. When booted as USB device
 
 The sysfs attributes possibly managed by the script are:
 
@@ -163,14 +175,14 @@ The sysfs attributes possibly managed by the script are:
     ATTRS{product}=="LaCie Rugged FW/USB"
     ATTRS{serial}=="00D04B9A0506232D"
 
-### 3.1.b. When booted as FireWire device
+### 4.1.b. When booted as FireWire device
 
 The sysfs attributes possibly managed by the script are:
 
     ATTRS{vendor}=="LaCie   "
     ATTRS{model}=="Rugged FW/USB   "
 
-### 3.1.c. Generate the proper rules file:
+### 4.1.c. Generate the proper rules file:
 
 To generate a rules file matching sysfs attributes both for USB and FireWire
 usage, you have to force 'vendor' and 'model' sysfs attributes, because the
@@ -184,7 +196,7 @@ want to build the rules file, use this command:
     /usr/share/bilibop/bilibop_rules_generator --attribute vendor,model
 
 
-3.2. grub_device_map_manager
+4.2. grub_device_map_manager
 ----------------------------
 
 This program can be used in association with BILIBOP_RULES_FAKE_DEVICE_MAP
@@ -211,15 +223,15 @@ of a symlink can imply to rerun the script if BILIBOP_COMMON_BASENAME has
 been modified in bilibop.conf(5).
 
 
-3.3. make_unpersistent_rules
+4.3. make_unpersistent_rules
 ----------------------------
 
 This program replaces some persistent and cumulative rules files in
 /etc/udev/rules.d by symlinks to unpersistent and always-up-to-date files
 in /run/udev/rules.d. This concerns:
 
-	70-persistent-cd.rules
-	70-persistent-net.rules
+    70-persistent-cd.rules
+    70-persistent-net.rules
 
 For example, for 70-persistent-net.rules, each time you run your system
 on a different computer, with ethernet or wifi interfaces that are not
@@ -232,7 +244,7 @@ may allow adversaries to track your activities and make correlations.
 The helper script 'make_unpersistent_rules' simply avoids all that.
 
 
-3.4. physical_volumes_filter
+4.4. physical_volumes_filter
 ----------------------------
 
 This script can be used to display the LVM 'filter' settings actually in
@@ -279,14 +291,18 @@ This can be automated by copying /usr/share/doc/bilibop-rules/examples/rlvm
 somewhere in your PATH (probably in /usr/local/sbin) and enabling its
 executable bit; then run 'rlvm' (restricted lvm) and work.
 
+If the 'global_filter' variable is supported (lvm2 >= 2.02.98) and if it is
+enabled, then the command automatically applies to this variable (instead
+of 'filter'), unless the --noglobal option is invoked.
+
 See also lvm.conf(5) manual page for details.
 
 
-4. MORE INFO
+5. MORE INFO
 ============
 
 See /usr/share/doc/bilibop-common/misc/*
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
- -- bilibop project <quidame@poivron.org>  Sun, 27 Oct 2013 00:49:51 +0000
+ -- bilibop project <quidame@poivron.org>  Sun, 24 Nov 2013 03:19:27 +0000
