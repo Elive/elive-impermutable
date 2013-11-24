@@ -151,9 +151,11 @@
 # Udev compatibility stuff =================================================={{{
 # What we want is to be able to use udevadm even if it not included in the
 # PATH. Obviously, we assume that /bin is ever in PATH, so if udevadm is not
-# in the PATH, it means /bin/udevadm does not exist; then /sbin/udevadm it
+# in the PATH, it means /bin/udevadm does not exist; then /sbin/udevadm is
 # the fallback. This should work for any version of udev, and does not need
-# to silently modify the PATH of the user sourcing this file.
+# to silently modify the PATH of the user sourcing this file. The resulting
+# udevadm() function does not conflict with the udevadm command, since the
+# command itself is not available in PATH.
 # NOTE: until udev has been merged to systemd, udevadm was /sbin/udevadm;
 # from version 183 to 204, it seems that udevadm was /bin/udevadm, but with
 # no symlink in /sbin to ensure backward compatibility; this has been done
