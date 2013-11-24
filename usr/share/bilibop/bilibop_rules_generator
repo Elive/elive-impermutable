@@ -447,6 +447,11 @@ ATTR{removable}=="?*", \\
 	ENV{UDISKS_SYSTEM_INTERNAL}:="1"
 
 ATTR{removable}=="?*", \\
+	TEST=="/lib/udev/rules.d/80-udisks2.rules", \\
+	ENV{UDISKS_CAN_POWER_OFF}:="0", \\
+	ENV{UDISKS_SYSTEM}:="1"
+
+ATTR{removable}=="?*", \\
 	GOTO="bilibop_end"
 
 LABEL="bilibop_virtual_block"
@@ -494,6 +499,13 @@ PROGRAM=="bilibop_disk --hide %r/%k", ENV{UDISKS_PRESENTATION_HIDE}:="1", GOTO="
 PROGRAM=="bilibop_disk --icon %r/%k", ENV{UDISKS_PRESENTATION_ICON_NAME}:="%c"
 PROGRAM=="bilibop_disk --name %r/%k", ENV{UDISKS_PRESENTATION_NAME}:="%c"
 LABEL="bilibop_udisks_end"
+
+TEST!="/lib/udev/rules.d/80-udisks2.rules", GOTO="bilibop_udisks2_end"
+PROGRAM=="bilibop_disk --lock %r/%k", ENV{UDISKS_SYSTEM}:="1"
+PROGRAM=="bilibop_disk --hide %r/%k", ENV{UDISKS_IGNORE}:="1", GOTO="bilibop_udisks2_end"
+PROGRAM=="bilibop_disk --icon %r/%k", ENV{UDISKS_ICON_NAME}:="%c"
+PROGRAM=="bilibop_disk --name %r/%k", ENV{UDISKS_NAME}:="%c"
+LABEL="bilibop_udisks2_end"
 
 LABEL="bilibop_end"
 EOF
