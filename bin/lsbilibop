@@ -174,7 +174,7 @@ while read major minor size node; do
 	if [ "${info}" = "true" ]; then
 		echo "DEVNAME='${udev_root}/${node}'"
 		udevadm info --query property --export --name ${node} |
-		grep '^\(BILIBOP_\(DISK\|\(UNDERLYING_\)\?PARTITION\)\|DEVLINKS\|UDISKS_\(SYSTEM_INTERNAL\|PRESENTATION_\(HIDE\|\(ICON_\)\?NAME\)\)\|ID_\(FS_\(UUID\|LABEL\|TYPE\|USAGE\)\|DRIVE_DETACHABLE\)\)='
+		grep -E '^(BILIBOP_(DISK|(UNDERLYING_)?PARTITION)|DEVLINKS|UDISKS_(IGNORE|SYSTEM(_INTERNAL)?|(PRESENTATION_)?(ICON_)?NAME|PRESENTATION_HIDE|CAN_POWER_OFF)|ID_(FS_(UUID|LABEL|TYPE|USAGE)|DRIVE_DETACHABLE))='
 		echo
 
 	elif [ "${trigger}" = "true" ]; then
