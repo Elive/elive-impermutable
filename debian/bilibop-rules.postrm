@@ -5,6 +5,11 @@ set -e
 # Source debconf library:
 . /usr/share/debconf/confmodule
 
+global_filter_is_supported() {
+    local version="$(dpkg -l lvm2 | awk '/^ii/ {print $3}')"
+    dpkg --compare-versions ${version} ge 2.02.98
+}
+
 case "${1}" in
     purge)
         # Remove custom rules:
@@ -28,9 +33,11 @@ case "${1}" in
         # this package, but if, and only if lvm.conf has been modified through
         # debconf (during installation or with 'dpkg-reconfigure bilibop-rules')
         LVMCONF="/etc/lvm/lvm.conf"
+        lvm_variables="obtain_device_list_from_udev filter"
+        global_filter_is_supported && lvm_variables="${lvm_variables} global_filter"
         db_get bilibop-rules/physical_volumes_filter/system-only
         if [ -f "${LVMCONF}" -a "${RET}" = "true" ]; then
-            for lvmvar in filter global_filter obtain_device_list_from_udev; do
+            for lvmvar in ${lvm_variables}; do
                 db_get bilibop-rules/physical_volumes_filter/${lvmvar}
                 if [ -n "${RET}" ] && grep -q "^[[:blank:]]*${lvmvar}[[:blank:]]*=" ${LVMCONF}; then
                     grep -Eq "^[[:blank:]]*${lvmvar}[[:blank:]]*=[[:blank:]]*${RET}[[:blank:]]*(#|$)" ${LVMCONF} ||
