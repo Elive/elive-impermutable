@@ -14,7 +14,7 @@ SUBSYSTEMS=="usb|firewire|memstick|mmc", \
 GOTO="bilibop_end"
 LABEL="bilibop_disk"
 
-KERNEL=="sd?|mmcblk?|mspblk?", \
+ATTR{removable}=="?*", \
 	SYMLINK+="$result"
 
 LABEL="bilibop_end"
