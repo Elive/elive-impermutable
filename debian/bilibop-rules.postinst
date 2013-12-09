@@ -170,13 +170,13 @@ case "${1}" in
                         rm ${ETC_RULES_DIR}/66-bilibop.rules
                         # Now that the custom rules file has been removed,
                         # say to debconf the user does not want to build it.
-                        db_reset bilibop-rules/bilibop_rules_generator/customize
-                        db_fset bilibop-rules/bilibop_rules_generator/customize seen true
+                        db_reset bilibop-rules/${HELPER}/customize
+                        db_fset bilibop-rules/${HELPER}/customize seen true
                         # But also say to keep it if it is rebuilt manually.
                         # We don't set the seen flag to true: if the custom
                         # rules file has been built manually, the question
                         # should be asked on next package upgrade.
-                        db_reset bilibop-rules/bilibop_rules_generator/overwrite
+                        db_reset bilibop-rules/${HELPER}/overwrite
                     fi
                 else
                     db_get bilibop-rules/${HELPER}/customize
@@ -192,8 +192,8 @@ case "${1}" in
                         # Custom rules file has been successfully created;
                         # so say debconf to keep it the next time the package
                         # is configured:
-                        db_reset bilibop-rules/bilibop_rules_generator/overwrite
-                        db_fset bilibop-rules/bilibop_rules_generator/overwrite seen true
+                        db_reset bilibop-rules/${HELPER}/overwrite
+                        db_fset bilibop-rules/${HELPER}/overwrite seen true
                     else
                         CUSTOM_RULES="false"
                     fi
@@ -296,31 +296,31 @@ case "${1}" in
 
                     else
                         if [ "${RET}" = "true" ]; then
-                            db_reset bilibop-rules/physical_volumes_filter/system-only
+                            db_reset bilibop-rules/${HELPER}/system-only
 
                             if ! global_filter_is_supported; then
-                                db_subst bilibop-rules/physical_volumes_filter/without_global_filter/warning UNTAGGED "${untagged}"
-                                db_subst bilibop-rules/physical_volumes_filter/without_global_filter/warning UNLINKED "${unlinked}"
-                                db_get bilibop-rules/physical_volumes_filter/obtain_device_list_from_udev
-                                db_subst bilibop-rules/physical_volumes_filter/without_global_filter/warning FROMUDEV "${RET}"
-                                db_get bilibop-rules/physical_volumes_filter/filter
-                                db_subst bilibop-rules/physical_volumes_filter/without_global_filter/warning FILTER "${RET}"
-                                db_input critical bilibop-rules/physical_volumes_filter/without_global_filter/warning || true
+                                db_subst bilibop-rules/${HELPER}/without_global_filter/warning UNTAGGED "${untagged}"
+                                db_subst bilibop-rules/${HELPER}/without_global_filter/warning UNLINKED "${unlinked}"
+                                db_get bilibop-rules/${HELPER}/obtain_device_list_from_udev
+                                db_subst bilibop-rules/${HELPER}/without_global_filter/warning FROMUDEV "${RET}"
+                                db_get bilibop-rules/${HELPER}/filter
+                                db_subst bilibop-rules/${HELPER}/without_global_filter/warning FILTER "${RET}"
+                                db_input critical bilibop-rules/${HELPER}/without_global_filter/warning || true
                             else
-                                db_subst bilibop-rules/physical_volumes_filter/with_global_filter/warning UNTAGGED "${untagged}"
-                                db_subst bilibop-rules/physical_volumes_filter/with_global_filter/warning UNLINKED "${unlinked}"
-                                db_get bilibop-rules/physical_volumes_filter/obtain_device_list_from_udev
-                                db_subst bilibop-rules/physical_volumes_filter/with_global_filter/warning FROMUDEV "${RET}"
-                                db_get bilibop-rules/physical_volumes_filter/filter
-                                db_subst bilibop-rules/physical_volumes_filter/with_global_filter/warning FILTER "${RET}"
-                                db_get bilibop-rules/physical_volumes_filter/global_filter
-                                db_subst bilibop-rules/physical_volumes_filter/with_global_filter/warning GLOBAL_FILTER "${RET}"
-                                db_input critical bilibop-rules/physical_volumes_filter/with_global_filter/warning || true
+                                db_subst bilibop-rules/${HELPER}/with_global_filter/warning UNTAGGED "${untagged}"
+                                db_subst bilibop-rules/${HELPER}/with_global_filter/warning UNLINKED "${unlinked}"
+                                db_get bilibop-rules/${HELPER}/obtain_device_list_from_udev
+                                db_subst bilibop-rules/${HELPER}/with_global_filter/warning FROMUDEV "${RET}"
+                                db_get bilibop-rules/${HELPER}/filter
+                                db_subst bilibop-rules/${HELPER}/with_global_filter/warning FILTER "${RET}"
+                                db_get bilibop-rules/${HELPER}/global_filter
+                                db_subst bilibop-rules/${HELPER}/with_global_filter/warning GLOBAL_FILTER "${RET}"
+                                db_input critical bilibop-rules/${HELPER}/with_global_filter/warning || true
                             fi
                             db_go || true
                         fi
                         for lvmvar in ${lvm_variables}; do
-                            db_get bilibop-rules/physical_volumes_filter/${lvmvar}
+                            db_get bilibop-rules/${HELPER}/${lvmvar}
                             if [ -n "${RET}" ] && grep -qs "^[[:blank:]]*${lvmvar}[[:blank:]]*=" ${LVMCONF}; then
                                 grep -Eq "^[[:blank:]]*${lvmvar}[[:blank:]]*=[[:blank:]]*${RET}[[:blank:]]*(#|$)" ${LVMCONF} ||
                                 sed -Ei "s@^(\s*${lvmvar}\s*=).*@\1 ${RET}@" ${LVMCONF}
