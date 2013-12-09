@@ -45,7 +45,7 @@ case "${1}" in
         if [ -f "${LVMCONF}" ]; then
             for lvmvar in ${lvm_variables}; do
                 db_fget bilibop-rules/${HELPER}/${lvmvar} seen
-                [ "${RET}" = "true" ] && continue || true
+                [ "${RET}" = "true" ] && continue
                 lvmval="$(grep "^[[:blank:]]*${lvmvar}[[:blank:]]*=" ${LVMCONF} | sed 's,^[^=]\+=\s*,,')"
                 if [ -n "${lvmval}" ]; then
                     db_set bilibop-rules/${HELPER}/${lvmvar} ${lvmval}
