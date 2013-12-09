@@ -1,0 +1,8 @@
+#
+# The postinst script embeds the ${HELPER} variable in the template names
+#
+bilibop-rules: unused-debconf-template bilibop-rules/physical_volumes_filter/filter
+bilibop-rules: unused-debconf-template bilibop-rules/physical_volumes_filter/global_filter
+bilibop-rules: unused-debconf-template bilibop-rules/physical_volumes_filter/obtain_device_list_from_udev
+bilibop-rules: unused-debconf-template bilibop-rules/physical_volumes_filter/without_global_filter/warning
+bilibop-rules: unused-debconf-template bilibop-rules/physical_volumes_filter/with_global_filter/warning
