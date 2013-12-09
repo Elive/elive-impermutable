@@ -156,7 +156,7 @@ Template: bilibop-rules/physical_volumes_filter/obtain_device_list_from_udev
 Type: string
 Description: for internal use only
 
-Template: bilibop-rules/physical_volumes_filter/warning
+Template: bilibop-rules/physical_volumes_filter/without_global_filter/warning
 Type: error
 #flag:translate!:3,5
 _Description: Physical Volumes Filter will not be applied.
@@ -172,7 +172,7 @@ _Description: Physical Volumes Filter will not be applied.
   obtain_device_list_from_udev = ${FROMUDEV}
   filter = ${FILTER}
 
-Template: bilibop-rules/physical_volumes_filter/warning2
+Template: bilibop-rules/physical_volumes_filter/with_global_filter/warning
 Type: error
 #flag:translate!:3,5
 _Description: Physical Volumes Filter will not be applied.
