@@ -1,3 +1,117 @@
+bilibop (0.4.20) unstable; urgency=low
+
+  * bilibop-common:
+  * Modify common.sh: replace '/sbin/udevadm' by just 'udevadm', and declare a
+    udevadm() function if the command itself is not in the PATH. This should
+    work with all versions of udev.
+  * Modify device_node_from_major_minor(): rely on the contents of /dev/block
+    (as these symlinks are not created by udev).
+  * Modify drivemap.sh: add a missing debug command at the beginning of a
+    function.
+  * Modify lib/bilibop/disk: set -e
+  * Fix a typo in drivemap.sh and the drivemap command: rename function
+    _drivemap_max_mp_lenght() -> _drivemap_max_mp_length(), and also fix the
+    same spelling error for the variable lenght -> length.
+  * Update bilibop(7) and bilibop.conf(5) manpages (and also the french
+    translations).
+  * Update documentation (README.Debian, examples/bilibop.conf, misc/*.txt).
+
+  * bilibop-rules:
+  * Add translations for the debconf templates:
+    + Italian: thanks to Beatrice Torracca <beatricet@libero.it>
+      Closes: #727755.
+    + Portuguese: thanks to Américo Monteiro <a_monteiro@gmx.com>
+      Closes: #730000.
+  * Modify the config maintscript and the initramfs script: as the --run
+    option no more works for 'udevadm info', use the hardcoded /run/udev
+    instead.
+  * Modify the udev rules file: rely on the 'removable' attribute to know that
+    a device is a disk (as for the 'partition' attribute to know that a device
+    is a partition); also do not set unconditionally Udisks ENV variables for
+    the disk; reorder some rules, rename LABELs, + other cosmetics.
+  * Update bilibop_rules_generator helper script for consistency.
+  * Fix management of errors in physical_volumes_filter and pvfilter.sh
+  * Remove a reference to a non-existent manpage in pvfilter.sh
+  * Fix a spelling error in the help page of physical_volumes_filter.
+  * Modify _pvfilter_find_dev_links(): use a best 'find' commandline, and
+    simplify its output filter (grep).
+  * Modify postinst to regenerate the cache file if the filter value has been
+    modified in lvm.conf
+  * Add support for the LVM 'global_filter' variable (lvm2 >= 2.02.98):
+    + Add '_pvfilter_has_global()' function in pvfilter.sh: just tests if the
+      'global_filter' variable is supported by the version of lvm2 actually
+      installed on the system.
+    + Modify _pvfilter_init_lvm_configfile().
+    + Modify _pvfilter_init_device_filters().
+    + Add --global and --noglobal options to the helper script.
+    + Rename debconf template: 'bilibop-rules/physical_volumes_filter/warning'
+      -> 'bilibop-rules/physical_volumes_filter/without_global_filter/warning'
+    + Add 'bilibop-rules/physical_volumes_filter/with_global_filter/warning'
+      debconf template.
+    + Update maintscripts.
+  * Add support for Udisks 2.x (udisks2 package):
+    + Modify the udev rules file to set udisks2 variables as well as udisks
+      variables.
+    + Update bilibop_rules_generator helper script for consistency.
+    + Modify lsbilibop script: grep also udisks2 variables.
+  * Replace all occurences of 'eval ${foo}' by [ "${foo}" = "true" ] (as eval
+    ${foo} is true if ${foo} is empty).
+  * Replace all occurences of '\s' by the POSIX class '[[:blank:]]' in grep
+    commands (see bug #729581/#730146).
+  * Update lsbilibop(8) manpage (and also the french translation).
+  * Update documentation (README.Debian, examples/bilibop.conf).
+
+  * bilibop-lockfs:
+  * Add 'random' as a possible value for BILIBOP_LOCKFS_SWAP_POLICY: this
+    allows one to specify to use a swap device only if it is encrypted with a
+    random key.
+    + Add new function is_randomly_encrypted() in lockfs.sh
+    + Modify get_swap_policy() and apply_swap_policy() in lockfs.sh
+  * Add a new boot option 'lockfs=default', used to reset bilibop-lockfs
+    variables to their default values, i.e. empty strings (but BILIBOP_LOCKFS
+    itself, which is then set to 'true'); modify lockfs_mount_helper and the
+    initramfs scripts accordingly.
+  * Modify lockfs_mount_helper and local-bottom initramfs script to also
+    accept boot options of the form 'lockfs=-/foobar', where /foobar is a
+    mountpoint to whitelist.
+  * Remove unneeded code about 'crypto_LUKS' filesystem types in the mount
+    helper script: the mount.crypt command (libpam-mount) already manages
+    permissions of children virtual devices (loop and dm) when the 'ro' option
+    is encountered in the fstab entry.
+  * Add new function get_device_node() in lockfs.sh: if LABEL=* is used in
+    fstab, translate '/' characters to their hex value to be sure to find the
+    symlink in /dev/disk/by-label/; modify unlock_logical_volume() and
+    is_encrypted() to call it.
+  * Add support for LVM 'global_filter' variable in lockfs.sh: modify
+    initialize_lvm_conf() and blacklist_bilibop_devices(); so 'global_filter'
+    is unconditionally set to the same value than 'filter'.
+  * Modify local-bottom initramfs script: when calling 'is_removable()', don't
+    call 'physical_hard_disk()' again, as BILIBOP_DISK has already been
+    computed.
+  * Replace all occurences of '\s' by the POSIX class '[[:blank:]]' in grep
+    commands.
+  * Update documentation (README.Debian, TODO, examples/bilibop.conf).
+
+  * bilibop-udev:
+  * Modify the udev rules file: rely on the 'removable' attribute to know that
+    a device is a disk.
+  * Replace all occurences of '\s' by the POSIX class '[[:blank:]]' in grep
+    commands.
+
+  * debian/control:
+  * Update bilibop-lockfs and bilibop-rules extended descriptions.
+  * Move aufs-tools from Recommends: to Suggests: for bilibop-lockfs.
+  * Add udisks2 as an alternative to udisks in Recommends: for bilibop-rules.
+  * Bump Standards-Version: to 3.9.5; no changes.
+
+  * Update debian/po/templates.pot and debian/po/*.po
+  * Add debian/source.lintian-overrides (newer-standards-version 3.9.5), as
+    lintian (2.5.19) is not yet updated (see #729096).
+  * Add debian/bilibop-rules.lintian-overrides (unused-debconf-template): the
+    postinst script embeds the ${HELPER} variable in template names.
+
+ -- Yann Amar <quidame@poivron.org>  Mon, 09 Dec 2013 02:58:24 +0000
+
 bilibop (0.4.19) unstable; urgency=high
 
   * bilibop-lockfs:
