@@ -1,0 +1,434 @@
+# bilibop po-debconf translation to Spanish
+# Copyright (C) 2013 Software in the Public Interest
+# This file is distributed under the same license as the bilibop package.
+# Changes:
+# - Initial translation
+# Camaleón <noelamac@gmail.com>, 2010, 2013.
+# - Updates
+# Traductores, si no conocen el formato PO, merece la pena leer la
+# documentación de gettext, especialmente las secciones dedicadas a este
+# formato, por ejemplo ejecutando:
+# info -n '(gettext)PO Files'
+# info -n '(gettext)Header Entry'
+# Equipo de traducción al español, por favor lean antes de traducir
+# los siguientes documentos:
+# - El proyecto de traducción de Debian al español
+# http://www.debian.org/intl/spanish/
+# especialmente las notas y normas de traducción en
+# http://www.debian.org/intl/spanish/notas
+# - La guía de traducción de po's de debconf:
+# /usr/share/doc/po-debconf/README-trans
+# o http://www.debian.org/intl/l10n/po-debconf/README-trans
+msgid ""
+msgstr ""
+"Project-Id-Version: bilibop 0.4.20\n"
+"Report-Msgid-Bugs-To: quidame@poivron.org\n"
+"POT-Creation-Date: 2013-11-23 10:14+0000\n"
+"PO-Revision-Date: 2013-12-21 13:50+0200\n"
+"Last-Translator: Camaleón <noelamac@gmail.com>\n"
+"Language-Team: Debian Spanish <debian-l10n-spanish@lists.debian.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Virtaal 0.7.1\n"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:1001
+msgid "Do you intend to install bilibop-rules on a Live System ?"
+msgstr "¿Va a instalar bilibop-rules en un sistema «Live»?"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:1001
+msgid ""
+"Some bilibop-rules settings can be useful on non-volatile Operating Systems, "
+"when running from a removable and writable media (USB sticks, external HDD "
+"or SD cards); but they are currently useless or even harmful for LiveCD or "
+"LiveUSB systems."
+msgstr ""
+"Algunos de los ajustes de bilibop-rules pueden resultar útiles en sistemas "
+"operativos persistentes cuando se ejecutan desde un dispositivo removible y "
+"grabable (llaves USB, discos duros externos o tarjetas SD) pero resultan "
+"completamente inútiles o incluso perjudiciales en sistemas LiveCD o LiveUSB."
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:1001
+msgid ""
+"If you choose this option, no other question will be asked; bilibop udev "
+"rules will be applied but nothing else will be modified on your system. Note "
+"that in that case, this package is overkill and you should probably replace "
+"it by the lighter but as much as efficient bilibop-udev package."
+msgstr ""
+"Si elige esta opción no se le harán más preguntas, se aplicarán las reglas "
+"udev de bilibop pero no se modificará nada más en su sistema. Tenga en "
+"cuenta que en este caso este paquete resulta excesivo y probablemente "
+"debería reemplazarlo por otro más ligero pero igual de eficiente como el "
+"paquete bilibop-udev."
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:2001
+msgid "Do you want to use custom bilibop rules and build them now ?"
+msgstr "¿Desea utilizar reglas bilibop personalizadas y construirlas ahora?"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:2001
+msgid ""
+"If tens of removable media are plugged on the computer your system boots "
+"from, bilibop udev rules can significantly increase boot time. This can be "
+"avoided by using custom udev rules, which are specific to the device your "
+"system is installed on."
+msgstr ""
+"Si tiene conectados varios dispositivos removibles en el equipo desde donde "
+"inicia el sistema, las reglas udev de bilibop pueden incrementar "
+"significativamente el tiempo de inicio. Para evitar esto puede utilizar "
+"reglas udev personalizadas que son específicas para el dispositivo donde se "
+"encuentra instalado el sistema."
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:2001
+msgid ""
+"That said, if this device can boot from different hardware port types (as "
+"USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), you should check the resulting "
+"rules by booting your system on the alternative port type, and if necessary "
+"by running 'dpkg-reconfigure bilibop-rules' again with proper options, or "
+"even by editing '/etc/udev/rules.d/66-bilibop.rules'."
+msgstr ""
+"Dicho eso, si el dispositivo puede iniciarse desde distintos tipos de puerto "
+"(como USB/Firewire, USB/eSATA, USB/MMC/SD, etc.) debería comprobar las "
+"reglas generadas e iniciar el sistema desde uno de los tipos de puerto "
+"alternativos y si fuera necesario, ejecutar «dpkg-reconfigure bilibop-rules» "
+"de nuevo con las opciones adecuadas o incluso editar el archivo "
+"«/etc/udev/rules.d/66-bilibop.rules»."
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:3001
+msgid "keep existing custom rules"
+msgstr "mantener las reglas personalizadas existentes"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:3001
+msgid "rebuild custom rules"
+msgstr "reconstruir las reglas personalizadas"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:3001
+msgid "remove custom rules"
+msgstr "eliminar las reglas personalizadas"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:3002
+msgid "What do you want to do with your custom rules ?"
+msgstr "¿Qué desea hacer con las reglas personalizadas?"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:3002
+msgid ""
+"The file '/etc/udev/rules.d/66-bilibop.rules' exists. It is specific to the "
+"drive on which your system is installed and overrides the one, more generic, "
+"that is provided by the bilibop-rules package (in '/lib/udev/rules.d')."
+msgstr ""
+"Actualmente existe el archivo «/etc/udev/rules.d/66-bilibop.rules». Este "
+"archivo es específico para el dispositivo donde se encuentra instalado el "
+"sistema y reemplaza al que proporciona el paquete bilibop-rules en "
+"«/lib/udev/rules.d» que es más genérico."
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:3002
+msgid ""
+"If the device hosting the running system is able to boot from different "
+"hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD-card, etc.), you "
+"should boot it from the alternative port type and check if your custom rules "
+"work fine in all cases. In the doubt, you should remove the custom rules "
+"file."
+msgstr ""
+"Si el dispositivo donde se va a instalar el sistema «Live» puede iniciarse "
+"desde distintos tipos de puerto (USB/Firewire, USB/eSATA, USB/MC/tarjeta "
+"SD), etc.) debería iniciarlo desde un puerto alternativo y comprobar si las "
+"reglas personalizadas funcionan bien en todos los casos. Si tiene alguna "
+"duda, debería eliminar el archivo de reglas personalizadas."
+
+#. Type: string
+#. Description
+#: ../bilibop-rules.templates:4001
+msgid "Options to pass to the bilibop rules generator:"
+msgstr "Opciones a pasar al generador de reglas bilibop:"
+
+#. Type: string
+#. Description
+#: ../bilibop-rules.templates:4001
+msgid ""
+"Possible options you can pass to the bilibop rules generator are the "
+"followings:"
+msgstr "Puede pasar las siguientes opciones al generador de reglas bilibop:"
+
+#. Type: string
+#. Description
+#: ../bilibop-rules.templates:4001
+msgid ""
+"The two first ones cannot be mixed; for example, '-a model,serial' is not a "
+"valid option; use '-a model -e ID_SERIAL' instead. In the doubt, you should "
+"probably set it to an empty string (defaults to '-a manufacturer,product,"
+"serial')."
+msgstr ""
+"No puede mezclar las dos primeras; p. ej., «-a model,serial» no es una "
+"opción válida, use «-a model -e ID_SERIAL» en su lugar. Si tiene dudas, "
+"debería definir una cadena en blanco (preestablecida en «-a "
+"manufacturer,product,serial»)."
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:5001
+msgid "Options given to the bilibop rules generator seem to be invalid."
+msgstr ""
+"Parece que las opciones que ha pasado al generador de reglas bilibop no son "
+"válidas."
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:5001
+msgid ""
+"You can go back by hitting the <Escape> key and then modify the options. "
+"Otherwise, the custom rules file '/etc/udev/rules.d/66-bilibop.rules' will "
+"not be written."
+msgstr ""
+"Puede volver atrás pulsando la tecla <Escape> y modificar las opciones. De "
+"lo contrario no se guardará el archivo de reglas personalizado "
+"«/etc/udev/rules.d/66-bilibop.rules»."
+
+#. Type: error
+#. Description
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:6001 ../bilibop-rules.templates:7001
+msgid "The following device(s) still belong to floppy group:"
+msgstr "El/los siguiente/s dispositivo/s todavía pertenece/n al grupo floppy:"
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:6001
+msgid "You should rewrite or remove your custom rules file:"
+msgstr "Debería editar o eliminar el archivo de reglas personalizadas:"
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:7001
+msgid "Internal error"
+msgstr "Error intero"
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:7001
+msgid "You should send a bug report to the maintainer of the package."
+msgstr "Debería enviar un informe de fallos al encargado del paquete."
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:8001
+msgid "the existing one"
+msgstr "el actual"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:8001
+msgid "a static device map (not recommended)"
+msgstr "un mapa de dispositivos estático (opción no recomendada)"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:8001
+msgid "a static fake device map"
+msgstr "un mapa de dispositivos estático falso"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:8001
+msgid "a dynamic fake device map"
+msgstr "un mapa de dispositivos dinámico falso"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:8001
+msgid "a dynamically updated device map"
+msgstr "un mapa de dispositivos actualizado dinámicamente"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:8002
+msgid "What kind of GRUB device map do you want to use ?"
+msgstr "¿Qué tipo de mapa de dispositivos de GRUB desea usar?"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:8002
+msgid ""
+"The '/boot/grub/device.map' file can store obsolete information. In some "
+"cases, this can lead to failures when the GRUB bootloader menu is updated. "
+"To avoid that, it is possible to replace the device map by a fake one, "
+"mapping only the physical drive hosting your system; or by a link to a "
+"temporary file, which may be created either at boot time with a fake "
+"content, or on demand with an updated content."
+msgstr ""
+"El archivo «/boot/grub/device.map» puede contener información obsoleta. En "
+"algunos casos esto puede generar fallos cuando se actualiza el menú del "
+"cargador de arranque de GRUB. Para evitar esto puede reemplazar el mapa de "
+"dispositivos por uno falso y mapear sólo el dispositivo físico donde se "
+"encuentra instalado el sistema o también puede crear un enlace a un archivo "
+"temporal que debería crearse al iniciar el sistema con contenido falso o "
+"bien bajo demanda con contenido actualizado."
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:8002
+msgid ""
+"If your external system is embedded on a device able to boot from different "
+"hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), it is not "
+"recommended to use a static device map. The dynamic fake device map should "
+"work in all cases."
+msgstr ""
+"Si el sistema externo se encuentra integrado en un dispositivo que puede "
+"iniciarse desde distintos tipos de puerto (USB/Firewire, USB/eSATA, "
+"USB/MMC/SD, etc.), no se recomienda usar un mapa de dispositivos estático. "
+"Un mapa de dispositivos dinámico falso debería funcionar en todos los casos."
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:9001
+msgid "keep them in their current state"
+msgstr "mantenerlas en su estado actual"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:9001
+msgid "make unpersistent cd rules only"
+msgstr "generar sólo las reglas de CD volátiles"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:9001
+msgid "make unpersistent net rules only"
+msgstr "generar sólo las reglas de red volátiles"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:9001
+msgid "make unpersistent rules for all (recommended)"
+msgstr "generar las reglas volátiles para todos (opción recomendada)"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:9001
+msgid "make persistent rules for all"
+msgstr "generar las reglas persistentes para todos"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:9002
+msgid "What persistent rules do you want to make unpersistent ?"
+msgstr "¿Qué reglas persistentes desea hacer volátiles?"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:9002
+msgid ""
+"Some udev rules files can store information about components of the computer "
+"your system is plugged on:"
+msgstr ""
+"Algunos archivos de reglas udev pueden contener información de componentes "
+"del equipo donde se encuentra conectado el sistema:"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:9002
+msgid ""
+"These files are cumulative and can store obsolete information, possibly "
+"leading to unexpected behaviour of your network manager or CD burner "
+"application. It is possible to replace them by symlinks to temporary files "
+"to keep them always up to date. Note that it is possible to do or undo that "
+"at any time by running"
+msgstr ""
+"Estos archivos son acumulativos y pueden contener información obsoleta que "
+"llegue a generar un comportamiento inesperado del gestor de red o de la "
+"aplicación para la grabación de CD. Puede reemplazarlos por enlaces "
+"simbólicos a archivos temporales para mantenerlos siempre actualizados. "
+"Tenga en cuenta que puede hacer o deshacer esta opción si ejecuta"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:10001
+msgid "Do you want to hide Physical Volumes your system does not need ?"
+msgstr "¿Desea ocultar los volúmenes físicos que el sistema no necesita?"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:10001
+msgid ""
+"It seems that the drive on which your system is installed contains Logical "
+"Volumes. It is possible to set LVM to activate only the Physical Volumes "
+"that your system needs. This can mainly avoid name conflicts between the "
+"Volumes used by your system and those that could be found on internal or "
+"external drives plugged on the same computer."
+msgstr ""
+"Parece que el dispositivo donde se encuentra instalado el sistema contiene "
+"volúmenes lógicos. Puede configurar LVM para que sólo active los volúmenes "
+"físicos que el sistema necesite. Esto sirve principalmente para evitar "
+"conflictos de nombres entre los volúmenes usados por el sistema y aquéllos "
+"que se pueden encontrar en los dispositivos internos o externos conectados "
+"en el mismo equipo."
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:10001
+msgid ""
+"If you choose to use this feature, this will overwrite '/etc/lvm/lvm.conf', "
+"and you should read 'README.Debian' in the documentation of the package. "
+"Otherwise, you can do it later with"
+msgstr ""
+"Si decide usar esta opción se reemplazará el archivo «/etc/lvm/lvm.conf» y "
+"debería consultar el archivo «README.Debian» disponible en la documentación "
+"del paquete. De lo contrario, puede hacerlo más adelante con"
+
+#. Type: error
+#. Description
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+msgid "Physical Volumes Filter will not be applied."
+msgstr "No se va a aplicar el filtro de volúmenes físicos."
+
+#. Type: error
+#. Description
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+msgid ""
+"Probably due to an error in '66-bilibop.rules', the following device(s) have "
+"not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
+msgstr ""
+"Es posible que debido a un error en el archivo «66-bilibop.rules» udev no "
+"haya etiquetado con «BILIBOP» el/los siguiente/s dispositivo/s o que no "
+"disponga/n de un enlace simbólico válido gestionado por udev:"
+
+#. Type: error
+#. Description
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+msgid ""
+"This means some variables in '/etc/lvm/lvm.conf' will be left or reset to "
+"their initial values:"
+msgstr ""
+"Esto significa que algunas variables del archivo «/etc/lvm/lvm.conf» se "
+"mantendrán inalteradas o se restablecerán a sus valores iniciales:"
