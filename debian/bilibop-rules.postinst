@@ -120,16 +120,16 @@ case "${1}" in
                                 # Comment the line ?
                                 #sed -i "s:^\(\s*${KEY}\)=\([\"\']\?\)false\2:#&:" ${CONFIGFILE}
                                 # Delete the line ?
-                                sed -Ei "/^(\s*${KEY})=([\"\']?)false\2/d" ${CONFIGFILE}
+                                sed -ri "/^(\s*${KEY})=([\"\']?)false\2/d" ${CONFIGFILE}
                             fi
                             ;;
                         ondemand)
                             opt="--link --update"
                             if grep -qs "^[[:blank:]]*${KEY}=" ${CONFIGFILE}; then
                                 grep -Eq "^[[:blank:]]*${KEY}=([\"\']?)false\1" ${CONFIGFILE} ||
-                                sed -Ei "s:^(\s*${KEY})=.*:\1=\"false\":" ${CONFIGFILE}
+                                sed -ri "s:^(\s*${KEY})=.*:\1=\"false\":" ${CONFIGFILE}
                             elif grep -Eqs "^[[:blank:]]*(#[[:blank:]]*)+${KEY}=([\"\']?)false\2" ${CONFIGFILE}; then
-                                sed -Ei "s:^(\s*)(#\s*)+(${KEY})=([\"\']?)false\4:\1\3=\"false\":" ${CONFIGFILE}
+                                sed -ri "s:^(\s*)(#\s*)+(${KEY})=([\"\']?)false\4:\1\3=\"false\":" ${CONFIGFILE}
                             else
                                 echo "${KEY}=\"false\"" >>${CONFIGFILE}
                             fi
@@ -318,7 +318,7 @@ case "${1}" in
                             db_get bilibop-rules/${HELPER}/${lvmvar}
                             if [ -n "${RET}" ] && grep -qs "^[[:blank:]]*${lvmvar}[[:blank:]]*=" ${LVMCONF}; then
                                 grep -Eq "^[[:blank:]]*${lvmvar}[[:blank:]]*=[[:blank:]]*${RET}[[:blank:]]*(#|$)" ${LVMCONF} ||
-                                sed -Ei "s@^(\s*${lvmvar}\s*=).*@\1 ${RET}@" ${LVMCONF}
+                                sed -ri "s@^(\s*${lvmvar}\s*=).*@\1 ${RET}@" ${LVMCONF}
                             fi
                         done
                     fi

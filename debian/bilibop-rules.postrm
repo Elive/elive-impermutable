@@ -26,7 +26,7 @@ case "${1}" in
         # the common bilibop config file:
         CONFIGFILE="/etc/bilibop/bilibop.conf"
         if grep -Eqs '^[[:blank:]]*BILIBOP_RULES(_[A-Z]+)+=' ${CONFIGFILE}; then
-            sed -Ei 's,^\s*BILIBOP_RULES(_[A-Z]+)+=,#&,' ${CONFIGFILE}
+            sed -ri 's,^\s*BILIBOP_RULES(_[A-Z]+)+=,#&,' ${CONFIGFILE}
         fi
 
         # Reset some LVM settings to what they were before the installation of
@@ -41,7 +41,7 @@ case "${1}" in
                 db_get bilibop-rules/physical_volumes_filter/${lvmvar}
                 if [ -n "${RET}" ] && grep -q "^[[:blank:]]*${lvmvar}[[:blank:]]*=" ${LVMCONF}; then
                     grep -Eq "^[[:blank:]]*${lvmvar}[[:blank:]]*=[[:blank:]]*${RET}[[:blank:]]*(#|$)" ${LVMCONF} ||
-                    sed -Ei "s@^(\s*${lvmvar}\s*=).*@\1 ${RET}@" ${LVMCONF}
+                    sed -ri "s@^(\s*${lvmvar}\s*=).*@\1 ${RET}@" ${LVMCONF}
                 fi
             done
         fi
