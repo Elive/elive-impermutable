@@ -286,7 +286,7 @@ canonical() {
 # and so we are sure it works with all df commands or builtins (busybox).
 find_mountpoint() {
     ${DEBUG} && echo "> find_mountpoint $@" >&2
-    df "${1}" | sed -n '$p' | sed -e 's,.* \([^[:blank:]]\+\)$,\1,'
+    df "${1}" | sed -ne '$s,.* \([^[:blank:]]\+\)$,\1,p'
 }
 # ===========================================================================}}}
 # device_node_from_major_minor() ============================================{{{
