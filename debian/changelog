@@ -1,3 +1,18 @@
+bilibop (0.4.21) unstable; urgency=low
+
+  * bilibop-common: in find_mountpoint(), replace the two piped sed commands
+    by only one.
+  * bilibop-rules: add translations for the debconf templates:
+    + spanish: thanks to Camaleón <noelamac@gmail.com>. Closes: #733867.
+    + german: thanks to Chris Leick <c.leick@volbio.de>. Closes: #738781.
+  * Modify debian/bilibop-rules.post*: in sed commands, replace the
+    undocumented -E option by the standard -r option.
+  * Remove debian/source.lintian-overrides (newer-standards-version 3.9.5):
+    after new lintian release (2.5.20), this file is no more needed. This
+    reverts commit e32bff8f93a9175900a5c80516e18788abc8704e (2013-11-24).
+
+ -- Yann Amar <quidame@poivron.org>  Wed, 12 Feb 2014 22:29:05 +0000
+
 bilibop (0.4.20) unstable; urgency=low
 
   * bilibop-common:
