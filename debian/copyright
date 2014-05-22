@@ -3,7 +3,7 @@ Upstream-Name: bilibop project
 Upstream-Contact: <quidame@poivron.org>
 
 Files: *
-Copyright: 2011-2013 Yann Amar <quidame@poivron.org>
+Copyright: 2011-2014 Yann Amar <quidame@poivron.org>
 License: GPL-3.0+
 
 Files: debian/*
