@@ -294,7 +294,8 @@ find_mountpoint() {
 # corresponding device node. What is the best way?
 device_node_from_major_minor() {
     ${DEBUG} && echo "> device_node_from_major_minor $@" >&2
-    readlink -f ${udev_root}/block/${1}
+    local dev="$(readlink -f /sys/dev/block/${1})"
+    [ -b "${udev_root}/${dev##*/}" ] && echo "${udev_root}/${dev##*/}"
 }
 # ===========================================================================}}}
 # device_id_of_file() ======================================================={{{
