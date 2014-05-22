@@ -3,4 +3,4 @@ bilibop-common - TODO
   * Provide a bilibop specific, sample 'preseed' file, and a script to easily
     include it either into the installer's initrd or into the iso image.
   * Translate manpages
-
+  * Add documentation about u-boot based systems
