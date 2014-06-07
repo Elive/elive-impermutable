@@ -81,8 +81,8 @@ Package: bilibop-rules
 Priority: extra
 Architecture: linux-any
 Depends: bilibop-common (= ${binary:Version}), initramfs-tools, initscripts (>= 2.88dsf-13.3), ${misc:Depends}
-Recommends: grub-common, lvm2, udisks | udisks2
-Suggests: bilibop-lockfs, cryptsetup, grub-coreboot | grub-efi-amd64 | grub-efi-ia32 | grub-ieee1275 | grub-pc, pmount, policykit-1
+Recommends: lvm2, udisks | udisks2
+Suggests: bilibop-lockfs, cryptsetup, pmount, policykit-1
 Conflicts: bilibop-udev
 Provides: bilibop-device-policy
 Description: device management rules for OS running from external media
