@@ -81,7 +81,7 @@ Package: bilibop-rules
 Priority: extra
 Architecture: linux-any
 Depends: bilibop-common (= ${binary:Version}), initramfs-tools, initscripts (>= 2.88dsf-13.3), ${misc:Depends}
-Recommends: lvm2, udisks | udisks2
+Recommends: lvm2, udisks2
 Suggests: bilibop-lockfs, cryptsetup, pmount, policykit-1
 Conflicts: bilibop-udev
 Provides: bilibop-device-policy
