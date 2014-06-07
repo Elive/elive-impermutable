@@ -78,6 +78,7 @@ Description: lock filesystems and write changes into RAM
  ${Requirement}
 
 Package: bilibop-rules
+Priority: extra
 Architecture: linux-any
 Depends: bilibop-common (= ${binary:Version}), initramfs-tools, initscripts (>= 2.88dsf-13.3), ${misc:Depends}
 Recommends: grub-common, lvm2, udisks | udisks2
@@ -112,7 +113,6 @@ Package: bilibop-udev
 Architecture: linux-any
 Depends: bilibop-common (= ${binary:Version}), ${misc:Depends}
 Suggests: bilibop-lockfs
-Conflicts: bilibop-rules
 Provides: bilibop-device-policy
 Description: minimal udev rule for Debian GNU/Linux running from external media
  ${Description}
