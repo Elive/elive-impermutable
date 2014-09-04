@@ -136,6 +136,9 @@ case	"${BILIBOP_LOCKFS}" in
 		log_warning_msg "${0##*/}: Locking filesystem."
 		;;
 	false)
+		# Undo what has been done before (in the init-top script)
+		# and exit
+		undo_readonly_dm_settings
 		log_warning_msg "${0##*/}: Nothing to do."
 		case "${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 			never|lockfs) ;;
@@ -146,7 +149,11 @@ case	"${BILIBOP_LOCKFS}" in
 	*)
 		if	is_removable ${BILIBOP_DISK}
 		then	log_warning_msg "${0##*/}: Locking filesystem."
-		else	log_warning_msg "${0##*/}: Nothing to do."
+		else
+			# Undo what has been done before (in the init-top script)
+			# and exit
+			undo_readonly_dm_settings
+			log_warning_msg "${0##*/}: Nothing to do."
 			case "${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 				never|lockfs) ;;
 				*) plymouth_message "${0##*/} is disabled" ;;

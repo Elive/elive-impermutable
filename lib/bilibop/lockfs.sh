@@ -515,6 +515,8 @@ blacklist_bilibop_devices() {
 set_readonly_lvm_settings() {
     ${DEBUG} && echo "> set_readonly_lvm_settings $@" >&2
 
+    cp ${LVM_CONF} ${LVM_CONF}.bak
+
     sed -i 's|^\(\s*locking_type\s*=\s*\).*|\14|' ${LVM_CONF}
     sed -i 's|^\(\s*metadata_read_only\s*=\s*\).*|\11|' ${LVM_CONF}
 
@@ -529,6 +531,21 @@ set_readonly_lvm_settings() {
     else
         sed -i "s|^\s*activation\s*{.*|&\n    read_only_volume_list = [ ${ROVL} ]|" ${LVM_CONF}
     fi
+}
+# ===========================================================================}}}
+# undo_readonly_dm_settings() ==============================================={{{
+# What we want is: undo the readonly settings that have been done from the
+# init-top initramfs script. At first, we have to restore lvm.conf in the
+# initrd environment, and make Logical Volumes and dm-crypt devices writable.
+undo_readonly_dm_settings() {
+    ${DEBUG} && echo "> undo_readonly_dm_settings $@" >&2
+    [ -f /etc/lvm/bilibop ] || return 0
+    [ -f /etc/lvm/lvm.conf.bak ] || return 0
+    mv /etc/lvm/lvm.conf.bak /etc/lvm/lvm.conf
+    for dev in ${udev_root}/dm-*; do
+        [ -b ${dev} ] &&
+        blockdev --setrw ${dev}
+    done
 }
 # ===========================================================================}}}
 # activate_bilibop_lv() ====================================================={{{
