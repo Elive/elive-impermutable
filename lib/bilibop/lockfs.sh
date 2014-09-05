@@ -518,7 +518,9 @@ set_readonly_lvm_settings() {
     cp ${LVM_CONF} ${LVM_CONF}.bak
 
     sed -i 's|^\(\s*locking_type\s*=\s*\).*|\14|' ${LVM_CONF}
-    sed -i 's|^\(\s*metadata_read_only\s*=\s*\).*|\11|' ${LVM_CONF}
+    # This prohibits execution of commands such as vgchange or lvchange in new
+    # releases of lvm2, so don't do that:
+    #sed -i 's|^\(\s*metadata_read_only\s*=\s*\).*|\11|' ${LVM_CONF}
 
     for lvm in $(cat /etc/lvm/bilibop)
     do
