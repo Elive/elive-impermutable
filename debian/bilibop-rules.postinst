@@ -31,7 +31,7 @@ case "${1}" in
         # purged.
         DEVICE_MAP="/boot/grub/device.map"
         if [ -f "${DEVICE_MAP}" -a ! -f "${DEVICE_MAP}.bak" ]; then
-            cp -a ${DEVICE_MAP} ${DEVICE_MAP}.bak
+            cat ${DEVICE_MAP} >${DEVICE_MAP}.bak
         fi
 
         # Debconf specific configuration
