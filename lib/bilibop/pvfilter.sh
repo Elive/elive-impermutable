@@ -148,7 +148,9 @@ _pvfilter_list_devices() {
 # We don't want to use device names, because they are dynamically assigned. But
 # some symlinks are dynamic too (as in /dev/block) or not managed by udev.
 # Finally, the only ones we can use are /dev/disk/by-id/* for physical devices
-# and /dev/mapper/* for dm devices.
+# and /dev/mapper/* for dm devices. Also /dev/disk/by-id/lvm-pv-uuid-* (for lvm2
+# >= 2.02.98) must be skipped too: we can't rely on them before lvm2 initramfs
+# script being executed.
 _pvfilter_list_filter_devices() {
     ${DEBUG} && echo "> _pvfilter_list_filter_devices $@" >&2
     diskid=
@@ -179,6 +181,9 @@ _pvfilter_list_filter_devices() {
                             dmname="${dmname:+${dmname}|}${link##*/}"
                             break
                             ;;
+                        disk/by-id/lvm-pv-uuid-*)
+                            continue
+                            ;;
                         disk/by-id/*)
                             diskid="${diskid:+${diskid}|}${link##*/}"
                             break
@@ -192,6 +197,9 @@ _pvfilter_list_filter_devices() {
             *)
                 for link in $(_pvfilter_find_dev_links ${dev}) ; do
                     case "${link}" in
+                        disk/by-id/lvm-pv-uuid-*)
+                            continue
+                            ;;
                         disk/by-id/*)
                             diskid="${diskid:+${diskid}|}${link##*/}"
                             break
