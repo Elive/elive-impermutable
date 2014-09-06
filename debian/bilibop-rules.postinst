@@ -30,7 +30,7 @@ case "${1}" in
         # Backup device.map; it will be restored when (if) the package will be
         # purged.
         DEVICE_MAP="/boot/grub/device.map"
-        if [ -f "${DEVICE_MAP}" -a ! -f "${DEVICE_MAP}.bak" ]; then
+        if [ ! -f "${DEVICE_MAP}.bak" -a -s "${DEVICE_MAP}" -a ! -h "${DEVICE_MAP}" ]; then
             cat ${DEVICE_MAP} >${DEVICE_MAP}.bak
         fi
 
