@@ -191,13 +191,13 @@ make_symlink() {
 			# nothing else to do:
 			continue
 		else
-			#[ -d "${RUN_RULES_DIR}" ] || execute mkdir -p ${RUN_RULES_DIR}
+			[ -d "${RUN_RULES_DIR}" ] || execute mkdir ${verbose} -p ${RUN_RULES_DIR}
 			[ -f "${target}" ] && execute mv ${verbose} ${target} ${unpersistent}
 			execute rm ${verbose} ${persistent}
 		fi
 
 	elif [ -f "${persistent}" ]; then
-		#[ -d "${RUN_RULES_DIR}" ] || execute mkdir -p ${RUN_RULES_DIR}
+		[ -d "${RUN_RULES_DIR}" ] || execute mkdir ${verbose} -p ${RUN_RULES_DIR}
 		execute mv ${verbose} ${persistent} ${unpersistent}
 	fi
 
