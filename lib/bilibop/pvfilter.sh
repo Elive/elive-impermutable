@@ -320,7 +320,7 @@ devices {
 EOF
                 if [ "${global}" = "true" ]; then
                     cat >>${LVM_CONF} <<EOF
-    global_filter = [ ]
+    global_filter = [ "a|.*|" ]
 }
 EOF
                 else
@@ -389,7 +389,7 @@ devices {
 EOF
                 if [ "${global}" = "true" ]; then
                     cat >>${LVM_CONF} <<EOF
-    global_filter = [ ]
+    global_filter = [ "a|.*|" ]
 }
 EOF
                 else
@@ -434,7 +434,7 @@ EOF
         [ "${have_global}" = "false" -a "${global}" = "true" ] &&
         # Add 'global_filter' variable
         if  [ "${init}" = "true" ]; then
-            sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n    global_filter = [ ],' ${LVM_CONF}
+            sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n    global_filter = [ "a|.*|" ],' ${LVM_CONF}
         else
             echo "${PROG}: 'global_filter' variable is missing in ${LVM_CONF}." >&2
             echo "Use '--init' option to create it." >&2
