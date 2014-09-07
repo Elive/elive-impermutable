@@ -291,7 +291,9 @@ case "${1}" in
                     fi
 
                     if [ "${RET}" = "true" -a -z "${untagged}" -a -z "${unlinked}" ]; then
-                        [ -f "${LVMCONF}" ] || ${HELPER} --init
+                        if ! ${HELPER} --udev --accept bilibop --reject all >${udev_root}/null 2>&1; then
+                            ${HELPER} --init
+                        fi
                         ${HELPER} --overwrite --udev --accept bilibop --reject all
 
                     else
@@ -315,10 +317,15 @@ case "${1}" in
                             db_go || true
                         fi
                         for lvmvar in ${lvm_variables}; do
+                            db_fget bilibop-rules/${HELPER}/${lvmvar} seen
+                            [ "${RET}" = "true" ] || continue
                             db_get bilibop-rules/${HELPER}/${lvmvar}
-                            if [ -n "${RET}" ] && grep -qs "^[[:blank:]]*${lvmvar}[[:blank:]]*=" ${LVMCONF}; then
-                                grep -Eq "^[[:blank:]]*${lvmvar}[[:blank:]]*=[[:blank:]]*${RET}[[:blank:]]*(#|$)" ${LVMCONF} ||
+                            if [ -z "${RET}" ]; then
+                                sed -i "/^\s*${lvmvar}\s*=/d" ${LVMCONF}
+                            elif grep -q "^[[:blank:]]*${lvmvar}[[:blank:]]*=" ${LVMCONF}; then
                                 sed -ri "s@^(\s*${lvmvar}\s*=).*@\1 ${RET}@" ${LVMCONF}
+                            else
+                                sed -ri "s@^\s*devices\s*\{.*@&\n    ${lvmvar} = ${RET}@" ${LVMCONF}
                             fi
                         done
                     fi
