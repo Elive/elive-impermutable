@@ -47,13 +47,11 @@ case "${1}" in
                 db_fget bilibop-rules/${HELPER}/${lvmvar} seen
                 [ "${RET}" = "true" ] && continue
                 lvmval="$(grep "^[[:blank:]]*${lvmvar}[[:blank:]]*=" ${LVMCONF} | sed 's,^[^=]\+=\s*,,')"
-                if [ -n "${lvmval}" ]; then
-                    db_set bilibop-rules/${HELPER}/${lvmvar} ${lvmval}
-                    db_fset bilibop-rules/${HELPER}/${lvmvar} seen true
-                    # Now the initial values of 'obtain_device_list_from_udev',
-                    # 'filter' and 'global_filter' are stored in the debconf
-                    # db. They will be restored if the package is purged.
-                fi
+                db_set bilibop-rules/${HELPER}/${lvmvar} ${lvmval}
+                db_fset bilibop-rules/${HELPER}/${lvmvar} seen true
+                # Now the initial values of 'obtain_device_list_from_udev',
+                # 'filter' and 'global_filter' are stored in the debconf
+                # db. They will be restored if the package is purged.
             done
         fi
 
