@@ -418,6 +418,7 @@ EOF
         # }}}
     # 4. the 'devices' section exists, but a needed variable is missing {{{
     else
+        local error=0
         if  [ "${init}" = "true" -a ! -w "${LVM_CONF}" ] ; then
             echo "${PROG}: no write permission on ${LVM_CONF}" >&2
             return 10
@@ -426,6 +427,7 @@ EOF
         # Add 'filter' variable
         if  [ "${init}" = "true" ]; then
             sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n    filter = [ "a|.*|" ],' ${LVM_CONF}
+            error=$((error+$?))
         else
             echo "${PROG}: 'filter' variable is missing in ${LVM_CONF}." >&2
             echo "Use '--init' option to create it." >&2
@@ -435,6 +437,7 @@ EOF
         # Add 'global_filter' variable
         if  [ "${init}" = "true" ]; then
             sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n    global_filter = [ "a|.*|" ],' ${LVM_CONF}
+            error=$((error+$?))
         else
             echo "${PROG}: 'global_filter' variable is missing in ${LVM_CONF}." >&2
             echo "Use '--init' option to create it." >&2
@@ -444,11 +447,13 @@ EOF
         # Add 'obtain_device_list_from_udev' variable
         if  [ "${init}" = "true" ]; then
             sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n    obtain_device_list_from_udev = 1,' ${LVM_CONF}
+            error=$((error+$?))
         else
             echo "${PROG}: 'obtain_device_list_from_udev' variable is missing in ${LVM_CONF}." >&2
             echo "Use '--init' option to create it." >&2
             return 10
         fi
+        return ${error}
     fi
     # }}}
 }
