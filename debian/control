@@ -122,8 +122,9 @@ Description: minimal udev rule for Debian GNU/Linux running from external media
  drive and its partitions by any unprivileged user or application.
  .
  This package is not designed to be used on internal disks. It works only
- for OS installed on removable and writable media, especially LiveUSB systems.
- See also the bilibop-rules package.
+ for OS installed on removable and writable media, especially LiveUSB systems
+ and disk images provided by most vendors of popular ARM-based development
+ boards. See also the bilibop-rules package.
  .
  ${Requirement}
 
