@@ -24,7 +24,7 @@ Description: run Debian GNU/Linux from external media - metapackage
 Package: bilibop-common
 Architecture: linux-any
 Depends: udev, ${misc:Depends}
-Suggests: aufs-tools, bilibop-lockfs, bilibop-device-policy, cryptsetup, dmsetup, lvm2
+Suggests: bilibop-lockfs, bilibop-device-policy, cryptsetup, dmsetup, lvm2
 Description: shell functions for bilibop scripts
  ${Description}
  .
