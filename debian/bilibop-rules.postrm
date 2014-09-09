@@ -71,7 +71,7 @@ case "${1}" in
         udev_root="${udev_root%/}"
 
         if [ -f /proc/partitions -a -d /sys/block -a -c ${udev_root}/null ] &&
-            service udev status >${udev_root}/null 2>&1; then
+            invoke-rc.d udev status >${udev_root}/null 2>&1; then
             cd ${udev_root}
             for dev in $(find * -type b -group disk); do
                 grep -q "[[:blank:]]${dev}$" /proc/partitions &&

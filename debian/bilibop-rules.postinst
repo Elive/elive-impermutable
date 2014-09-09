@@ -148,7 +148,7 @@ case "${1}" in
         #    lvm.conf
 
         if [ -h /proc/mounts -a -d /sys/block -a -c ${udev_root}/null ] &&
-            service udev status >${udev_root}/null 2>&1 &&
+            invoke-rc.d udev status >${udev_root}/null 2>&1 &&
             BILIBOP_DISK="$(physical_hard_disk /)" &&
             query_sysfs_attrs ${BILIBOP_DISK} | grep -Eq '^[[:blank:]]*SUBSYSTEMS=="(usb|firewire|memstick|mmc)"'; then
             db_get bilibop-rules/on-live-system
