@@ -105,17 +105,14 @@ fake="false"
 link="false"
 show="false"
 
-set +e
 ### Parse options ##############################################################
-ARGS="$(getopt -o ${SOPTS} --long ${LOPTS} -n ${PROG} -- "${@}")"
-if [ "${?}" != "0" ]; then
+if ARGS="$(getopt -o ${SOPTS} --long ${LOPTS} -n ${PROG} -- "${@}")"; then
+	eval set -- "${ARGS}"
+else
 	short_usage >&2
 	exit 1
-else
-	eval set -- "${ARGS}"
 fi
 ################################################################################
-set -e
 
 if [ "${1}" = "--" ]; then
 	show="true"
