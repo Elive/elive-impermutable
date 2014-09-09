@@ -12,8 +12,8 @@ set -e
 
 PATH="/sbin:/bin:/usr/bin"
 PROG="${0##*/}"
-SOPTS="ho:rsv"
-LOPTS="help,only:,restore,status,verbose"
+SOPTS="fho:rsv"
+LOPTS="force,help,only:,restore,status,verbose"
 
 ETC_RULES_DIR="/etc/udev/rules.d"
 RUN_RULES_DIR="/run/udev/rules.d"
@@ -24,6 +24,7 @@ fi
 udev_root="${udev_root:-/dev}"
 udev_root="${udev_root%/}"
 
+force=""
 status=""
 restore=""
 verbose=""
@@ -36,7 +37,7 @@ short_usage() {
 Usage:
   ${PROG} -h|--help
   ${PROG} -s|--status
-  ${PROG} [-v|--verbose] [-r|--restore] [-o|--only cd|net]
+  ${PROG} [-f|--force] [-v|--verbose] [-r|--restore] [-o|--only cd|net]
 EOF
 }
 
@@ -50,8 +51,12 @@ and network interfaces.
 Usage: ${PROG} [OPTIONS]
 
 OPTIONS:
+  -f, --force
+      Create the rules files (with -r) or the symlinks in /etc if
+      they do not exist
+
   -h, --help
-      Display this help and exit.
+      Display this help and exit. This overrides all other options.
 
   -o TYPE, --only TYPE
       Apply actions only for the specified TYPE of rules (cd or net).
@@ -61,7 +66,8 @@ OPTIONS:
       (static) udev rules files.
 
   -s, --status
-      Display the status of each rules file and exit.
+      Display the status of each rules file and exit. This overrides
+      all other options but -h or --help.
 
   -v, --verbose
       Be verbose.
@@ -91,6 +97,10 @@ set -e
 
 while true; do
 	case "${1}" in
+		-f|--force)
+			force="true"
+			shift
+			;;
 		-h|--help)
 			usage
 			exit 0
@@ -167,7 +177,7 @@ make_regular() {
 		execute rm ${verbose} ${persistent}
 		if [ -f "${unpersistent}" ]; then
 			execute mv ${verbose} ${unpersistent} ${persistent}
-		else
+		elif [ "${force}" = "true" ]; then
 			execute touch ${persistent}
 		fi
 
@@ -175,7 +185,7 @@ make_regular() {
 		unpersistent="${RUN_RULES_DIR}/70-persistent-${1}.rules"
 		if [ -f "${unpersistent}" ]; then
 			execute mv ${verbose} ${unpersistent} ${persistent}
-		else
+		elif [ "${force}" = "true" ]; then
 			execute touch ${persistent}
 		fi
 	fi
@@ -185,13 +195,13 @@ make_symlink() {
 	persistent="${ETC_RULES_DIR}/70-persistent-${1}.rules"
 	unpersistent="${RUN_RULES_DIR}/70-persistent-${1}.rules"
 	if [ -h "${persistent}" ]; then
+		[ -d "${RUN_RULES_DIR}" ] || execute mkdir ${verbose} -p ${RUN_RULES_DIR}
 		target="$(readlink -f ${persistent})"
 		if	[ "${target}" = "${unpersistent}" ]; then
 			[ -f "${target}" ] || execute touch ${target}
 			# nothing else to do:
-			continue
+			return 0
 		else
-			[ -d "${RUN_RULES_DIR}" ] || execute mkdir ${verbose} -p ${RUN_RULES_DIR}
 			[ -f "${target}" ] && execute mv ${verbose} ${target} ${unpersistent}
 			execute rm ${verbose} ${persistent}
 		fi
@@ -199,9 +209,15 @@ make_symlink() {
 	elif [ -f "${persistent}" ]; then
 		[ -d "${RUN_RULES_DIR}" ] || execute mkdir ${verbose} -p ${RUN_RULES_DIR}
 		execute mv ${verbose} ${persistent} ${unpersistent}
+
+	elif [ "${force}" = "true" ]; then
+		[ -d "${RUN_RULES_DIR}" ] || execute mkdir ${verbose} -p ${RUN_RULES_DIR}
+
+	else
+		# nothing else to do:
+		return 0
 	fi
 
-	#[ -e "${persistent}" ] && execute rm ${verbose} ${persistent}
 	[ -e "${unpersistent}" ] || execute touch ${unpersistent}
 	execute ln -s ${verbose} ${unpersistent} ${persistent}
 }
