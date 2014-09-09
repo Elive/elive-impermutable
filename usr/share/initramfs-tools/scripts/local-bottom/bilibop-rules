@@ -36,16 +36,21 @@ mkdir -p "${BILIBOP_RUNDIR}"
 [ "${BILIBOP_RULES_FAKE_DEVICE_MAP}" = "false" ] ||
 echo "(hd0)	${udev_root}/${BILIBOP_COMMON_BASENAME}/disk" >${BILIBOP_RUNDIR}/grub-device.map
 
-# Create two non-empty files. This last action is not absolutely necessary,
-# but avoids some udev complaints.
+# This last action is not absolutely necessary, but avoids some udev complaints.
+# The goal is to create a '70-persistent-*.rules' file in /run/udev/rules.d but
+# only if the corresponding one in /etc/udev/rules.d is a symlink pointing to the
+# one in /run/udev/rules.d:
 ETC_RULES_DIR="${rootmnt}/etc/udev/rules.d"
 RUN_RULES_DIR="/run/udev/rules.d"
 # But be sure the directory exists:
 [ -d "${RUN_RULES_DIR%/*}" ] || mkdir ${RUN_RULES_DIR%/*}
 [ -d "${RUN_RULES_DIR}" ] || mkdir ${RUN_RULES_DIR}
 for rules in cd.rules net.rules; do
-	[ -e "${ETC_RULES_DIR}/70-persistent-${rules}" ] ||
-	echo "# 70-(un)persistent-${rules}" >${RUN_RULES_DIR}/70-persistent-${rules}
+	persistent="${ETC_RULES_DIR}/70-persistent-${rules}"
+	unpersistent="${RUN_RULES_DIR}/70-persistent-${rules}"
+	if [ -h "${persistent}" -a "$(readlink -f ${persistent})" = "${unpersistent}" ]; then
+		echo "# 70-(un)persistent-${rules}" >${unpersistent}
+	fi
 done
 
 :
