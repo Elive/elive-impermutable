@@ -83,7 +83,7 @@ show_device_map() {
 	if [ -h "${1}" -o -f "${1}" ]; then
 		printf "GRUB device map location:\n\t$(readlink -f ${1})\n\n"
 	else
-		echo "${1} don't exist."
+		echo "${1} doesn't exist."
 		return 1
 	fi
 
