@@ -1,3 +1,68 @@
+bilibop (0.4.22) unstable; urgency=medium
+
+  * bilibop-common:
+    - Fix a bug in device_node_from_major_minor(): don't rely on /dev/block/*
+      symlinks, because some of them may not exist at boot time on systems not
+      using initramfs (regression in 0.4.20).
+    - Update copyright date and owner of the shell library
+    - Update TODO list
+
+  * bilibop-lockfs: Fix boot failures
+    - Modify set_readonly_lvm_settings(): do not set 'metadata_read_only' to
+      '1' in lvm.conf at early boot time (in the initramfs environment), since
+      it prohibits execution of commands such as vgchange or lvchange, and
+      then forbids activation of Logical Volumes, making the system unbootable
+      (with lvm2 > 2.02.98).
+    - Modify the initramfs local-bottom script: undo possible readonly
+      settings (due to the blind init-top script) before exiting, when
+      BILIBOP_LOCKFS is 'false' or undefined: it uses a backup of lvm.conf and
+      the new 'undo_readonly_dm_settings()' function.
+    - Fix a delimiter conflict of the sed command in unlock_logical_volume()
+
+  * bilibop-rules:
+    - Add russian translation for the debconf templates; thanks to Yuri Kozlov
+      <yuray@komyakino.ru> (Closes: #756086).
+    - In pvfilter.sh, modify _pvfilter_list_filter_devices() to skip
+      lvm-pv-uuid-* symlinks: they are not available before lvm2 initramfs
+      script is executed, and a filter based on them may lead the system to
+      be unbootable.
+    - In pvfilter.sh, do not initialize 'global_filter' with an empty array,
+      which is not supported: modify _pvfilter_init_lvm_configfile() and
+      _pvfilter_init_device_filters(). Also fix return value in the last one.
+    - Modify make_unpersistent_rules and the initramfs script to create
+      /run/udev/rules.d if it does not exist (since it is no more supported by
+      last versions of udev)
+    - Improve idempotency of make_unpersistent_rules script: do not create
+      files or symlinks in /etc if they do not exist, unless the new '-f' or
+      '--force' option is used. Also, modify intramfs script to create the
+      'persistent' udev rules files in /run only if there are symlinks
+      pointing to them in /etc.
+    - Modify all helper scripts: do not set +e before parsing options, and
+      then call getopt in a 'if..then' block instead.
+    - Fix a typo in grub_device_map_manager
+
+  * debian/copyright: update copyright date
+  * debian/control:
+    - Remove deprecated 'udisks' package from the dependencies of
+      bilibop-rules; closes: #750507. Also move 'udisks2' from Recommends to
+      Suggests.
+    - Move down bilibop-rules priority to extra, and remove Conflicts field in
+      bilibop-udev.
+    - Drop dependencies on aufs-tools, pmount and grub-* packages
+    - Update bilibop-rules and bilibop-udev extended descriptions
+
+  * debian/bilibop-rules.config:
+    - Test if it exists before running an in-package helper script.
+    - Skip questions whose answer cannot be treated by the postinst script: if
+      udev is not running (or invoke-rc.d fails), exit before questions about
+      bilibop_rules_generator and physical_volumes_filter are asked.
+
+  * debian/*
+    - Remove unneeded bilibop-*.dirs files
+    - Update maintainer scripts (mainly bilibop-rules.post*)
+
+ -- Yann Amar <quidame@poivron.org>  Wed, 10 Sep 2014 21:32:05 +0000
+
 bilibop (0.4.21) unstable; urgency=low
 
   * bilibop-common: in find_mountpoint(), replace the two piped sed commands
