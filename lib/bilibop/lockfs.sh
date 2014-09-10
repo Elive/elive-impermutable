@@ -583,7 +583,7 @@ unlock_logical_volume() {
         [ -e "${udev_root}/${lvm}" ] || continue
         if [ "$(readlink -f ${udev_root}/${lvm})" = "${dev}" ]
         then
-            sed -i "/^${lvm}$/d" /etc/lvm/bilibop
+            sed -i "s,^${lvm}$,," /etc/lvm/bilibop
             blockdev --setrw ${dev}
             break
         fi
