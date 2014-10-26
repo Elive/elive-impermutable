@@ -50,7 +50,7 @@ msgstr ""
 "worden. De udev-regels van bilibop zullen toegepast worden, maar aan uw "
 "systeem zal geen enkele andere wijziging aangebracht worden. Merk op dat in "
 "dat geval dit pakket overkill is en u het wellicht beter zou vervangen door "
-"het lichtere maar even efficiënte pakket bilibop-udev."
+"het lichtere maar even efficiÃ«nte pakket bilibop-udev."
 
 #. Type: boolean
 #. Description
@@ -71,7 +71,7 @@ msgstr ""
 "waarvan uw systeem opstart, kunnen de udev-regels van bilibop de duur van "
 "het opstarten aanzienlijk verlengen. U kunt dit vermijden door aangepaste "
 "udev-regels te gebruiken, die specifiek zijn voor het apparaat waarop uw "
-"systeem geïnstalleerd staat."
+"systeem geÃ¯nstalleerd staat."
 
 #. Type: boolean
 #. Description
@@ -124,7 +124,7 @@ msgid ""
 "that is provided by the bilibop-rules package (in '/lib/udev/rules.d')."
 msgstr ""
 "Het bestand '/etc/udev/rules.d/66-bilibop.rules' bestaat reeds. Het is "
-"specifiek voor de schijf waarop uw systeem geïnstalleerd is en heeft "
+"specifiek voor de schijf waarop uw systeem geÃ¯nstalleerd is en heeft "
 "voorrang op het meer generieke bestand (in '/lib/udev/rules.d') dat "
 "meegeleverd wordt met het pakket bilibop-rules."
 
@@ -372,7 +372,7 @@ msgid ""
 "Volumes used by your system and those that could be found on internal or "
 "external drives plugged on the same computer."
 msgstr ""
-"Het lijkt erop dat de schijf waarop uw systeem geïnstalleerd staat Logische "
+"Het lijkt erop dat de schijf waarop uw systeem geÃ¯nstalleerd staat Logische "
 "Volumes bevat. Het is mogelijk om LVM zo in te stellen dat enkel de Fysieke "
 "Volumes die uw systeem nodig heeft, geactiveerd worden. Hierdoor kunnen "
 "vooral mogelijke naamgevingsconflicten vermeden worden tussen de Volumes die "
