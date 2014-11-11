@@ -50,7 +50,7 @@ mount_fallback() {
         esac
     done
     sed -i "s;^\s*\([^#][^ ]\+\s\+${2}\s\+\)lockfs\s.*;\1${fstype:-auto} ${options:-defaults} 0 0;" /etc/fstab
-    mount ${1} ${2} ${fstype:+-t ${fstype}} ${options:+-o ${options}}
+    mount ${flags} ${1} ${2} ${fstype:+-t ${fstype}} ${options:+-o ${options}}
 }
 # ===========================================================================}}}
 
@@ -105,9 +105,36 @@ if [ -f "${BILIBOP_RUNDIR}/plocked" ]; then
     . ${BILIBOP_RUNDIR}/plocked
 fi
 
-# the mount command always provides arguments to the helper scripts in this
-# order: FILESYSTEM MOUNTPOINT -o OPTIONS. We take advantage of this fixed
-# format.
+# the mount(8) command, after parsing commandline arguments and/or /etc/fstab,
+# always provides arguments to the helper scripts in this order:
+# FILESYSTEM MOUNTPOINT [FLAGS] -o MOUNTOPTIONS
+# where FLAGS are generic, not filesystem specific: -n, -s, -v for example; -r
+# (or --read-only) and -w (or --rw or --read-write) are translated to -o ro and
+# -o rw respectively by the mount command itself.
+
+while [ "${1}" ]; do
+    if [ -e "${1}" ]; then
+        MNTARGS="${MNTARGS:+${MNTARGS} }${1}"
+        shift
+    else
+        case "${1}" in
+            -o)
+                MNTARGS="${MNTARGS:+${MNTARGS} }${1} ${2}"
+                shift 2
+                ;;
+            *)
+                # Do not skip other options (-n, -s, -v), but take them
+                # apart: we will reuse them for each mount invocation.
+                flags="${flags:+${flags} }${1}"
+                shift
+                ;;
+        esac
+    fi
+done
+
+# Reinitialize script arguments
+eval set -- "${MNTARGS}"
+
 if [ -b "${1}" ]; then
     device="${1}"
     # Check if this device is whitelisted:
@@ -197,7 +224,7 @@ fi
 # Try to mount the readonly branch. In case of failure, undo what has been
 # done before, do a normal mount, rewrite the fstab entry to be consistent
 # with that, and exit:
-if ! mount ${fstype:+-t ${fstype}} -o ${robr_opts:+${robr_opts},}ro ${device:-${LOFILE}} ${robr}; then
+if ! mount ${flags} ${fstype:+-t ${fstype}} -o ${robr_opts:+${robr_opts},}ro ${device:-${LOFILE}} ${robr}; then
     [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
     mount_fallback "${@}"
     exit 3
@@ -223,7 +250,7 @@ fi
 
 # Try to mount the writable branch, and in case of failure, undo what
 # has been done before, etc.
-if ! mount -t tmpfs -o ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},}mode=0755 tmpfs ${rwbr}; then
+if ! mount ${flags} -t tmpfs -o ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},}mode=0755 tmpfs ${rwbr}; then
     umount ${robr}
     [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
     mount_fallback "${@}"
@@ -248,7 +275,7 @@ fi
 
 # Try to mount the aufs now. In case of failure, undo what has been done
 # before, etc.
-if ! mount -t aufs -o br:${rwbr}=rw:${robr}=${RO} none ${mntpnt}; then
+if ! mount ${flags} -t aufs -o br:${rwbr}=rw:${robr}=${RO} none ${mntpnt}; then
     umount ${robr}
     umount ${rwbr}
     [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
