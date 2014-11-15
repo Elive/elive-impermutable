@@ -1,3 +1,14 @@
+bilibop (0.4.23) unstable; urgency=high
+
+  * bilibop-lockfs: modify lockfs_mount_helper script: take mount(8) flags
+    into account when parsing script arguments provided by parent process;
+    this avoids mount failures at boot time or later, when the command is
+    invoked with a such flag (closes: #769150).
+  * bilibop-rules: add dutch translation for the debconf templates; thanks to
+    Frans Spiesschaert <Frans.Spiesschaert@yucom.be> (closes: #766647).
+
+ -- Yann Amar <quidame@poivron.org>  Sat, 15 Nov 2014 14:05:44 +0000
+
 bilibop (0.4.22) unstable; urgency=medium
 
   * bilibop-common:
