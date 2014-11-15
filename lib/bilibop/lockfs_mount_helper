@@ -113,23 +113,22 @@ fi
 # -o rw respectively by the mount command itself.
 
 while [ "${1}" ]; do
-    if [ -e "${1}" ]; then
-        MNTARGS="${MNTARGS:+${MNTARGS} }${1}"
-        shift
-    else
-        case "${1}" in
-            -o)
-                MNTARGS="${MNTARGS:+${MNTARGS} }${1} ${2}"
-                shift 2
-                ;;
-            *)
-                # Do not skip other options (-n, -s, -v), but take them
-                # apart: we will reuse them for each mount invocation.
-                flags="${flags:+${flags} }${1}"
-                shift
-                ;;
-        esac
-    fi
+    case "${1}" in
+        -o)
+            MNTARGS="${MNTARGS:+${MNTARGS} }${1} ${2}"
+            shift 2
+            ;;
+        -*)
+            # Do not skip other options (-n, -s, -v), but take them
+            # apart: we will reuse them for each mount invocation.
+            flags="${flags:+${flags} }${1}"
+            shift
+            ;;
+        *)
+            MNTARGS="${MNTARGS:+${MNTARGS} }${1}"
+            shift
+            ;;
+    esac
 done
 
 # Reinitialize script arguments
