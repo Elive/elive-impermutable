@@ -32,7 +32,7 @@
 #> We assume, even if it is not often, that /etc/udev/udev.conf can have been
 #  modified and that 'udev_root' can be something else than '/dev'.
 #> dm-crypt/LUKS, LVM, loopback and aufs root filesystems (and combinations
-#  of them) are now fully supported.
+#  of them) are now fully supported. Support for overlayfs is experimental.
 #> Functions that just output informations about devices/filesystems can be
 #  called by any unprivileged user.
 
@@ -279,6 +279,36 @@ canonical() {
     esac
 }
 # ===========================================================================}}}
+# canonpath() {{{
+# What we want is: canonicalize a pathname even if the file (and even its
+# parent directories) does not exist. Just do not try to resolve any part of
+# the path; instead, rely only on path separators and specific patterns that
+# allow us to logically shorten the path.
+canonpath() {
+    ${DEBUG} && echo "> canonpath $@" >&2
+    local pathname
+    case "${1}" in
+        "") return 0;;
+        /*) pathname="${1}";;
+        *)  pathname="${PWD}/${1}";;
+    esac
+    while true; do
+        case "${pathname}" in
+            *//*|*/./*|*/../*|*/|*/.|*/..)
+                pathname="$(echo "${pathname}" | sed -re 's,(/+\.?)+/+,/,g; s,^(/+\.\.)+(/+|$),/,; s,[^/]+/+\.\.(/+|$),/,; s,/+,/,g; s,(/+\.?)+$,,')"
+                ;;
+            "")
+                echo "/"
+                break
+                ;;
+            *)
+                echo "${pathname}"
+                break
+                ;;
+        esac
+    done
+}
+# }}}
 # find_mountpoint() ========================================================={{{
 # What we want is: output the mountpoint of the filesystem the file or directory
 # given as argument depends is onto. Because it outputs the last field of the
@@ -360,6 +390,29 @@ aufs_dirs() {
     esac
 }
 # ===========================================================================}}}
+# is_overlay_mountpoint() ==================================================={{{
+# What we want is: check if a directory given as argument is an overlayfs
+# mountpoint and print the corresponding line from /proc/mounts. Accepts the
+# '-q' (quiet) option: print nothing, but return a 0/1 exit value.
+is_overlay_mountpoint() {
+    ${DEBUG} && echo "> is_overlay_mountpoint $@" >&2
+    local   opt=
+    case    "${1}" in
+        -*)
+            opt="${1}"
+            shift ;;
+    esac
+    grep ${opt} "^[^ ]\+ $(canonical ${1}) overlay " /proc/mounts
+}
+# ===========================================================================}}}
+# overlay_lowerdir() ========================================================{{{
+# What we want is: output the lowerdir (readonly branch) of an overlayfs mount
+# point given as argument.
+overlay_lowerdir() {
+    ${DEBUG} && echo "> overlay_lowerdir $@" >&2
+    canonpath $(is_overlay_mountpoint "${1}" | sed -e 's@.*[ ,]lowerdir=\([^ ,]\+\).*@\1@ ; s@/\+@/@g')
+}
+# ===========================================================================}}}
 # backing_file_from_loop() =================================================={{{
 # What we want is: output the backing file of a loopback device given as
 # argument. This requires kernel >= 2.6.37. Great thing! Before that, it was
@@ -425,6 +478,49 @@ underlying_device_from_aufs() {
                 return 0
         fi
     done
+    return 1
+}
+# ===========================================================================}}}
+# underlying_device_from_overlayfs() ========================================{{{
+# What we want is: output the underlying device of the (generally) readonly
+# branch of an overlayfs mountpoint given as argument. We assume that there is
+# only and at least one physical device used to build the overlayfs (but the
+# directory is not necessarly the mountpoint of this device), other branch(es)
+# being virtual fs.
+underlying_device_from_overlayfs() {
+    ${DEBUG} && echo "> underlying_device_from_overlayfs $@" >&2
+    local   dev dir="$(overlay_lowerdir "${1}")"
+
+    # First case: overlayfs mountpoint is set at runtime, so the lowerdir
+    # value is up-to-date. Think that when setting up overlayfs mountpoint
+    # from the initramdisk environment, using same pathnames than what they
+    # will be at runtime may ease the task.
+    if [ -d "${dir}" ] && grep -q "^/[^ ]\+ ${dir} " /proc/mounts; then
+        dev="$(device_id_of_file ${dir})"
+    else
+        # overlayfs mountpoint has been set at boottime (within the initrd env)
+        # and the value of 'lowerdir' found in /proc/mounts is obsolete. There
+        # is no safe way to know the current and actual lowerdir mountpoint. We
+        # have to assume some arbitrary conditions to take a chance to find the
+        # underlying device. This depends on arbtrary paths used in initrd
+        # scripts (tested with live-boot 5.0~a1-1 - experimental)
+        # First fallback: rely on the lowerdir's basename
+        dir="$(grep '^/' /proc/mounts | sed -e 's|^[^ ]\+ \([^ ]\+\) .*|\1|' | grep "/${dir##*/}$")"
+        if [ -d "${dir}" ]; then
+            dev="$(device_id_of_file ${dir})"
+        fi
+    fi
+    case "${dev}" in
+        0:*|"")
+            ;;
+        *)
+            dev="$(device_node_from_major_minor "${dev}")"
+            ;;
+    esac
+    if      [ -b "${dev}" ]
+    then    readlink -f "${dev}"
+            return 0
+    fi
     return 1
 }
 # ===========================================================================}}}
@@ -497,6 +593,8 @@ underlying_device_from_file() {
             mntpnt="$(find_mountpoint "${1}")"
             if      is_aufs_mountpoint -q "${mntpnt}"
             then    dev="$(underlying_device_from_aufs "${mntpnt}")"
+            elif    is_overlay_mountpoint -q "${mntpnt}"
+            then    dev="$(underlying_device_from_overlayfs "${mntpnt}")"
             else    return 1
             fi
     else
