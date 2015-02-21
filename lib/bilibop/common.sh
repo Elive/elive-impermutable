@@ -279,7 +279,7 @@ canonical() {
     esac
 }
 # ===========================================================================}}}
-# canonpath() {{{
+# canonpath() ==============================================================={{{
 # What we want is: canonicalize a pathname even if the file (and even its
 # parent directories) does not exist. Just do not try to resolve any part of
 # the path; instead, rely only on path separators and specific patterns that
@@ -308,7 +308,7 @@ canonpath() {
         esac
     done
 }
-# }}}
+# ===========================================================================}}}
 # find_mountpoint() ========================================================={{{
 # What we want is: output the mountpoint of the filesystem the file or directory
 # given as argument depends is onto. Because it outputs the last field of the
