@@ -14,13 +14,16 @@ case $1 in
 	;;
 esac
 
-# Lock root filesystem by mounting it readonly with aufs, and modify fstab on
-# the fly to prepare to automatically lock other filesystems later in the boot
-# process.
+# Lock root filesystem by mounting it readonly with aufs or overlayfs, and
+# modify fstab on the fly to prepare to automatically lock other filesystems
+# later in the boot process.
 # We assume that /proc, /sys and /dev are correctly mounted.
 
 # /proc/cmdline will be parsed several times. We call 'cat' only one time:
 readonly CMDLINE="$(cat /proc/cmdline)"
+
+# Initialize METHOD with an arbitrary string:
+METHOD="union filesystem"
 
 # Set verbosity from boot commandline:
 for	param in ${CMDLINE}
@@ -164,22 +167,31 @@ case	"${BILIBOP_LOCKFS}" in
 esac
 
 
-# Exit if ${rootmnt} is already mounted as an aufs branch (by fsprotect?):
+# Exit if ${rootmnt} is already mounted as an aufs/overlayfs branch (by fsprotect, overlayroot?):
 if	is_aufs_mountpoint -q "${rootmnt}"
 then	log_warning_msg "${0##*/}: Root filesystem is already mounted as aufs..."
+	log_failure_msg "${0##*/}: Exit."
+	plymouth_message "${0##*/}: ERROR"
+	exit 0
+elif	is_overlayfs_mountpoint -q "${rootmnt}"
+then	log_warning_msg "${0##*/}: Root filesystem is already mounted as overlayfs..."
 	log_failure_msg "${0##*/}: Exit."
 	plymouth_message "${0##*/}: ERROR"
 	exit 0
 fi
 
 
-# Load the aufs module:
-modprobe aufs >/dev/null 2>&1
+# Load the aufs or overlay module:
+if	modprobe aufs >/dev/null 2>&1
+then	METHOD="aufs"
+elif	modprobe overlay >/dev/null 2>&1
+then	METHOD="overlay"
+fi
 
-# Check if the aufs filesystem is now supported:
-if	! grep -q '\<aufs\>' /proc/filesystems
+# Check if the aufs/overlayfs filesystem is now supported:
+if	! grep -q "\<${METHOD}\(fs\)\?$" /proc/filesystems
 then
-	log_failure_msg "${0##*/}: No aufs kernel support."
+	log_failure_msg "${0##*/}: No ${METHOD} kernel support."
 	log_failure_msg "${0##*/}: Exit."
 	plymouth_message "${0##*/}: ERROR"
 	exit 1
@@ -196,7 +208,7 @@ else	RO="rr"
 	BILIBOP_LOCKFS_POLICY="hard"
 fi
 
-# Determine tmpfs size for the aufs writable branch:
+# Determine tmpfs size for the writable branch:
 if	[ -z "${SIZE}" ]
 then
 	for	size in ${BILIBOP_LOCKFS_SIZE}
@@ -210,18 +222,18 @@ then
 	done
 fi
 
-log_begin_msg "${0##*/}: Setting up aufs branches"
+log_begin_msg "${0##*/}: Setting up ${METHOD} branches"
 
 # Prepare directories:
-BASEDIR="/aufs"
+BASEDIR="/${METHOD}"
 HOSTDIR="${BASEDIR}/ro"
 TEMPDIR="${BASEDIR}/rw"
-AUFSDIR="${BASEDIR}/aufs"
+UNIONFS="${BASEDIR}/${METHOD}"
 
 [ -d "${BASEDIR}" ] || mkdir "${BASEDIR}"
 [ -d "${HOSTDIR}" ] || mkdir "${HOSTDIR}"
 [ -d "${TEMPDIR}" ] || mkdir "${TEMPDIR}"
-[ -d "${AUFSDIR}" ] || mkdir "${AUFSDIR}"
+[ -d "${UNIONFS}" ] || mkdir "${UNIONFS}"
 
 mount -o bind ${rootmnt} ${HOSTDIR}
 
@@ -232,17 +244,27 @@ then
 	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ] ||
 	blockdev_root_subtree rw ${BILIBOP_ROOT} ${BILIBOP_DISK}
 
-	log_failure_msg "${0##*/}: Error occured when setting aufs writable branch."
+	log_failure_msg "${0##*/}: Error occured when setting ${METHOD} writable branch."
 	log_failure_msg "${0##*/}: Exit."
 	plymouth_message "${0##*/}: ERROR"
 	exit 1
 fi
 
+# Set mount options, depending on the union fs type:
+if	[ "${METHOD}" = "aufs" ]
+then	UNIONFS_OPTS="br:${TEMPDIR}=rw:${HOSTDIR}=${RO}"
+elif	[ "${METHOD}" = "overlay" ]
+then	UNIONFS_OPTS="lowerdir=${HOSTDIR},upperdir=${TEMPDIR}/rw,workdir=${TEMPDIR}/work"
+	[ -d "${TEMPDIR}/rw" ] || mkdir "${TEMPDIR}/rw"
+	[ -d "${TEMPDIR}/work" ] || mkdir "${TEMPDIR}/work"
+fi
+
 # Now do the job:
-if	mount -t aufs -o br:${TEMPDIR}=rw:${HOSTDIR}=${RO} none ${AUFSDIR}
+
+if	mount -t ${METHOD} -o ${UNIONFS_OPTS} ${METHOD} ${UNIONFS}
 then
 	umount ${rootmnt}
-	mount -o move ${AUFSDIR} ${rootmnt}
+	mount -o move ${UNIONFS} ${rootmnt}
 	mkdir ${rootmnt}${BASEDIR}
 	mkdir ${rootmnt}${HOSTDIR}
 	mkdir ${rootmnt}${TEMPDIR}
