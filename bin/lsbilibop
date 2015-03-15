@@ -95,7 +95,8 @@ if [ "${1}" = "--" ]; then shift; fi
 # At least, check if BILIBOP tagged devices exist, or exit with a useful
 # message:
 if [ ! -d "${TAG_DIR}" ]; then
-	echo "${PROG}: ${TAG_DIR}: no such directory.\n" >&2
+	echo "${PROG}: ${TAG_DIR}: no such directory." >&2
+	echo >&2
 	if [ -f "/etc/udev/rules.d/66-bilibop.rules" ]; then
 		cat >&2 <<EOF
 You should modify /etc/udev/rules.d/66-bilibop.rules
