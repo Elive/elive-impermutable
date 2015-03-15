@@ -8,10 +8,10 @@ set -e
 # 1. Enable bilibop-lockfs:
 #    * set BILIBOP_LOCKFS to "true" in /etc/bilibop/bilibop.conf or
 #    * append 'lockfs' parameter in the boot commandline
-# 2. One time '/' is an aufs mountpoint, the temporary /etc/fstab is
-#    modified to replace filesystem types (third field) of some entries
-#    by 'lockfs' (options are modified too to remember the original
-#    fstype).
+# 2. One time '/' is an union filesystem (aufs or overlayfs mountpoint), the
+#    temporary /etc/fstab is modified to replace filesystem types (third field)
+#    of some entries by 'lockfs' (options are modified too to remember the
+#    original fstype).
 # 3. /sbin/mount.lockfs is created if it don't already exist. This can be a
 #    symlink to /lib/bilibop/lockfs_mount_helper if this helper is executable,
 #    or a copy of the helper (followed by chmod +x) if the helper is not
@@ -67,8 +67,15 @@ get_udev_root
 # Works only if the root filesystem is already managed by bilibop-lockfs:
 if is_aufs_mountpoint -q / && [ -f "${BILIBOP_RUNDIR}/lock" ]; then
     LOCKFS="true"
+    METHOD="aufs"
     robr="$(aufs_readonly_branch /)"
     rwbr="$(aufs_writable_branch /)"
+elif is_overlayfs_mountpoint -q / && [ -f "${BILIBOP_RUNDIR}/lock" ]; then
+    LOCKFS="true"
+    METHOD="overlay"
+    robr="$(overlayfs_lowerdir /)"
+    rwbr="$(overlayfs_upperdir /)"
+    rwbr="${rwbr%/*}"
 else
     echo "${0##*/}: bilibop-lockfs is disabled." >&2
     exit 1
@@ -206,8 +213,8 @@ for opt in $(IFS=','; echo ${options}); do
 done
 
 # Each readonly branch is mounted under the subtree of the main readonly
-# branch (/aufs/ro) and each writable branch is mounted under the subtree
-# of the main writable branch (/aufs/rw):
+# branch (/aufs/ro or /overlay/ro) and each writable branch is mounted under
+# the subtree of the main writable branch (/aufs/rw or /overlay/rw/rw):
 robr="${robr}${mntpnt}"
 rwbr="${rwbr}${mntpnt}"
 
@@ -272,9 +279,16 @@ if [ "${group}" != "root" ]; then
     gid="$(grep "^${group}:" /etc/group | sed 's;^\([^:]*:\)\{2\}\([^:]\+\):.*;\2;')"
 fi
 
+# Now set the union filesystem mount options
+if [ "${METHOD}" = "aufs" ]; then
+    UNIONFS_OPTS="br:${rwbr}=rw:${robr}=${RO}"
+elif [ "${METHOD}" = "overlay" ]; then
+    UNIONFS_OPTS="lowerdir=${robr},upperdir=${rwbr}/rw,workdir=${rwbr}/work"
+fi
+
 # Try to mount the aufs now. In case of failure, undo what has been done
 # before, etc.
-if ! mount ${flags} -t aufs -o br:${rwbr}=rw:${robr}=${RO} none ${mntpnt}; then
+if ! mount ${flags} -t ${METHOD} -o ${UNIONFS_OPTS} ${METHOD} ${mntpnt}; then
     umount ${robr}
     umount ${rwbr}
     [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
@@ -287,7 +301,7 @@ fi
 # is remounted rw during a session).
 robr_line="${device:-${LOFILE}} ${robr} ${fstype:-auto} ${robr_opts:+${robr_opts},}ro 0 0"
 rwbr_line="tmpfs ${rwbr} tmpfs ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},}${uid:+uid=${uid},}${gid:+gid=${gid},}mode=${mod} 0 0"
-aufs_line="none ${mntpnt} aufs br:${rwbr}=rw:${robr}=${RO} 0 0"
+aufs_line="${METHOD} ${mntpnt} ${METHOD} ${UNIONFS_OPTS} 0 0"
 
 sed -i "s;^\s*[^#][^ ]\+\s\+${mntpnt}\s\+lockfs\s.*;${robr_line}\n${rwbr_line}\n${aufs_line};" /etc/fstab
 
