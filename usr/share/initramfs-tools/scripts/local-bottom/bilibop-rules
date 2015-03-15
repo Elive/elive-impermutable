@@ -48,7 +48,7 @@ RUN_RULES_DIR="/run/udev/rules.d"
 for rules in cd.rules net.rules; do
 	persistent="${ETC_RULES_DIR}/70-persistent-${rules}"
 	unpersistent="${RUN_RULES_DIR}/70-persistent-${rules}"
-	if [ -h "${persistent}" -a "$(readlink -f ${persistent})" = "${unpersistent}" ]; then
+	if [ -h "${persistent}" -a "$(ls -l ${persistent} | sed -e 's,.*\s\([^ ]\+\)$,\1,')" = "${unpersistent}" ]; then
 		echo "# 70-(un)persistent-${rules}" >${unpersistent}
 	fi
 done
