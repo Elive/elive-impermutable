@@ -336,6 +336,22 @@ device_id_of_file() {
     udevadm info --device-id-of-file "${1}"
 }
 # ===========================================================================}}}
+# is_btrfs_mountpoint() ====================================================={{{
+# What we want is: check if a directory given as argument is a btrfs mountpoint
+# and print the corresponding line from /proc/mounts. Accepts the '-q' (quiet)
+# option: print nothing, but return a 0/1 exit value. This is due to the fact
+# that btrfs mountpoints get 0 as their major device ID.
+is_btrfs_mountpoint() {
+    ${DEBUG} && echo "> is_btrfs_mountpoint $@" >&2
+    local   opt=
+    case    "${1}" in
+        -*)
+            opt="${1}"
+            shift ;;
+    esac
+    grep ${opt} "^[^ ]\+ $(canonical ${1}) btrfs " /proc/mounts
+}
+# ===========================================================================}}}
 # is_aufs_mountpoint() ======================================================{{{
 # What we want is: check if a directory given as argument is an aufs mountpoint
 # and print the corresponding line from /proc/mounts. Accepts the '-q' (quiet)
@@ -524,6 +540,22 @@ underlying_device_from_overlayfs() {
     return 1
 }
 # ===========================================================================}}}
+# underlying_device_from_btrfs() ============================================{{{
+# What we want is: output the underlying device of a btrfs mountpoint given as
+# argument. Such filesystems are not directly mapped to the block device they
+# are written on: the device ID (major:minor) of a file on btrfs is not the
+# same than the block device itself (say 8:1 for /dev/sda1), but a virtual one
+# (with 0 as the major number).
+underlying_device_from_btrfs() {
+    ${DEBUG} && echo "> underlying_device_from_btrfs $@" >&2
+    local dev="$(grep "^/[^[:blank:]]\+\s${1}\sbtrfs\s" /proc/mounts | sed -e 's|^\([^ ]\+\)\s.*|\1|')"
+    if [ -b "${dev}" ]; then
+        readlink -f "${dev}"
+    else
+        return 1
+    fi
+}
+# ===========================================================================}}}
 # underlying_device_from_dm() ==============================================={{{
 # What we want is: output the underlying device of a dm device given as
 # argument. This function has been rewritten to not depend on dmsetup, grep and
@@ -587,14 +619,16 @@ underlying_device_from_file() {
     then
             # 0 is the major number of all ramfs (tmpfs, devtmpfs, sysfs, proc
             # and others). If the file is hosted on a such virtual filesystem,
-            # we encounter an alternative: the file is on aufs and we continue
-            # after a jump on the real block device under the aufs, or we stop
-            # here.
+            # we encounter an alternative: the file is on aufs/overlay/btrfs
+            # and we continue after a jump on the real block device under the
+            # aufs/overlay/btrfs, or we stop there.
             mntpnt="$(find_mountpoint "${1}")"
             if      is_aufs_mountpoint -q "${mntpnt}"
             then    dev="$(underlying_device_from_aufs "${mntpnt}")"
             elif    is_overlay_mountpoint -q "${mntpnt}"
             then    dev="$(underlying_device_from_overlayfs "${mntpnt}")"
+            elif    is_btrfs_mountpoint -q "${mntpnt}"
+            then    dev="$(underlying_device_from_btrfs "${mntpnt}")"
             else    return 1
             fi
     else
