@@ -224,23 +224,47 @@ fi
 
 log_begin_msg "${0##*/}: Setting up ${METHOD} branches"
 
-# Prepare directories:
+# Prepare directories. This is a key point. The goal is to get a
+# directory tree easy to understand: with the readonly branch beside
+# the writable one, in a directory with explicit name. Also, since
+# informations parsed from /proc/mounts are out of sync (overlay, but
+# also aufs with brs=0), make that the final mountpoints seen from
+# the running system are the same than the initial mountpoints in
+# the initramfs environment. In other words, be consistent to mitigate
+# the out-of-sync issue.
+# For aufs, we need (or want) two mountpoints to build the third one:
+# /aufs/ro + /aufs/rw -> /tmp/union -> $rootmnt
+# For overlay, we also need two mountpoints, but three directories, as
+# follows:
+# - lowerdir is the mountpoint of the readonly branch; can be anywhere
+# - upperdir and workdir must reside on the same mount
+# - upperdir and workdir cannot be a subdirectory of the other
+# This means that neither upperdir nor workdir can be a mountpoint.
+# So the design of bilibop-lockfs is to use a tmpfs mountpoint (/overlay)
+# to create all that is needed into: not only upperdir and workdir, but
+# also lowerdir:
+# /overlay/ro + /overlay/rw + /overlay/.rw -> /tmp/union -> $rootmnt
+
+UNIONFS="/tmp/union"
 BASEDIR="/${METHOD}"
 HOSTDIR="${BASEDIR}/ro"
-TEMPDIR="${BASEDIR}/rw"
-UNIONFS="${BASEDIR}/${METHOD}"
 
-[ -d "${BASEDIR}" ] || mkdir "${BASEDIR}"
-[ -d "${HOSTDIR}" ] || mkdir "${HOSTDIR}"
-[ -d "${TEMPDIR}" ] || mkdir "${TEMPDIR}"
+if	[ "${METHOD}" = "aufs" ]
+then	TEMPDIR="${BASEDIR}/rw"
+elif	[ "${METHOD}" = "overlay" ]
+then	TEMPDIR="${BASEDIR}"
+	LOWERDIR="${HOSTDIR}"
+	UPPERDIR="${BASEDIR}/rw"
+	WORKDIR="${BASEDIR}/.rw"
+fi
+
 [ -d "${UNIONFS}" ] || mkdir "${UNIONFS}"
-
-mount -o bind ${rootmnt} ${HOSTDIR}
+[ -d "${BASEDIR}" ] || mkdir "${BASEDIR}"
+[ -d "${TEMPDIR}" ] || mkdir "${TEMPDIR}"
 
 if	! mount -t tmpfs -o mode=0755${SIZE:+,size=${SIZE}} tmpfs ${TEMPDIR}
 then
 	# Don't forget to undo what has been done before !
-	umount ${HOSTDIR}
 	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ] ||
 	blockdev_root_subtree rw ${BILIBOP_ROOT} ${BILIBOP_DISK}
 
@@ -250,26 +274,47 @@ then
 	exit 1
 fi
 
+# HOSTDIR may be a subdirectory of TEMPDIR (for overlay), so now we can create it:
+[ -d "${HOSTDIR}" ] || mkdir "${HOSTDIR}"
+
 # Set mount options, depending on the union fs type:
 if	[ "${METHOD}" = "aufs" ]
 then	UNIONFS_OPTS="br:${TEMPDIR}=rw:${HOSTDIR}=${RO}"
 elif	[ "${METHOD}" = "overlay" ]
-then	UNIONFS_OPTS="lowerdir=${HOSTDIR},upperdir=${TEMPDIR}/rw,workdir=${TEMPDIR}/work"
-	[ -d "${TEMPDIR}/rw" ] || mkdir "${TEMPDIR}/rw"
-	[ -d "${TEMPDIR}/work" ] || mkdir "${TEMPDIR}/work"
+then	UNIONFS_OPTS="lowerdir=${LOWERDIR},upperdir=${UPPERDIR},workdir=${WORKDIR}"
+	[ -d "${UPPERDIR}" ] || mkdir "${UPPERDIR}"
+	[ -d "${WORKDIR}" ] || mkdir "${WORKDIR}"
 fi
 
 # Now do the job:
+
+mount -o bind ${rootmnt} ${HOSTDIR}
 
 if	mount -t ${METHOD} -o ${UNIONFS_OPTS} ${METHOD} ${UNIONFS}
 then
 	umount ${rootmnt}
 	mount -o move ${UNIONFS} ${rootmnt}
-	mkdir ${rootmnt}${BASEDIR}
-	mkdir ${rootmnt}${HOSTDIR}
-	mkdir ${rootmnt}${TEMPDIR}
-	mount -o move ${HOSTDIR} ${rootmnt}${HOSTDIR}
-	mount -o move ${TEMPDIR} ${rootmnt}${TEMPDIR}
+	[ -d "${rootmnt}${BASEDIR}" ] || mkdir ${rootmnt}${BASEDIR}
+
+	if	[ "${METHOD}" = "aufs" ]
+	then	# Quite simple: move a mount to another directory which will
+		# have the same absolute path than the initial mount after
+		# $rootmnt becomes /. Do the same with another mountpoint that
+		# is independent of the first one:
+		[ -d "${rootmnt}${HOSTDIR}" ] || mkdir ${rootmnt}${HOSTDIR}
+		[ -d "${rootmnt}${TEMPDIR}" ] || mkdir ${rootmnt}${TEMPDIR}
+		mount -o move ${HOSTDIR} ${rootmnt}${HOSTDIR}
+		mount -o move ${TEMPDIR} ${rootmnt}${TEMPDIR}
+
+	elif	[ "${METHOD}" = "overlay" ]
+	then	# Not so complicated: move a mount to free the parent mount,
+		# then move the parent mount (in the right place, as explained
+		# above), and finally move the first mount again (in the right
+		# place too):
+		mount -o move ${HOSTDIR} ${UNIONFS}
+		mount -o move ${TEMPDIR} ${rootmnt}${TEMPDIR}
+		mount -o move ${UNIONFS} ${rootmnt}${HOSTDIR}
+	fi
 else
 	# Again, don't forget to undo what has been done before:
 	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ] ||
