@@ -70,7 +70,7 @@ if is_aufs_mountpoint -q / && [ -f "${BILIBOP_RUNDIR}/lock" ]; then
     METHOD="aufs"
     robr="$(aufs_readonly_branch /)"
     rwbr="$(aufs_writable_branch /)"
-elif is_overlayfs_mountpoint -q / && [ -f "${BILIBOP_RUNDIR}/lock" ]; then
+elif is_overlay_mountpoint -q / && [ -f "${BILIBOP_RUNDIR}/lock" ]; then
     LOCKFS="true"
     METHOD="overlay"
     robr="$(overlayfs_lowerdir /)"
