@@ -173,7 +173,7 @@ then	log_warning_msg "${0##*/}: Root filesystem is already mounted as aufs..."
 	log_failure_msg "${0##*/}: Exit."
 	plymouth_message "${0##*/}: ERROR"
 	exit 0
-elif	is_overlayfs_mountpoint -q "${rootmnt}"
+elif	is_overlay_mountpoint -q "${rootmnt}"
 then	log_warning_msg "${0##*/}: Root filesystem is already mounted as overlayfs..."
 	log_failure_msg "${0##*/}: Exit."
 	plymouth_message "${0##*/}: ERROR"
