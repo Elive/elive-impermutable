@@ -524,17 +524,17 @@ underlying_device_from_overlayfs() {
         fi
     fi
     case "${dev}" in
-        0:*|"")
+        "")
+            ;;
+        0:*)
+            dev="$(underlying_device_from_file "${dir}")"
             ;;
         *)
             dev="$(device_node_from_major_minor "${dev}")"
             ;;
     esac
-    if      [ -b "${dev}" ]
-    then    readlink -f "${dev}"
-            return 0
-    fi
-    return 1
+
+    [ -b "${dev}" ] && readlink -f "${dev}"
 }
 # ===========================================================================}}}
 # underlying_device_from_btrfs() ============================================{{{
