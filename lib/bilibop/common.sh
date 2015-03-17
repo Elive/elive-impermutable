@@ -384,23 +384,24 @@ aufs_dirs_if_brs0() {
     is_aufs_mountpoint "${1}" | sed -e 's@.*[ ,]br:\([^ ,]\+\).*@\1@ ; s@:@ @g'
 }
 # ===========================================================================}}}
-# aufs_dirs() ==============================================================={{{
-# What we want is: output all the underlying mountpoints (called branches) an
-# aufs filesystem given as argument is made of.
-aufs_dirs() {
-    ${DEBUG} && echo "> aufs_dirs $@" >&2
+# aufs_readonly_branch() ===================================================={{{
+# What we want is: output the lower (readonly) branch of an aufs mount point
+# given as argument.
+aufs_readonly_branch() {
+    ${DEBUG} && echo "> aufs_readonly_branch $@" >&2
     local   br
     case  "$(cat /sys/module/aufs/parameters/brs)" in
         0)
             for br in $(aufs_dirs_if_brs0 "${1}")
             do
-                echo ${br}
+                echo ${br} | grep -q '=r[or]\(+wh\)\?$' &&
+                echo ${br%\=r*}
             done
             ;;
         *)
             for br in $(aufs_si_directory "${1}")/br*
             do
-                cat ${br}
+                grep '=r[or]\(+wh\)\?$' ${br} | sed -e 's,=r[or].*,,'
             done
             ;;
     esac
@@ -805,35 +806,34 @@ get_aufs_variables() {
 }
 # ===========================================================================}}}
 
+# aufs_dirs() ==============================================================={{{
+# What we want is: output all the underlying mountpoints (called branches) an
+# aufs filesystem given as argument is made of.
+aufs_dirs() {
+    ${DEBUG} && echo "> aufs_dirs $@" >&2
+    local   br
+    case  "$(cat /sys/module/aufs/parameters/brs)" in
+        0)
+            for br in $(aufs_dirs_if_brs0 "${1}")
+            do
+                echo ${br}
+            done
+            ;;
+        *)
+            for br in $(aufs_si_directory "${1}")/br*
+            do
+                cat ${br}
+            done
+            ;;
+    esac
+}
+# ===========================================================================}}}
 # aufs_mountpoints() ========================================================{{{
 # What we want is: output the mountpoints of all aufs filesystems.
 aufs_mountpoints() {
     ${DEBUG} && echo "> aufs_mountpoints $@" >&2
     grep '^[^ ]\+ /[^ ]* aufs .*[, ]si=[0-9a-f]\+[, ].*' /proc/mounts |
     sed -e 's,^[^ ]\+ \(/[^ ]*\) aufs .*,\1,'
-}
-# ===========================================================================}}}
-# aufs_readonly_branch() ===================================================={{{
-# What we want is: output the lower (readonly) branch of an aufs mount point
-# given as argument.
-aufs_readonly_branch() {
-    ${DEBUG} && echo "> aufs_readonly_branch $@" >&2
-    local   br
-    case  "$(cat /sys/module/aufs/parameters/brs)" in
-        0)
-            for br in $(aufs_dirs_if_brs0 "${1}")
-            do
-                echo ${br} | grep -q '=r[or]\(+wh\)\?$' &&
-                echo ${br%\=r*}
-            done
-            ;;
-        *)
-            for br in $(aufs_si_directory "${1}")/br*
-            do
-                grep '=r[or]\(+wh\)\?$' ${br} | sed -e 's,=r[or].*,,'
-            done
-            ;;
-    esac
 }
 # ===========================================================================}}}
 # aufs_writable_branch() ===================================================={{{
