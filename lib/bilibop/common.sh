@@ -546,11 +546,7 @@ underlying_device_from_overlayfs() {
 underlying_device_from_btrfs() {
     ${DEBUG} && echo "> underlying_device_from_btrfs $@" >&2
     local dev="$(grep "^/[^[:blank:]]\+\s${1}\sbtrfs\s" /proc/mounts | sed -e 's|^\([^ ]\+\)\s.*|\1|')"
-    if [ -b "${dev}" ]; then
-        readlink -f "${dev}"
-    else
-        return 1
-    fi
+    [ -b "${dev}" ] && readlink -f "${dev}"
 }
 # ===========================================================================}}}
 # underlying_device_from_dm() ==============================================={{{
