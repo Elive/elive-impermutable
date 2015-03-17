@@ -867,6 +867,23 @@ aufs_writable_branch() {
 }
 # ===========================================================================}}}
 
+# overlay_upperdir() ========================================================{{{
+# What we want is: output the upperdir (writable branch) of an overlayfs mount
+# point given as argument.
+overlay_upperdir() {
+    ${DEBUG} && echo "> overlay_upperdir $@" >&2
+    canonpath $(is_overlay_mountpoint "${1}" | sed -e 's@.*[ ,]upperdir=\([^ ,]\+\).*@\1@ ; s@/\+@/@g')
+}
+# ===========================================================================}}}
+# overlay_workdir() ========================================================={{{
+# What we want is: output the upperdir (writable branch) of an overlayfs mount
+# point given as argument.
+overlay_workdir() {
+    ${DEBUG} && echo "> overlay_workdir $@" >&2
+    canonpath $(is_overlay_mountpoint "${1}" | sed -e 's@.*[ ,]workdir=\([^ ,]\+\).*@\1@ ; s@/\+@/@g')
+}
+# ===========================================================================}}}
+
 # is_removable() ============================================================{{{
 # What we want is: check if a whole disk node given as argument is seen as
 # removable from its sysfs attribute. If yes, this means the disk given as
