@@ -623,7 +623,6 @@ underlying_device_from_file() {
             then    dev="$(underlying_device_from_overlayfs "${mntpnt}")"
             elif    is_btrfs_mountpoint -q "${mntpnt}"
             then    dev="$(underlying_device_from_btrfs "${mntpnt}")"
-            else    return 1
             fi
     else
             dev="$(device_node_from_major_minor "${id}")"
