@@ -1,6 +1,6 @@
 # /lib/bilibop/common.sh
 #
-# Copyright (C) 2011-2014, Yann Amar <quidame@poivron.org>
+# Copyright (C) 2011-2015, Yann Amar <quidame@poivron.org>
 # License GPL-3.0+
 #
 # This program is free software: you can redistribute it and/or modify
