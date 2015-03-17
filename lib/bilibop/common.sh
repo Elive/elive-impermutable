@@ -399,7 +399,7 @@ aufs_readonly_branch() {
             done
             ;;
         *)
-            for br in $(aufs_si_directory "${1}")/br*
+            for br in $(aufs_si_directory "${1}")/br?
             do
                 grep '=r[or]\(+wh\)\?$' ${br} | sed -e 's,=r[or].*,,'
             done
@@ -820,7 +820,7 @@ aufs_dirs() {
             done
             ;;
         *)
-            for br in $(aufs_si_directory "${1}")/br*
+            for br in $(aufs_si_directory "${1}")/br?
             do
                 cat ${br}
             done
@@ -851,7 +851,7 @@ aufs_writable_branch() {
             done
             ;;
         *)
-            for br in $(aufs_si_directory "${1}")/br*
+            for br in $(aufs_si_directory "${1}")/br?
             do
                 grep '=rw\(+nolwh\)\?$' ${br} | sed -e 's,=rw.*,,'
             done
