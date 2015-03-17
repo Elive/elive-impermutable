@@ -477,24 +477,21 @@ underlying_device_from_loop() {
 # virtual fs.
 underlying_device_from_aufs() {
     ${DEBUG} && echo "> underlying_device_from_aufs $@" >&2
-    local   dir dev
-    for dir in $(aufs_dirs "${1}")
-    do
-        dev="$(device_id_of_file ${dir%\=r?*})"
-        case "${dev}" in
-            0:*)
-                continue
-                ;;
-            *)
-                dev="$(device_node_from_major_minor "${dev}")"
-                ;;
-        esac
-        if      [ -b "${dev}" ]
-        then    readlink -f "${dev}"
-                return 0
-        fi
-    done
-    return 1
+    local   dir="$(aufs_readonly_branch "${1}")"
+    local   dev="$(device_id_of_file "${dir}")"
+    case "${dev}" in
+        "")
+            ;;
+        0:*)
+            # aufs mounts can't be nested; but this may be btrfs
+            dev="$(underlying_device_from_file "${dir}")"
+            ;;
+        *)
+            dev="$(device_node_from_major_minor "${dev}")"
+            ;;
+    esac
+
+    [ -b "${dev}" ] && readlink -f "${dev}"
 }
 # ===========================================================================}}}
 # underlying_device_from_overlayfs() ========================================{{{
