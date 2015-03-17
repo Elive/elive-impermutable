@@ -31,8 +31,9 @@
 #  and others), and then are replaced by grep and sed heuristics.
 #> We assume, even if it is not often, that /etc/udev/udev.conf can have been
 #  modified and that 'udev_root' can be something else than '/dev'.
-#> dm-crypt/LUKS, LVM, loopback and aufs root filesystems (and combinations
-#  of them) are now fully supported. Support for overlayfs is experimental.
+#> dm-crypt/LUKS, LVM, loopback, and aufs root filesystems (and combinations
+#  of them) are now fully supported. Btrfs and overlay filesystems are also
+#  partially supported (not fully tested).
 #> Functions that just output informations about devices/filesystems can be
 #  called by any unprivileged user.
 
