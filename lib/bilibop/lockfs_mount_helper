@@ -75,7 +75,6 @@ elif is_overlay_mountpoint -q / && [ -f "${BILIBOP_RUNDIR}/lock" ]; then
     METHOD="overlay"
     robr="$(overlay_lowerdir /)"
     rwbr="$(overlay_upperdir /)"
-    temp="$(find_mountpoint ${rwbr})"
 else
     echo "${0##*/}: bilibop-lockfs is disabled." >&2
     exit 1
@@ -235,6 +234,7 @@ if [ "${METHOD}" = "aufs" ]; then
     rwbr="${rwbr}${mntpnt}"
     temp="${rwbr}"
 elif [ "${METHOD}" = "overlay" ]; then
+    temp="$(find_mountpoint ${rwbr})"
     temp="${temp}${mntpnt}"
     robr="${temp}/ro"
     rwbr="${temp}/rw"
