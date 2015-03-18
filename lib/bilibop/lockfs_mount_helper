@@ -73,9 +73,9 @@ if is_aufs_mountpoint -q / && [ -f "${BILIBOP_RUNDIR}/lock" ]; then
 elif is_overlay_mountpoint -q / && [ -f "${BILIBOP_RUNDIR}/lock" ]; then
     LOCKFS="true"
     METHOD="overlay"
-    robr="$(overlayfs_lowerdir /)"
-    rwbr="$(overlayfs_upperdir /)"
-    rwbr="${rwbr%/*}"
+    robr="$(overlay_lowerdir /)"
+    rwbr="$(overlay_upperdir /)"
+    temp="$(find_mountpoint ${rwbr})"
 else
     echo "${0##*/}: bilibop-lockfs is disabled." >&2
     exit 1
@@ -212,11 +212,34 @@ for opt in $(IFS=','; echo ${options}); do
     esac
 done
 
+# For aufs:
 # Each readonly branch is mounted under the subtree of the main readonly
-# branch (/aufs/ro or /overlay/ro) and each writable branch is mounted under
-# the subtree of the main writable branch (/aufs/rw or /overlay/rw/rw):
-robr="${robr}${mntpnt}"
-rwbr="${rwbr}${mntpnt}"
+# branch (/aufs/ro) and each writable branch is mounted under the subtree
+# of the main writable branch (/aufs/rw). For examples:
+# <readonly branch>  + <writable branch>  -> <aufs mount>
+# /aufs/ro           + /aufs/rw           -> /
+# /aufs/ro/boot      + /aufs/rw/boot      -> /boot
+# /aufs/ro/usr/local + /aufs/rw/usr/local -> /usr/local
+#
+# For overlay:
+# A dedicated temporary filesystem (tmpfs) is set for each overlay mount
+# point, and readonly and writable branches (and also workdir) are
+# subdirectories of the tmpfs mountpoint. For examples:
+# <lowerdir>       + <upperdir>       + <workdir>         -> <overlay>
+# /overlay/ro      + /overlay/rw      + /overlay/.rw      -> /
+# /overlay/boot/ro + /overlay/boot/rw + /overlay/boot/.rw -> /boot
+# where /overlay and /overlay/boot are tmpfs mountpoints.
+
+if [ "${METHOD}" = "aufs" ]; then
+    robr="${robr}${mntpnt}"
+    rwbr="${rwbr}${mntpnt}"
+    temp="${rwbr}"
+elif [ "${METHOD}" = "overlay" ]; then
+    temp="${temp}${mntpnt}"
+    robr="${temp}/ro"
+    rwbr="${temp}/rw"
+    work="${temp}/.rw"
+fi
 
 # If the policy is not explicitly set to 'soft', set the block device as
 # readonly, and use 'rr' aufs option to improve performances:
