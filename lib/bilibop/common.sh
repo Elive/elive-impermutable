@@ -212,54 +212,57 @@ EOF
 ### Here is the main function's dependency tree {{{
 #
 # physical_hard_disk
-# |
 # |__underlying_partition
-#    |
 #    |__underlying_device
-#    |  |
 #    |  |__underlying_device_from_device
-#    |  |  |
 #    |  |  |__underlying_device_from_dm
 #    |  |  |__underlying_device_from_loop
-#    |  |     |
 #    |  |     |__backing_file_from_loop
 #    |  |     |__device_id_of_file
 #    |  |     |__device_node_from_major_minor
 #    |  |
-#    |  |__underlying_device_from_file
+#    |  |__underlying_device_from_file _<<_<<_<<_
+#    |     |__device_id_of_file                  |
+#    |     |__find_mountpoint                    |
+#    |     |__is_aufs_mountpoint                 |
+#    |     |  |__canonical                       |
+#    |     |                                     |
+#    |     |__underlying_device_from_aufs        |
+#    |     |  |__aufs_readonly_branch            |
+#    |     |  |  |__aufs_dirs_if_brs0            |
+#    |     |  |  |  |__is_aufs_mountpoint        |
+#    |     |  |  |     |__canonical              |
+#    |     |  |  |                               |
+#    |     |  |  |__aufs_si_directory            |
+#    |     |  |     |__is_aufs_mountpoint        |
+#    |     |  |        |__canonical              |
+#    |     |  |                                  |
+#    |     |  |__device_id_of_file               |
+#    |     |  |__underlying_device_from_file _>>_|
+#    |     |  |__device_node_from_major_minor    |
+#    |     |                                     |
+#    |     |__is_overlay_mountpoint              |
+#    |     |  |__canonical                       |
+#    |     |                                     |
+#    |     |__underlying_device_from_overlayfs   |
+#    |     |  |__overlay_lowerdir                |
+#    |     |  |  |__is_overlay_mountpoint        |
+#    |     |  |  |  |__canonical                 |
+#    |     |  |  |                               |
+#    |     |  |  |__canonpath                    |
+#    |     |  |                                  |
+#    |     |  |__device_id_of_file               |
+#    |     |  |__underlying_device_from_file _>>_|
+#    |     |  |__device_node_from_major_minor
 #    |     |
-#    |     |__device_node_from_major_minor
-#    |     |__device_id_of_file
-#    |     |__find_mountpoint
-#    |     |  |
-#    |     |  |__is_aufs_mountpoint
-#    |     |     |
-#    |     |     |__canonical
+#    |     |__is_btrfs_mountpoint
+#    |     |  |__canonical
 #    |     |
-#    |     |__underlying_device_from_aufs
-#    |        |
-#    |        |__aufs_dirs
-#    |        |  |
-#    |        |  |__aufs_dirs_if_brs0
-#    |        |  |  |
-#    |        |  |  |__is_aufs_mountpoint
-#    |        |  |     |
-#    |        |  |     |_canonical
-#    |        |  |
-#    |        |  |__aufs_si_directory
-#    |        |     |
-#    |        |     |__is_aufs_mountpoint
-#    |        |        |
-#    |        |        |__canonical
-#    |        |
-#    |        |__device_id_of_file
-#    |        |__device_node_from_major_minor
+#    |     |__underlying_device_from_btrfs
 #    |
 #    |__underlying_device_from_device
-#       |
 #       |__underlying_device_from_dm
 #       |__underlying_device_from_loop
-#          |
 #          |__backing_file_from_loop
 #          |__device_id_of_file
 #          |__device_node_from_major_minor
