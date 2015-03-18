@@ -6,13 +6,14 @@ set -e
 # This script cannot be run manually. The expected way to run it is the
 # following:
 # 1. Enable bilibop-lockfs:
-#    * set BILIBOP_LOCKFS to "true" in /etc/bilibop/bilibop.conf or
-#    * append 'lockfs' parameter in the boot commandline
-# 2. One time '/' is an union filesystem (aufs or overlayfs mountpoint), the
-#    temporary /etc/fstab is modified to replace filesystem types (third field)
-#    of some entries by 'lockfs' (options are modified too to remember the
-#    original fstype).
-# 3. /sbin/mount.lockfs is created if it don't already exist. This can be a
+#    * set BILIBOP_LOCKFS to "true" in /etc/bilibop/bilibop.conf and reboot
+#    or:
+#    * reboot and append 'lockfs' parameter in the boot commandline
+# 2. Once '/' is an union filesystem (aufs or overlay mountpoint), the
+#    temporary /etc/fstab is modified to replace filesystem types (third
+#    field) of some entries by 'lockfs' (options are modified too to remember
+#    the original fstype).
+# 3. /sbin/mount.lockfs is created if it doesn't already exist. This can be a
 #    symlink to /lib/bilibop/lockfs_mount_helper if this helper is executable,
 #    or a copy of the helper (followed by chmod +x) if the helper is not
 #    executable. If the helper is missing, /sbin/mount.lockfs will be a
