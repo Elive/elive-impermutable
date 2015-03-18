@@ -250,15 +250,6 @@ else
     [ -b "${device}" ] && blockdev --setro ${device}
 fi
 
-# Try to mount the readonly branch. In case of failure, undo what has been
-# done before, do a normal mount, rewrite the fstab entry to be consistent
-# with that, and exit:
-if ! mount ${flags} ${fstype:+-t ${fstype}} -o ${robr_opts:+${robr_opts},}ro ${device:-${LOFILE}} ${robr}; then
-    [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
-    mount_fallback "${@}"
-    exit 3
-fi
-
 # The amount of RAM to allow to this mountpoint:
 SIZE=
 for size in ${BILIBOP_LOCKFS_SIZE}; do
@@ -270,20 +261,28 @@ for size in ${BILIBOP_LOCKFS_SIZE}; do
     esac
 done
 
-# Create the mountpoint (it should not exist before this step):
-if [ ! -d "${rwbr}" ]; then
-    mkdir -p ${rwbr}
+# Prepare the tmpfs mountpoint (it should not exist before this step):
+if [ ! -d "${temp}" ]; then
+    mkdir -p ${temp}
     grep -q "^${mntpnt}$" ${BILIBOP_RUNDIR}/lock ||
     echo "${mntpnt}" >>${BILIBOP_RUNDIR}/lock
 fi
 
 # Try to mount the writable branch, and in case of failure, undo what
 # has been done before, etc.
-if ! mount ${flags} -t tmpfs -o ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},}mode=0755 tmpfs ${rwbr}; then
-    umount ${robr}
+if ! mount ${flags} -t tmpfs -o ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},}mode=0755 tmpfs ${temp}; then
     [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
     mount_fallback "${@}"
     exit 3
+fi
+
+# Create the needed directories; some may not exist: all for overlay, but there
+# are cases with aufs (for example when /, /usr and /usr/local are differnt
+# mountpoints, /usr has not been locked and /usr/local does not exist on the
+# block device).
+[ -d "${robr}" ] || mkdir -p ${robr}
+if [ "${METHOD}" = "overlay" ]; then
+    mkdir -p ${rwbr} ${work}
 fi
 
 # Fix permissions and ownership of the writable branch (and catch the values;
@@ -302,18 +301,28 @@ if [ "${group}" != "root" ]; then
     gid="$(grep "^${group}:" /etc/group | sed 's;^\([^:]*:\)\{2\}\([^:]\+\):.*;\2;')"
 fi
 
+# Try to mount the readonly branch. In case of failure, undo what has been
+# done before, do a normal mount, rewrite the fstab entry to be consistent
+# with that, and exit:
+if ! mount ${flags} ${fstype:+-t ${fstype}} -o ${robr_opts:+${robr_opts},}ro ${device:-${LOFILE}} ${robr}; then
+    umount ${temp}
+    [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
+    mount_fallback "${@}"
+    exit 3
+fi
+
 # Now set the union filesystem mount options
 if [ "${METHOD}" = "aufs" ]; then
     UNIONFS_OPTS="br:${rwbr}=rw:${robr}=${RO}"
 elif [ "${METHOD}" = "overlay" ]; then
-    UNIONFS_OPTS="lowerdir=${robr},upperdir=${rwbr}/rw,workdir=${rwbr}/work"
+    UNIONFS_OPTS="lowerdir=${robr},upperdir=${rwbr},workdir=${work}"
 fi
 
 # Try to mount the aufs now. In case of failure, undo what has been done
 # before, etc.
 if ! mount ${flags} -t ${METHOD} -o ${UNIONFS_OPTS} ${METHOD} ${mntpnt}; then
     umount ${robr}
-    umount ${rwbr}
+    umount ${temp}
     [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
     mount_fallback "${@}"
     exit 3
@@ -323,9 +332,9 @@ fi
 # can be important for clean unmounts at shutdown (for the case a filesystem
 # is remounted rw during a session).
 robr_line="${device:-${LOFILE}} ${robr} ${fstype:-auto} ${robr_opts:+${robr_opts},}ro 0 0"
-rwbr_line="tmpfs ${rwbr} tmpfs ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},}${uid:+uid=${uid},}${gid:+gid=${gid},}mode=${mod} 0 0"
-aufs_line="${METHOD} ${mntpnt} ${METHOD} ${UNIONFS_OPTS} 0 0"
+rwbr_line="tmpfs ${temp} tmpfs ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},}${uid:+uid=${uid},}${gid:+gid=${gid},}mode=${mod} 0 0"
+union_line="${METHOD} ${mntpnt} ${METHOD} ${UNIONFS_OPTS} 0 0"
 
-sed -i "s;^\s*[^#][^ ]\+\s\+${mntpnt}\s\+lockfs\s.*;${robr_line}\n${rwbr_line}\n${aufs_line};" /etc/fstab
+sed -i "s;^\s*[^#][^ ]\+\s\+${mntpnt}\s\+lockfs\s.*;${rwbr_line}\n${robr_line}\n${union_line};" /etc/fstab
 
 # vim: et sts=4 sw=4 ts=4
