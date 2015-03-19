@@ -461,16 +461,29 @@ underlying_device_from_loop() {
     local   lofile="$(backing_file_from_loop ${1})" || return 1
     if      [ -b "${lofile}" ]
     then    readlink -f "${lofile}"
-    elif    [ -e "${lofile}" ]
-    then    device_node_from_major_minor $(device_id_of_file "${lofile}")
-    elif    [ -r "${1}" ]
-    then
-            # For some cases, when the loop device is set from inside the
-            # initramfs (Live Systems)
-            local dev="$(/sbin/losetup ${1} | sed "s;^${1}: \[\([0-9a-f]\{4\}\)\].*;\1;")"
-            device_node_from_major_minor "$((0x${dev}/256)):$((0x${dev}%256))"
     else
-            return 1
+            local   id
+            if      [ -e "${lofile}" ]
+            then    id=$(device_id_of_file "${lofile}")
+            elif    [ -r "${1}" ]
+            then    # For some cases, when the loop device is set from inside
+                    # the initramfs (Live Systems) and /sys/*/loop/backing_file
+                    # is out of sync
+                    local   dev="$(/sbin/losetup ${1} | sed "s;^${1}: \[\([0-9a-f]\{4\}\)\].*;\1;")"
+                    id="$((0x${dev}/256)):$((0x${dev}%256))"
+            else    return 1
+            fi
+            case    "${id}" in
+                "")
+                    return 1
+                    ;;
+                0:*)
+                    underlying_device_from_file "${lofile}"
+                    ;;
+                *)
+                    device_node_from_major_minor "${dev}"
+                    ;;
+            esac
     fi
 }
 # ===========================================================================}}}
