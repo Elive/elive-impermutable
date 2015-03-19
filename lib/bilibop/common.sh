@@ -481,7 +481,7 @@ underlying_device_from_loop() {
                     underlying_device_from_file "${lofile}"
                     ;;
                 *)
-                    device_node_from_major_minor "${dev}"
+                    device_node_from_major_minor "${id}"
                     ;;
             esac
     fi
