@@ -219,9 +219,10 @@ EOF
 #    |  |  |__underlying_device_from_loop
 #    |  |     |__backing_file_from_loop
 #    |  |     |__device_id_of_file
-#    |  |     |__device_node_from_major_minor
+#    |  |     |__underlying_device_from_file __ see below
+#    |  |     |__device_node_from_major_minor   vvvvvvvvv
 #    |  |
-#    |  |__underlying_device_from_file _<<_<<_<<_
+#    |  |__underlying_device_from_file _<<_<<_<<_  possible loop entry point
 #    |     |__device_id_of_file                  |
 #    |     |__find_mountpoint                    |
 #    |     |__is_aufs_mountpoint                 |
@@ -238,7 +239,7 @@ EOF
 #    |     |  |        |__canonical              |
 #    |     |  |                                  |
 #    |     |  |__device_id_of_file               |
-#    |     |  |__underlying_device_from_file _>>_|
+#    |     |  |__underlying_device_from_file _>>_| possible loop entry point
 #    |     |  |__device_node_from_major_minor    |
 #    |     |                                     |
 #    |     |__is_overlay_mountpoint              |
@@ -252,19 +253,21 @@ EOF
 #    |     |  |  |__canonpath                    |
 #    |     |  |                                  |
 #    |     |  |__device_id_of_file               |
-#    |     |  |__underlying_device_from_file _>>_|
+#    |     |  |__underlying_device_from_file _>>_| possible loop entry point
 #    |     |  |__device_node_from_major_minor
 #    |     |
 #    |     |__is_btrfs_mountpoint
 #    |     |  |__canonical
 #    |     |
 #    |     |__underlying_device_from_btrfs
+#    |     |__device_node_from_major_minor
 #    |
 #    |__underlying_device_from_device
 #       |__underlying_device_from_dm
 #       |__underlying_device_from_loop
 #          |__backing_file_from_loop
-#          |__device_id_of_file
+#          |__device_id_of_file              ^^^^^^^^^
+#          |__underlying_device_from_file __ see above
 #          |__device_node_from_major_minor
 #
 # }}}
