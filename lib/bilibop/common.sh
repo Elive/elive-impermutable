@@ -321,9 +321,19 @@ canonpath() {
 # given as argument depends is onto. Because it outputs the last field of the
 # last line of the 'df' output, df don't need the '-P' (POSIX format) option,
 # and so we are sure it works with all df commands or builtins (busybox).
+# The use of directories is to work around overlayfs design (files and dirs are
+# not treated the same way, see "stat inconsistency with overlayfs" thread in
+# http://www.spinics.net/lists/linux-unionfs/index.html#00197). In my tests,
+# the only one case where replacing a file path by its dirname may affect the
+# result of df, stat... is for bind-mounted files (and when the two files are
+# not on the same fs).
 find_mountpoint() {
     ${DEBUG} && echo "> find_mountpoint $@" >&2
-    df "${1}" | sed -ne '$s,.* \([^[:blank:]]\+\)$,\1,p'
+    if      [ -d "${1}" ]
+    then    df "${1}"
+    else    df "${1%/*}"
+    fi |
+    sed -ne '$s,.* \([^[:blank:]]\+\)$,\1,p'
 }
 # ===========================================================================}}}
 # device_node_from_major_minor() ============================================{{{
@@ -337,10 +347,14 @@ device_node_from_major_minor() {
 # ===========================================================================}}}
 # device_id_of_file() ======================================================={{{
 # What we want is: output the major:minor of the filesystem containing the
-# file or directory given as argument.
+# file or directory given as argument. See the 'find_mountpoint()' function
+# above, and its comments about "stat inconsistency with overlayfs".
 device_id_of_file() {
     ${DEBUG} && echo "> device_id_of_file $@" >&2
-    udevadm info --device-id-of-file "${1}"
+    if      [ -d "${1}" ]
+    then    udevadm info --device-id-of-file "${1}"
+    else    udevadm info --device-id-of-file "${1%/*}"
+    fi
 }
 # ===========================================================================}}}
 # is_btrfs_mountpoint() ====================================================={{{
