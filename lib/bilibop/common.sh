@@ -700,8 +700,7 @@ underlying_device() {
 # of mapped devices (LVM, dm-crypt), loopback devices and aufs filesystems.
 underlying_partition() {
     ${DEBUG} && echo "> underlying_partition $@" >&2
-    local   dev="$(underlying_device "${1}")"
-    local   old new="${dev}"
+    local   old new="$(underlying_device "${1}")"
 
     while   true
     do
