@@ -189,7 +189,7 @@ then	METHOD="overlay"
 fi
 
 # Check if the aufs/overlayfs filesystem is now supported:
-if	! grep -q "\<${METHOD}\(fs\)\?$" /proc/filesystems
+if	! grep -q "[[:blank:]]${METHOD}$" /proc/filesystems
 then
 	log_failure_msg "${0##*/}: No ${METHOD} kernel support."
 	log_failure_msg "${0##*/}: Exit."
