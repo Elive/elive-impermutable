@@ -227,7 +227,7 @@ log_begin_msg "${0##*/}: Setting up ${METHOD} branches"
 # Prepare directories. This is a key point. The goal is to get a
 # directory tree easy to understand: with the readonly branch beside
 # the writable one, in a directory with explicit name. Also, since
-# informations parsed from /proc/mounts are out of sync (overlay, but
+# information parsed from /proc/mounts are out of sync (overlay, but
 # also aufs with brs=0), make that the final mountpoints seen from
 # the running system are the same than the initial mountpoints in
 # the initramfs environment. In other words, be consistent to mitigate
