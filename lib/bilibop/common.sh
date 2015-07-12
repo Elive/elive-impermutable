@@ -892,6 +892,14 @@ aufs_writable_branch() {
 }
 # ===========================================================================}}}
 
+# overlay_mountpoints() ====================================================={{{
+# What we want is: output the mountpoints of all overlay filesystems.
+overlay_mountpoints() {
+    ${DEBUG} && echo "> overlay_mountpoints $@" >&2
+    grep '^[^ ]\+ /[^ ]* overlay .*[, ]lowerdir=/.\+[, ].*' /proc/mounts |
+    sed -e 's,^[^ ]\+ \(/[^ ]*\) overlay .*,\1,'
+}
+# ===========================================================================}}}
 # overlay_upperdir() ========================================================{{{
 # What we want is: output the upperdir (writable branch) of an overlayfs mount
 # point given as argument.
