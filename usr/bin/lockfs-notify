@@ -188,7 +188,7 @@ esac
 case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 	always|nolockfs)
 		BILIBOP_DISK="$(physical_hard_disk /)"
-		for	fs in $(grep '^/' /proc/mounts | grep -v "^[^ ]\+\s/${METHOD}/" | sed 's;^[^ ]\+\s\(/[^ ]*\)\s.*;\1;')
+		for	fs in $(grep '^/' /proc/mounts | grep -v "^[^ ]\+\s/${BILIBOP_LOCKFS_PATH_PREFIX:-${METHOD}}/" | sed 's;^[^ ]\+\s\(/[^ ]*\)\s.*;\1;')
 		do
 			[ "$(physical_hard_disk ${fs})" = "${BILIBOP_DISK}" ] &&
 			unlocked="${unlocked:+${unlocked}, }'${fs}'"
