@@ -231,15 +231,50 @@ done
 # where /overlay and /overlay/boot are tmpfs mountpoints.
 
 if [ "${METHOD}" = "aufs" ]; then
-    robr="${robr}${mntpnt}"
-    rwbr="${rwbr}${mntpnt}"
+    case "${BILIBOP_LOCKFS_PATH_SCHEME:=nested}" in
+        nested)
+            # This scheme is only available with aufs; symlinks are created for
+            # compatibility with other schemes
+            roln="${robr%/*}${mntpnt}/ro"   # /aufs/usr/local/ro        |ro symlink
+            rwln="${rwbr%/*}${mntpnt}/rw"   # /aufs/usr/local/rw        |rw symlink
+            robr="${robr}${mntpnt}"         # /aufs/ro/usr/local        |ro symlinked
+            rwbr="${rwbr}${mntpnt}"         # /aufs/rw/usr/local        |rw symlinked
+            ;;
+        isolated)
+            # Do exactly the opposite
+            robr="${robr%/*}${mntpnt}/ro"   # /aufs/usr/local/ro        |ro not symlinked
+            rwbr="${rwbr%/*}${mntpnt}/rw"   # /aufs/usr/local/rw        |rw not symlinked
+            ;;
+        *)
+            # i.e. "hybrid": ro branches are nested and linked, rw are isolated and
+            # linked.
+            roln="${robr%/*}${mntpnt}/ro"   # /aufs/usr/local/ro        |ro symlink
+            rwln="${rwbr}${mntpnt}"         # /aufs/rw/usr/local        |rw symlink
+            robr="${robr}${mntpnt}"         # /aufs/ro/usr/local        |ro symlinked
+            rwbr="${rwbr%/*}${mntpnt}/rw"   # /aufs/usr/local/rw        |rw symlinked
+            ;;
+    esac
     temp="${rwbr}"
+
 elif [ "${METHOD}" = "overlay" ]; then
-    temp="$(find_mountpoint ${rwbr})"
-    temp="${temp}${mntpnt}"
-    robr="${temp}/ro"
-    rwbr="${temp}/rw"
-    work="${temp}/.rw"
+    # Upperdirs (writable branches) can't be nested, as they are a subdirectory
+    # of a tmpfs mountpoint, not the mountpoint itself.
+    temp="$(find_mountpoint ${rwbr})"   # /overlay
+    temp="${temp}${mntpnt}"             # /overlay/usr/local
+    work="${temp}/.rw"                  # /overlay/usr/local/.rw
+    rwbr="${temp}/rw"                   # /overlay/usr/local/rw         |rw not nested
+    case "${BILIBOP_LOCKFS_PATH_SCHEME:=nested}" in
+        isolated)
+            robr="${temp}/ro"           # /overlay/usr/local/ro         |ro not symlinked
+            ;;
+        *)
+            # i.e. "hybrid": ro branches are nested and linked, rw are isolated and
+            # linked.
+            robr="${robr}${mntpnt}"         # /overlay/ro/usr/local     |ro symlinked
+            rwln="${rwbr}${mntpnt}"         # /overlay/rw/usr/local     |rw symlink
+            roln="${temp}/ro"               # /overlay/usr/local/ro     |ro symlink
+            ;;
+    esac
 fi
 
 # If the policy is not explicitly set to 'soft', set the block device as
@@ -334,7 +369,49 @@ if ! mount ${flags} -t ${METHOD} -o ${UNIONFS_OPTS} ${METHOD} ${mntpnt}; then
     mount_fallback "${@}"
     exit 3
 fi
-+cd ${OLDPWD}
+cd ${OLDPWD}
+
+# Create symlinks, for example:
+#
+# (/overlay/)ro/usr/local: the target
+# (/overlay/)usr/local/ro: the symlink
+# ln -s ../../ro/usr/local /overlay/usr/local/ro
+#
+# (/overlay/)usr/local/rw: the target
+# (/overlay/)rw/usr/local: the symlink
+# ln -s ../../usr/local/rw /overlay/rw/usr/local
+prefix="$(echo ${mntpnt} | sed -e 's,[^/],,g; s,/,../,g')"
+
+if [ "${METHOD}" = "aufs" ]; then
+    case "${BILIBOP_LOCKFS_PATH_SCHEME}" in
+        nested)
+            [ -d "${rwln%/*}" ] || mkdir -p ${rwln%/*}
+            [ -d "${roln%/*}" ] || mkdir -p ${roln%/*}
+            ln -s ${prefix%/}/ro${mntpnt} ${roln}
+            ln -s ${prefix%/}/rw${mntpnt} ${rwln}
+            ;;
+        isolated)
+            ;;
+        *)
+            [ -d "${rwln%/*}" ] || mkdir -p ${rwln%/*}
+            [ -d "${roln%/*}" ] || mkdir -p ${roln%/*}
+            ln -s ${prefix%/}/ro${mntpnt} ${roln}
+            ln -s ${prefix%/}${mntpnt}/rw ${rwln}
+            ;;
+    esac
+
+elif [ "${METHOD}" = "overlay" ]; then
+    case "${BILIBOP_LOCKFS_PATH_SCHEME}" in
+        isolated)
+            ;;
+        *)
+            [ -d "${rwln%/*}" ] || mkdir -p ${rwln%/*}
+            [ -d "${roln%/*}" ] || mkdir -p ${roln%/*}
+            ln -s ${prefix%/}/ro${mntpnt} ${roln}
+           ln -s ${prefix%/}${mntpnt}/rw ${rwln}
+            ;;
+    esac
+fi
 
 # All is OK. So we can rewrite fstab entry to reflect the real mounts. This
 # can be important for clean unmounts at shutdown (for the case a filesystem
