@@ -246,7 +246,7 @@ log_begin_msg "${0##*/}: Setting up ${METHOD} branches"
 # /overlay/ro + /overlay/rw + /overlay/.rw -> /tmp/union -> $rootmnt
 
 UNIONFS="/tmp/union"
-BASEDIR="/${METHOD}"
+BASEDIR="/${BILIBOP_LOCKFS_PATH_PREFIX:-${METHOD}}"
 HOSTDIR="${BASEDIR}/ro"
 
 if	[ "${METHOD}" = "aufs" ]
