@@ -126,9 +126,13 @@ perm_or_temp_fs=
 this_fs=
 
 # 1. bilibop-lockfs is disabled:
-if	! is_aufs_mountpoint -q / &&
-	[ ! -f "${BILIBOP_RUNDIR}/lock" ]
-then
+if	is_aufs_mountpoint -q / &&
+	[ -f "${BILIBOP_RUNDIR}/lock" ]; then
+	METHOD="aufs"
+elif	is_overlay_mountpoint -q / &&
+	[ -f "${BILIBOP_RUNDIR}/lock" ]; then
+	METHOD="overlay"
+else
 	case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 		always|nolockfs)
 			notify-send ${EXPIRE_TIME:+--expire-time=${EXPIRE_TIME}} \
@@ -146,7 +150,7 @@ fi
 # 2.1. Send notification for locked fs:
 case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 	always|lockfs)
-		for	fs in $(aufs_mountpoints)
+		for	fs in $(aufs_mountpoints; overlay_mountpoints)
 		do
 			locked="${locked:+${locked}, }'${fs}'"
 		done
@@ -175,7 +179,7 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 			--urgency="normal" \
 			--icon="changes-prevent" \
 			"bilibop-lockfs is enabled" \
-			"${locked} mounted as ${perm_or_temp_fs} (aufs).\nAll changes on ${this_fs} will be lost at shutdown."
+			"${locked} mounted as ${perm_or_temp_fs} (${METHOD}).\nAll changes on ${this_fs} will be lost at shutdown."
 		;;
 esac
 
@@ -184,7 +188,7 @@ esac
 case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 	always|nolockfs)
 		BILIBOP_DISK="$(physical_hard_disk /)"
-		for	fs in $(grep '^/' /proc/mounts | grep -v '^[^ ]\+\s/aufs/' | sed 's;^[^ ]\+\s\(/[^ ]*\)\s.*;\1;')
+		for	fs in $(grep '^/' /proc/mounts | grep -v "^[^ ]\+\s/${METHOD}/" | sed 's;^[^ ]\+\s\(/[^ ]*\)\s.*;\1;')
 		do
 			[ "$(physical_hard_disk ${fs})" = "${BILIBOP_DISK}" ] &&
 			unlocked="${unlocked:+${unlocked}, }'${fs}'"
