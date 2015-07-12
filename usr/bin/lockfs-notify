@@ -139,7 +139,7 @@ else
 				--urgency="normal" \
 				--icon="changes-allow" \
 				"bilibop-lockfs is disabled" \
-				"All informations about the actual\nsession can be written on the disk."
+				"All informations about the current\nsession can be written on the disk.\nYou have been warned."
 			;;
 	esac
 	# Nothing else to do:
@@ -152,7 +152,7 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 	always|lockfs)
 		for	fs in $(aufs_mountpoints; overlay_mountpoints)
 		do
-			locked="${locked:+${locked}, }'${fs}'"
+			locked="${locked:+${locked}, }${fs}"
 		done
 
 		if	[ -z "${locked}" ]
@@ -166,7 +166,7 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 
 		elif	echo "${locked}" | grep -q ', '
 		then
-			locked="$(echo ${locked} | sed "s;, \('/[^,' ]\+'\)$; and \1 are;")"
+			locked="$(echo ${locked} | sed "s;, \(/[^,' ]\+\)$; and \1 are;")"
 			perm_or_temp_fs="volatile filesystems"
 			this_fs="these filesystems"
 		else
@@ -179,7 +179,7 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 			--urgency="normal" \
 			--icon="changes-prevent" \
 			"bilibop-lockfs is enabled" \
-			"${locked} mounted as ${perm_or_temp_fs} (${METHOD}).\nAll changes on ${this_fs} will be lost at shutdown."
+			"${locked} mounted as ${perm_or_temp_fs} (${METHOD}).\nAll changes on ${this_fs} will be lost at shutdown.\nYou have been warned."
 		;;
 esac
 
@@ -191,7 +191,7 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 		for	fs in $(grep '^/' /proc/mounts | grep -v "^[^ ]\+\s/${BILIBOP_LOCKFS_PATH_PREFIX:-${METHOD}}/" | sed 's;^[^ ]\+\s\(/[^ ]*\)\s.*;\1;')
 		do
 			[ "$(physical_hard_disk ${fs})" = "${BILIBOP_DISK}" ] &&
-			unlocked="${unlocked:+${unlocked}, }'${fs}'"
+			unlocked="${unlocked:+${unlocked}, }${fs}"
 		done
 
 		if	[ -z "${unlocked}" ]
@@ -199,7 +199,7 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 
 		elif	echo "${unlocked}" | grep -q ', '
 		then
-			unlocked="$(echo ${unlocked} | sed "s;, \('/[^,' ]\+'\)$; and \1 are;")"
+			unlocked="$(echo ${unlocked} | sed "s;, \(/[^, ]\+\)$; and \1 are;")"
 			perm_or_temp_fs="persistent filesystems"
 			this_fs="these filesystems"
 		else
@@ -212,7 +212,7 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 			--urgency="normal" \
 			--icon="changes-allow" \
 			"bilibop-lockfs whitelist" \
-			"${unlocked} mounted as ${perm_or_temp_fs}.\nAll changes on ${this_fs} will be kept at shutdown."
+			"${unlocked} mounted as ${perm_or_temp_fs}.\nAll changes on ${this_fs} will be kept at shutdown.\nYou have been warned."
 
 esac
 
