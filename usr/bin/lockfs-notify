@@ -31,6 +31,7 @@ EOF
 # Load functions and get other variables:
 . /lib/bilibop/lockfs.sh
 get_udev_root
+get_bilibop_variables
 
 
 # The behaviour of this script depends on the admin settings:
