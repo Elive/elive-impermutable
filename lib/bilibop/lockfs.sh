@@ -470,7 +470,9 @@ EOF
 # happen that all is mounted on / is silently unmounted (/boot, /home, /proc,
 # /sys, /dev, /tmp and more) and becomes unmountable until the next reboot.
 # So, we need to blacklist all known bilibop Physical Volumes by setting the
-# 'filter' and 'global_filter' arrays in lvm.conf(5).
+# 'filter' and 'global_filter' arrays in lvm.conf(5). 'bilibop/part' and
+# 'disk/by-id/lvm-pv-uuid-*' must be added manually because they do not exist
+# yet (udev rules creating them are not included in the initramdisk).
 blacklist_bilibop_devices() {
     ${DEBUG} && echo "> blacklist_bilibop_devices $@" >&2
 
@@ -484,6 +486,7 @@ blacklist_bilibop_devices() {
 
         blacklist=
         ID_FS_TYPE=
+        ID_FS_UUID_ENC=
         DEVLINKS=
         eval $(query_udev_envvar ${node})
         [ "${ID_FS_TYPE}" = "LVM2_member" ] ||
@@ -492,6 +495,10 @@ blacklist_bilibop_devices() {
         DEVLINKS="$(echo ${DEVLINKS} | sed "s,${udev_root}/,,g")"
         [ "${udev_root}/${node}" = "${BILIBOP_PART}" ] &&
             DEVLINKS="${BILIBOP_COMMON_BASENAME}/part ${DEVLINKS}"
+        [ -n "${ID_FS_UUID_ENC}" ] &&
+            if ! echo ${DEVLINKS} | grep -q "/lvm-pv-uuid-${ID_FS_UUID_ENC}\>"; then
+                DEVLINKS="${DEVLINKS} disk/by-id/lvm-pv-uuid-${ID_FS_UUID_ENC}"
+            fi
         blacklist="$(echo ${node} ${DEVLINKS} | sed 's, \+,|,g')"
 
         sed -i "s;^\s*\(global_\)\?filter\s*=\s*\[\s*;&\"r#^${UDEV_ROOT}/(${blacklist})\$#\", ;" ${LVM_CONF}
