@@ -319,8 +319,14 @@ elif [ "${METHOD}" = "overlay" ]; then
     UNIONFS_OPTS="lowerdir=${robr},upperdir=${rwbr},workdir=${work}"
 fi
 
-# Try to mount the aufs now. In case of failure, undo what has been done
+# Try to mount the union fs now. In case of failure, undo what has been done
 # before, etc.
+#
+# If the virtual filesystem's arbitrary name exists in the current directory,
+# then mount will record it (in /proc/mounts) by translating it as an absolute
+# path (here, /aufs or /overlay), which may confuse users parsing df or mount
+# output. So we move somewhere else before calling mount.
+cd /tmp
 if ! mount ${flags} -t ${METHOD} -o ${UNIONFS_OPTS} ${METHOD} ${mntpnt}; then
     umount ${robr}
     umount ${temp}
@@ -328,6 +334,7 @@ if ! mount ${flags} -t ${METHOD} -o ${UNIONFS_OPTS} ${METHOD} ${mntpnt}; then
     mount_fallback "${@}"
     exit 3
 fi
++cd ${OLDPWD}
 
 # All is OK. So we can rewrite fstab entry to reflect the real mounts. This
 # can be important for clean unmounts at shutdown (for the case a filesystem
