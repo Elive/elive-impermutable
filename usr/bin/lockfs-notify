@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 # /usr/bin/lockfs-notify
 #
@@ -49,10 +50,10 @@ esac
 
 
 # Parse options with getopt.
-ARGS="$(getopt -o ahlnt: --long always,help,lockfs,nolockfs,expire-time: -n "${0##*/}" -- "${@}")"
-if	[ "${?}" = "0" ]
-then	eval set -- "$ARGS"
-else	short_usage >&2
+if ARGS="$(getopt -o ahlnt: --long always,help,lockfs,nolockfs,expire-time: -n "${0##*/}" -- "${@}")"; then
+	eval set -- "$ARGS"
+else
+	short_usage >&2
 	exit 1
 fi
 
