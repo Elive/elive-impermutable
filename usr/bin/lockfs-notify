@@ -62,7 +62,7 @@ fi
 while	true
 do
 	case	"${1}" in
-		-a|always)
+		-a|--always)
 			BILIBOP_LOCKFS_NOTIFY_POLICY="always"
 			shift
 			;;
