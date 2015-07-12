@@ -38,6 +38,7 @@ fi
 
 # Copy the needed module:
 manual_add_modules aufs
+manual_add_modules overlay
 
 # Be sure the removable media hosting the system can be managed:
 force_load usb-storage

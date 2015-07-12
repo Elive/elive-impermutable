@@ -14,13 +14,16 @@ case $1 in
 	;;
 esac
 
-# Lock root filesystem by mounting it readonly with aufs, and modify fstab on
-# the fly to prepare to automatically lock other filesystems later in the boot
-# process.
+# Lock root filesystem by mounting it readonly with aufs or overlayfs, and
+# modify fstab on the fly to prepare to automatically lock other filesystems
+# later in the boot process.
 # We assume that /proc, /sys and /dev are correctly mounted.
 
 # /proc/cmdline will be parsed several times. We call 'cat' only one time:
 readonly CMDLINE="$(cat /proc/cmdline)"
+
+# Initialize METHOD with an arbitrary string:
+METHOD="union filesystem"
 
 # Set verbosity from boot commandline:
 for	param in ${CMDLINE}
@@ -164,22 +167,31 @@ case	"${BILIBOP_LOCKFS}" in
 esac
 
 
-# Exit if ${rootmnt} is already mounted as an aufs branch (by fsprotect?):
+# Exit if ${rootmnt} is already mounted as an aufs/overlayfs branch (by fsprotect, overlayroot?):
 if	is_aufs_mountpoint -q "${rootmnt}"
 then	log_warning_msg "${0##*/}: Root filesystem is already mounted as aufs..."
+	log_failure_msg "${0##*/}: Exit."
+	plymouth_message "${0##*/}: ERROR"
+	exit 0
+elif	is_overlay_mountpoint -q "${rootmnt}"
+then	log_warning_msg "${0##*/}: Root filesystem is already mounted as overlayfs..."
 	log_failure_msg "${0##*/}: Exit."
 	plymouth_message "${0##*/}: ERROR"
 	exit 0
 fi
 
 
-# Load the aufs module:
-modprobe aufs >/dev/null 2>&1
+# Load the aufs or overlay module:
+if	modprobe aufs >/dev/null 2>&1
+then	METHOD="aufs"
+elif	modprobe overlay >/dev/null 2>&1
+then	METHOD="overlay"
+fi
 
-# Check if the aufs filesystem is now supported:
-if	! grep -q '\<aufs\>' /proc/filesystems
+# Check if the aufs/overlayfs filesystem is now supported:
+if	! grep -q "[[:blank:]]${METHOD}$" /proc/filesystems
 then
-	log_failure_msg "${0##*/}: No aufs kernel support."
+	log_failure_msg "${0##*/}: No ${METHOD} kernel support."
 	log_failure_msg "${0##*/}: Exit."
 	plymouth_message "${0##*/}: ERROR"
 	exit 1
@@ -196,7 +208,7 @@ else	RO="rr"
 	BILIBOP_LOCKFS_POLICY="hard"
 fi
 
-# Determine tmpfs size for the aufs writable branch:
+# Determine tmpfs size for the writable branch:
 if	[ -z "${SIZE}" ]
 then
 	for	size in ${BILIBOP_LOCKFS_SIZE}
@@ -210,44 +222,99 @@ then
 	done
 fi
 
-log_begin_msg "${0##*/}: Setting up aufs branches"
+log_begin_msg "${0##*/}: Setting up ${METHOD} branches"
 
-# Prepare directories:
-BASEDIR="/aufs"
+# Prepare directories. This is a key point. The goal is to get a
+# directory tree easy to understand: with the readonly branch beside
+# the writable one, in a directory with explicit name. Also, since
+# informations parsed from /proc/mounts are out of sync (overlay, but
+# also aufs with brs=0), make that the final mountpoints seen from
+# the running system are the same than the initial mountpoints in
+# the initramfs environment. In other words, be consistent to mitigate
+# the out-of-sync issue.
+# For aufs, we need (or want) two mountpoints to build the third one:
+# /aufs/ro + /aufs/rw -> /tmp/union -> $rootmnt
+# For overlay, we also need two mountpoints, but three directories, as
+# follows:
+# - lowerdir is the mountpoint of the readonly branch; can be anywhere
+# - upperdir and workdir must reside on the same mount
+# - upperdir and workdir cannot be a subdirectory of the other
+# This means that neither upperdir nor workdir can be a mountpoint.
+# So the design of bilibop-lockfs is to use a tmpfs mountpoint (/overlay)
+# to create all that is needed into: not only upperdir and workdir, but
+# also lowerdir:
+# /overlay/ro + /overlay/rw + /overlay/.rw -> /tmp/union -> $rootmnt
+
+UNIONFS="/tmp/union"
+BASEDIR="/${METHOD}"
 HOSTDIR="${BASEDIR}/ro"
-TEMPDIR="${BASEDIR}/rw"
-AUFSDIR="${BASEDIR}/aufs"
 
+if	[ "${METHOD}" = "aufs" ]
+then	TEMPDIR="${BASEDIR}/rw"
+elif	[ "${METHOD}" = "overlay" ]
+then	TEMPDIR="${BASEDIR}"
+	LOWERDIR="${HOSTDIR}"
+	UPPERDIR="${BASEDIR}/rw"
+	WORKDIR="${BASEDIR}/.rw"
+fi
+
+[ -d "${UNIONFS}" ] || mkdir "${UNIONFS}"
 [ -d "${BASEDIR}" ] || mkdir "${BASEDIR}"
-[ -d "${HOSTDIR}" ] || mkdir "${HOSTDIR}"
 [ -d "${TEMPDIR}" ] || mkdir "${TEMPDIR}"
-[ -d "${AUFSDIR}" ] || mkdir "${AUFSDIR}"
-
-mount -o bind ${rootmnt} ${HOSTDIR}
 
 if	! mount -t tmpfs -o mode=0755${SIZE:+,size=${SIZE}} tmpfs ${TEMPDIR}
 then
 	# Don't forget to undo what has been done before !
-	umount ${HOSTDIR}
 	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ] ||
 	blockdev_root_subtree rw ${BILIBOP_ROOT} ${BILIBOP_DISK}
 
-	log_failure_msg "${0##*/}: Error occured when setting aufs writable branch."
+	log_failure_msg "${0##*/}: Error occured when setting ${METHOD} writable branch."
 	log_failure_msg "${0##*/}: Exit."
 	plymouth_message "${0##*/}: ERROR"
 	exit 1
 fi
 
+# HOSTDIR may be a subdirectory of TEMPDIR (for overlay), so now we can create it:
+[ -d "${HOSTDIR}" ] || mkdir "${HOSTDIR}"
+
+# Set mount options, depending on the union fs type:
+if	[ "${METHOD}" = "aufs" ]
+then	UNIONFS_OPTS="br:${TEMPDIR}=rw:${HOSTDIR}=${RO}"
+elif	[ "${METHOD}" = "overlay" ]
+then	UNIONFS_OPTS="lowerdir=${LOWERDIR},upperdir=${UPPERDIR},workdir=${WORKDIR}"
+	[ -d "${UPPERDIR}" ] || mkdir "${UPPERDIR}"
+	[ -d "${WORKDIR}" ] || mkdir "${WORKDIR}"
+fi
+
 # Now do the job:
-if	mount -t aufs -o br:${TEMPDIR}=rw:${HOSTDIR}=${RO} none ${AUFSDIR}
+
+mount -o bind ${rootmnt} ${HOSTDIR}
+
+if	mount -t ${METHOD} -o ${UNIONFS_OPTS} ${METHOD} ${UNIONFS}
 then
 	umount ${rootmnt}
-	mount -o move ${AUFSDIR} ${rootmnt}
-	mkdir ${rootmnt}${BASEDIR}
-	mkdir ${rootmnt}${HOSTDIR}
-	mkdir ${rootmnt}${TEMPDIR}
-	mount -o move ${HOSTDIR} ${rootmnt}${HOSTDIR}
-	mount -o move ${TEMPDIR} ${rootmnt}${TEMPDIR}
+	mount -o move ${UNIONFS} ${rootmnt}
+	[ -d "${rootmnt}${BASEDIR}" ] || mkdir ${rootmnt}${BASEDIR}
+
+	if	[ "${METHOD}" = "aufs" ]
+	then	# Quite simple: move a mount to another directory which will
+		# have the same absolute path than the initial mount after
+		# $rootmnt becomes /. Do the same with another mountpoint that
+		# is independent of the first one:
+		[ -d "${rootmnt}${HOSTDIR}" ] || mkdir ${rootmnt}${HOSTDIR}
+		[ -d "${rootmnt}${TEMPDIR}" ] || mkdir ${rootmnt}${TEMPDIR}
+		mount -o move ${HOSTDIR} ${rootmnt}${HOSTDIR}
+		mount -o move ${TEMPDIR} ${rootmnt}${TEMPDIR}
+
+	elif	[ "${METHOD}" = "overlay" ]
+	then	# Not so complicated: move a mount to free the parent mount,
+		# then move the parent mount (in the right place, as explained
+		# above), and finally move the first mount again (in the right
+		# place too):
+		mount -o move ${HOSTDIR} ${UNIONFS}
+		mount -o move ${TEMPDIR} ${rootmnt}${TEMPDIR}
+		mount -o move ${UNIONFS} ${rootmnt}${HOSTDIR}
+	fi
 else
 	# Again, don't forget to undo what has been done before:
 	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ] ||
