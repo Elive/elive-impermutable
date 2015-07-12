@@ -408,7 +408,7 @@ elif [ "${METHOD}" = "overlay" ]; then
             [ -d "${rwln%/*}" ] || mkdir -p ${rwln%/*}
             [ -d "${roln%/*}" ] || mkdir -p ${roln%/*}
             ln -s ${prefix%/}/ro${mntpnt} ${roln}
-           ln -s ${prefix%/}${mntpnt}/rw ${rwln}
+            ln -s ${prefix%/}${mntpnt}/rw ${rwln}
             ;;
     esac
 fi
