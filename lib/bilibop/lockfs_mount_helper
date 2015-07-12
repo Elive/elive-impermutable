@@ -6,13 +6,12 @@ set -e
 # This script cannot be run manually. The expected way to run it is the
 # following:
 # 1. Enable bilibop-lockfs:
-#    * set BILIBOP_LOCKFS to "true" in /etc/bilibop/bilibop.conf and reboot
-#    or:
+#    * set BILIBOP_LOCKFS to "true" in /etc/bilibop/bilibop.conf and reboot, or
 #    * reboot and append 'lockfs' parameter in the boot commandline
 # 2. Once '/' is an union filesystem (aufs or overlay mountpoint), the
-#    temporary /etc/fstab is modified to replace filesystem types (third
-#    field) of some entries by 'lockfs' (options are modified too to remember
-#    the original fstype).
+#    temporary /etc/fstab is modified to replace filesystem types (third field)
+#    of some entries by 'lockfs' (options are modified too to remember the
+#    original fstype).
 # 3. /sbin/mount.lockfs is created if it doesn't already exist. This can be a
 #    symlink to /lib/bilibop/lockfs_mount_helper if this helper is executable,
 #    or a copy of the helper (followed by chmod +x) if the helper is not
@@ -213,6 +212,8 @@ for opt in $(IFS=','; echo ${options}); do
 done
 
 # For aufs:
+# Several schemes are available (there was only one until bilibop 0.4.23).
+# 1. nested
 # Each readonly branch is mounted under the subtree of the main readonly
 # branch (/aufs/ro) and each writable branch is mounted under the subtree
 # of the main writable branch (/aufs/rw). For examples:
@@ -220,15 +221,39 @@ done
 # /aufs/ro           + /aufs/rw           -> /
 # /aufs/ro/boot      + /aufs/rw/boot      -> /boot
 # /aufs/ro/usr/local + /aufs/rw/usr/local -> /usr/local
+# 2. isolated
+# Each readonly branch is mounted beside its writable branch in a dedicated
+# subdirectory referring to the union fs mount point. For examples:
+# <readonly branch>  + <writable branch>  -> <aufs mount>
+# /aufs/ro           + /aufs/rw           -> /
+# /aufs/boot/ro      + /aufs/boot/rw      -> /boot
+# /aufs/usr/local/ro + /aufs/usr/local/rw -> /usr/local
+# 3. hybrid
 #
 # For overlay:
-# A dedicated temporary filesystem (tmpfs) is set for each overlay mount
+# A dedicated temporary filesystem (tmpfs) is set for the first overlay mount
 # point, and readonly and writable branches (and also workdir) are
-# subdirectories of the tmpfs mountpoint. For examples:
+# subdirectories of the tmpfs mountpoint. Next mounts (done by this script)
+# may use the same *isolated* scheme or a hybrid one. Nested scheme is not
+# possible. For examples (where /overlay and /overlay/boot are the tmpfs
+# mountpoints):
+# 1. isolated
 # <lowerdir>       + <upperdir>       + <workdir>         -> <overlay>
 # /overlay/ro      + /overlay/rw      + /overlay/.rw      -> /
 # /overlay/boot/ro + /overlay/boot/rw + /overlay/boot/.rw -> /boot
-# where /overlay and /overlay/boot are tmpfs mountpoints.
+# 2. hybrid
+# <lowerdir>       + <upperdir>       + <workdir>         -> <overlay>
+# /overlay/ro      + /overlay/rw      + /overlay/.rw      -> /
+# /overlay/ro/boot + /overlay/boot/rw + /overlay/boot/.rw -> /boot
+#
+# In any non-isolated scheme, we will create symlinks to make that
+# ${UNION}${MNTPNT}/r{o,w} always exist.
+#
+# /aufs/usr/local/ro -> ../../ro/usr/local
+# /aufs/usr/local/rw -> ../../rw/usr/local
+# or
+# /overlay/boot/ro -> ../ro/boot
+# /overlay/rw/boot -> ../boot/rw
 
 if [ "${METHOD}" = "aufs" ]; then
     case "${BILIBOP_LOCKFS_PATH_SCHEME:=nested}" in
@@ -312,13 +337,12 @@ if ! mount ${flags} -t tmpfs -o ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},
     exit 3
 fi
 
-# Create the needed directories; some may not exist: all for overlay, but there
-# are cases with aufs (for example when /, /usr and /usr/local are differnt
-# mountpoints, /usr has not been locked and /usr/local does not exist on the
-# block device).
+# Create the needed directories; some may not exist, depending on the union fs
+# type and the mount scheme.
 [ -d "${robr}" ] || mkdir -p ${robr}
+[ -d "${rwbr}" ] || mkdir -p ${rwbr}
 if [ "${METHOD}" = "overlay" ]; then
-    mkdir -p ${rwbr} ${work}
+    mkdir -p ${work}
 fi
 
 # Fix permissions and ownership of the writable branch (and catch the values;
