@@ -66,11 +66,13 @@ If set to
 the initramfs script will move the normal root filesystem to another
 mountpoint used as the lower/readonly branch of an
 .BR aufs (5)
-mountpoint used itself as the actual root filesystem. After what the
-temporary and writable
+or
+.B overlay
+mountpoint (depending on the version of your kernel) used itself as the actual
+root filesystem. After what the temporary and writable
 .I /etc/fstab
 file will be modified to prepare other filesystems \(em if not whitelisted
-\(em to be mounted as readonly branches of aufs too.
+\(em to be mounted as readonly branches of aufs or overlay too.
 .PP
 If empty, unset, or set to anything else, then a heuristic will be used
 to set it to
@@ -108,6 +110,8 @@ or
 .br
 The readonly branches of
 .BR aufs (5)
+or
+.B overlay
 mountpoints will be set to
 .RB \(aq ro \(aq
 (readonly). Later, these readonly filesystems can be remounted manually as
@@ -141,12 +145,12 @@ policy will be automatically applied.
 Default is unset.
 
 .SS BILIBOP_LOCKFS_WHITELIST
-One time the root filesystem is locked as the readonly branch of an aufs,
-the
+One time the root filesystem is locked as the readonly branch of an aufs or
+overlay filesystem, the
 .I /etc/fstab
 file is modified on the writable branch to lock all other local filesystems
-as readonly branches of aufs mountpoints. This variable gives the ability
-to avoid the
+as readonly branches of aufs or overlay mountpoints. This variable gives the
+ability to avoid the
 .B lockfs
 mechanism for some mountpoints: this is a whitespace separated list of
 mountpoints or device names (as known in
@@ -196,8 +200,9 @@ By default,
 .B bilibop\-lockfs
 allocates half of RAM size (or TMPFS_SIZE if set in
 .IR /etc/default/tpmfs )
-for each aufs writable branch of a locked filesystem. It is possible to
-override this value for some mountpoints in a whitespace separated list of
+for each aufs or overlay writable branch of a locked filesystem. It is
+possible to override this value for some mountpoints in a whitespace
+separated list of
 .BR mountpoint = size
 pairs. Sizes can be absolute (suffixed with k, K, m, M, g or G), or relative
 to the total amount of RAM (and suffixed with %). The size allocated to the
@@ -294,9 +299,9 @@ If the
 feature is disabled, then a notification will be send to say that all
 information of the session can be written on the disk.
 If the feature is enabled, a notification will be send to say that all
-changes under the (listed) aufs mountpoints will be lost at shutdown.
-If some mountpoints have been whitelisted, a second notification will be
-send to say that all changes under them will be kept at shutdown.
+changes under the (listed) aufs or overlay mountpoints will be lost at
+shutdown. If some mountpoints have been whitelisted, a second notification
+will be sent to say that all changes under them will be kept at shutdown.
 .IP \(bu 2
 .I never
 .br
@@ -307,7 +312,7 @@ Never send notification about filesystems status.
 If the
 .B bilibop\-lockfs
 feature is enabled, then a notification will be send to say that all
-changes under aufs mountpoints will be lost at shutdown.
+changes under aufs overlay mountpoints will be lost at shutdown.
 .IP \(bu 2
 .I nolockfs
 .br

@@ -70,11 +70,14 @@ le script initramfs déplacera le système de fichiers racine du système
 vers un point de montage utilisé comme branche inférieure et accessible
 en lecture seule d'un point de montage
 .BR aufs (5)
+ou
+.B overlay
 utilisé lui\-même comme racine du système. Après quoi le fichier temporaire
 et accessible en écriture
 .I /etc/fstab
 sera modifié pour préparer les autres systèmes de fichiers à être montés
-comme branches non modifiables d'autres systèmes de fichiers aufs.
+comme branches non modifiables d'autres systèmes de fichiers aufs ou
+overlay.
 .PP
 Si cette variable ne vaut rien ou vaut n'importe quoi d'autre, une
 heuristique sera utilisée pour la fixer à
@@ -113,6 +116,8 @@ ou
 .br
 Les branches inférieures des systèmes de fichiers
 .BR aufs (5)
+ou
+.B overlay
 utiliseront l'option
 .RB \(aq ro \(aq
 (readonly). Ensuite, ces systèmes de fichiers accessibles en lecture seule
@@ -137,7 +142,7 @@ pour les Volumes Logiques, ou
 .BR blockdev (8)
 pour les autres périphériques bloc,
 évitant ainsi l'accès en écriture bas niveau (même par l'administratrice)
-sur ces périphériques, et rendant impossible un remontage ultérieur en
+sur ces périphériques, et évitant aussi un remontage ultérieur en
 lecture\-écriture.
 .PP
 Si cette variable ne vaut rien ou vaut n'importe quoi d'autre, sa valeur
@@ -152,8 +157,8 @@ Par défaut, la valeur de cette variable n'est pas fixée.
 
 .SS BILIBOP_LOCKFS_WHITELIST
 Une fois que le système de fichiers racine est verrouillé comme branche
-inférieure accessible en lecture seule d'un point de montage pour aufs,
-le fichier
+inférieure accessible en lecture seule d'un point de montage pour aufs
+ou overlay, le fichier
 .I /etc/fstab
 est modifié sur la branche supérieure et accessible en lecture\-écriture,
 pour verrouiller de la même façon tous les autres systèmes de fichiers
@@ -321,10 +326,10 @@ Si la fonctionalité
 est désactivée, alors une notification sera envoyée pour dire que toutes
 les informations de la session peuvent être écrites sur le disque.
 Si la fonctionnalité est activée, une notification sera envoyée pour dire
-que toutes les modifications faites sous les points de montage aufs (listés)
-seront perdues à l'arrêt du système. Si des systèmes de fichiers ne sont
-pas verrouillés, une deuxième notification sera envoyée pour dire que leurs
-modifications seront conservées à l'arrêt du système.
+que toutes les modifications faites sous les points de montage aufs ou
+overlay (listés) seront perdues à l'arrêt du système. Si des systèmes de
+fichiers ne sont pas verrouillés, une deuxième notification sera envoyée
+pour dire que leurs modifications seront conservées à l'arrêt du système.
 .IP \(bu 2
 .I never
 .br
@@ -336,8 +341,8 @@ verrouillage des systèmes de fichiers.
 Si la fonctionnalité
 .B bilibop\-lockfs
 est activée, alors une notification sera envoyée pour dire que toutes les
-modifications faites sous les points de montage aufs (listés) seront perdues
-à l'arrêt du système.
+modifications faites sous les points de montage aufs ou overlay (listés)
+seront perdues à l'arrêt du système.
 .IP \(bu 2
 .I nolockfs
 .br
