@@ -32,9 +32,9 @@ Description: shell functions for bilibop scripts
  running system or into the initramfs environment. These functions use /dev,
  /proc and /sys databases to output the drive name or the partition hosting
  the running system, and are fully usable by any unprivileged user or
- application. Dm-crypt, LVM, loop devices and aufs root filesystems (and any
- combination of them) are supported. A 'drivemap' command is also provided,
- to show block devices in a tree of dependencies.
+ application. Dm-crypt, LVM, loop devices, aufs and overlay root filesystems
+ (and almost any combination of them) are supported. A 'drivemap' command is
+ also provided, to show block devices in a tree of dependencies.
  .
  ${Requirement}
 
@@ -53,9 +53,9 @@ Description: lock filesystems and write changes into RAM
  the drive has been locked by a physical switch, and then overrides its own
  settings to unconditionally apply a 'hard' policy.
  .
- The root filesystem is locked (set readonly, using aufs) by an initramfs
- script which also modifies the temporary fstab to prepare other filesystems
- to be locked later by a mount helper script.
+ The root filesystem is locked (set readonly, using either aufs or overlay)
+ by an initramfs script which also modifies the temporary fstab to prepare
+ other filesystems to be locked later by a mount helper script.
  .
  bilibop-lockfs provides the following features:
   * whitelist based policy: filesystems on which you want to allow persistent
