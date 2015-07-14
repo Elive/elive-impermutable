@@ -38,7 +38,7 @@ properly. See bilbiop-common documentation for details.
 ================
 
 All available configuration options are described in the bilibop.conf(5)
-manual page. They allow to:
+manual page. They allow one to:
 
 - Enable/Disable 'lockfs' from the configuration file, from the boot
   commandline, or by physically locking the drive with a switch. In last
@@ -221,11 +221,11 @@ c. It checks the policy to apply: 'hard' or 'soft'. If 'hard', then the
    locked: /dev/sdb2, /dev/dm-0 and /dev/dm-4.
 
 d. Several mount operations are performed, sometimes with --bind or --move
-   options, to obtain that ${rootmnt} is now an aufs mountpoint with dm-3
-   (/dev/mapper/veegee-root) mounted on ${rootmnt}/aufs/ro as the lower and
-   readonly branch, and tmpfs mounted on ${rootmnt}/aufs/rw as the upper
-   and writable branch. If the global policy is 'soft', the lower branch
-   is set 'ro'; otherwise, 'rr' (real readonly).
+   options, to obtain that ${rootmnt} is now an aufs or overlay mountpoint
+   with tmpfs mounted on either ${rootmnt}/aufs/rw (the upper and writable
+   branch itself) or ${rootmnt}/overlay (used as container for all needed
+   lower-, upper- and workdir). For aufs, if the global policy is 'soft',
+   the lower branch is set 'ro'; otherwise, 'rr' (real readonly).
 
    If, for any reason, something goes wrong, then all that has been done
    before is undone (especially the blockdev commands) and the boot process
@@ -288,7 +288,7 @@ g. ${rootmnt}/etc/lvm/lvm.conf is modified (optional):
 4.2. Second stage
 -----------------
 
-Now /, the root of the system, is what it was previously named ${rootmnt}.
+Now /, the root of the system, is what that was previously named ${rootmnt}.
 /sbin/init is running and initscripts are executed. Due to the changes in
 lvm.conf, the 'vgchange -ay' from the lvm initscript has no effect on the
 protected devices: they are even not seen. When 'mount -a' is called, it
@@ -304,7 +304,7 @@ a. If the parent process of the script is not /bin/mount, then it exits
    immediately.
 
 b. It checks if:
-   - / is an aufs mountpoint
+   - / is an union mount (aufs or overlay, depending on kernel version)
    - /run/bilibop/lock exists
    - what has to be mounted is really a block device, or a regular file
      (that will be associated to a loop device)
@@ -341,35 +341,53 @@ b. It checks if:
    than minor: the /fastboot file created by the initramfs script already
    disables filesystem checks.
 
-c. Now the script checks if the global policy is 'hard' or 'soft'. If it
-   is 'hard', then the block device is set read-only with blockdev(8).
-
-   If '/usr/local' is the target mountpoint, then the readonly branch is
-   mounted on /aufs/ro/usr/local. '/aufs/ro' is the mountpoint of the
-   readonly branch of the root filesystem and is used as prefix for all
-   other mountpoints of readonly branches.
-
-   If mount fails, then what it has been done before is undone, and a
-   'mount_fallback' is executed (see above).
-
-d. The script checks if a specified size has to be allocated to the
+c. The script checks if a specified size has to be allocated to the
    writable branch, creates the mountpoint for the writable branch and
    mount it with proper options (nodev, noexec, nosuid and ro if they
-   were specified in the original fstab entry).
+   were specified in the original fstab entry). Several schemes are possible,
+   depending on the union module in use and the admin settings.
 
-   If '/usr/local' is the target mountpoint, then the writable branch is
-   mounted on /aufs/rw/usr/local. '/aufs/rw' is the mountpoint of the
-   writable branch of the root filesystem and is used as prefix for all
-   other mountpoints of writable branches.
+   If '/usr/local' is the target mountpoint, then the default behaviors are:
+
+   AUFS:
+   tmpfs is mounted on /aufs/rw/usr/local (for the 'nested' scheme, that is
+   the default; for 'isolated' scheme, on /aufs/usr/local/rw), '/aufs/rw'
+   being the mountpoint of the writable branch of the root filesystem and
+   being used as prefix for all other mountpoints of writable branches in
+   the nested scheme.
+
+   OVERLAY:
+   tmpfs is mounted on /overlay/usr/local and three directories are created
+   into it:
+   - ro, that will become lowerdir
+   - rw, that will become upperdir
+   - .rw, that will become workdir
 
    If mount fails, then what has been done before is undone, and a
    'mount_fallback' is executed.
 
-   The ownership and permissions of the writable branch are modified
-   if necessary, to match those of the readonly branch.
+d. Now the script checks if the global policy is 'hard' or 'soft'. If it
+   is 'hard', then the block device is set read-only with blockdev(8).
 
-e. The aufs is mounted. If the global lockfs policy is 'hard', then
-   the readonly branch is set 'rr' instead of 'ro'.
+   Again, if '/usr/local' is the target mountpoint, then the default
+   behaviors are:
+
+   AUFS:
+   readonly fs is mounted on /aufs/ro/usr/local, /aufs/ro being the mount
+   point of the readonly branch of the root filesystem and being used as
+   prefix for all other mountpoints of readonly branches in the nested scheme.
+
+   OVERLAY:
+   readonly fs is mounted on /overlay/usr/local/ro.
+
+   If mount fails, then what it has been done before is undone, and a
+   'mount_fallback' is executed (see above).
+
+   The ownership and permissions of the writable branch are modified, if
+   necessary, to match those of the readonly branch.
+
+e. The union filesystem is mounted. If the global lockfs policy is 'hard', then
+   the aufs readonly branch is set 'rr' instead of 'ro'.
 
    If mount fails, then what has been done before is undone, and a
    'mount_fallback' is executed.
@@ -381,7 +399,7 @@ f. The last step is to modify /etc/fstab to make it matches /proc/mounts:
    manually to set the block device as writable.
 
    The entry corresponding to the target mountpoint is replaced by a block
-   of three lines: readonly branch, writable branch and the aufs itself.
+   of three lines: writable branch, readonly branch and the union itself.
 
 
 4.3. Results
@@ -389,29 +407,46 @@ f. The last step is to modify /etc/fstab to make it matches /proc/mounts:
 
 bilibop-lockfs is enabled with default options (bilibop.conf is empty):
 
+With AUFS:
+
 $ drivemap -i /
 /dev/sdb         [ usb-_Xporter_Memory_07B3100100182DD2-0:0 |   16GB ]
     /dev/sdb1 ............................... [ LVM2_member |    8GB ]
-        /dev/dm-0 .................................. [ ext3 |  255MB ] aufs/ro/boot
+        /dev/dm-0 .................................. [ ext3 |  255MB ] /aufs/ro/boot
         /dev/dm-1 ........................... [ crypto_LUKS | 7751MB ]
             /dev/dm-2 ....................... [ LVM2_member | 7750MB ]
                 /dev/dm-3 .......................... [ ext4 | 6996MB ] /aufs/ro
                 /dev/dm-4 .......................... [ ext4 |  750MB ] /aufs/ro/home
     /dev/sdb2 ...................................... [ vfat |    8GB ]
 
-$ for i in /dev/sdb* /dev/dm-[0-4] ; do printf "$i\tro=" ; cat /sys/class/block/${i##*/}/ro ; done
-/dev/sdb	ro=1
-/dev/sdb1	ro=1
-/dev/sdb2	ro=0
-/dev/dm-0	ro=1
-/dev/dm-1	ro=1
-/dev/dm-2	ro=1
-/dev/dm-3	ro=1
-/dev/dm-4	ro=1
+With OVERLAY:
+
+$ drivemap -i /
+/dev/sdb         [ usb-_Xporter_Memory_07B3100100182DD2-0:0 |   16GB ]
+    /dev/sdb1 ............................... [ LVM2_member |    8GB ]
+        /dev/dm-0 .................................. [ ext3 |  255MB ] /overlay/boot/ro
+        /dev/dm-1 ........................... [ crypto_LUKS | 7751MB ]
+            /dev/dm-2 ....................... [ LVM2_member | 7750MB ]
+                /dev/dm-3 .......................... [ ext4 | 6996MB ] /overlay/ro
+                /dev/dm-4 .......................... [ ext4 |  750MB ] /overlay/home/ro
+    /dev/sdb2 ...................................... [ vfat |    8GB ]
+
+For all:
+
+$ lsblk -o kname,ro $(/lib/bilibop/disk)
+KNAME RO
+sdb    1
+sdb1   1
+dm-0   1
+dm-1   1
+dm-2   1
+dm-3   1
+dm-4   1
+sdb2   0
 
 This last command line says /dev/sdb2 (vfat fs, and not listed in fstab)
 is writable, other block devices are read-only.
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
- -- bilibop project <quidame@poivron.org>  Sun, 27 Oct 2013 04:48:23 +0000
+ -- bilibop project <quidame@poivron.org>  Tue, 14 Jul 2015 13:24:22 +0000
