@@ -1,4 +1,4 @@
-.TH LOCKFS_MOUNT_HELPER 8 2012\-05\-29 bilibop "Administration système"
+.TH LOCKFS_MOUNT_HELPER 8 2015\-07\-14 bilibop "Administration système"
 
 .SH NOM
 mount.lockfs \- script d'aide pour la commande mount
@@ -7,6 +7,7 @@ mount.lockfs \- script d'aide pour la commande mount
 .B mount.lockfs
 .I SYSTÈME_DE_FICHIERS
 .I POINT_DE_MONTAGE
+.RB [ DRAPEAUX ]
 .B \-o
 .I OPTIONS_DE_MONTAGE
 
@@ -37,7 +38,7 @@ paramètre
 à la ligne de commande du noyau.
 .IP 2.
 Une fois que la future racine \(aq/\(aq est paramètrée comme point de montage
-.BR aufs (5)
+.RB ( union )
 depuis l'environnement du disque de démarrage en mémoire (initramdisk), le
 fichier temporaire
 .BR fstab (5),
@@ -47,8 +48,8 @@ systèmes de fichiers par
 Les options sont aussi modifiées pour se rappeler du type de système de
 fichiers d'origine.
 .IP 3.
-Une fois que le point de montage aufs est la nouvelle racine du système,
-les scripts d'initialisation sont éxécutés:
+Une fois que le point de montage aufs ou overlay est la nouvelle racine du
+système, les scripts d'initialisation sont éxécutés:
 .BR fstab (5)
 est parcouru par
 .RB \(aq mount
@@ -71,7 +72,7 @@ Si ni le système de fichiers ni le point de montage n'ont été mis de
 côté, alors le système de fichiers est monté ailleurs et en lecture
 seule, un système de fichiers temporaire est monté avec ses propres
 options, taille, permissions et propriétés, et un système de fichiers
-aufs est monté sur le
+aufs ou overlay est monté sur le
 .I POINT_DE_MONTAGE
 donné en argument, avec les branches paramètrées précédemment.
 L'entrée dans fstab est remplacée par trois lignes reflétant les
@@ -102,6 +103,13 @@ avant d'appeler le programme d'aide.
 .TP
 .I POINT_DE_MONTAGE
 Correspondant au deuxième champ dans le fichier fstab.
+.TP
+.RI [ DRAPEAUX ]
+Drapeaux génériques passés dans la ligne de commande de mount (les plus
+communs étant
+.B \-v
+et
+.BR \-n ).
 .TP
 .I \-o OPTIONS_DE_MONTAGE
 Correspondant au quatrième champ dans fstab. Les options de montage sont

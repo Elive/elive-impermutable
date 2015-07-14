@@ -1,4 +1,4 @@
-.TH BILIBOP 7 2013\-10\-26 bilibop "Bilibop Project"
+.TH BILIBOP 7 2015\-07\-14 bilibop "Bilibop Project"
 
 .SH NAME
 bilibop \- éxécuter Debian GNU/Linux depuis un support externe
@@ -60,7 +60,6 @@ Ainsi,
 est un ensemble de scripts utilisant ou utilisés par d'autres programmes
 .RB ( initramfs\-tools (7),
 .BR udev (7),
-.BR aufs (5),
 ou
 .BR GRUB2 )
 pour aider les administratrices à maintenir un système d'exploitation
@@ -117,7 +116,9 @@ un Volume Logique
 un périphérique boucle
 .RB ( loop )
 ou un point de montage
-.BR aufs (5).
+.BR aufs (5)
+ou
+.BR overlay,
 .B bilibop\-rules
 inclut aussi la commande
 .BR lsbilibop (8),
@@ -150,7 +151,9 @@ En utilisant un script initramfs et un programme d'aide à
 .BR mount (8),
 les systèmes de fichiers sont montés en lecture seule comme branches
 inférieures d'un point de montage
-.BR aufs (5),
+.BR aufs (5)
+ou
+.BR overlay,
 les branches inscriptibles correspondantes étant sur des systèmes de
 fichiers temporaires. De plus, les périphériques en mode bloc sont aussi
 paramétrés comme accessibles en lecture seule, évitant ainsi les accès

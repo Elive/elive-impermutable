@@ -1,4 +1,4 @@
-.TH LSBILIBOP 8 2013\-11\-24 bilibop "Administration système"
+.TH LSBILIBOP 8 2015\-07\-14 bilibop "Administration système"
 
 .SH NOM
 lsbilibop \- lister les périphériques étiquetés BILIBOP, afficher ou mettre à jour certaines de leurs propriétés udev
@@ -40,7 +40,9 @@ et
 .BR loopback ,
 et même les périphériques contenant un système de fichiers utilisé comme
 branche inférieure (en lecture seule) d'un point de montage pour
-.BR aufs (5).
+.BR aufs (5)
+ou
+.B overlay.
 Le fichier de règles
 .I /lib/udev/rules.d/66\-bilibop.rules
 (ou

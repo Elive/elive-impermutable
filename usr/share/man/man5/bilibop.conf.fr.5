@@ -1,4 +1,4 @@
-.TH BILIBOP.CONF 5 2013\-11\-24 bilibop "Bilibop Project"
+.TH BILIBOP.CONF 5 2015\-07\-14 bilibop "Bilibop Project"
 
 .SH NOM
 bilibop.conf \- fichier de configuration des paquets bilibop
@@ -152,6 +152,72 @@ Cependant, si le périphérique est verrouillé physiquement, les paramétrages
 précédents seront écrasés et la politique
 .I hard
 sera automatiquement appliquée.
+.PP
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.SS BILIBOP_LOCKFS_PATH_PREFIX
+Cette variable définit le répertoire principal sous lequel toutes les
+branches accessibles en lecture ou en écriture sont montées. Ce peut être
+n'importe quelle chaîne de caractères, pour autant que le nom soit valide
+et que le répertoire n'éxiste pas encore.
+.PP
+Si cette variable est vide ou non définie, sa valeur prendra le nom du
+module en cours d'utilisation (c'est à dire
+.I aufs
+ou
+.IR overlay ).
+.PP
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.SS BILIBOP_LOCKFS_PATH_SCHEME
+Cette variable définit la structure de chaque ensemble de branches, au
+regard des autres. Elle existe parce que contrairement à aufs, overlay
+ne permet pas facilement d'imbriquer les points de montage en une
+sous-arborscence unique (particulièrement les répertoires accessibles
+en écriture, ou
+.BR upperdirs ).
+.IP \(bu 2
+.I isolated
+.br
+Chanque ensemble de branches relatif à un montage aufs ou overlay est
+créé dans un répertoire dédié. Par exemple, pour une union sur
+.IR /usr/local ,
+.BI /$union/usr/local /ro
+et
+.BI /$union/usr/local /rw
+sont utilisés. Avec ce schéma, les branches relatives à un montage $union
+spécifique sont clairement identifiées, mais les liens symboliques entre
+systèmes de fichiers différents sont cassés (sur les branches, pas sur leur
+union).
+.IP \(bu 2
+.I nested
+.br
+Toutes les branches en lecture seule sont placées dans une sous-arborescence
+unique, et toutes les branches modifiables sont placées dans une autre
+sous-arborescence. Chacune de ces sous-arborescences est facile à parcourir,
+et les liens symboliques sont préservés. Par exemple, pour un montage aufs
+sur
+.IR /usr/local ,
+.BI /aufs/ro /usr/local
+et
+.BI /aufs/rw /usr/local
+sont utilisés. Ce schéma n'est pas disponible avec
+.BR overlay ,
+et reste le schéma par défaut avec
+.BR aufs ,
+par compatibilité avec les versions 0.4.23 et antérieures de bilibop.
+.IP \(bu 2
+.I hybrid
+.br
+Les branches en lecture seule sont imbriquées (nested), et les branches
+accessibles en écriture sont isolées (isolated).
+.PP
+Si cette variable est vide ou non définie, ou vaut n'importe quoi d'autre,
+sa valeur retombera à
+.I nested
+avec aufs, et
+.I isolated
+avec overlay.
 .PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
