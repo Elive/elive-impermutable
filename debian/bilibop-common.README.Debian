@@ -61,7 +61,7 @@ way to programmatically and safely know from the shell where upperdir and
 lowerdir are. The option field in /proc/mounts (or whatever file where mount
 records it) is out-of-sync. When overlay mount is set from the initramfs
 environment, the lowerdir and upperdir values in /proc/mounts may become
-unconsistent into the system runtime environment if they are not choosen
+unconsistent into the system runtime environment if they are not chosen
 to be exactly the sames in both initrd and system environments. Note that
 it is also the case with aufs.brs=0 (aufs.brs=1 being the default).
 
