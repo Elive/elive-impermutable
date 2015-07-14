@@ -1,4 +1,4 @@
-.TH LSBILIBOP 8 2013\-11\-24 bilibop "System Administration"
+.TH LSBILIBOP 8 2015\-07\-14 bilibop "System Administration"
 
 .SH NAME
 lsbilibop \- list BILIBOP tagged devices, display or update some of their udev properties
@@ -38,7 +38,9 @@ and
 devices, and even block devices containing a filesystem used as
 lower/readonly branch of an
 .BR aufs (5)
-mountpoint. The rules file
+or
+.B overlay
+mountpoint (depending on the kernel version). The rules file
 .I /lib/udev/rules.d/66\-bilibop.rules
 (or
 .IR /etc/udev/rules.d/66\-bilibop.rules )
