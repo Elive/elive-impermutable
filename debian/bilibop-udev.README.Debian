@@ -4,7 +4,7 @@ bilibop-udev
 This package only provides a udev rules file to be applied on operating
 systems running from external media (USB stick, USB HDD, FireWire, Flash
 Memory stick). It is based on bilibop-common shell functions with the
-same limitations; read the bilibop-common documentation for details. 
+same limitations; read the bilibop-common documentation for details.
 
 The running system being hosted on a removable device, the common udev
 rules (91-permissions.rules) will set it as owned by the 'floppy' group,
@@ -24,9 +24,9 @@ of the disk hosting the system, making easy to find the boot device of
 a multilayered block devices root filesystem; for example, on a Debian
 LiveUSB with the fromiso=* boot method:
 
-    disk > partition > file.iso > loop > file.squashfs > loop > aufs ro-branch > aufs (/)
+    disk > partition > file.iso > loop > file.squashfs > loop > union ro-branch > unionfs (/)
 
 NOTE: there is currently no support for eSATA drives.
 
  -- bilibop project <quidame@poivron.org>  Wed, 17 Oct 2012 14:33:20 +0200
- -- bilibop project <quidame@poivron.org>  Wed, 03 Jul 2013 16:34:48 +0200
+ -- bilibop project <quidame@poivron.org>  Tue, 14 Jul 2015 13:30:03 +0000
