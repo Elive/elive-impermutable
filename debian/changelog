@@ -1,3 +1,84 @@
+bilibop (0.5.0) unstable; urgency=medium
+
+  * bilibop-common: add support for overlayfs (in mainline kernel since 3.18).
+    Closes: #778497; new funcions in common.sh:
+    - canonpath(): clean field separators in an arbitrary filepath
+    - is_overlay_mountpoint(): grep /proc/mounts for 'overlay' filesystem
+    - overlay_mountpoints(): doing the same as aufs_mountpoints()
+    - overlay_lowerdir(): output the cleaned value of lowerdir= mount option
+    - overlay_upperdir(): output the cleaned value of upperdir= mount option
+    - overlay_workdir()
+    - underlying_device_from_overlayfs(): find the underlying device from the
+      'lowerdir' value; fallback to live-boot (5.0~a1-1) usecases.
+    Also modify underlying_device_from_file() to call the previous one.
+  * bilibop-common: add support for btrfs. A file on a btrfs mountpoint is not
+    directly mapped to the underlying block device: 'stat -c %D FILE' shows
+    that the file seems to be on some kind of ramfs (major=0). So add two
+    functions in common.sh:
+    - is_btrfs_mountpoint()
+    - underlying_device_from_btrfs()
+    Also modify underlying_device_from_file() to call the previous one.
+  * bilibop-common: modify other functions in common.sh:
+    - underlying_device_from_aufs(): do not fail if the underlying device
+      contains btrfs; now use aufs_readonly_branch() instead of aufs_dirs(),
+      and call underlying_device_from_file() if the major number of the
+      underlying device is 0 (be aware of a possible endless loop)
+    - aufs_dirs(), aufs_readonly_branch() and aufs_writable_branch(): replace
+      occurencies of glob pattern 'br*' by 'br?' to skip brid[01] files
+    - underlying_device_from_file(), do not return 1 too early; let the last
+      test say if the funcion failed or not
+    - underlying_device_from_loop(): for the case the backing file itself is
+      on btrfs, aufs or overlay, i.e. call underlying_device_from_file() from
+      there too
+    - find_mountpoint() and device_id_of_file(): to work around overlayfs
+      specific design (files and dirs are not treated the same way)
+    - underlying_device(): remove unneeded local variable assignment
+  * bilibop-common: update copyright, README section and physical_hard_disk()
+    dependency tree in common.sh
+  * bilibop-common: update README.Debian, bilibop(7) and bilibop.conf(5).
+
+  * bilibop-lockfs: add support for overlayfs.
+    - Modify local-bottom/bilibop-lockfs initramfs script: define $METHOD as
+      the aufs or overlay module that is supported by the kernel, and use
+      its value to setup specific mount options and mount points. Allow one to
+      override the default directory name by setting BILIBOP_LOCKFS_PATH_PREFIX
+    - Modify initramfs hook (+ manual_add_module overlay)
+      Improve the part of the script related to mount commands (mount -t tmpfs,
+      mount -o bind, mount -o move, ...). Make sure the paths of the branches
+      used to build the union fs will be consistent at runtime (for both
+      overlay, and aufs with brs=0), as the only one places to get those paths
+      (e.g. mount options field in /proc/mounts) is out of sync.
+    - Rewrite lockfs_mount_helper script, according to the initramfs script;
+      prepare directory trees and add/modify comments. Change mount order; now
+      the tmpfs mountpoint is set BEFORE the readonly branch, the last one
+      being, by design (bilibop), a subdirectory of the first one. Introduce
+      a new tunable variable BILIBOP_LOCKFS_PATH_SCHEME to choose the
+      directory structure of the lower and upper branches.
+    - Also modify lockfs-notify accordingly to support overlay filesystem
+  * bilibop-lockfs: modify blacklist_bilibop_devices() in lockfs.sh. Manually
+    add lvm-pv-uuid-* symlink to the list, as the udev rules creating it are
+    not included into the initramdisk.
+  * bilibop-lockfs: update README.Debian and lockfs_mount_helper(8)
+
+  * bilibop-rules: modify initramfs script. The busybox's readlink
+    implementation does not work as expected (with -f flag) and does not
+    resolve the target of a broken symlink; so replace the readlink call by a
+    'ls -l | sed' command.
+  * bilibop-rules: modify lsbilibop. Remove '\n' in echo, as it is not
+    supported by all shells, and call echo again to print an empty line
+    (closes: #772187).
+  * bilibop-rules: update lsbilibop(8)
+
+  * bilibop-udev: update README.Debian
+
+  * debian/control: bump Standards-Version to 3.9.6 (no changes needed).
+    Update extended descriptions.
+  * debian: modify bilibop-{lockfs,rules}.post{inst,rm}: use 'which' to test
+    availability of update-initramfs command instead of testing its full path,
+    to avoid a lintian warning.
+
+ -- Yann Amar <quidame@poivron.org>  Tue, 14 Jul 2015 17:11:52 +0000
+
 bilibop (0.4.23) unstable; urgency=high
 
   * bilibop-lockfs: modify lockfs_mount_helper script: take mount(8) flags
