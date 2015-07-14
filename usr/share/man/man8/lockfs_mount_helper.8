@@ -1,4 +1,4 @@
-.TH LOCKFS_MOUNT_HELPER 8 2012\-05\-29 bilibop "System Administration"
+.TH LOCKFS_MOUNT_HELPER 8 2015\-07\-14 bilibop "System Administration"
 
 .SH NAME
 mount.lockfs \- helper script for the mount command
@@ -7,6 +7,7 @@ mount.lockfs \- helper script for the mount command
 .B mount.lockfs
 .I FILESYSTEM
 .I MOUNTPOINT
+.RB [ MOUNTFLAGS ]
 .B \-o
 .I MOUNTOPTIONS
 
@@ -35,15 +36,14 @@ and reboot the computer; or reboot the computer and append the
 .RB \(aq lockfs \(aq
 kernel parameter to the boot commandline.
 .IP 2.
-One time the future \(aq/\(aq is set as an
-.BR aufs (5)
+One time the future \(aq/\(aq is set as an union filesystem
 mountpoint from into the initramfs environment, the temporary and writable
 .BR fstab (5)
 on it is modified to replace filesystem types of some entries by
 .RB \(aq lockfs \(aq.
 Options are also modified to remember the original fstype.
 .IP 3.
-One time the aufs mountpoint is the new root filesystem, initscripts are
+One time the union mount is the new root filesystem, initscripts are
 executed:
 .BR fstab (5)
 is parsed by
@@ -65,7 +65,8 @@ fstab entry is modified to reflect the actual mount call. If neither
 the filesystem nor the mountpoint have been whitelisted, then the
 filesystem is mounted elsewhere and readonly, a temporary filesystem
 is mounted with proper options, size, permissions and ownership, and an
-aufs is mounted on the
+aufs or overlay filesystem (depending on the version of your kernel) is
+mounted on the
 .I MOUNTPOINT
 given as argument with the lower/readonly and upper/writable branches
 previously set. The fstab entry is replaced by three lines reflecting
@@ -81,8 +82,8 @@ uses options and arguments as they are given by
 .BR mount (8)
 after it has parsed the corresponding
 .BR fstab (5)
-entry. So, options and arguments are mandatory and come in the following
-order:
+entry. So, options and arguments are mandatory, mount flags are optional,
+and all come in the following order:
 .TP
 .I FILESYSTEM
 Corresponding to the first field in fstab. This must be a block device,
@@ -95,6 +96,12 @@ name before to call the helper program.
 .TP
 .I MOUNTPOINT
 Corresponding to the second field in fstab.
+.TP
+.RI [ MOUNTFLAGS ]
+Generic flags passed to the mount commandline (the most usual being
+.B \-v
+and
+.BR \-n ).
 .TP
 .I \-o MOUNTOPTIONS
 Corresponding to the fourth field in fstab. The mount options are parsed
