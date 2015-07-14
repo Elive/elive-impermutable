@@ -346,6 +346,16 @@ if [ "${METHOD}" = "overlay" ]; then
     mkdir -p ${work}
 fi
 
+# Try to mount the readonly branch. In case of failure, undo what has been
+# done before, do a normal mount, rewrite the fstab entry to be consistent
+# with that, and exit:
+if ! mount ${flags} ${fstype:+-t ${fstype}} -o ${robr_opts:+${robr_opts},}ro ${device:-${LOFILE}} ${robr}; then
+    umount ${temp}
+    [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
+    mount_fallback "${@}"
+    exit 3
+fi
+
 # Fix permissions and ownership of the writable branch (and catch the values;
 # they will be reused later):
 
@@ -360,16 +370,6 @@ fi
 group="${own#*:}"
 if [ "${group}" != "root" ]; then
     gid="$(grep "^${group}:" /etc/group | sed 's;^\([^:]*:\)\{2\}\([^:]\+\):.*;\2;')"
-fi
-
-# Try to mount the readonly branch. In case of failure, undo what has been
-# done before, do a normal mount, rewrite the fstab entry to be consistent
-# with that, and exit:
-if ! mount ${flags} ${fstype:+-t ${fstype}} -o ${robr_opts:+${robr_opts},}ro ${device:-${LOFILE}} ${robr}; then
-    umount ${temp}
-    [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
-    mount_fallback "${@}"
-    exit 3
 fi
 
 # Now set the union filesystem mount options
