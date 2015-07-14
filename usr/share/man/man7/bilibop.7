@@ -1,4 +1,4 @@
-.TH BILIBOP 7 2013\-10\-26 bilibop "Bilibop Project"
+.TH BILIBOP 7 2015\-07\-14 bilibop "Bilibop Project"
 
 .SH NAME
 bilibop \- run Debian GNU/Linux from an external media
@@ -54,7 +54,6 @@ So,
 is a collection of scripts using or used by other programs
 .RB ( initramfs\-tools (7),
 .BR udev (7),
-.BR aufs (5),
 or
 .BR GRUB2 )
 to help admins to maintain a
@@ -113,6 +112,8 @@ Logical Volume, a
 .B loop
 device or is an
 .BR aufs (5)
+or
+.B overlay
 mountpoint.
 .B bilibop\-rules
 also includes the
@@ -143,8 +144,11 @@ in the documentation of the package for details.
 .I bilibop\-lockfs
 By using an initramfs script and a
 .BR mount (8)
-helper script, filesystems are mounted as readonly branches of
-.BR aufs (5),
+helper script, filesystems are mounted as readonly branches of a union
+filesystem (either
+.BR aufs (5)
+or
+.BR overlay )
 the corresponding writable branches being on temporary filesystems.
 Additionally, block devices are set readonly too, avoiding low\-level
 write access on them, even by root. All this makes the operating
