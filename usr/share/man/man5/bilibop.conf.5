@@ -1,4 +1,4 @@
-.TH BILIBOP.CONF 5 2013\-11\-24 bilibop "Bilibop Project"
+.TH BILIBOP.CONF 5 2015\-07\-14 bilibop "Bilibop Project"
 
 .SH NAME
 bilibop.conf \- configuration file of bilibop packages
@@ -141,6 +141,64 @@ However, if the drive is physically locked, previous settings will be
 overridden and the
 .I hard
 policy will be automatically applied.
+.PP
+Default is unset.
+
+.SS BILIBOP_LOCKFS_PATH_PREFIX
+This variable defines the main directory under which all readonly and
+writable branches are set. It may be any arbitrary string, as long as it is
+a valid name and the directory does not exist yet.
+.PP
+If empty or unset, it defaults to the name of the module currently in use
+(i.e.
+.I aufs
+or
+.IR overlay ).
+.PP
+Default is unset.
+
+.SS BILIBOP_LOCKFS_PATH_SCHEME
+This variable defines the structure of each set of ro and rw branches,
+regarding the others. It exists only because unlike aufs, overlay does
+not allow to easily nest mount points (especially the
+.BR upperdirs ).
+.IP \(bu 2
+.I isolated
+.br
+Each set of readonly and writable branches is created into a dedicated
+directory. For example, to set up an aufs or overlay for
+.IR /usr/local ,
+.BI /$union/usr/local /ro
+and
+.BI /$union/usr/local /rw
+are used. So with this scheme, branches related to a specific mount point
+are clearly identified, but symlinks crossing filesystem boundaries are
+broken (on the branches, not on their union mount).
+.IP \(bu 2
+.I nested
+.br
+All readonly branches are set under the same reaonly sub-tree, and all
+writable branches are set under the same writable sub-tree. So branches are
+easily browsable, and symlinks are preserved. For example, to set an aufs for
+.IR /usr/local ,
+.BI /aufs/ro /usr/local
+and
+.BI /aufs/rw /usr/local
+are used. This scheme is not avalaibable with
+.BR overlay ,
+and is the default with
+.BR aufs ,
+for backward compatibility with versions of bilibop until 0.4.23.
+.IP \(bu 2
+.I hybrid
+.br
+Readonly branches are nested, and writable branches are isolated.
+.PP
+If empty, unset, or set to anything else, the value will fallback to
+.I nested
+with aufs, and
+.I isolated
+with overlay.
 .PP
 Default is unset.
 
@@ -312,7 +370,7 @@ Never send notification about filesystems status.
 If the
 .B bilibop\-lockfs
 feature is enabled, then a notification will be send to say that all
-changes under aufs overlay mountpoints will be lost at shutdown.
+changes under aufs or overlay mountpoints will be lost at shutdown.
 .IP \(bu 2
 .I nolockfs
 .br
