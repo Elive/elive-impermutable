@@ -16,12 +16,12 @@ unavailable, and then are replaced by grep and sed heuristics.
 We assume, even if it is not often, that /etc/udev/udev.conf can have been
 modified and that 'udev_root' can be something else than '/dev'.
 
-dm-crypt/LUKS, LVM, loopback and aufs root filesystems (and combinations of
-them) are now _fully_ supported, with the following limitations: these
-functions are intended to be used on a system hosted by an external and
-writable device (USB, FireWire, eSATA, MMC and maybe more); this means all
-filesystems used by the system must be either hosted by the same disk or
-in RAM.
+dm-crypt/LUKS, LVM, loopback and aufs or overlay root filesystems (and
+combinations of them) are now _fully_ supported, with the following
+limitations: these functions are intended to be used on a system hosted by an
+external and writable device (USB, FireWire, eSATA, MMC and maybe more); this
+means all filesystems used by the system must be either hosted by the same
+disk or in RAM.
 
 Functions that just output information about devices/filesystems can be
 called by any unprivileged user. Some of the main functions can be called
@@ -48,9 +48,22 @@ So, the main limitations for _full_ LVM support is that a Volume Group can
 contain several Logical Volumes, but never more than one Physical Volume:
 we assume there is no sense to use two partitions of the same disk to
 create a Volume Group. For the same reason, RAID is not supported at all.
-The limitations for _full_ aufs support are the sames than for some of the
-aufs-tools programs: we assume two branches, the lower being readonly (on
-disk) and the upper writable (in RAM).
+The limitations for _full_ aufs or overlay support are the sames than for
+some of the aufs-tools programs: we assume two branches, the lower being
+readonly (on disk) and the upper writable (in RAM). With overlay, if
+several lowerdirs are set for a unique union mount, filesystem should be
+on the same disk.
+
+The piece of code related to the search of the filesystem mounted on the
+lowerdir is tricky. It may evolve with changes in overlay filesystem code
+or in live-boot's overlay support. The issue is that there is currently no
+way to programmatically and safely know from the shell where upperdir and
+lowerdir are. The option field in /proc/mounts (or whatever file where mount
+records it) is out-of-sync. When overlay mount is set from the initramfs
+environment, the lowerdir and upperdir values in /proc/mounts may become
+unconsistent into the system runtime environment if they are not choosen
+to be exactly the sames in both initrd and system environments. Note that
+it is also the case with aufs.brs=0 (aufs.brs=1 being the default).
 
 For loop devices, there is a small limitation, concerning the fact that in
 some cases, some functions cannot be run by any unprivileged user: if the
@@ -165,4 +178,4 @@ own manual page: drivemap(1).
 
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
- -- bilibop project <quidame@poivron.org>  Sat, 26 Oct 2013 21:27:07 +0000
+ -- bilibop project <quidame@poivron.org>  Sat, 14 Jul 2015 12:54:07 +0000
