@@ -16,7 +16,7 @@ esac
 case "${1}" in
     purge|remove)
         # Remove bilibop-lockfs scripts from the initramdisk:
-        if [ -x /usr/sbin/update-initramfs ]; then
+        if which update-initramfs >/dev/null; then
             update-initramfs -u
         fi
         ;;

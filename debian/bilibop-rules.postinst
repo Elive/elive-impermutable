@@ -343,7 +343,7 @@ case "${1}" in
 
         # Add a new script in the initramfs. And modify it also if LVM has
         # been reconfigured (see above):
-        if [ -x /usr/sbin/update-initramfs ]; then
+        if which update-initramfs >/dev/null; then
             if [ "${DEBCONF_RECONFIGURE}" = "1" ]; then
                 if [ "${LVMCONF_RECONFIGURE}" = "1" ]; then
                     update-initramfs -u
