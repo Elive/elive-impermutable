@@ -5,16 +5,20 @@ bilibop-lockfs
 ===========
 
 Bilibop-lockfs is a collection of shell scripts whose the main goal
-is to use the system without modify it in any way: high-level write
-access is disallowed by mounting filesystems as readonly branches of
-aufs(5), forcing all changes to be written on the temporary writable
-branches, i.e. in the RAM; additionally, low-level write access is also
-forbidden, by setting the block devices (including the whole disk itself)
-as readonly with the 'read_only_volume_list' setting in lvm.conf(5) for
-Logical Volumes, and with blockdev(8) for all others. There, 'without
-modify it in any way' means no log files, no cookies, no timestamp or
-data changes, but also no modification of the boot sectors or partition
-table, no changes of the LUKS headers, LVM metadata, and so on.
+is to use the system without modify it in any way:
+
+* high-level write access is disallowed by mounting filesystems as
+  readonly branches of a union filesystem (aufs(5) or overlayfs),
+  forcing all changes to be written on the temporary writable branches,
+  i.e. in the RAM
+
+* additionally, low-level write access is also forbidden, by setting the
+  block devices (including the whole disk itself) as readonly with the
+  'read_only_volume_list' setting in lvm.conf(5) for Logical Volumes, and
+  with blockdev(8) for all others. There, 'without modify it in any way'
+  means no log files, no cookies, no timestamp or data changes, but
+  also no modification of the boot sectors or partition table, no changes
+  of the LUKS headers, LVM metadata, and so on.
 
 This package was initially designed to be installed on operating systems
 embedded on removable and writable media. This includes Flash Memory
