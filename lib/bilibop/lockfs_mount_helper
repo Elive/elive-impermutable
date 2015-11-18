@@ -68,13 +68,13 @@ get_udev_root
 if is_aufs_mountpoint -q / && [ -f "${BILIBOP_RUNDIR}/lock" ]; then
     LOCKFS="true"
     METHOD="aufs"
-    robr="$(aufs_readonly_branch /)"
-    rwbr="$(aufs_writable_branch /)"
+    ROBR="$(aufs_readonly_branch /)"
+    RWBR="$(aufs_writable_branch /)"
 elif is_overlay_mountpoint -q / && [ -f "${BILIBOP_RUNDIR}/lock" ]; then
     LOCKFS="true"
     METHOD="overlay"
-    robr="$(overlay_lowerdir /)"
-    rwbr="$(overlay_upperdir /)"
+    ROBR="$(overlay_lowerdir /)"
+    RWBR="$(overlay_upperdir /)"
 else
     echo "${0##*/}: bilibop-lockfs is disabled." >&2
     exit 1
@@ -162,7 +162,7 @@ if [ -b "${1}" ]; then
 
 elif [ -f "${1}" ]; then
     lofile="${1}"
-    LOFILE="${robr}${lofile}"
+    LOFILE="${ROBR}${lofile}"
 
 else
     # There is no block device to mount (here 'block device' includes
@@ -260,40 +260,40 @@ if [ "${METHOD}" = "aufs" ]; then
         isolated)
             # Use clearly separated mountpoints (this breaks symlinks over fs
             # boundaries).
-            robr="${robr%/*}${mntpnt}/ro"   # /aufs/usr/local/ro        |ro not symlinked
-            rwbr="${rwbr%/*}${mntpnt}/rw"   # /aufs/usr/local/rw        |rw not symlinked
+            robr="${ROBR%/*}${mntpnt}/ro"   # /aufs/usr/local/ro        |ro not symlinked
+            rwbr="${RWBR%/*}${mntpnt}/rw"   # /aufs/usr/local/rw        |rw not symlinked
             ;;
         hybrid)
             # ro branches are nested, rw are isolated.
-            roln="${robr%/*}${mntpnt}/ro"   # /aufs/usr/local/ro        |ro symlink
-            rwln="${rwbr}${mntpnt}"         # /aufs/rw/usr/local        |rw symlink
-            robr="${robr}${mntpnt}"         # /aufs/ro/usr/local        |ro symlinked
-            rwbr="${rwbr%/*}${mntpnt}/rw"   # /aufs/usr/local/rw        |rw symlinked
+            roln="${ROBR%/*}${mntpnt}/ro"   # /aufs/usr/local/ro        |ro symlink
+            rwln="${RWBR}${mntpnt}"         # /aufs/rw/usr/local        |rw symlink
+            robr="${ROBR}${mntpnt}"         # /aufs/ro/usr/local        |ro symlinked
+            rwbr="${RWBR%/*}${mntpnt}/rw"   # /aufs/usr/local/rw        |rw symlinked
             ;;
         *)
             # This scheme is only available with aufs; this is the only one
             # available in bilibop =<0.4.23. Symlinks are now created for
             # compatibility with other schemes
-            roln="${robr%/*}${mntpnt}/ro"   # /aufs/usr/local/ro        |ro symlink
-            rwln="${rwbr%/*}${mntpnt}/rw"   # /aufs/usr/local/rw        |rw symlink
-            robr="${robr}${mntpnt}"         # /aufs/ro/usr/local        |ro symlinked
-            rwbr="${rwbr}${mntpnt}"         # /aufs/rw/usr/local        |rw symlinked
+            roln="${ROBR%/*}${mntpnt}/ro"   # /aufs/usr/local/ro        |ro symlink
+            rwln="${RWBR%/*}${mntpnt}/rw"   # /aufs/usr/local/rw        |rw symlink
+            robr="${ROBR}${mntpnt}"         # /aufs/ro/usr/local        |ro symlinked
+            rwbr="${RWBR}${mntpnt}"         # /aufs/rw/usr/local        |rw symlinked
             ;;
     esac
-    temp="${rwbr}"
+    temp="${RWBR}"
 
 elif [ "${METHOD}" = "overlay" ]; then
     # Upperdirs (writable branches) can't be nested, as they are a subdirectory
     # of a tmpfs mountpoint, not the mountpoint itself.
-    temp="$(find_mountpoint ${rwbr})"   # /overlay
-    temp="${temp}${mntpnt}"             # /overlay/usr/local
+    TEMP="$(find_mountpoint ${RWBR})"   # /overlay
+    temp="${TEMP}${mntpnt}"             # /overlay/usr/local
     work="${temp}/.rw"                  # /overlay/usr/local/.rw
     rwbr="${temp}/rw"                   # /overlay/usr/local/rw         |rw not nested
     case "${BILIBOP_LOCKFS_PATH_SCHEME}" in
         hybrid)
             # ro branches are nested, rw are isolated.
-            robr="${robr}${mntpnt}"         # /overlay/ro/usr/local     |ro symlinked
-            rwln="${rwbr}${mntpnt}"         # /overlay/rw/usr/local     |rw symlink
+            robr="${ROBR}${mntpnt}"         # /overlay/ro/usr/local     |ro symlinked
+            rwln="${RWBR}${mntpnt}"         # /overlay/rw/usr/local     |rw symlink
             roln="${temp}/ro"               # /overlay/usr/local/ro     |ro symlink
             ;;
         *)
