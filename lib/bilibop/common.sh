@@ -189,6 +189,8 @@ device_id_of_file <FILE|DIR>
 find_mountpoint <FILE|DIR>
 get_biliop_variables
 is_aufs_mountpoint [-q] <MOUNTPOINT>
+is_btrfs_mountpoint [-q] <MOUNTPOINT>
+is_overlay_mountpoint [-q] <MOUNTPOINT>
 is_removable <DEVICE>
 mapper_name_from_dm_node <DEVICE>
 major_minor_from_device_node <DEVICE>
@@ -197,6 +199,8 @@ query_sysfs_attrs <DEVICE>
 query_udev_envvar <DEVICE>
 underlying_device <FILE|DIR|DEVICE>
 underlying_device_from_aufs <MOUNTPOINT>
+underlying_device_from_btrfs <MOUNTPOINT>
+underlying_device_from_overlayfs <MOUNTPOINT>
 underlying_device_from_device <DEVICE>
 underlying_device_from_dm <DEVICE>
 underlying_device_from_file <FILE|DIR>
