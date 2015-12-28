@@ -66,7 +66,7 @@ Description: lock filesystems and write changes into RAM
     forbids changes of the partition table, boot sectors, LUKS headers and
     LVM metadata.
   * plymouth messages to know at boot time if bilibop-lockfs is enabled or
-    not, or if an error occured.
+    not, or if an error occurred.
   * desktop notifications at startup about filesystems status, to inform the
     user that volatile or persistent changes are allowed or not, and where.
  .
