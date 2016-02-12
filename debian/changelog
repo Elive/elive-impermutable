@@ -1,6 +1,7 @@
 bilibop (0.5.1) unstable; urgency=low
 
-  * bilibop-common: update bilibop_common_functions()
+  * bilibop-common: update bilibop_common_functions(); fix typo in bilibop(7)
+    manpage.
   * bilibop-rules: add danish translation for the debconf templates; thanks to
     Joe Dalton <joedalton2@yahoo.dk> (closes: #800456).
   * bilibop-lockfs: modify lockfs_mount_helper: rename some variables to be
@@ -10,7 +11,7 @@ bilibop (0.5.1) unstable; urgency=low
     - Update Vcs-Git field and fix a typo
   * debian/changelog: fix typos (lintian warnings) in 0.5.0 entry
 
- -- Yann Amar <quidame@poivron.org>  Fri, 12 Feb 2016 03:37:34 +0000
+ -- Yann Amar <quidame@poivron.org>  Fri, 12 Feb 2016 06:04:44 +0000
 
 bilibop (0.5.0) unstable; urgency=medium
 
