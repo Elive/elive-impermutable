@@ -1,7 +1,21 @@
+bilibop (0.5.1) unstable; urgency=low
+
+  * bilibop-common: update bilibop_common_functions()
+  * bilibop-rules: add danish translation for the debconf templates; thanks to
+    Joe Dalton <joedalton2@yahoo.dk> (closes: #800456).
+  * bilibop-lockfs: modify lockfs_mount_helper: rename some variables to be
+    less confusing.
+  * debian/control
+    - Drop depedency on initscripts package. Closes: #804985, #804986
+    - Update Vcs-Git field and fix a typo
+  * debian/changelog: fix typos (lintian warnings) in 0.5.0 entry
+
+ -- Yann Amar <quidame@poivron.org>  Fri, 12 Feb 2016 03:37:34 +0000
+
 bilibop (0.5.0) unstable; urgency=medium
 
   * bilibop-common: add support for overlayfs (in mainline kernel since 3.18).
-    Closes: #778497; new funcions in common.sh:
+    Closes: #778497; new functions in common.sh:
     - canonpath(): clean field separators in an arbitrary filepath
     - is_overlay_mountpoint(): grep /proc/mounts for 'overlay' filesystem
     - overlay_mountpoints(): doing the same as aufs_mountpoints()
@@ -26,7 +40,7 @@ bilibop (0.5.0) unstable; urgency=medium
     - aufs_dirs(), aufs_readonly_branch() and aufs_writable_branch(): replace
       occurencies of glob pattern 'br*' by 'br?' to skip brid[01] files
     - underlying_device_from_file(), do not return 1 too early; let the last
-      test say if the funcion failed or not
+      test say if the function failed or not
     - underlying_device_from_loop(): for the case the backing file itself is
       on btrfs, aufs or overlay, i.e. call underlying_device_from_file() from
       there too
