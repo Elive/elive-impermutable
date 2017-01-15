@@ -1,0 +1,286 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: bilibop 0.5.1\n"
+"Report-Msgid-Bugs-To: quidame@poivron.org\n"
+"POT-Creation-Date: 2013-11-23 10:14+0000\n"
+"PO-Revision-Date: 2016-05-21 09:37+0100\n"
+"Last-Translator: Jonatan Nyberg <jonatan@autistici.org>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.6.10\n"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:1001
+msgid "Do you intend to install bilibop-rules on a Live System ?"
+msgstr "Har du för avsikt att installera bilibop-regler på ett live-system?"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:1001
+msgid "Some bilibop-rules settings can be useful on non-volatile Operating Systems, when running from a removable and writable media (USB sticks, external HDD or SD cards); but they are currently useless or even harmful for LiveCD or LiveUSB systems."
+msgstr "Några bilibop-regel inställningar kan vara användbara på icke-instabila operativsystem, när de körs från ett borttagbart och skrivbart media (USB-minnen, extern hårddisk eller SD-kort); men de är för närvarande onödiga eller till och med skadliga för LiveCD eller LiveUSB system."
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:1001
+msgid "If you choose this option, no other question will be asked; bilibop udev rules will be applied but nothing else will be modified on your system. Note that in that case, this package is overkill and you should probably replace it by the lighter but as much as efficient bilibop-udev package."
+msgstr "Om du väljer det här alternativet, kommer ingen annan fråga ställas; bilibop udev reglerna kommer att tillämpas, men ingenting annat kommer att ändras i systemet. Observera att i detta fall, är detta paket överdrivet och du bör antagligen ersätta det med det lättare men lika effektivt bilibop-udev paket."
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:2001
+msgid "Do you want to use custom bilibop rules and build them now ?"
+msgstr "Vill du använda anpassade bilibop regler och bygga dem nu?"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:2001
+msgid "If tens of removable media are plugged on the computer your system boots from, bilibop udev rules can significantly increase boot time. This can be avoided by using custom udev rules, which are specific to the device your system is installed on."
+msgstr "Om tiotals flyttbara media är inkopplade på datorn ditt system startar upp från, kan bilibop udev regler avsevärt öka uppstarttiden. Detta kan undvikas genom att använda anpassade udev regler, som är specifika för enheten systemet är installerat på."
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:2001
+msgid "That said, if this device can boot from different hardware port types (as USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), you should check the resulting rules by booting your system on the alternative port type, and if necessary by running 'dpkg-reconfigure bilibop-rules' again with proper options, or even by editing '/etc/udev/rules.d/66-bilibop.rules'."
+msgstr "Som sagt, om denna enhet kan starta från olika hårdvaruporttyper (som USB/Firewire, USB/eSATA, USB/MMC/SD, osv.), bör du kontrollera de erhållna reglerna genom att starta datorn på den alternativa porttypen, och om nödvändigt genom att köra 'dpkg-reconfigure bilibop-rules' igen med rätta valmöjligheter, eller till och med genom att redigera '/etc/udev/rules.d/66-bilibop.rules'."
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:3001
+msgid "keep existing custom rules"
+msgstr "behåll befintliga anpassade regler"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:3001
+msgid "rebuild custom rules"
+msgstr "ombygg anpassade regler"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:3001
+msgid "remove custom rules"
+msgstr "ta bort anpassade regler"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:3002
+msgid "What do you want to do with your custom rules ?"
+msgstr "Vad vill du göra med dina anpassade regler?"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:3002
+msgid "The file '/etc/udev/rules.d/66-bilibop.rules' exists. It is specific to the drive on which your system is installed and overrides the one, more generic, that is provided by the bilibop-rules package (in '/lib/udev/rules.d')."
+msgstr "Filen '/etc/udev/rules.d/66-bilibop.rules' existerar. Den är specifikt för den enhet som systemet är installerat på och åsidosätter den mera allmänna som tillhandahålls av bilibop-rules paketet (i '/lib/udev/rules.d')."
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:3002
+msgid "If the device hosting the running system is able to boot from different hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD-card, etc.), you should boot it from the alternative port type and check if your custom rules work fine in all cases. In the doubt, you should remove the custom rules file."
+msgstr "Om enheten som kör systemet kan startas från olika hårdvaruporttyper (USB/Firewire, USB/eSATA, USB/MMC/SD-kort, osv.), bör du starta upp den från den alternativa porttypen för att kontrollera om dina anpassade regler fungerar bra i alla fall. I tveksamma fall bör du ta bort filen för anpassade regler."
+
+#. Type: string
+#. Description
+#: ../bilibop-rules.templates:4001
+msgid "Options to pass to the bilibop rules generator:"
+msgstr "Alternativ för att övergå till bilibop regel-generatorn:"
+
+#. Type: string
+#. Description
+#: ../bilibop-rules.templates:4001
+msgid "Possible options you can pass to the bilibop rules generator are the followings:"
+msgstr "Möjliga alternativ du kan passera till bilibop regel-generatorn är följande:"
+
+#. Type: string
+#. Description
+#: ../bilibop-rules.templates:4001
+msgid "The two first ones cannot be mixed; for example, '-a model,serial' is not a valid option; use '-a model -e ID_SERIAL' instead. In the doubt, you should probably set it to an empty string (defaults to '-a manufacturer,product,serial')."
+msgstr "De två första kan inte blandas; till exempel, '-a model,serial' är inte ett giltigt alternativ; använd '-a model -e ID_SERIAL' istället. I tveksamma fall bör du nog ställa in den till en tom sträng (standard till '-a manufacturer,product,serial')."
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:5001
+msgid "Options given to the bilibop rules generator seem to be invalid."
+msgstr "Alternativ som ges till bilibop regel-generatorn verkar vara ogiltig."
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:5001
+msgid "You can go back by hitting the <Escape> key and then modify the options. Otherwise, the custom rules file '/etc/udev/rules.d/66-bilibop.rules' will not be written."
+msgstr "Du kan gå tillbaka genom att trycka på knappen <Escape> och sedan ändra alternativen. Annars kommer inte filen '/etc/udev/rules.d/66-bilibop.rules' med anpassade regler att skrivas."
+
+#. Type: error
+#. Description
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:6001 ../bilibop-rules.templates:7001
+msgid "The following device(s) still belong to floppy group:"
+msgstr "Följande enhet(er) tillhör fortfarande diskett grupp:"
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:6001
+msgid "You should rewrite or remove your custom rules file:"
+msgstr "Du bör skriva om eller ta bort fil för anpassade regler:"
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:7001
+msgid "Internal error"
+msgstr "Internt fel"
+
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:7001
+msgid "You should send a bug report to the maintainer of the package."
+msgstr "Du bör skicka en felrapport till den som underhåller paketet."
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:8001
+msgid "the existing one"
+msgstr "den befintliga"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:8001
+msgid "a static device map (not recommended)"
+msgstr "en statisk enhetskarta (rekommenderas inte)"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:8001
+msgid "a static fake device map"
+msgstr "en falsk statisk enhetskarta"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:8001
+msgid "a dynamic fake device map"
+msgstr "en dynamisk falsk enhetskarta"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:8001
+msgid "a dynamically updated device map"
+msgstr "en dynamiskt uppdaterad enhetskarta"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:8002
+msgid "What kind of GRUB device map do you want to use ?"
+msgstr "Vilken typ av GRUB enhetskarta vill du använda?"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:8002
+msgid "The '/boot/grub/device.map' file can store obsolete information. In some cases, this can lead to failures when the GRUB bootloader menu is updated. To avoid that, it is possible to replace the device map by a fake one, mapping only the physical drive hosting your system; or by a link to a temporary file, which may be created either at boot time with a fake content, or on demand with an updated content."
+msgstr "Filen '/boot/grub/device.map\' kan lagra föråldrad information. I vissa fall kan detta leda till fel när GRUB menyn uppdateras. För att undvika detta är det möjligt att ersätta enhetskartan med en falsk, som kartlägger bara den fysiska enhetens värd system; eller genom en länk till en temporär fil, som kan skapas antingen vid uppstart med ett falskt innehåll, eller på begäran med ett uppdaterat innehåll."
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:8002
+msgid "If your external system is embedded on a device able to boot from different hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), it is not recommended to use a static device map. The dynamic fake device map should work in all cases."
+msgstr "Om ditt externa system är inbäddat på en enhet som kan starta från olika hårdvaruporttyper (USB/Firewire, USB/eSATA, USB/MMC/SD, osv.), är det inte rekommenderat att använda en statisk enhetskarta. Den dynamiska falska enhetskartan ska fungera i alla fall."
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:9001
+msgid "keep them in their current state"
+msgstr "håll kvar dem i deras nuvarande tillstånd"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:9001
+msgid "make unpersistent cd rules only"
+msgstr "gör endast icke ihållande cd regler"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:9001
+msgid "make unpersistent net rules only"
+msgstr "göra endast icke ihållande net regler"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:9001
+msgid "make unpersistent rules for all (recommended)"
+msgstr "göra icke-ihållande regler för alla (rekommenderas)"
+
+#. Type: select
+#. Choices
+#: ../bilibop-rules.templates:9001
+msgid "make persistent rules for all"
+msgstr "göra ihållande regler för alla"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:9002
+msgid "What persistent rules do you want to make unpersistent ?"
+msgstr "Vilka ihållande regler vill du göra icke-ihållande?"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:9002
+msgid "Some udev rules files can store information about components of the computer your system is plugged on:"
+msgstr "Vissa udev regelfiler kan lagra information om komponenterna i datorn systemet är ansluten till:"
+
+#. Type: select
+#. Description
+#: ../bilibop-rules.templates:9002
+msgid "These files are cumulative and can store obsolete information, possibly leading to unexpected behaviour of your network manager or CD burner application. It is possible to replace them by symlinks to temporary files to keep them always up to date. Note that it is possible to do or undo that at any time by running"
+msgstr "Dessa filer är kumulativa och kan lagra föråldrad information, detta kan leda till oväntade beteenden för nätverkshanteraren eller CD-brännar applikationen. Det är möjligt att ersätta dem med symboliska länkar till temporära filer för att alltid hålla dem uppdaterade. Observera att det är möjligt att göra om eller ångra det när som helst genom att köra"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:10001
+msgid "Do you want to hide Physical Volumes your system does not need ?"
+msgstr "Vill du dölja fysiska volymer systemet inte behöver?"
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:10001
+msgid "It seems that the drive on which your system is installed contains Logical Volumes. It is possible to set LVM to activate only the Physical Volumes that your system needs. This can mainly avoid name conflicts between the Volumes used by your system and those that could be found on internal or external drives plugged on the same computer."
+msgstr "Det verkar som om enheten ditt system är installerat på innehåller logiska volymer. Det är möjligt att ställa in LVM att endast aktivera fysiska volymer som systemet behöver. Detta kan framför allt undvika namnkonflikter mellan volymer som används av systemet och de som kunde hittas på interna eller externa enheter som är anslutna till samma dator."
+
+#. Type: boolean
+#. Description
+#: ../bilibop-rules.templates:10001
+msgid "If you choose to use this feature, this will overwrite '/etc/lvm/lvm.conf', and you should read 'README.Debian' in the documentation of the package. Otherwise, you can do it later with"
+msgstr "Om du väljer att använda den här funktionen, kommer '/etc/lvm/lvm.conf' att skrivas över, och du bör läsa 'README.Debian' i dokumentationen av paketet. Annars kan du göra det senare med"
+
+#. Type: error
+#. Description
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+msgid "Physical Volumes Filter will not be applied."
+msgstr "Fysiska volym filter kommer inte att tillämpas."
+
+#. Type: error
+#. Description
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+msgid "Probably due to an error in '66-bilibop.rules', the following device(s) have not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
+msgstr "Förmodligen på grund av ett fel i '66-bilibop.rules', följande enhet(er) har inte märkts  'BILIBOP' av udev, eller har inte någon användbar symbolisk länk som förvaltas av udev:"
+
+#. Type: error
+#. Description
+#. Type: error
+#. Description
+#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+msgid "This means some variables in '/etc/lvm/lvm.conf' will be left or reset to their initial values:"
+msgstr "Detta innebär att vissa variabler i '/etc/lvm/lvm.conf' kommer att lämnas eller återställs till sitt utgångsvärde:"
+
