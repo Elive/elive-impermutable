@@ -7,7 +7,7 @@ bilibop (0.5.1) unstable; urgency=low
   * bilibop-lockfs: modify lockfs_mount_helper: rename some variables to be
     less confusing.
   * debian/control
-    - Drop depedency on initscripts package. Closes: #804985, #804986
+    - Drop dependency on initscripts package. Closes: #804985, #804986
     - Update Vcs-Git field and fix a typo
   * debian/changelog: fix typos (lintian warnings) in 0.5.0 entry
 
