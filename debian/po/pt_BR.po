@@ -1,5 +1,4 @@
-# Debconf translations for bilibop.
-# Copyright (C) 2016 THE bilibop'S COPYRIGHT HOLDER
+# Translation of bilibop's debconf messages to brazilian portuguese
 # This file is distributed under the same license as the bilibop package.
 # Adriano Rafael Gomes <adrianorg@arg.eti.br>, 2016.
 #
