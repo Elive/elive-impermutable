@@ -1,3 +1,15 @@
+bilibop (0.5.2) unstable; urgency=low
+
+  * bilibop-rules: add brazilian portuguese translation for debconf templates.
+    Thanks to Adriano Rafael Gomes <adrianorg@arg.eti.br> (closes: #827324)
+  * bilibop-rules: add swedish translation for the debconf templates, thanks
+    to Jonatan Nyberg <jonatan@autistici.org> (closes: #824911)
+  * bilibop-rules: fix typos in lsbilibop(8)
+  * debian/control: bump Standards-Version to 3.9.8 (no changes needed)
+  * debian/changelog: fix typo (lintian warning) in 0.5.1 entry
+
+ -- Yann Amar <quidame@poivron.org>  Mon, 16 Jan 2017 23:29:07 +0000
+
 bilibop (0.5.1) unstable; urgency=low
 
   * bilibop-common: update bilibop_common_functions(); fix typo in bilibop(7)
