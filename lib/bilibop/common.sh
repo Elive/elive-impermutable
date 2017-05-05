@@ -490,24 +490,31 @@ underlying_device_from_loop() {
 # branch of an aufs mountpoint given as argument. We assume that there is only
 # and at least one physical device used to build the aufs (but the directory
 # is not necessarly the mountpoint of this device), other branch(s) being
-# virtual fs.
+# virtual fs. Note that if there are more than one readonly branch, the first
+# block device found wins.
 underlying_device_from_aufs() {
     ${DEBUG} && echo "> underlying_device_from_aufs $@" >&2
-    local   dir="$(aufs_readonly_branch "${1}")"
-    local   dev="$(device_id_of_file "${dir}")"
-    case "${dev}" in
-        "")
-            ;;
-        0:*)
-            # aufs mounts can't be nested; but this may be btrfs
-            dev="$(underlying_device_from_file "${dir}")"
-            ;;
-        *)
-            dev="$(device_node_from_major_minor "${dev}")"
-            ;;
-    esac
-
-    [ -b "${dev}" ] && readlink -f "${dev}"
+    local dev dir
+    for dir in $(aufs_readonly_branch "${1}"); do
+        dev="$(device_id_of_file "${dir}")"
+        case "${dev}" in
+            "")
+                continue
+                ;;
+            0:*)
+                # aufs mounts can't be nested; but this may be btrfs
+                dev="$(underlying_device_from_file "${dir}")"
+                ;;
+            *)
+                dev="$(device_node_from_major_minor "${dev}")"
+                ;;
+        esac
+        if [ -b "${dev}" ]; then
+            readlink -f "${dev}"
+            return 0
+        fi
+    done
+    return 1
 }
 # ===========================================================================}}}
 # underlying_device_from_overlayfs() ========================================{{{
