@@ -1,3 +1,11 @@
+bilibop (0.5.2.1) unstable; urgency=high
+
+  * bilibop-common:
+    - modify underlying_device_from_aufs() to support multiple read-only
+      branches. Closes: #861685.
+
+ -- Yann Amar <quidame@poivron.org>  Thu, 18 May 2017 15:20:24 +0000
+
 bilibop (0.5.2) unstable; urgency=low
 
   * bilibop-rules: add brazilian portuguese translation for debconf templates.
