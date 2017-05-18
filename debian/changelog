@@ -1,12 +1,3 @@
-bilibop (0.5.3) unstable; urgency=high
-
-  * bilibop-common:
-    - remove "udev compatibility stuff" (no more needed). Closes: #852592.
-    - modify underlying_device_from_aufs() to support multiple read-only
-      branches. Closes: #861685.
-
- -- Yann Amar <quidame@poivron.org>  Fri, 12 May 2017 02:31:58 +0000
-
 bilibop (0.5.2) unstable; urgency=low
 
   * bilibop-rules: add brazilian portuguese translation for debconf templates.
