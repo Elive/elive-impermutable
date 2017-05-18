@@ -149,6 +149,29 @@
 
 # }}}
 
+# Udev compatibility stuff =================================================={{{
+# What we want is to be able to use udevadm even if it not included in the
+# PATH. Obviously, we assume that /bin is ever in PATH, so if udevadm is not
+# in the PATH, it means /bin/udevadm does not exist; then /sbin/udevadm is
+# the fallback. This should work for any version of udev, and does not need
+# to silently modify the PATH of the user sourcing this file. The resulting
+# udevadm() function does not conflict with the udevadm command, since the
+# command itself is not available in PATH.
+# NOTE: until udev has been merged to systemd, udevadm was /sbin/udevadm;
+# from version 183 to 204, it seems that udevadm was /bin/udevadm, but with
+# no symlink in /sbin to ensure backward compatibility; this has been done
+# in 204-1.
+has_udevadm="false"
+for d in $(IFS=':'; echo ${PATH}); do
+    if [ -x "${d}/udevadm" ]; then
+        has_udevadm="true"
+        break
+    fi
+done
+[ "${has_udevadm}" = "true" ] ||
+udevadm() { /sbin/udevadm "$@"; }
+unset has_udevadm d
+# ===========================================================================}}}
 # bilibop_common_functions() ================================================{{{
 # What we want is: output a list of useful bilibop functions, to use them
 # manually.
