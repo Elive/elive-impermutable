@@ -42,7 +42,7 @@ Package: bilibop-lockfs
 Architecture: linux-any
 Depends: bilibop-common (= ${binary:Version}), initramfs-tools, ${misc:Depends}
 Recommends: cryptsetup
-Suggests: bilibop-device-policy, gnome-icon-theme, libnotify-bin, plymouth
+Suggests: aufs-dkms, bilibop-device-policy, gnome-icon-theme, libnotify-bin, plymouth
 Description: lock filesystems and write changes into RAM
  ${Description}
  .
