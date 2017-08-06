@@ -421,17 +421,17 @@ devices {
 EOF
     else
             grep -q '^[[:blank:]]*dir[[:blank:]]*=' ${LVM_CONF} ||
-            sed -i "s;^\s*devices\s*{;&\n    dir = \"${1}\"\n;" ${LVM_CONF}
+            sed -i "s;^\s*devices\s*{;&\n\tdir = \"${1}\"\n;" ${LVM_CONF}
             grep -q '^[[:blank:]]*scan[[:blank:]]*=' ${LVM_CONF} ||
-            sed -i "s;^\s*devices\s*{;&\n    scan = [ \"${1}\" ]\n;" ${LVM_CONF}
+            sed -i "s;^\s*devices\s*{;&\n\tscan = [ \"${1}\" ]\n;" ${LVM_CONF}
             grep -q '^[[:blank:]]*obtain_device_list_from_udev[[:blank:]]*=' ${LVM_CONF} ||
-            sed -i 's;^\s*devices\s*{;&\n    obtain_device_list_form_udev = 1\n;' ${LVM_CONF}
+            sed -i 's;^\s*devices\s*{;&\n\tobtain_device_list_form_udev = 1\n;' ${LVM_CONF}
             grep -q '^[[:blank:]]*filter[[:blank:]]*=' ${LVM_CONF} ||
-            sed -i 's;^\s*devices\s*{;&\n    filter = [ "a|.*|" ]\n;' ${LVM_CONF}
+            sed -i 's;^\s*devices\s*{;&\n\tfilter = [ "a|.*|" ]\n;' ${LVM_CONF}
             grep -q '^[[:blank:]]*global_filter[[:blank:]]*=' ${LVM_CONF} ||
-            sed -i 's;^\s*devices\s*{;&\n    global_filter = [ "a|.*|" ]\n;' ${LVM_CONF}
+            sed -i 's;^\s*devices\s*{;&\n\tglobal_filter = [ "a|.*|" ]\n;' ${LVM_CONF}
             grep -q '^[[:blank:]]*sysfs_scan[[:blank:]]*=' ${LVM_CONF} ||
-            sed -i 's;^\s*devices\s*{;&\n    sysfs_scan = 1\n;' ${LVM_CONF}
+            sed -i 's;^\s*devices\s*{;&\n\tsysfs_scan = 1\n;' ${LVM_CONF}
     fi
 
     ##
@@ -446,9 +446,9 @@ global {
 EOF
     else
             grep -q '^[[:blank:]]*locking_type[[:blank:]]*=' ${LVM_CONF} ||
-            sed -i 's;^\s*global\s*{;&\n    locking_type = 1\n;' ${LVM_CONF}
+            sed -i 's;^\s*global\s*{;&\n\tlocking_type = 1\n;' ${LVM_CONF}
             grep -q '^[[:blank:]]*metadata_read_only[[:blank:]]*=' ${LVM_CONF} ||
-            sed -i 's;^\s*global\s*{;&\n    metadata_read_only = 0\n;' ${LVM_CONF}
+            sed -i 's;^\s*global\s*{;&\n\tmetadata_read_only = 0\n;' ${LVM_CONF}
     fi
 
     ##
@@ -538,7 +538,7 @@ set_readonly_lvm_settings() {
     if  grep -q '^[[:blank:]]*read_only_volume_list[[:blank:]]*=' ${LVM_CONF} ; then
         sed -i "s|^\s*read_only_volume_list\s*=\s*[|& ${ROVL},|" ${LVM_CONF}
     else
-        sed -i "s|^\s*activation\s*{.*|&\n    read_only_volume_list = [ ${ROVL} ]|" ${LVM_CONF}
+        sed -i "s|^\s*activation\s*{.*|&\n\tread_only_volume_list = [ ${ROVL} ]|" ${LVM_CONF}
     fi
 }
 # ===========================================================================}}}

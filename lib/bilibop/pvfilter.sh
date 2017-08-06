@@ -426,7 +426,7 @@ EOF
         [ "${have_filter}" = "false" -a "${global}" = "false" ] &&
         # Add 'filter' variable
         if  [ "${init}" = "true" ]; then
-            sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n    filter = [ "a|.*|" ],' ${LVM_CONF}
+            sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n\tfilter = [ "a|.*|" ],' ${LVM_CONF}
             error=$((error+$?))
         else
             echo "${PROG}: 'filter' variable is missing in ${LVM_CONF}." >&2
@@ -436,7 +436,7 @@ EOF
         [ "${have_global}" = "false" -a "${global}" = "true" ] &&
         # Add 'global_filter' variable
         if  [ "${init}" = "true" ]; then
-            sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n    global_filter = [ "a|.*|" ],' ${LVM_CONF}
+            sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n\tglobal_filter = [ "a|.*|" ],' ${LVM_CONF}
             error=$((error+$?))
         else
             echo "${PROG}: 'global_filter' variable is missing in ${LVM_CONF}." >&2
@@ -446,7 +446,7 @@ EOF
         [ "${have_obtain}" = "false" ] &&
         # Add 'obtain_device_list_from_udev' variable
         if  [ "${init}" = "true" ]; then
-            sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n    obtain_device_list_from_udev = 1,' ${LVM_CONF}
+            sed -i 's,^[[:blank:]]*devices[[:blank:]]*{.*,&\n\tobtain_device_list_from_udev = 1,' ${LVM_CONF}
             error=$((error+$?))
         else
             echo "${PROG}: 'obtain_device_list_from_udev' variable is missing in ${LVM_CONF}." >&2
