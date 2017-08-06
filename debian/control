@@ -3,13 +3,12 @@ Section: admin
 Priority: optional
 Maintainer: Yann Amar <quidame@poivron.org>
 Build-Depends: debhelper (>= 9), po-debconf
-Standards-Version: 4.0.0.4
+Standards-Version: 4.0.1
 Homepage: https://un.poivron.org/~quidame/wiki/bilibop
 Vcs-Git: https://un.poivron.org/~quidame/git/bilibop.git
 
 Package: bilibop
 Section: metapackages
-Priority: extra
 Architecture: linux-any
 Depends: bilibop-lockfs (= ${binary:Version}), bilibop-rules (= ${binary:Version}), ${misc:Depends}
 Description: run Debian GNU/Linux from external media - metapackage
@@ -78,7 +77,6 @@ Description: lock filesystems and write changes into RAM
  ${Requirement}
 
 Package: bilibop-rules
-Priority: extra
 Architecture: linux-any
 Depends: bilibop-common (= ${binary:Version}), initramfs-tools, ${misc:Depends}
 Recommends: lvm2
