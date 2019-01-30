@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: Yann Amar <quidame@poivron.org>
 Build-Depends: debhelper (>= 12), po-debconf
-Standards-Version: 4.1.0
+Standards-Version: 4.3.0
 Homepage: https://un.poivron.org/~quidame/wiki/bilibop
 Vcs-Git: https://un.poivron.org/~quidame/git/bilibop.git
 
