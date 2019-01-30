@@ -23,3 +23,7 @@ override_dh_installdebconf:
 # each package, and the same requirement at the end.
 override_dh_gencontrol:
 	dh_gencontrol -u-Tdebian/substvars
+
+# The provided hooks aren't lintian-clean (use absolute path of the command).
+override_dh_installinitramfs:
+	dh_installinitramfs --noscripts
