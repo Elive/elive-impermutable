@@ -22,4 +22,4 @@ override_dh_installdebconf:
 # Include the same text at the beginning of the extended description of
 # each package, and the same requirement at the end.
 override_dh_gencontrol:
-	dh_gencontrol -- -Tdebian/substvars
+	dh_gencontrol -u-Tdebian/substvars
