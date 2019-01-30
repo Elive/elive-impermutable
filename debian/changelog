@@ -1,3 +1,19 @@
+bilibop (0.5.5) unstable; urgency=low
+
+  * debian/control:
+    - bump debhelper compatibility to 12 (also update debian/compat)
+    - add udev in Depends fields to solve lintian warnings
+    - bump Standards-Version to 4.3.0 (update debian/rules accordingly)
+  * debian/rules:
+    - update dh_gencontrol option and argument according to the new behaviour
+      of the command
+    - add an override for the new dh_installinitramfs, as it duplicates the
+      "update-initramfs -u" existing calls and triggers lintian warnings due
+      to absolute path in command
+    - enable verbose output (a should since Debian Policy 4.2.0)
+
+ -- Yann Amar <quidame@poivron.org>  Wed, 30 Jan 2019 23:52:22 +0000
+
 bilibop (0.5.4) unstable; urgency=high
 
   * bilibop-common: remove "udev compatibility stuff" (no more needed).
