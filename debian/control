@@ -39,7 +39,7 @@ Description: shell functions for bilibop scripts
 
 Package: bilibop-lockfs
 Architecture: linux-any
-Depends: bilibop-common (= ${binary:Version}), initramfs-tools, ${misc:Depends}
+Depends: bilibop-common (= ${binary:Version}), initramfs-tools, udev, ${misc:Depends}
 Recommends: cryptsetup
 Suggests: aufs-dkms, bilibop-device-policy, gnome-icon-theme, libnotify-bin, plymouth
 Description: lock filesystems and write changes into RAM
@@ -78,7 +78,7 @@ Description: lock filesystems and write changes into RAM
 
 Package: bilibop-rules
 Architecture: linux-any
-Depends: bilibop-common (= ${binary:Version}), initramfs-tools, ${misc:Depends}
+Depends: bilibop-common (= ${binary:Version}), initramfs-tools, udev, ${misc:Depends}
 Recommends: lvm2
 Suggests: bilibop-lockfs, cryptsetup, policykit-1, udisks2
 Conflicts: bilibop-udev
@@ -109,7 +109,7 @@ Description: device management rules for OS running from external media
 
 Package: bilibop-udev
 Architecture: linux-any
-Depends: bilibop-common (= ${binary:Version}), ${misc:Depends}
+Depends: bilibop-common (= ${binary:Version}), udev, ${misc:Depends}
 Suggests: bilibop-lockfs
 Provides: bilibop-device-policy
 Description: minimal udev rule for Debian GNU/Linux running from external media
