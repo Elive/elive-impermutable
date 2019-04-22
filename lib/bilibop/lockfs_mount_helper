@@ -194,7 +194,7 @@ for opt in $(IFS=','; echo ${options}); do
         fstype=*)
             eval "${opt}"
             ;;
-        rw)
+        rw|ro)
             ;;
         *)
             robr_opts="${robr_opts:+${robr_opts},}${opt}"
@@ -203,8 +203,17 @@ for opt in $(IFS=','; echo ${options}); do
 
     # 2. Options for the writable branch:
     case "${opt}" in
-        ro|nodev|noexec|nosuid)
+        nodev|noexec|nosuid)
             rwbr_opts="${rwbr_opts:+${rwbr_opts},}${opt}"
+            ;;
+        *)
+            ;;
+    esac
+
+    # 3. Options for the union fs:
+    case "${opt}" in
+        ro)
+            union_opts="${union_opts:+${union_opts},}${opt}"
             ;;
         *)
             ;;
@@ -374,9 +383,9 @@ fi
 
 # Now set the union filesystem mount options
 if [ "${METHOD}" = "aufs" ]; then
-    UNIONFS_OPTS="br:${rwbr}=rw:${robr}=${RO}"
+    UNIONFS_OPTS="${union_opts:+${union_opts},}br:${rwbr}=rw:${robr}=${RO}"
 elif [ "${METHOD}" = "overlay" ]; then
-    UNIONFS_OPTS="lowerdir=${robr},upperdir=${rwbr},workdir=${work}"
+    UNIONFS_OPTS="${union_opts:+${union_opts},}lowerdir=${robr},upperdir=${rwbr},workdir=${work}"
 fi
 
 # Try to mount the union fs now. In case of failure, undo what has been done
