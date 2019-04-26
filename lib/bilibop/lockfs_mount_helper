@@ -182,40 +182,32 @@ fi
 mntpnt="${2}"
 options="${4}"
 
-# Parse mount options. Two cases:
+# Parse mount options and allocate them to the proper branches or their
+# union:
 # 1. the block device will be mounted with the same options than in the
 #    original fstab entry, plus 'ro'.
 # 2. the tmpfs will be mounted with only some options of the previous:
-#    ro, nodev, noexec, nosuid, if they exist.
+#    nodev, noexec, nosuid, if they exist.
+# 3. when set in the persistent fstab, the ro flag could be deferred to
+#    the tmpfs mount (and the union will inherit of it), but this would
+#    forbid creation of subdirectories for submountpoints.
 
 for opt in $(IFS=','; echo ${options}); do
-    # 1. Options for the readonly branch:
     case "${opt}" in
         fstype=*)
             eval "${opt}"
             ;;
-        rw|ro)
+        rw)
             ;;
-        *)
-            robr_opts="${robr_opts:+${robr_opts},}${opt}"
-            ;;
-    esac
-
-    # 2. Options for the writable branch:
-    case "${opt}" in
-        nodev|noexec|nosuid)
-            rwbr_opts="${rwbr_opts:+${rwbr_opts},}${opt}"
-            ;;
-        *)
-            ;;
-    esac
-
-    # 3. Options for the union fs:
-    case "${opt}" in
         ro)
             union_opts="${union_opts:+${union_opts},}${opt}"
             ;;
+        nodev|noexec|nosuid)
+            rwbr_opts="${rwbr_opts:+${rwbr_opts},}${opt}"
+            robr_opts="${robr_opts:+${robr_opts},}${opt}"
+            ;;
         *)
+            robr_opts="${robr_opts:+${robr_opts},}${opt}"
             ;;
     esac
 done
