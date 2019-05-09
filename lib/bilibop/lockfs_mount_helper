@@ -54,11 +54,17 @@ mount_fallback() {
 }
 # ===========================================================================}}}
 
-# Works only if the parent process is /bin/mount:
-if [ "$(readlink -f /proc/${PPID}/exe)" != "/bin/mount" ]; then
-    usage >&2
-    exit 3
-fi
+# Works only if the parent process is the mount command (/bin/mount for backward
+# compatibility, or /usr/bin/mount). This will ensure arguments are passed in a
+# specific order, and shorten the code to parse them.
+case "$(readlink -f /proc/${PPID}/exe)" in
+    "/bin/mount"|"/usr/bin/mount")
+        ;;
+    *)
+        usage >&2
+        exit 3
+        ;;
+esac
 
 . /lib/bilibop/common.sh
 get_bilibop_variables
