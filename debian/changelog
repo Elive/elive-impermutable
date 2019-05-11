@@ -1,3 +1,15 @@
+bilibop (0.5.6) unstable; urgency=high
+
+  * bilibop-lockfs:
+    - fix boot failure by supporting the new path /usr/bin/mount as well as
+      the legacy /bin/mount (kept for backward compatibility).
+      Closes: #928658.
+    - fix boot failure about mounts flagged 'ro' in fstab by applying the
+      'ro' option to the union instead of its writable branch.
+      Closes: #928780.
+
+ -- Yann Amar <quidame@poivron.org>  Sat, 11 May 2019 01:40:04 +0000
+
 bilibop (0.5.5) unstable; urgency=low
 
   * debian/control:
