@@ -236,6 +236,12 @@ done
 # /aufs/boot/ro      + /aufs/boot/rw      -> /boot
 # /aufs/usr/local/ro + /aufs/usr/local/rw -> /usr/local
 # 3. hybrid
+# Each writable branch is mounted in a dedicated subdirectory referring to
+# the union fs mount point, and readonly branches share a same tree.
+# <readonly branch>  + <writable branch>  -> <aufs mount>
+# /aufs/ro           + /aufs/rw           -> /
+# /aufs/ro/boot      + /aufs/boot/rw      -> /boot
+# /aufs/ro/usr/local + /aufs/usr/local/rw -> /usr/local
 #
 # For overlay:
 # A dedicated temporary filesystem (tmpfs) is set for the first overlay mount
@@ -287,7 +293,7 @@ if [ "${METHOD}" = "aufs" ]; then
             rwbr="${RWBR}${mntpnt}"         # /aufs/rw/usr/local        |rw symlinked
             ;;
     esac
-    temp="${RWBR}"
+    temp="${rwbr}"
 
 elif [ "${METHOD}" = "overlay" ]; then
     # Upperdirs (writable branches) can't be nested, as they are a subdirectory
@@ -339,6 +345,7 @@ fi
 
 # Try to mount the writable branch, and in case of failure, undo what
 # has been done before, etc.
+mountpoint -q ${temp} ||
 if ! mount ${flags} -t tmpfs -o ${rwbr_opts:+${rwbr_opts},}${SIZE:+size=${SIZE},}mode=0755 tmpfs ${temp}; then
     [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
     mount_fallback "${@}"
@@ -356,6 +363,7 @@ fi
 # Try to mount the readonly branch. In case of failure, undo what has been
 # done before, do a normal mount, rewrite the fstab entry to be consistent
 # with that, and exit:
+mountpoint -q ${robr} ||
 if ! mount ${flags} ${fstype:+-t ${fstype}} -o ${robr_opts:+${robr_opts},}ro ${device:-${LOFILE}} ${robr}; then
     umount ${temp}
     [ "${RO}" = "rr" ] && [ -b "${device}" ] && blockdev --setrw "${device}"
@@ -394,6 +402,7 @@ fi
 # path (here, /aufs or /overlay), which may confuse users parsing df or mount
 # output. So we move somewhere else before calling mount.
 cd /tmp
+mountpoint -q ${mntpnt} ||
 if ! mount ${flags} -t ${METHOD} -o ${UNIONFS_OPTS} ${METHOD} ${mntpnt}; then
     umount ${robr}
     umount ${temp}
@@ -421,14 +430,14 @@ if [ "${METHOD}" = "aufs" ]; then
         hybrid)
             [ -d "${rwln%/*}" ] || mkdir -p ${rwln%/*}
             [ -d "${roln%/*}" ] || mkdir -p ${roln%/*}
-            ln -s ${prefix%/}/ro${mntpnt} ${roln}
-            ln -s ${prefix%/}${mntpnt}/rw ${rwln}
+            [ -h "${rwln}" ] || ln -s ${prefix%/}${mntpnt}/rw ${rwln}
+            [ -h "${roln}" ] || ln -s ${prefix%/}/ro${mntpnt} ${roln}
             ;;
         *)
             [ -d "${rwln%/*}" ] || mkdir -p ${rwln%/*}
             [ -d "${roln%/*}" ] || mkdir -p ${roln%/*}
-            ln -s ${prefix%/}/ro${mntpnt} ${roln}
-            ln -s ${prefix%/}/rw${mntpnt} ${rwln}
+            [ -h "${rwln}" ] || ln -s ${prefix%/}/rw${mntpnt} ${rwln}
+            [ -h "${roln}" ] || ln -s ${prefix%/}/ro${mntpnt} ${roln}
             ;;
     esac
 
@@ -437,8 +446,8 @@ elif [ "${METHOD}" = "overlay" ]; then
         hybrid)
             [ -d "${rwln%/*}" ] || mkdir -p ${rwln%/*}
             [ -d "${roln%/*}" ] || mkdir -p ${roln%/*}
-            ln -s ${prefix%/}/ro${mntpnt} ${roln}
-            ln -s ${prefix%/}${mntpnt}/rw ${rwln}
+            [ -h "${rwln}" ] || ln -s ${prefix%/}${mntpnt}/rw ${rwln}
+            [ -h "${roln}" ] || ln -s ${prefix%/}/ro${mntpnt} ${roln}
             ;;
         *)
             ;;
