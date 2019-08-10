@@ -16,7 +16,6 @@ esac
 
 # Modify local lvm.conf (in the initramfs) to lock LVM metadata with:
 # global {
-# 	locking_type = 4
 # 	metadata_read_only = 1
 # }
 # activation {
@@ -113,10 +112,13 @@ else	log_warning_msg "${0##*/}: Nothing to do."
 	exit 0
 fi
 
-# Now modify 'locking_type', 'metadata_read_only' and 'read_only_volume_list'
+# Now modify 'metadata_read_only' and 'read_only_volume_list'
 # variables in (initramfs)/etc/lvm/lvm.conf:
 LVM_CONF="/etc/lvm/lvm.conf"
 initialize_lvm_conf "${udev_root}"
 set_readonly_lvm_settings
+
+# Also skip root filesystem check
+rm -f /sbin/fsck
 
 :
