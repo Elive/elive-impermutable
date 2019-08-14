@@ -396,7 +396,6 @@ devices {
 }
 
 global {
-    locking_type = 1
     metadata_read_only = 0
 }
 
@@ -441,13 +440,10 @@ EOF
 # Added on the fly by ${0##*/} from the initramfs.
 # See lvm.conf(5) and bilibop(7) for details.
 global {
-    locking_type = 1
     metadata_read_only = 0
 }
 EOF
     else
-            grep -q '^[[:blank:]]*locking_type[[:blank:]]*=' ${LVM_CONF} ||
-            sed -i 's;^\s*global\s*{;&\n\tlocking_type = 1\n;' ${LVM_CONF}
             grep -q '^[[:blank:]]*metadata_read_only[[:blank:]]*=' ${LVM_CONF} ||
             sed -i 's;^\s*global\s*{;&\n\tmetadata_read_only = 0\n;' ${LVM_CONF}
     fi
@@ -510,7 +506,6 @@ blacklist_bilibop_devices() {
 # What we want is: overwrite temporary lvm.conf (into initrd or on aufs) and
 # set some variables to make VG and LV read-only (content + metadata).
 # In 'global' section:
-#   locking_type = 4
 #   metadata_read_only = 1
 # In 'activation' section:
 #   read_only_volume_list = [ "vg0/lv0", "vg0/lv1", "vg1/lv0", "vg1/lv1", "vg1/lv2" ]
@@ -525,7 +520,6 @@ set_readonly_lvm_settings() {
 
     cp ${LVM_CONF} ${LVM_CONF}.bak
 
-    sed -i 's|^\(\s*locking_type\s*=\s*\).*|\14|' ${LVM_CONF}
     # This prohibits execution of commands such as vgchange or lvchange in new
     # releases of lvm2, so don't do that:
     #sed -i 's|^\(\s*metadata_read_only\s*=\s*\).*|\11|' ${LVM_CONF}
