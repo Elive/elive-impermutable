@@ -1,4 +1,4 @@
-.TH BILIBOP.CONF 5 2015\-07\-14 bilibop "Bilibop Project"
+.TH BILIBOP.CONF 5 2019\-08\-15 bilibop "Bilibop Project"
 
 .SH NAME
 bilibop.conf \- configuration file of bilibop packages
@@ -250,6 +250,37 @@ where
 .I /foobar
 is the mountpoint to not lock; not that it is preceded by a minus sign
 .RB ( \- ).
+.PP
+Default is unset.
+
+.SS BILIBOP_LOCKFS_FALLBACK_POLICY
+If a mount option or a filesystem type is not supported by
+.BR aufs (5)
+or
+.BR overlay ,
+mount.lockfs will fail to lock it as expected. This variable defines the
+policy to apply in case of mount error. Its value can be overridden from
+the boot commandline with
+.RB \(aq lockfs=ro \(aq
+or
+.RB \(aq lockfs=asis \(aq.
+.IP \(bu 2
+.I ro
+.br
+The mount helper script will retry to mount the filesystem as if it was
+whitelisted, but readonly to avoid mistaken changes.
+.IP \(bu 2
+.I asis
+.br
+The mount helper script will retry to mount the filesystem as if it was
+whitelisted.
+.PP
+If empty, unset, or set to anything else, the value will fallback to
+.IR ro .
+However, if the drive is physically locked, previous settings will be
+overridden and the
+.I ro
+policy will be automatically applied.
 .PP
 Default is unset.
 
