@@ -101,12 +101,16 @@ for param in $(cat /proc/cmdline); do
                         BILIBOP_LOCKFS_WHITELIST=""
                         BILIBOP_LOCKFS_SIZE=""
                         BILIBOP_LOCKFS_FALLBACK_POLICY=""
+                        BILIBOP_LOCKFS_PATH_SCHEME=""
                         ;;
                     hard|soft)
                         BILIBOP_LOCKFS_POLICY="${policy}"
                         ;;
                     ro|asis)
                         BILIBOP_LOCKFS_FALLBACK_POLICY="${policy}"
+                        ;;
+                    isolated|hybrid|nested)
+                        BILIBOP_LOCKFS_PATH_SCHEME="${policy}"
                         ;;
                     all)
                         BILIBOP_LOCKFS_WHITELIST=""
