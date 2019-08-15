@@ -96,6 +96,49 @@ commandline overrides the previous ones):
   BILIBOP_LOCKFS="true"
   BILIBOP_LOCKFS_POLICY="soft"
 
+- 'lockfs=aufs' - enable bilibop-lockfs features and try to use aufs as
+  the unionfs module. This will apply only (and automatically) if the
+  aufs-dkms package is installed.
+  BILIBOP_LOCKFS="true"
+  BILIBOP_LOCKFS_UNION_METHOD="aufs"
+
+- 'lockfs=overlay' - enable bilibop-lockfs features and use overlay as
+  the unionfs module. This will apply automatically if the aufs-dkms
+  package is not installed.
+  BILIBOP_LOCKFS="true"
+  BILIBOP_LOCKFS_UNION_METHOD="overlay"
+
+- 'lockfs=:prefix' - enable bilibop-lockfs features and use /prefix/ro
+  and /prefix/rw as the branches to be merged as /. The colon (:) is a
+  marker, and the prefix is automatically prepended with /.
+
+- 'lockfs=isolated' - enable bilibop-lockfs features, with a dedicated
+  subtree per mount, making readonly branches of unions isolated between
+  them, and making the same for writable branches.
+  BILIBOP_LOCKFS="true"
+  BILIBOP_LOCKFS_PATH_SCHEME="isolated"
+
+- 'lockfs=nested' - enable bilibop-lockfs features, with all readonly
+  branches in a same subtree, and all writable branches in another
+  dedicated subtree.
+  BILIBOP_LOCKFS="true"
+  BILIBOP_LOCKFS_PATH_SCHEME="nested"
+
+- 'lockfs=hybrid' - enable bilibop-lockfs features, with all readonly
+  branches nested, and all writable branches isolated.
+  BILIBOP_LOCKFS="true"
+  BILIBOP_LOCKFS_PATH_SCHEME="hybrid"
+
+- 'lockfs=ro' - enable bilibop-lockfs features, and fallback to a read-
+  only flat mount in case of mount.lockfs failure.
+  BILIBOP_LOCKFS="true"
+  BILIBOP_LOCKFS_FALLBACK_POLICY="ro"
+
+- 'lockfs=asis' - enable bilibop-lockfs features, and mount fs 'as is',
+  i.e. unprotected, in case of mount.lockfs failure.
+  BILIBOP_LOCKFS="true"
+  BILIBOP_LOCKFS_FALLBACK_POLICY="asis"
+
 - 'lockfs=<SIZE>' - enable bilibop-lockfs features, and allocate SIZE of
   tmpfs for the root filesystem (/). SIZE must be digits (not beginning
   by zero) suffixed with 'k', 'K', 'm', 'M', 'g', 'G', or '%'. Default is
@@ -108,6 +151,11 @@ commandline overrides the previous ones):
   BILIBOP_LOCKFS="true"
   BILIBOP_LOCKFS_WHITELIST=""
 
+- 'lockfs=-/foobar' - enable bilibop-lockfs features and add /foobar to
+  the list of whitelisted mountpoints:
+  BILIBOP_LOCKFS="true"
+  BILIBOP_LOCKFS_WHITELIST="${BILIBOP_LOCKFS_WHITELIST} /foobar"
+
 - 'lockfs=default' - enable bilibop-lockfs features with their default
   values; all settings of the configuration file will be overridden:
   BILIBOP_LOCKFS="true"
@@ -116,11 +164,10 @@ commandline overrides the previous ones):
   BILIBOP_LOCKFS_SWAP_POLICY=""	(fallbacks to 'hard' or 'crypt')
   BILIBOP_LOCKFS_SIZE=""	(means '50%' for each tmpfs)
   BILIBOP_LOCKFS_NOTIFY_POLICY=""
-
-- 'lockfs=-/foobar' - enable bilibop-lockfs features and add /foobar to
-  the list of whitelisted mountpoints:
-  BILIBOP_LOCKFS="true"
-  BILIBOP_LOCKFS_WHITELIST="${BILIBOP_LOCKFS_WHITELIST} /foobar"
+  BILIBOP_LOCKFS_FALLBACK_POLICY=""
+  BILIBOP_LOCKFS_UNION_METHOD=""
+  BILIBOP_LOCKFS_PATH_PREFIX=""
+  BILIBOP_LOCKFS_PATH_SCHEME=""
 
 - 'noswap' - if bilibop-lockfs is enabled, then apply a more restrictive
   policy than does the checkroot.sh initscript: comment lines about swap
@@ -137,6 +184,12 @@ separated by comma; for examples:
   lockfs=default,-/var/spool/apt-mirror
   will reset all settings to their default values, and then whitelist the
   /var/spool/apt-mirror mountpoint. My favorite.
+
+  lockfs=:.lockfs,hybrid,overlay,ro,256M
+  will use the hybrid scheme with /.lockfs as the main directory for all
+  branches; will also force to use overlay module and will fallback to a
+  readonly mount in case of mount.lockfs faillure. 256 Mb of RAM will be
+  allocated to /.
 
 
 4. HOW IT WORKS
@@ -454,3 +507,4 @@ is writable, other block devices are read-only.
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
  -- bilibop project <quidame@poivron.org>  Tue, 14 Jul 2015 13:24:22 +0000
+ -- bilibop project <quidame@poivron.org>  Thu, 15 Aug 2019 05:39:09 +0000
