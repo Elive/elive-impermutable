@@ -80,6 +80,7 @@ do
 						BILIBOP_LOCKFS_SWAP_POLICY=""
 						BILIBOP_LOCKFS_NOTIFY_POLICY=""
 						BILIBOP_LOCKFS_UNION_METHOD=""
+						BILIBOP_LOCKFS_PATH_PREFIX=""
 						_force="false"
 						SIZE=""
 						;;
@@ -91,6 +92,9 @@ do
 						;;
 					aufs|overlay)
 						BILIBOP_LOCKFS_UNION_METHOD="${opt}"
+						;;
+					:*)
+						BILIBOP_LOCKFS_PATH_PREFIX="${opt#:}"
 						;;
 					[1-9]*)
 						SIZE="$(printf ${opt} | grep '^[1-9][0-9]*[KkMmGg%]\?$')"
