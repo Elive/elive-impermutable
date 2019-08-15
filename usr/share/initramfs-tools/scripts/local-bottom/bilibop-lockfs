@@ -79,6 +79,7 @@ do
 						BILIBOP_LOCKFS_SIZE=""
 						BILIBOP_LOCKFS_SWAP_POLICY=""
 						BILIBOP_LOCKFS_NOTIFY_POLICY=""
+						BILIBOP_LOCKFS_UNION_METHOD=""
 						_force="false"
 						SIZE=""
 						;;
@@ -87,6 +88,9 @@ do
 						;;
 					hard|soft)
 						BILIBOP_LOCKFS_POLICY="${opt}"
+						;;
+					aufs|overlay)
+						BILIBOP_LOCKFS_UNION_METHOD="${opt}"
 						;;
 					[1-9]*)
 						SIZE="$(printf ${opt} | grep '^[1-9][0-9]*[KkMmGg%]\?$')"
@@ -182,17 +186,24 @@ then	log_warning_msg "${0##*/}: Root filesystem is already mounted as overlayfs.
 fi
 
 
-# Load the aufs or overlay module:
-if	modprobe aufs >/dev/null 2>&1
-then	METHOD="aufs"
-elif	modprobe overlay >/dev/null 2>&1
-then	METHOD="overlay"
+# Preselect the aufs or overlay module:
+if [ "${BILIBOP_LOCKFS_UNION_METHOD}" = "overlay" ]; then
+	tryfirst="overlay"
+	fallback="aufs"
+else
+	tryfirst="aufs"
+	fallback="overlay"
 fi
 
-# Check if the aufs/overlayfs filesystem is now supported:
-if	! grep -q "[[:blank:]]${METHOD}$" /proc/filesystems
-then
-	log_failure_msg "${0##*/}: No ${METHOD} kernel support."
+# Load the aufs or overlay module:
+if	modprobe ${tryfirst} >/dev/null 2>&1 &&
+	grep -q "[[:blank:]]${tryfirst}$" /proc/filesystems
+then	METHOD="${tryfirst}"
+elif	modprobe ${fallback} >/dev/null 2>&1 &&
+	grep -q "[[:blank:]]${fallback}$" /proc/filesystems
+then	METHOD="${fallback}"
+else
+	log_failure_msg "${0##*/}: No unionfs (${tryfirst}, ${fallback}) kernel support."
 	log_failure_msg "${0##*/}: Exit."
 	plymouth_message "${0##*/}: ERROR"
 	exit 1
