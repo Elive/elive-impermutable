@@ -144,6 +144,28 @@ policy will be automatically applied.
 .PP
 Default is unset.
 
+.SS BILIBOP_LOCKFS_UNION_METHOD
+This variable defines which unionfs module is preferred and must be tried
+first. As this module may be unsupported by the current kernel, the other
+module supported by \(aqbilibop\-lockfs\(aq is the fallback. Its value can
+be overridden from the boot commandline with
+.RB \(aq lockfs=aufs \(aq
+or
+.RB \(aq lockfs=overlay \(aq.
+.IP \(bu 2
+.I aufs
+.br
+Try to load \(aqaufs\(aq first, otherwise \(aqoverlay\(aq.
+.IP \(bu 2
+.I overlay
+.br
+Try to load \(aqoverlay\(aq first, otherwise \(aqaufs\(aq.
+.PP
+If empty, unset, or set to anything else, the value will fallback to
+.IR aufs . So as soon as aufs-dkms package is installed, it is used.
+.PP
+Default is unset.
+
 .SS BILIBOP_LOCKFS_PATH_PREFIX
 This variable defines the main directory under which all readonly and
 writable branches are set. It may be any arbitrary string, as long as it is
