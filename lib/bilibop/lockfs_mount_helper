@@ -44,6 +44,10 @@ mount_fallback() {
             fstype=*)
                 eval "${opt}"
                 ;;
+            rw)
+                [ "${BILIBOP_LOCKFS_FALLBACK_POLICY}" = "asis" ] ||
+                options="${options:+${options},}ro"
+                ;;
             *)
                 options="${options:+${options},}${opt}"
                 ;;
@@ -96,9 +100,13 @@ for param in $(cat /proc/cmdline); do
                         BILIBOP_LOCKFS_POLICY=""
                         BILIBOP_LOCKFS_WHITELIST=""
                         BILIBOP_LOCKFS_SIZE=""
+                        BILIBOP_LOCKFS_FALLBACK_POLICY=""
                         ;;
                     hard|soft)
                         BILIBOP_LOCKFS_POLICY="${policy}"
+                        ;;
+                    ro|asis)
+                        BILIBOP_LOCKFS_FALLBACK_POLICY="${policy}"
                         ;;
                     all)
                         BILIBOP_LOCKFS_WHITELIST=""
