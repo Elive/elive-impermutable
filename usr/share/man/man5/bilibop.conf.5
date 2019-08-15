@@ -169,7 +169,10 @@ Default is unset.
 .SS BILIBOP_LOCKFS_PATH_PREFIX
 This variable defines the main directory under which all readonly and
 writable branches are set. It may be any arbitrary string, as long as it is
-a valid name and the directory does not exist yet.
+a valid name and the directory does not exist yet. Its value can be
+overridden from the boot commandline with
+.RB \(aq lockfs=:prefix \(aq
+(note the leading colon that is a marker).
 .PP
 If empty or unset, it defaults to the name of the module currently in use
 (i.e.
@@ -184,6 +187,12 @@ This variable defines the structure of each set of ro and rw branches,
 regarding the others. It exists only because unlike aufs, overlay does
 not allow one to easily nest mount points (especially the
 .BR upperdirs ).
+Its value can be overridden from the boot commandline with
+.RB \(aq lockfs=isolated \(aq
+or
+.RB \(aq lockfs=hybrid \(aq
+or
+.RB \(aq lockfs=nested \(aq.
 .IP \(bu 2
 .I isolated
 .br
