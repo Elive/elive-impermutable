@@ -1,4 +1,4 @@
-.TH BILIBOP.CONF 5 2015\-07\-14 bilibop "Bilibop Project"
+.TH BILIBOP.CONF 5 2019\-08\-15 bilibop "Bilibop Project"
 
 .SH NOM
 bilibop.conf \- fichier de configuration des paquets bilibop
@@ -155,11 +155,38 @@ sera automatiquement appliquée.
 .PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
+.SS BILIBOP_LOCKFS_UNION_METHOD
+Cette variable definit quel module unionfs utiliser de préférence. Comme ce
+module peut ne pas être supporté par le noyau en cours d'usage, l'autre
+module supporté par \(aqbilibop\-lockfs\(aq est appelé en secours. La valeur
+de cette variable peut être surchargée depuis la ligne de commande de
+démarrage avec
+.RB \(aq lockfs=aufs \(aq
+ou
+.RB \(aq lockfs=overlay \(aq.
+.IP \(bu 2
+.I aufs
+.br
+Essaie d'utiliser d'abord \(aqaufs\(aq, sinon \(aqoverlay\(aq.
+.IP \(bu 2
+.I overlay
+.br
+Essaie d'utiliser d'abord \(aqoverlay\(aq, sinon \(aqaufs\(aq.
+.PP
+Si cette variable est vide ou non définie, ou vaut n'importe quoi d'autre,
+sa valeur retombera à
+.IR aufs .
+.PP
+Par défaut, la valeur de cette variable n'est pas fixée.
+
 .SS BILIBOP_LOCKFS_PATH_PREFIX
 Cette variable définit le répertoire principal sous lequel toutes les
 branches accessibles en lecture ou en écriture sont montées. Ce peut être
 n'importe quelle chaîne de caractères, pour autant que le nom soit valide
-et que le répertoire n'éxiste pas encore.
+et que le répertoire n'éxiste pas encore. Sa valeur peut être surchargée
+depuis la ligne de commande de démarrage avec
+.RB \(aq lockfs=:prefix \(aq
+(notez le caractère deux-points, qui sert de marqueur).
 .PP
 Si cette variable est vide ou non définie, sa valeur prendra le nom du
 module en cours d'utilisation (c'est à dire
@@ -176,6 +203,13 @@ ne permet pas facilement d'imbriquer les points de montage en une
 sous-arborscence unique (particulièrement les répertoires accessibles
 en écriture, ou
 .BR upperdirs ).
+La valeur de cette variable peut être surchargée depuis la ligne de
+commande de démarrage avec
+.RB \(aq lockfs=isolated \(aq
+ou
+.RB \(aq lockfs=hybrid \(aq
+ou
+.RB \(aq lockfs=nested \(aq.
 .IP \(bu 2
 .I isolated
 .br
@@ -274,6 +308,41 @@ où
 est le point de montage à ne pas verrouiller; notez qu'il est précédé d'un
 signe moins
 .RB ( \- ).
+.PP
+Par défaut, la valeur de cette variable n'est pas fixée.
+
+.SS BILIBOP_LOCKFS_FALLBACK_POLICY
+Si une option de montage ou un type de système de fichiers n'est pas
+supporté par
+.BR aufs (5)
+ou
+.BR overlay ,
+mount.lockfs échouera à le verrouiller comme attendu. Cette variable definit
+la startégie à appliquer en cas d'erreur de montage. Sa valeur peut être
+surchargée depuis la ligne de commande de démarrage avec
+.RB \(aq lockfs=ro \(aq
+ou
+.RB \(aq lockfs=asis \(aq.
+.IP \(bu 2
+.I ro
+.br
+Le script d'aide au montage essaiera de monter le système de fichiers de
+manière standard, mais en lecture seule pour empêcher des modifications
+par erreur.
+.IP \(bu 2
+.I asis
+.br
+Le script d'aide au montage essaiera de monter le système de fichiers de
+manière standard.
+.PP
+Si cette variable est vide ou non définie, ou vaut n'importe quoi d'autre,
+sa valeur retombera à
+.IR ro .
+.PP
+Cependant, si le périphérique est verrouillé physiquement, les paramétrages
+précédents seront écrasés et la politique
+.I ro
+sera automatiquement appliquée.
 .PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
