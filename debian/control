@@ -17,8 +17,6 @@ Description: run Debian GNU/Linux from external media - metapackage
  The installation of this metapackage will install other BILIBOP packages
  as dependencies. You should not install it, unless your system is writable
  and runs from an external device.
- .
- ${Requirement}
 
 Package: bilibop-common
 Architecture: linux-any
@@ -34,8 +32,6 @@ Description: shell functions for bilibop scripts
  application. Dm-crypt, LVM, loop devices, aufs and overlay root filesystems
  (and almost any combination of them) are supported. A 'drivemap' command is
  also provided, to show block devices in a tree of dependencies.
- .
- ${Requirement}
 
 Package: bilibop-lockfs
 Architecture: linux-any
@@ -73,8 +69,6 @@ Description: lock filesystems and write changes into RAM
  especially for writable operating systems embedded on a USB stick; but it
  may also be installed on public or personal computers, for daily use,
  kiosks, testing purposes, or as a tool in anti-forensics strategies.
- .
- ${Requirement}
 
 Package: bilibop-rules
 Architecture: linux-any
@@ -104,8 +98,6 @@ Description: device management rules for OS running from external media
  This package is not designed to be used on internal disks. It works only
  for OS installed on removable and writable media, including LiveUSB systems.
  See also the bilibop-udev package.
- .
- ${Requirement}
 
 Package: bilibop-udev
 Architecture: linux-any
@@ -123,5 +115,3 @@ Description: minimal udev rule for Debian GNU/Linux running from external media
  for OS installed on removable and writable media, especially LiveUSB systems
  and disk images provided by most vendors of popular ARM-based development
  boards. See also the bilibop-rules package.
- .
- ${Requirement}

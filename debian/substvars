@@ -1,3 +1,1 @@
 Description=Bilibop helps to maintain a Debian GNU/Linux operating system installed${Newline}on an external media (USB, FireWire, Flash memory, eSATA). It hardens${Newline}standard rules and policies to make the system more robust in this${Newline}particular situation.
-
-Requirement=Some features may require Linux kernel 2.6.37 or higher to work properly.
