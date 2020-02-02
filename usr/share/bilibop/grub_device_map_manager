@@ -17,7 +17,6 @@ set -e
 
 ### BEGIN ###
 
-PATH="/usr/sbin:/sbin:/usr/bin:/bin"
 PROG="${0##*/}"
 SOPTS="fhlrsu"
 LOPTS="fake,help,link,remove,show,update"

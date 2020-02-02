@@ -8,8 +8,6 @@ set -e
 # like, but can be run manually too.
 # TODO: translations and gettext support.
 
-PATH="/bin:/usr/bin"
-
 short_usage() {
 	cat <<EOF
 Usage: ${0##*/} --help

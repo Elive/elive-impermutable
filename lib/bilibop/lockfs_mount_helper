@@ -21,8 +21,6 @@ set -e
 #    with the proper arguments when a 'lockfs' fstype is encountered.
 # }}}
 
-PATH="/sbin:/bin"
-
 usage() {
     cat <<EOF
 ${0##*/}: mount helper script for bilibop-lockfs.

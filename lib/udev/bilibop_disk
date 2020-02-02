@@ -22,8 +22,6 @@
 # No option is the same as --test.
 # }}}
 
-PATH="/bin"
-
 device=""
 option="test"
 

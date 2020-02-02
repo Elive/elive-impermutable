@@ -11,7 +11,6 @@
 # So, /bin/sh can be a link to /bin/bash, /bin/dash, /bin/busybox or even
 # /usr/lib/klibc/bin/sh.shared
 
-PATH="/bin:/usr/bin"
 PROG="${0##*/}"
 
 DEBUG="false"

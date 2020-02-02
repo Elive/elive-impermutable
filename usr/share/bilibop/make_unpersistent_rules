@@ -10,7 +10,6 @@ set -e
 
 ### BEGIN ###
 
-PATH="/sbin:/bin:/usr/bin"
 PROG="${0##*/}"
 SOPTS="fho:rsv"
 LOPTS="force,help,only:,restore,status,verbose"

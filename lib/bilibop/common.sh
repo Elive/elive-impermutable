@@ -48,7 +48,7 @@
 #    or /usr/lib/klibc/bin/sh.shared, etc.):
 # ----------
 # #!${SHELL}
-# PATH=/bin ; . /lib/bilibop/common.sh ; get_udev_root ; physical_hard_disk
+# . /lib/bilibop/common.sh ; get_udev_root ; physical_hard_disk
 # ----------
 # 3. by running the previous script with /bin/sh as ${SHELL} and linking
 #    /bin/sh successively to dash, bash, sash, posh, busybox, ksh, zsh, or

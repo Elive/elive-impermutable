@@ -318,7 +318,6 @@ add_lockfs_mount_helper() {
             cat >${1}/sbin/mount.lockfs <<EOF
 #!/bin/sh
 # THIS IS A FALLBACK; IT DON'T LOCK FS BUT JUST RECALLS /bin/mount WITH VALID FSTYPE AND OPTIONS.
-PATH="/bin"
 [ "\$(readlink -f /proc/\${PPID}/exe)" = "/usr/bin/mount" ] ||
 [ "\$(readlink -f /proc/\${PPID}/exe)" = "/bin/mount" ] || exit 3
 for opt in \$(IFS=',' ; echo \${4}) ; do

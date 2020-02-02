@@ -5,7 +5,6 @@ set -e
 # List BILIBOP tagged devices, display some udev properties about them,
 # or trigger uevents to update their properties.
 
-PATH="/sbin:/bin"
 PROG="${0##*/}"
 TAG_DIR="/run/udev/tags/BILIBOP"
 
