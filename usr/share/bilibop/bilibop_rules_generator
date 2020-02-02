@@ -14,7 +14,7 @@ set -e
 #   depending on the bilibop config file.
 #
 # The generated (specific) rules file is placed into /etc/udev/rules.d and
-# overrides the (generic) rules file placed into /lib/udev/rules.d, with the
+# overrides the (generic) rules file placed into /usr/lib/udev/rules.d, with the
 # same name. This can be done to decrease boot time, or if the shell script
 # called from the generic rules file fails to find the underlying hard disk
 # of the running system - or if the system to set has been chrooted, etc.
@@ -29,16 +29,16 @@ SOPTS="a:e:hn:o:t:"
 LOPTS="attribute:,environment:,help,name:,output:,target:"
 
 ETC_RULES_DIR="/etc/udev/rules.d"
-LIB_RULES_DIR="/lib/udev/rules.d"
+LIB_RULES_DIR="/usr/lib/udev/rules.d"
 
-# If a udev rules file exists in /lib/udev/rules.d, it can be overridden by
+# If a udev rules file exists in /usr/lib/udev/rules.d, it can be overridden by
 # an other file with the same name in /etc/udev/rules.d. If the file don't
-# exist in /lib, then we can write a rules file in /etc to be executed very
+# exist in /usr/lib, then we can write a rules file in /etc to be executed very
 # early.
 RULE="$(ls ${LIB_RULES_DIR}/??-bilibop.rules 2>/dev/null || echo 20-bilibop.rules)"
 RULE="${RULE##*/}"
 
-. /lib/bilibop/common.sh
+. /usr/lib/bilibop/common.sh
 
 get_udev_root
 get_bilibop_variables
@@ -399,7 +399,7 @@ fi
 
 
 # Finally generate the rules file. It is a little bit different from the rules
-# file in /lib:
+# file in /usr/lib:
 cat <<EOF
 # ${header}
 #
@@ -438,12 +438,7 @@ ATTR{removable}=="?*", \\
 	ENV{BILIBOP_DISK}="%r/%k"
 
 ATTR{removable}=="?*", \\
-	TEST=="/lib/udev/rules.d/80-udisks.rules", \\
-	ENV{ID_DRIVE_DETACHABLE}:="0", \\
-	ENV{UDISKS_SYSTEM_INTERNAL}:="1"
-
-ATTR{removable}=="?*", \\
-	TEST=="/lib/udev/rules.d/80-udisks2.rules", \\
+	TEST=="/usr/lib/udev/rules.d/80-udisks2.rules", \\
 	ENV{UDISKS_CAN_POWER_OFF}:="0", \\
 	ENV{UDISKS_SYSTEM}:="1"
 
@@ -451,7 +446,7 @@ ATTR{removable}=="?*", \\
 	GOTO="bilibop_end"
 
 LABEL="bilibop_virtual_block"
-TEST!="/lib/udev/bilibop_disk", GOTO="bilibop_end"
+TEST!="/usr/lib/udev/bilibop_disk", GOTO="bilibop_end"
 
 KERNEL=="loop?*", \\
 	TEST=="loop/backing_file", \\
@@ -471,7 +466,7 @@ KERNEL=="dm-?*", \\
 
 GOTO="bilibop_end"
 LABEL="bilibop_subdevice"
-TEST!="/lib/udev/bilibop_disk", GOTO="bilibop_end"
+TEST!="/usr/lib/udev/bilibop_disk", GOTO="bilibop_end"
 
 PROGRAM=="bilibop_disk --root %r/%k", SYMLINK+="%c"
 
@@ -489,19 +484,11 @@ ENV{DM_LV_NAME}=="?*", ENV{DM_VG_NAME}=="?*", ENV{DM_LV_LAYER}=="", \\
 
 LABEL="bilibop_dm_end"
 
-TEST!="/lib/udev/rules.d/80-udisks.rules", GOTO="bilibop_udisks_end"
-PROGRAM=="bilibop_disk --lock %r/%k", ENV{UDISKS_SYSTEM_INTERNAL}:="1"
-PROGRAM=="bilibop_disk --hide %r/%k", ENV{UDISKS_PRESENTATION_HIDE}:="1", GOTO="bilibop_udisks_end"
-PROGRAM=="bilibop_disk --icon %r/%k", ENV{UDISKS_PRESENTATION_ICON_NAME}:="%c"
-PROGRAM=="bilibop_disk --name %r/%k", ENV{UDISKS_PRESENTATION_NAME}:="%c"
-LABEL="bilibop_udisks_end"
-
-TEST!="/lib/udev/rules.d/80-udisks2.rules", GOTO="bilibop_udisks2_end"
+TEST!="/usr/lib/udev/rules.d/80-udisks2.rules", GOTO="bilibop_end"
 PROGRAM=="bilibop_disk --lock %r/%k", ENV{UDISKS_SYSTEM}:="1"
-PROGRAM=="bilibop_disk --hide %r/%k", ENV{UDISKS_IGNORE}:="1", GOTO="bilibop_udisks2_end"
+PROGRAM=="bilibop_disk --hide %r/%k", ENV{UDISKS_IGNORE}:="1", GOTO="bilibop_end"
 PROGRAM=="bilibop_disk --icon %r/%k", ENV{UDISKS_ICON_NAME}:="%c"
 PROGRAM=="bilibop_disk --name %r/%k", ENV{UDISKS_NAME}:="%c"
-LABEL="bilibop_udisks2_end"
 
 LABEL="bilibop_end"
 EOF
