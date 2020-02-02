@@ -115,11 +115,11 @@ msgstr "独自規則をどうしますか?"
 msgid ""
 "The file '/etc/udev/rules.d/66-bilibop.rules' exists. It is specific to the "
 "drive on which your system is installed and overrides the one, more generic, "
-"that is provided by the bilibop-rules package (in '/lib/udev/rules.d')."
+"that is provided by the bilibop-rules package (in '/usr/lib/udev/rules.d')."
 msgstr ""
 "ファイル「/etc/udev/rules.d/66-bilibop.rules」が存在します。これはシステムが"
 "インストールされているドライブに特有の規則で、bilibop-rules パッケージにより"
-"提供される、(「/lib/udev/rules.d」にある) もっと一般的なものを上書きします。"
+"提供される、(「/usr/lib/udev/rules.d」にある) もっと一般的なものを上書きします。"
 
 #. Type: select
 #. Description

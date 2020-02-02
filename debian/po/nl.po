@@ -121,11 +121,11 @@ msgstr "Wat wilt u met uw aangepaste regels doen?"
 msgid ""
 "The file '/etc/udev/rules.d/66-bilibop.rules' exists. It is specific to the "
 "drive on which your system is installed and overrides the one, more generic, "
-"that is provided by the bilibop-rules package (in '/lib/udev/rules.d')."
+"that is provided by the bilibop-rules package (in '/usr/lib/udev/rules.d')."
 msgstr ""
 "Het bestand '/etc/udev/rules.d/66-bilibop.rules' bestaat reeds. Het is "
 "specifiek voor de schijf waarop uw systeem geïnstalleerd is en heeft "
-"voorrang op het meer generieke bestand (in '/lib/udev/rules.d') dat "
+"voorrang op het meer generieke bestand (in '/usr/lib/udev/rules.d') dat "
 "meegeleverd wordt met het pakket bilibop-rules."
 
 #. Type: select

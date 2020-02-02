@@ -120,11 +120,11 @@ msgstr "O que deseja fazer com as suas regras personalizadas?"
 msgid ""
 "The file '/etc/udev/rules.d/66-bilibop.rules' exists. It is specific to the "
 "drive on which your system is installed and overrides the one, more generic, "
-"that is provided by the bilibop-rules package (in '/lib/udev/rules.d')."
+"that is provided by the bilibop-rules package (in '/usr/lib/udev/rules.d')."
 msgstr ""
 "O ficheiro '/etc/udev/rules.d/66-bilibop.rules' existe. é específico para a "
 "drive no qual o seu sistema esta instalado e sobrepõe-se ao mais genérico "
-"que é fornecido pelo pacote bilibop-rules (em '/lib/udev/rules.d')."
+"que é fornecido pelo pacote bilibop-rules (em '/usr/lib/udev/rules.d')."
 
 #. Type: select
 #. Description

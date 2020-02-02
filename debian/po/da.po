@@ -118,11 +118,11 @@ msgstr "Hvad ønsker du, der skal ske med dine tilpassede regler?"
 msgid ""
 "The file '/etc/udev/rules.d/66-bilibop.rules' exists. It is specific to the "
 "drive on which your system is installed and overrides the one, more generic, "
-"that is provided by the bilibop-rules package (in '/lib/udev/rules.d')."
+"that is provided by the bilibop-rules package (in '/usr/lib/udev/rules.d')."
 msgstr ""
 "Filen »/etc/udev/rules.d/66-bilibop.rules« findes. Den er specifik for drevet "
 "hvorpå dit system er installeret og overskriver den, mere generisk, som er "
-"tilbudt af pakken bilibop-rules (i »/lib/udev/rules.d«)."
+"tilbudt af pakken bilibop-rules (i »/usr/lib/udev/rules.d«)."
 
 #. Type: select
 #. Description

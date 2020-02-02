@@ -125,14 +125,14 @@ msgstr "Что сделать с индивидуальными правилам
 msgid ""
 "The file '/etc/udev/rules.d/66-bilibop.rules' exists. It is specific to the "
 "drive on which your system is installed and overrides the one, more generic, "
-"that is provided by the bilibop-rules package (in '/lib/udev/rules.d')."
+"that is provided by the bilibop-rules package (in '/usr/lib/udev/rules.d')."
 msgstr ""
 "Файл «/etc/udev/rules.d/66-bilibop.rules» существует. В нём описывается "
 "устройство, "
 "на которое установлена ваша система и это заменяет другое более общее "
 "правило, "
 "которое предоставляется пакетом "
-"bilibop-rules (в «/lib/udev/rules.d»)."
+"bilibop-rules (в «/usr/lib/udev/rules.d»)."
 
 #. Type: select
 #. Description
