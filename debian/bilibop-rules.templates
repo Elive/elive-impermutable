@@ -68,21 +68,21 @@ _Description: Options given to the bilibop rules generator seem to be invalid.
  Otherwise, the custom rules file '/etc/udev/rules.d/66-bilibop.rules' will
  not be written.
 
-Template: bilibop-rules/belongs_to_floppy_group/custom_rules_error
+Template: bilibop-rules/not_belong_to_disk_group/custom_rules_error
 Type: error
 #flag:translate!:2,4
-_Description: The following device(s) still belong to floppy group:
+_Description: The following device(s) do not belong to disk group:
  ${DEVICE}
  .
  You should rewrite or remove your custom rules file:
  .
  /etc/udev/rules.d/66-bilibop.rules
 
-Template: bilibop-rules/belongs_to_floppy_group/internal_error
+Template: bilibop-rules/not_belong_to_disk_group/internal_error
 Type: error
 #flag:translate!:3
 _Description: Internal error
- The following device(s) still belong to floppy group:
+ The following device(s) do not belong to disk group:
  .
  ${DEVICE}
  .
@@ -155,22 +155,6 @@ Description: for internal use only
 Template: bilibop-rules/physical_volumes_filter/obtain_device_list_from_udev
 Type: string
 Description: for internal use only
-
-Template: bilibop-rules/physical_volumes_filter/without_global_filter/warning
-Type: error
-#flag:translate!:3,5
-_Description: Physical Volumes Filter will not be applied.
- Probably due to an error in '66-bilibop.rules', the following device(s) have
- not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:
- .
-  ${UNTAGGED}
-  ${UNLINKED}
- .
- This means some variables in '/etc/lvm/lvm.conf' will be left or reset to
- their initial values:
- .
-  obtain_device_list_from_udev = ${FROMUDEV}
-  filter = ${FILTER}
 
 Template: bilibop-rules/physical_volumes_filter/with_global_filter/warning
 Type: error

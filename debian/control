@@ -22,7 +22,7 @@ Description: run Debian GNU/Linux from external media - metapackage
 Package: bilibop-common
 Architecture: linux-any
 Depends: udev (>= 242-6), ${misc:Depends}
-Suggests: bilibop-lockfs, bilibop-device-policy, cryptsetup, dmsetup, lvm2
+Suggests: bilibop-lockfs, bilibop-device-policy, cryptsetup, dmsetup, lvm2 (>= 2.02.98)
 Description: shell functions for bilibop scripts
  ${Description}
  .
@@ -74,7 +74,7 @@ Description: lock filesystems and write changes into RAM
 Package: bilibop-rules
 Architecture: linux-any
 Depends: bilibop-common (= ${binary:Version}), initramfs-tools, udev (>= 242-6), ${misc:Depends}
-Recommends: lvm2
+Recommends: lvm2 (>= 2.02.98)
 Suggests: bilibop-lockfs, cryptsetup, policykit-1, udisks2
 Conflicts: bilibop-udev
 Provides: bilibop-device-policy

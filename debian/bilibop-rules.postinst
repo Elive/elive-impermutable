@@ -12,13 +12,10 @@ get_udev_root
 PATH="${PATH}:/usr/share/bilibop"
 ETC_RULES_DIR="/etc/udev/rules.d"
 
-belongs_to_floppy_group() {
-    stat -c %G ${1}* | grep -q '^floppy$'
-}
-
-global_filter_is_supported() {
-    local version="$(dpkg -l lvm2 | awk '/^ii/ {print $3}')"
-    dpkg --compare-versions ${version} ge 2.02.98
+belong_to_disk_group() {
+    for g in $(stat -c %G ${1}*); do
+        [ "${g}" = "disk" ] || return 1
+    done
 }
 
 case "${1}" in
@@ -40,8 +37,7 @@ case "${1}" in
         # At first, backup some values if this is not already done.
         HELPER="physical_volumes_filter"
         LVMCONF="/etc/lvm/lvm.conf"
-        lvm_variables="obtain_device_list_from_udev filter"
-        global_filter_is_supported && lvm_variables="${lvm_variables} global_filter"
+        lvm_variables="obtain_device_list_from_udev filter global_filter"
         if [ -f "${LVMCONF}" ]; then
             for lvmvar in ${lvm_variables}; do
                 db_fget bilibop-rules/${HELPER}/${lvmvar} seen
@@ -219,28 +215,28 @@ case "${1}" in
 
             # But it can happen that this doesn't work and new rules must be
             # explicitly loaded before triggering uevents:
-            if belongs_to_floppy_group ${BILIBOP_DISK}; then
+            if ! belong_to_disk_group ${BILIBOP_DISK}; then
                 udevadm control --reload-rules
                 udevadm trigger ${opt}
                 udevadm settle
 
                 # Now do something if the drive and its partitions still belong
                 # to the floppy group.
-                if belongs_to_floppy_group ${BILIBOP_DISK}; then
-                    for dev in $(find ${BILIBOP_DISK}* -group floppy); do
+                if ! belong_to_disk_group ${BILIBOP_DISK}; then
+                    for dev in $(find ${BILIBOP_DISK}* ! -group disk); do
                         flop="${flop:+${flop} }${dev}"
                     done
                     if [ -f "${ETC_RULES_DIR}/66-bilibop.rules" -a "${CUSTOM_RULES}" != "true" ]; then
                         # Custom rules file exists, but it has not been created
                         # just before:
-                        db_subst bilibop-rules/belongs_to_floppy_group/custom_rules_error DEVICE "${flop}"
-                        db_input critical bilibop-rules/belongs_to_floppy_group/custom_rules_error || true
+                        db_subst bilibop-rules/not_belong_to_disk_group/custom_rules_error DEVICE "${flop}"
+                        db_input critical bilibop-rules/not_belong_to_disk_group/custom_rules_error || true
                         db_go || true
                     else
                         # Custom rules file does not exist, or it has just been
                         # created:
-                        db_subst bilibop-rules/belongs_to_floppy_group/internal_error DEVICE "${flop}"
-                        db_input critical bilibop-rules/belongs_to_floppy_group/internal_error || true
+                        db_subst bilibop-rules/not_belong_to_disk_group/internal_error DEVICE "${flop}"
+                        db_input critical bilibop-rules/not_belong_to_disk_group/internal_error || true
                         db_go || true
                     fi
                 fi
@@ -300,13 +296,9 @@ case "${1}" in
                         if [ "${RET}" = "true" ]; then
                             db_reset bilibop-rules/${HELPER}/system-only
 
-                            if global_filter_is_supported; then
-                                warning="with_global_filter/warning"
-                                db_get bilibop-rules/${HELPER}/global_filter
-                                db_subst bilibop-rules/${HELPER}/${warning} GLOBAL_FILTER "${RET}"
-                            else
-                                warning="without_global_filter/warning"
-                            fi
+                            warning="with_global_filter/warning"
+                            db_get bilibop-rules/${HELPER}/global_filter
+                            db_subst bilibop-rules/${HELPER}/${warning} GLOBAL_FILTER "${RET}"
                             db_subst bilibop-rules/${HELPER}/${warning} UNTAGGED "${untagged}"
                             db_subst bilibop-rules/${HELPER}/${warning} UNLINKED "${unlinked}"
                             db_get bilibop-rules/${HELPER}/obtain_device_list_from_udev
