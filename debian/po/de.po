@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: bilibop 0.4.20\n"
-"Report-Msgid-Bugs-To: quidame@poivron.org\n"
-"POT-Creation-Date: 2013-11-23 10:14+0000\n"
+"Report-Msgid-Bugs-To: bilibop@packages.debian.org\n"
+"POT-Creation-Date: 2020-02-02 22:51+0000\n"
 "PO-Revision-Date: 2014-02-09 17:11+0100\n"
 "Last-Translator: Chris Leick <c.leick@vollbio.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
@@ -15,7 +15,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
 
 #. Type: boolean
 #. Description
@@ -69,8 +68,8 @@ msgid ""
 msgstr ""
 "Falls dutzende Wechselmedien an den Computer angeschlossen sind, von dem Ihr "
 "System hochfährt, können Bilibop-Udev-Regeln die Startzeit erheblich "
-"verlängern. Dies kann durch eigene Bilibop-Udev-Regeln verhindert werden, die "
-"speziell zu dem Gerät gehören, auf dem Ihr System installiert ist."
+"verlängern. Dies kann durch eigene Bilibop-Udev-Regeln verhindert werden, "
+"die speziell zu dem Gerät gehören, auf dem Ihr System installiert ist."
 
 #. Type: boolean
 #. Description
@@ -82,12 +81,12 @@ msgid ""
 "by running 'dpkg-reconfigure bilibop-rules' again with proper options, or "
 "even by editing '/etc/udev/rules.d/66-bilibop.rules'."
 msgstr ""
-"Abgesehen davon, falls dieses Gerät von unterschiedlichen "
-"Hardware-Anschlusstypen starten kann (wie USB/Firewire, USB/eSATA, "
-"USB/MMC/SD, etc.), sollten Sie die resultierenden Regeln prüfen, indem Sie "
-"Ihr System auf dem alternativen Anschlusstyp hochfahren und falls nötig "
-"erneut »dpkg-reconfigure bilibop-rules« mit korrekten Optionen ausführen oder "
-"sogar »/etc/udev/rules.d/66-bilibop.rules« bearbeiten."
+"Abgesehen davon, falls dieses Gerät von unterschiedlichen Hardware-"
+"Anschlusstypen starten kann (wie USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), "
+"sollten Sie die resultierenden Regeln prüfen, indem Sie Ihr System auf dem "
+"alternativen Anschlusstyp hochfahren und falls nötig erneut »dpkg-"
+"reconfigure bilibop-rules« mit korrekten Optionen ausführen oder sogar »/etc/"
+"udev/rules.d/66-bilibop.rules« bearbeiten."
 
 #. Type: select
 #. Choices
@@ -107,10 +106,10 @@ msgstr "erneut eigene Regeln bauen"
 msgid "remove custom rules"
 msgstr "eigene Regeln entfernen"
 
+# FIXME s/ ?/?/
 #. Type: select
 #. Description
 #: ../bilibop-rules.templates:3002
-# FIXME s/ ?/?/
 msgid "What do you want to do with your custom rules ?"
 msgstr "Was möchten Sie mit Ihren eigenen Regeln tun?"
 
@@ -124,8 +123,8 @@ msgid ""
 msgstr ""
 "Die Datei »/etc/udev/rules.d/66-bilibop.rules« existiert. Sie ist "
 "charakteristisch für das Laufwerk, auf dem Ihr System installiert ist und "
-"setzt die allgemeinere Regel außer Kraft, die vom Paket Bilibop-rules (in "
-"»/usr/lib/udev/rules.d«) bereitgestellt wird."
+"setzt die allgemeinere Regel außer Kraft, die vom Paket Bilibop-rules (in »/"
+"usr/lib/udev/rules.d«) bereitgestellt wird."
 
 #. Type: select
 #. Description
@@ -139,8 +138,8 @@ msgid ""
 msgstr ""
 "Falls das Gerät, das das laufende System beherbergt, von verschiedenen "
 "Hardware-Anschlusstypen (USB/Firewire, USB/eSATA, USB/MMC/SD-Karte, etc.) "
-"hochfahren kann, sollten Sie es von dem alternativen Anschlusstyp starten und "
-"prüfen, ob Ihre eigenen Regeln in allen Fällen korrekt funktionieren. Im "
+"hochfahren kann, sollten Sie es von dem alternativen Anschlusstyp starten "
+"und prüfen, ob Ihre eigenen Regeln in allen Fällen korrekt funktionieren. Im "
 "Zweifel sollten Sie die Datei mit den eigenen Regeln entfernen."
 
 #. Type: string
@@ -168,10 +167,11 @@ msgid ""
 "probably set it to an empty string (defaults to '-a manufacturer,product,"
 "serial')."
 msgstr ""
-"Die beiden ersten können nicht vermischt werden. »-a Modell,Seriennummer« ist "
-"zum Beispiel keine gültige Option, benutzen Sie stattdessen »-a Modell -e "
-"SERIENNUMMER«. Im Zweifelsfall sollten Sie sie vielleicht auf eine leere "
-"Zeichenkette setzen (Voreinstellung ist »-a Hersteller,Produkt,Seriennummer«)."
+"Die beiden ersten können nicht vermischt werden. »-a Modell,Seriennummer« "
+"ist zum Beispiel keine gültige Option, benutzen Sie stattdessen »-a Modell -"
+"e SERIENNUMMER«. Im Zweifelsfall sollten Sie sie vielleicht auf eine leere "
+"Zeichenkette setzen (Voreinstellung ist »-a Hersteller,Produkt,"
+"Seriennummer«)."
 
 #. Type: error
 #. Description
@@ -188,16 +188,18 @@ msgid ""
 "Otherwise, the custom rules file '/etc/udev/rules.d/66-bilibop.rules' will "
 "not be written."
 msgstr ""
-"Sie können durch Drücken der Taste <Escape> zurückgehen und dann die Optionen "
-"ändern. Andernfalls wird die eigene Regeldatei "
-"»/etc/udev/rules.d/66-bilibop.rules« nicht geschrieben."
+"Sie können durch Drücken der Taste <Escape> zurückgehen und dann die "
+"Optionen ändern. Andernfalls wird die eigene Regeldatei »/etc/udev/rules."
+"d/66-bilibop.rules« nicht geschrieben."
 
 #. Type: error
 #. Description
 #. Type: error
 #. Description
 #: ../bilibop-rules.templates:6001 ../bilibop-rules.templates:7001
-msgid "The following device(s) still belong to floppy group:"
+#, fuzzy
+#| msgid "The following device(s) still belong to floppy group:"
+msgid "The following device(s) do not belong to disk group:"
 msgstr "Die folgenden Geräte gehören immer noch zur Floppy-Gruppe:"
 
 #. Type: error
@@ -224,12 +226,13 @@ msgstr "Sie sollten einen Fehlerbericht an den Betreuer des Pakets senden."
 msgid "the existing one"
 msgstr "das existierende"
 
+# Die Datei heißt /boot/grub/device.map
 #. Type: select
 #. Choices
 #: ../bilibop-rules.templates:8001
-# Die Datei heißt /boot/grub/device.map
 msgid "a static device map (not recommended)"
-msgstr "eine statische Device Map (Gerätenamenzuordnungsdatei, nicht empfohlen)"
+msgstr ""
+"eine statische Device Map (Gerätenamenzuordnungsdatei, nicht empfohlen)"
 
 #. Type: select
 #. Choices
@@ -249,10 +252,10 @@ msgstr "eine dynamische Pseudo-Device-Map"
 msgid "a dynamically updated device map"
 msgstr "eine dynamisch aktualisierte Device Map"
 
+# FIXME s/ ?/?/
 #. Type: select
 #. Description
 #: ../bilibop-rules.templates:8002
-# FIXME s/ ?/?/
 msgid "What kind of GRUB device map do you want to use ?"
 msgstr "Welche Art einer GRUB-Device-Map möchten Sie benutzen?"
 
@@ -269,11 +272,11 @@ msgid ""
 msgstr ""
 "Die Datei »/boot/grub/device.map« kann veraltete Informationen speichern. In "
 "einigen Fällen kann dies zu Ausfällen führen, wenn das GRUB-Bootloader-Menü "
-"aktualisiert wird. Um das zu verhindern, ist es möglich, die Device Map durch "
-"eine Pseudo-Device-Map zu ersetzen, die nur das physische Laufwerk zuordnet, "
-"das Ihr System beherbergt oder durch Verweis auf eine temporäre Datei, die "
-"entweder beim Systemstart mit Pseudo-Inhalt oder auf Anfrage mit einem "
-"aktualisierten Inhalt erstellt wird."
+"aktualisiert wird. Um das zu verhindern, ist es möglich, die Device Map "
+"durch eine Pseudo-Device-Map zu ersetzen, die nur das physische Laufwerk "
+"zuordnet, das Ihr System beherbergt oder durch Verweis auf eine temporäre "
+"Datei, die entweder beim Systemstart mit Pseudo-Inhalt oder auf Anfrage mit "
+"einem aktualisierten Inhalt erstellt wird."
 
 #. Type: select
 #. Description
@@ -284,9 +287,9 @@ msgid ""
 "recommended to use a static device map. The dynamic fake device map should "
 "work in all cases."
 msgstr ""
-"Falls Ihr externes System in ein Gerät eingebettet ist, das von verschiedenen "
-"Hardware-Anschlusstypen (USB/Firewire, USB/eSATA, USB/MMC/SD, etc.) "
-"hochfahren kann, wird die Verwendung einer statischen Device Map nicht "
+"Falls Ihr externes System in ein Gerät eingebettet ist, das von "
+"verschiedenen Hardware-Anschlusstypen (USB/Firewire, USB/eSATA, USB/MMC/SD, "
+"etc.) hochfahren kann, wird die Verwendung einer statischen Device Map nicht "
 "empfohlen. Die dynamische Pseudo-Device-Map sollte auf jeden Fall "
 "funktionieren."
 
@@ -320,10 +323,10 @@ msgstr "flüchtige Regeln für alles erstellen (empfohlen)"
 msgid "make persistent rules for all"
 msgstr "beständige Regeln für alles erstellen"
 
+# FIXME s/ ?/?/
 #. Type: select
 #. Description
 #: ../bilibop-rules.templates:9002
-# FIXME s/ ?/?/
 msgid "What persistent rules do you want to make unpersistent ?"
 msgstr "Welche beständigen Regeln möchten Sie in flüchtige umwandeln?"
 
@@ -354,10 +357,10 @@ msgstr ""
 "Sie, dass Sie dies durch Ausführung jederzeit aktivieren oder rückgängig "
 "machen können."
 
+# s/ ?/?/
 #. Type: boolean
 #. Description
 #: ../bilibop-rules.templates:10001
-# s/ ?/?/
 msgid "Do you want to hide Physical Volumes your system does not need ?"
 msgstr ""
 "Möchten Sie die von Ihrem System nicht benötigten physischen Datenträger "
@@ -388,23 +391,19 @@ msgid ""
 "and you should read 'README.Debian' in the documentation of the package. "
 "Otherwise, you can do it later with"
 msgstr ""
-"Falls Sie diese Funktionalität auswählen, wird dies »/etc/lvm/lvm.conf« außer "
-"Kraft setzen und Sie sollten »README.Debian« in der Dokumentation des Pakets "
-"lesen. Andernfalls können Sie dies später erledigen."
+"Falls Sie diese Funktionalität auswählen, wird dies »/etc/lvm/lvm.conf« "
+"außer Kraft setzen und Sie sollten »README.Debian« in der Dokumentation des "
+"Pakets lesen. Andernfalls können Sie dies später erledigen."
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid "Physical Volumes Filter will not be applied."
 msgstr "Filter physicher Datenträger werden nicht angewandt."
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid ""
 "Probably due to an error in '66-bilibop.rules', the following device(s) have "
 "not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
@@ -415,9 +414,7 @@ msgstr ""
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid ""
 "This means some variables in '/etc/lvm/lvm.conf' will be left or reset to "
 "their initial values:"

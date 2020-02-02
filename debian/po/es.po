@@ -22,8 +22,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: bilibop 0.4.20\n"
-"Report-Msgid-Bugs-To: quidame@poivron.org\n"
-"POT-Creation-Date: 2013-11-23 10:14+0000\n"
+"Report-Msgid-Bugs-To: bilibop@packages.debian.org\n"
+"POT-Creation-Date: 2020-02-02 22:51+0000\n"
 "PO-Revision-Date: 2013-12-21 13:50+0200\n"
 "Last-Translator: Camaleón <noelamac@gmail.com>\n"
 "Language-Team: Debian Spanish <debian-l10n-spanish@lists.debian.org>\n"
@@ -104,8 +104,8 @@ msgstr ""
 "(como USB/Firewire, USB/eSATA, USB/MMC/SD, etc.) debería comprobar las "
 "reglas generadas e iniciar el sistema desde uno de los tipos de puerto "
 "alternativos y si fuera necesario, ejecutar «dpkg-reconfigure bilibop-rules» "
-"de nuevo con las opciones adecuadas o incluso editar el archivo "
-"«/etc/udev/rules.d/66-bilibop.rules»."
+"de nuevo con las opciones adecuadas o incluso editar el archivo «/etc/udev/"
+"rules.d/66-bilibop.rules»."
 
 #. Type: select
 #. Choices
@@ -141,8 +141,8 @@ msgid ""
 msgstr ""
 "Actualmente existe el archivo «/etc/udev/rules.d/66-bilibop.rules». Este "
 "archivo es específico para el dispositivo donde se encuentra instalado el "
-"sistema y reemplaza al que proporciona el paquete bilibop-rules en "
-"«/usr/lib/udev/rules.d» que es más genérico."
+"sistema y reemplaza al que proporciona el paquete bilibop-rules en «/usr/lib/"
+"udev/rules.d» que es más genérico."
 
 #. Type: select
 #. Description
@@ -185,8 +185,8 @@ msgid ""
 msgstr ""
 "No puede mezclar las dos primeras; p. ej., «-a model,serial» no es una "
 "opción válida, use «-a model -e ID_SERIAL» en su lugar. Si tiene dudas, "
-"debería definir una cadena en blanco (preestablecida en «-a "
-"manufacturer,product,serial»)."
+"debería definir una cadena en blanco (preestablecida en «-a manufacturer,"
+"product,serial»)."
 
 #. Type: error
 #. Description
@@ -205,15 +205,17 @@ msgid ""
 "not be written."
 msgstr ""
 "Puede volver atrás pulsando la tecla <Escape> y modificar las opciones. De "
-"lo contrario no se guardará el archivo de reglas personalizado "
-"«/etc/udev/rules.d/66-bilibop.rules»."
+"lo contrario no se guardará el archivo de reglas personalizado «/etc/udev/"
+"rules.d/66-bilibop.rules»."
 
 #. Type: error
 #. Description
 #. Type: error
 #. Description
 #: ../bilibop-rules.templates:6001 ../bilibop-rules.templates:7001
-msgid "The following device(s) still belong to floppy group:"
+#, fuzzy
+#| msgid "The following device(s) still belong to floppy group:"
+msgid "The following device(s) do not belong to disk group:"
 msgstr "El/los siguiente/s dispositivo/s todavía pertenece/n al grupo floppy:"
 
 #. Type: error
@@ -299,9 +301,9 @@ msgid ""
 "work in all cases."
 msgstr ""
 "Si el sistema externo se encuentra integrado en un dispositivo que puede "
-"iniciarse desde distintos tipos de puerto (USB/Firewire, USB/eSATA, "
-"USB/MMC/SD, etc.), no se recomienda usar un mapa de dispositivos estático. "
-"Un mapa de dispositivos dinámico falso debería funcionar en todos los casos."
+"iniciarse desde distintos tipos de puerto (USB/Firewire, USB/eSATA, USB/MMC/"
+"SD, etc.), no se recomienda usar un mapa de dispositivos estático. Un mapa "
+"de dispositivos dinámico falso debería funcionar en todos los casos."
 
 #. Type: select
 #. Choices
@@ -402,17 +404,13 @@ msgstr ""
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid "Physical Volumes Filter will not be applied."
 msgstr "No se va a aplicar el filtro de volúmenes físicos."
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid ""
 "Probably due to an error in '66-bilibop.rules', the following device(s) have "
 "not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
@@ -423,9 +421,7 @@ msgstr ""
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid ""
 "This means some variables in '/etc/lvm/lvm.conf' will be left or reset to "
 "their initial values:"

@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the bilibop package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: quidame@poivron.org\n"
-"POT-Creation-Date: 2013-11-23 10:14+0000\n"
+"Project-Id-Version: bilibop\n"
+"Report-Msgid-Bugs-To: bilibop@packages.debian.org\n"
+"POT-Creation-Date: 2020-02-02 22:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -158,7 +158,7 @@ msgstr ""
 #. Type: error
 #. Description
 #: ../bilibop-rules.templates:6001 ../bilibop-rules.templates:7001
-msgid "The following device(s) still belong to floppy group:"
+msgid "The following device(s) do not belong to disk group:"
 msgstr ""
 
 #. Type: error
@@ -320,17 +320,13 @@ msgstr ""
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid "Physical Volumes Filter will not be applied."
 msgstr ""
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid ""
 "Probably due to an error in '66-bilibop.rules', the following device(s) have "
 "not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
@@ -338,9 +334,7 @@ msgstr ""
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid ""
 "This means some variables in '/etc/lvm/lvm.conf' will be left or reset to "
 "their initial values:"

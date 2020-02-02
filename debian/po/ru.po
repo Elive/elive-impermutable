@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: bilibop 0.4.21\n"
-"Report-Msgid-Bugs-To: quidame@poivron.org\n"
-"POT-Creation-Date: 2013-11-23 10:14+0000\n"
+"Report-Msgid-Bugs-To: bilibop@packages.debian.org\n"
+"POT-Creation-Date: 2020-02-02 22:51+0000\n"
 "PO-Revision-Date: 2014-07-26 07:50+0400\n"
 "Last-Translator: Yuri Kozlov <yuray@komyakino.ru>\n"
 "Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<"
-"=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Lokalize 1.5\n"
 
 #. Type: boolean
@@ -35,11 +35,9 @@ msgid ""
 "LiveUSB systems."
 msgstr ""
 "Некоторые настройки bilibop-rules могут быть полезны в неизменяющихся "
-"операционных системах, "
-"когда они работают с переносных и доступных на запись носителей "
-"(флешки USB, внешние HDD или карты SD); "
-"но в настоящее время они бесполезны или даже вредны для систем LiveCD или "
-"LiveUSB."
+"операционных системах, когда они работают с переносных и доступных на запись "
+"носителей (флешки USB, внешние HDD или карты SD); но в настоящее время они "
+"бесполезны или даже вредны для систем LiveCD или LiveUSB."
 
 #. Type: boolean
 #. Description
@@ -50,12 +48,11 @@ msgid ""
 "that in that case, this package is overkill and you should probably replace "
 "it by the lighter but as much as efficient bilibop-udev package."
 msgstr ""
-"Если вы ответите утвердительно, то больше вопросов задано не будет; "
-"будут применены правила udev из пакета bilibop, и больше никаких изменений в "
-"системе "
-"делаться не "
-"будет. Заметим, что в этом случае данный пакет слишком громоздок и, вероятно, "
-"его лучше заменить на  более лёгкий и эффективный пакет bilibop-udev."
+"Если вы ответите утвердительно, то больше вопросов задано не будет; будут "
+"применены правила udev из пакета bilibop, и больше никаких изменений в "
+"системе делаться не будет. Заметим, что в этом случае данный пакет слишком "
+"громоздок и, вероятно, его лучше заменить на  более лёгкий и эффективный "
+"пакет bilibop-udev."
 
 #. Type: boolean
 #. Description
@@ -72,10 +69,10 @@ msgid ""
 "avoided by using custom udev rules, which are specific to the device your "
 "system is installed on."
 msgstr ""
-"Если к компьютеру подключено много переносных носителей, то правила "
-"udev из пакета bilibop могут значительно увеличить время запуска машины. "
-"Этого можно избежать с помощью индивидуальных правил "
-"udev, которые описывают устройство, на которое установлена система."
+"Если к компьютеру подключено много переносных носителей, то правила udev из "
+"пакета bilibop могут значительно увеличить время запуска машины. Этого можно "
+"избежать с помощью индивидуальных правил udev, которые описывают устройство, "
+"на которое установлена система."
 
 #. Type: boolean
 #. Description
@@ -88,12 +85,10 @@ msgid ""
 "even by editing '/etc/udev/rules.d/66-bilibop.rules'."
 msgstr ""
 "Однако, если это устройство может подключаться к портам разных аппаратных "
-"типов "
-"(USB/Firewire, USB/eSATA, USB/MMC/SD и т. д.), то вы должны проверить "
+"типов (USB/Firewire, USB/eSATA, USB/MMC/SD и т. д.), то вы должны проверить "
 "получившиеся правила, загрузив систему с порта альтернативного типа, и, если "
-"необходимо, ещё раз запустить "
-"«dpkg-reconfigure bilibop-rules» с правильными параметрами, или даже "
-"отредактировать «/etc/udev/rules.d/66-bilibop.rules»."
+"необходимо, ещё раз запустить «dpkg-reconfigure bilibop-rules» с правильными "
+"параметрами, или даже отредактировать «/etc/udev/rules.d/66-bilibop.rules»."
 
 #. Type: select
 #. Choices
@@ -128,11 +123,9 @@ msgid ""
 "that is provided by the bilibop-rules package (in '/usr/lib/udev/rules.d')."
 msgstr ""
 "Файл «/etc/udev/rules.d/66-bilibop.rules» существует. В нём описывается "
-"устройство, "
-"на которое установлена ваша система и это заменяет другое более общее "
-"правило, "
-"которое предоставляется пакетом "
-"bilibop-rules (в «/usr/lib/udev/rules.d»)."
+"устройство, на которое установлена ваша система и это заменяет другое более "
+"общее правило, которое предоставляется пакетом bilibop-rules (в «/usr/lib/"
+"udev/rules.d»)."
 
 #. Type: select
 #. Description
@@ -144,12 +137,11 @@ msgid ""
 "work fine in all cases. In the doubt, you should remove the custom rules "
 "file."
 msgstr ""
-"Если устройство, на котором запущена система, может подключаться "
-"к портам разных аппаратных типов "
-"(USB/Firewire, USB/eSATA, USB/MMC/SD и т. д.), то вы должны "
-"загрузить его с порта альтернативного типа и проверить, что "
-"индивидуальные правила работают во всех случаях. "
-"Если это не так, то удалите файл с индивидуальными правилами."
+"Если устройство, на котором запущена система, может подключаться к портам "
+"разных аппаратных типов (USB/Firewire, USB/eSATA, USB/MMC/SD и т. д.), то вы "
+"должны загрузить его с порта альтернативного типа и проверить, что "
+"индивидуальные правила работают во всех случаях. Если это не так, то удалите "
+"файл с индивидуальными правилами."
 
 #. Type: string
 #. Description
@@ -174,11 +166,10 @@ msgid ""
 "probably set it to an empty string (defaults to '-a manufacturer,product,"
 "serial')."
 msgstr ""
-"Два первых нельзя указывать вместе; например, «-a model,serial» "
-"некорректно; "
-"используйте вместо этого «-a model -e ID_SERIAL». "
-"Если сомневаетесь, то лучше указать пустую строку "
-"(по умолчанию используется «-a manufacturer,product,serial»)."
+"Два первых нельзя указывать вместе; например, «-a model,serial» некорректно; "
+"используйте вместо этого «-a model -e ID_SERIAL». Если сомневаетесь, то "
+"лучше указать пустую строку (по умолчанию используется «-a manufacturer,"
+"product,serial»)."
 
 #. Type: error
 #. Description
@@ -194,17 +185,18 @@ msgid ""
 "Otherwise, the custom rules file '/etc/udev/rules.d/66-bilibop.rules' will "
 "not be written."
 msgstr ""
-"Вы можете вернуться, нажав  клавишу <Escape>, и исправить "
-"параметры. "
-"В противном случае файл с индивидуальными правилами "
-"«/etc/udev/rules.d/66-bilibop.rules» записан не будет."
+"Вы можете вернуться, нажав  клавишу <Escape>, и исправить параметры. В "
+"противном случае файл с индивидуальными правилами «/etc/udev/rules.d/66-"
+"bilibop.rules» записан не будет."
 
 #. Type: error
 #. Description
 #. Type: error
 #. Description
 #: ../bilibop-rules.templates:6001 ../bilibop-rules.templates:7001
-msgid "The following device(s) still belong to floppy group:"
+#, fuzzy
+#| msgid "The following device(s) still belong to floppy group:"
+msgid "The following device(s) do not belong to disk group:"
 msgstr "Следующие устройства всё ещё входят в группу floppy:"
 
 #. Type: error
@@ -272,14 +264,13 @@ msgid ""
 "temporary file, which may be created either at boot time with a fake "
 "content, or on demand with an updated content."
 msgstr ""
-"Файл «/boot/grub/device.map» может содержать устаревшую информацию. "
-"В некоторых случаях это может приводить к ошибкам при обновлении "
-"меню системного загрузчика GRUB. "
-"Чтобы этого избежать возможно заменить карту устройств "
-"фиктивной, отражающей только физическое устройство хостящей системы — "
-"или сделав ссылку на временный файл, который можно создавать "
-"с фиктивным содержимым при загрузке системы или "
-"по требованию с обновлённым содержимым."
+"Файл «/boot/grub/device.map» может содержать устаревшую информацию. В "
+"некоторых случаях это может приводить к ошибкам при обновлении меню "
+"системного загрузчика GRUB. Чтобы этого избежать возможно заменить карту "
+"устройств фиктивной, отражающей только физическое устройство хостящей "
+"системы — или сделав ссылку на временный файл, который можно создавать с "
+"фиктивным содержимым при загрузке системы или по требованию с обновлённым "
+"содержимым."
 
 #. Type: select
 #. Description
@@ -290,12 +281,10 @@ msgid ""
 "recommended to use a static device map. The dynamic fake device map should "
 "work in all cases."
 msgstr ""
-"Если внешняя система установлена на устройстве, способном "
-"подключаться к аппаратным портам различных типов "
-"(USB/Firewire, USB/eSATA, USB/MMC/SD и т. д.), то не рекомендуется "
-"использовать статическую карту устройств. "
-"Динамическая фиктивная карта устройств будет работать во всех "
-"случаях."
+"Если внешняя система установлена на устройстве, способном подключаться к "
+"аппаратным портам различных типов (USB/Firewire, USB/eSATA, USB/MMC/SD и т. "
+"д.), то не рекомендуется использовать статическую карту устройств. "
+"Динамическая фиктивная карта устройств будет работать во всех случаях."
 
 #. Type: select
 #. Choices
@@ -340,8 +329,8 @@ msgid ""
 "Some udev rules files can store information about components of the computer "
 "your system is plugged on:"
 msgstr ""
-"Некоторые файлы с правилами udev могут содержать информацию о "
-"компонентах компьютера, в который вы вставили устройство:"
+"Некоторые файлы с правилами udev могут содержать информацию о компонентах "
+"компьютера, в который вы вставили устройство:"
 
 #. Type: select
 #. Description
@@ -353,11 +342,11 @@ msgid ""
 "to keep them always up to date. Note that it is possible to do or undo that "
 "at any time by running"
 msgstr ""
-"Эти файлы накапливают информацию и могут содержать устаревшие данные, "
-"что может привести к непредсказуемому поведению менеджера "
-"сети или программы прожига CD. Чтобы они всегда были актуальными, "
-"возможно заменить их символическими ссылками на временные файлы. "
-"Заметим, что это можно отменить в любой момент с помощью"
+"Эти файлы накапливают информацию и могут содержать устаревшие данные, что "
+"может привести к непредсказуемому поведению менеджера сети или программы "
+"прожига CD. Чтобы они всегда были актуальными, возможно заменить их "
+"символическими ссылками на временные файлы. Заметим, что это можно отменить "
+"в любой момент с помощью"
 
 #. Type: boolean
 #. Description
@@ -375,12 +364,10 @@ msgid ""
 "Volumes used by your system and those that could be found on internal or "
 "external drives plugged on the same computer."
 msgstr ""
-"Кажется, что устройство, на которое установлена система, содержит "
-"логические тома. "
-"Есть возможность указать LVM активировать только нужные системе "
-"физические тома. "
-"Это, в основном, может помочь избежать конфликта между томами, "
-"используемыми вашей системой и теми, которые могут быть обнаружены "
+"Кажется, что устройство, на которое установлена система, содержит логические "
+"тома. Есть возможность указать LVM активировать только нужные системе "
+"физические тома. Это, в основном, может помочь избежать конфликта между "
+"томами, используемыми вашей системой и теми, которые могут быть обнаружены "
 "на внутренних и внешних подключаемых устройствах компьютера."
 
 #. Type: boolean
@@ -391,41 +378,33 @@ msgid ""
 "and you should read 'README.Debian' in the documentation of the package. "
 "Otherwise, you can do it later with"
 msgstr ""
-"Если вы ответите утвердительно, то будет заменён «/etc/lvm/lvm.conf», "
-"и вам нужно прочитать «README.Debian» из документации к пакету. "
-"В противном случае это можно сделать позднее с помощью"
+"Если вы ответите утвердительно, то будет заменён «/etc/lvm/lvm.conf», и вам "
+"нужно прочитать «README.Debian» из документации к пакету. В противном случае "
+"это можно сделать позднее с помощью"
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid "Physical Volumes Filter will not be applied."
 msgstr "Фильтр физических томов не будет применён."
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid ""
 "Probably due to an error in '66-bilibop.rules', the following device(s) have "
 "not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
 msgstr ""
-"Вероятно из-за ошибки в «66-bilibop.rules» следующие устройства "
-"не были помечены udev как «BILIBOP» или не имеют корректных "
-"символических ссылок, контролируемых udev:"
+"Вероятно из-за ошибки в «66-bilibop.rules» следующие устройства не были "
+"помечены udev как «BILIBOP» или не имеют корректных символических ссылок, "
+"контролируемых udev:"
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid ""
 "This means some variables in '/etc/lvm/lvm.conf' will be left or reset to "
 "their initial values:"
 msgstr ""
 "Это указывает на некоторые отсутствующие переменные в «/etc/lvm/lvm.conf» "
 "или их сброс в первоначальные значения:"
-
-

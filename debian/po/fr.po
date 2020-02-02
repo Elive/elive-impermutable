@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: bilibop 0.4.17\n"
-"Report-Msgid-Bugs-To: quidame@poivron.org\n"
-"POT-Creation-Date: 2013-11-23 10:14+0000\n"
+"Report-Msgid-Bugs-To: bilibop@packages.debian.org\n"
+"POT-Creation-Date: 2020-02-02 22:51+0000\n"
 "PO-Revision-Date: 2013-10-10 15:37+0200\n"
 "Last-Translator: Alexandre Martin <alemar@Safe-mail.net>\n"
 "Language-Team: \n"
@@ -124,8 +124,8 @@ msgid ""
 msgstr ""
 "Le fichier '/etc/udev/rules.d/66-bilibop.rules' existe. Il est spécifique au "
 "périphérique sur lequel votre système est installé et surcharge celui, plus "
-"générique, qui est fourni par le paquet bilibop-rules (dans '/usr/lib/udev/rules."
-"d')."
+"générique, qui est fourni par le paquet bilibop-rules (dans '/usr/lib/udev/"
+"rules.d')."
 
 #. Type: select
 #. Description
@@ -197,7 +197,9 @@ msgstr ""
 #. Type: error
 #. Description
 #: ../bilibop-rules.templates:6001 ../bilibop-rules.templates:7001
-msgid "The following device(s) still belong to floppy group:"
+#, fuzzy
+#| msgid "The following device(s) still belong to floppy group:"
+msgid "The following device(s) do not belong to disk group:"
 msgstr ""
 "Le(s) périphérique(s) suivant(s) appartiennent encore au groupe 'floppy' :"
 
@@ -389,17 +391,13 @@ msgstr ""
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid "Physical Volumes Filter will not be applied."
 msgstr "Le filtre des Volumes Physiques ne sera pas appliqué."
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid ""
 "Probably due to an error in '66-bilibop.rules', the following device(s) have "
 "not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
@@ -410,9 +408,7 @@ msgstr ""
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid ""
 "This means some variables in '/etc/lvm/lvm.conf' will be left or reset to "
 "their initial values:"

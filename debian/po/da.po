@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: bilibop\n"
-"Report-Msgid-Bugs-To: quidame@poivron.org\n"
-"POT-Creation-Date: 2013-11-23 10:14+0000\n"
+"Report-Msgid-Bugs-To: bilibop@packages.debian.org\n"
+"POT-Creation-Date: 2020-02-02 22:51+0000\n"
 "PO-Revision-Date: 2015-09-29 17:30+01:00\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <debian-l10n-danish@lists.debian.org>\n"
@@ -33,9 +33,9 @@ msgid ""
 "LiveUSB systems."
 msgstr ""
 "Nogle bilibop-rules-indstillinger kan være nyttige på ikkeflygtige "
-"operativsystemer når der køres fra et eksternt eller skrivbart medie (USB-drev, "
-"eksterne harddiske eller SD-kort); men de er i øjeblikket ubrugelige eller "
-"endda skadelige for LiveCD- eller LiveUSB-systemer."
+"operativsystemer når der køres fra et eksternt eller skrivbart medie (USB-"
+"drev, eksterne harddiske eller SD-kort); men de er i øjeblikket ubrugelige "
+"eller endda skadelige for LiveCD- eller LiveUSB-systemer."
 
 #. Type: boolean
 #. Description
@@ -47,9 +47,10 @@ msgid ""
 "it by the lighter but as much as efficient bilibop-udev package."
 msgstr ""
 "Hvis du vælger denne indstilling, vil ingen andre spørgsmål blive stillet; "
-"bilibop udev-regler vil blive anvendt men intet andet vil blive ændret "
-"på dit system. Bemærk at i det tilfælde, er denne pakke for avanceret og bør "
-"sandsynligvis erstattes af den mindre men lige så effektive pakke bilibop-udev."
+"bilibop udev-regler vil blive anvendt men intet andet vil blive ændret på "
+"dit system. Bemærk at i det tilfælde, er denne pakke for avanceret og bør "
+"sandsynligvis erstattes af den mindre men lige så effektive pakke bilibop-"
+"udev."
 
 #. Type: boolean
 #. Description
@@ -66,9 +67,9 @@ msgid ""
 "avoided by using custom udev rules, which are specific to the device your "
 "system is installed on."
 msgstr ""
-"Hvis snesevis af flytbare medier tilsluttes computeren som dit system starter "
-"fra, kan bilibop udev-regler signifikant øge opstartstiden. Dette kan "
-"undgås ved at bruge brugerdefinerede udev-regler, som er specifikke for "
+"Hvis snesevis af flytbare medier tilsluttes computeren som dit system "
+"starter fra, kan bilibop udev-regler signifikant øge opstartstiden. Dette "
+"kan undgås ved at bruge brugerdefinerede udev-regler, som er specifikke for "
 "den enhed dit system er installeret på."
 
 #. Type: boolean
@@ -82,11 +83,11 @@ msgid ""
 "even by editing '/etc/udev/rules.d/66-bilibop.rules'."
 msgstr ""
 "Det sagt, hvis denne enhed kan starte op fra forskellige udstyrsporttyper "
-"(som USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), så bør du kontrollere "
-"de medfølgende regler ved at starte dit system op på den alternative "
-"porttype, og om nødvendig ved at køre »dpkg-reconfigure bilibop-rules« igen "
-"med korrekte indstillinger, eller eventuelt ved at redigere "
-"»/etc/udev/rules.d/66-bilibop.rules«."
+"(som USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), så bør du kontrollere de "
+"medfølgende regler ved at starte dit system op på den alternative porttype, "
+"og om nødvendig ved at køre »dpkg-reconfigure bilibop-rules« igen med "
+"korrekte indstillinger, eller eventuelt ved at redigere »/etc/udev/rules."
+"d/66-bilibop.rules«."
 
 #. Type: select
 #. Choices
@@ -120,9 +121,9 @@ msgid ""
 "drive on which your system is installed and overrides the one, more generic, "
 "that is provided by the bilibop-rules package (in '/usr/lib/udev/rules.d')."
 msgstr ""
-"Filen »/etc/udev/rules.d/66-bilibop.rules« findes. Den er specifik for drevet "
-"hvorpå dit system er installeret og overskriver den, mere generisk, som er "
-"tilbudt af pakken bilibop-rules (i »/usr/lib/udev/rules.d«)."
+"Filen »/etc/udev/rules.d/66-bilibop.rules« findes. Den er specifik for "
+"drevet hvorpå dit system er installeret og overskriver den, mere generisk, "
+"som er tilbudt af pakken bilibop-rules (i »/usr/lib/udev/rules.d«)."
 
 #. Type: select
 #. Description
@@ -134,11 +135,11 @@ msgid ""
 "work fine in all cases. In the doubt, you should remove the custom rules "
 "file."
 msgstr ""
-"Hvis enheden der er vært for det kørende system er i stand til at starte "
-"op fra forskellige udstyrsporttyper (USB/Firewire, USB/eSATA, USB/MMC/SD-card, "
-"etc.), så skal du starte den fra den alternative porttype og kontrollere "
-"om dine tilpassede regler fungerer i alle tilfælde. Hvis i tvivl, så skal "
-"du fjerne den tilpassede regelfil."
+"Hvis enheden der er vært for det kørende system er i stand til at starte op "
+"fra forskellige udstyrsporttyper (USB/Firewire, USB/eSATA, USB/MMC/SD-card, "
+"etc.), så skal du starte den fra den alternative porttype og kontrollere om "
+"dine tilpassede regler fungerer i alle tilfælde. Hvis i tvivl, så skal du "
+"fjerne den tilpassede regelfil."
 
 #. Type: string
 #. Description
@@ -152,8 +153,7 @@ msgstr "Tilvalg at sende til bilibops regelopretter:"
 msgid ""
 "Possible options you can pass to the bilibop rules generator are the "
 "followings:"
-msgstr ""
-"Mulige tilvalg du kan sende til regelopretteren for bilibop:"
+msgstr "Mulige tilvalg du kan sende til regelopretteren for bilibop:"
 
 #. Type: string
 #. Description
@@ -166,8 +166,8 @@ msgid ""
 msgstr ""
 "De to første kan blandes; for eksempel er »-a model,serial« ikke et gyldigt "
 "tilvalg; brug »-a model -e ID_SERIAL« i stedet for. Hvis i tvivl skal du "
-"sandsynligvis angive den som en tom streng (standarden er »-a manufacturer,product,"
-"serial«)."
+"sandsynligvis angive den som en tom streng (standarden er »-a manufacturer,"
+"product,serial«)."
 
 #. Type: error
 #. Description
@@ -192,7 +192,9 @@ msgstr ""
 #. Type: error
 #. Description
 #: ../bilibop-rules.templates:6001 ../bilibop-rules.templates:7001
-msgid "The following device(s) still belong to floppy group:"
+#, fuzzy
+#| msgid "The following device(s) still belong to floppy group:"
+msgid "The following device(s) do not belong to disk group:"
 msgstr "De følgende enheder tilhører stadig gruppen floppy:"
 
 #. Type: error
@@ -261,12 +263,12 @@ msgid ""
 "content, or on demand with an updated content."
 msgstr ""
 "Filen »/boot/grub/device.map« kan lagre forældet information. I nogle "
-"tilfælde kan dette føre til fejl, når GRUB-opstartsindlæsermenuen "
-"opdateres. For at undgå dette, er det muligt at erstatte enhedsoversættelsen "
-"med en falsk, der oversætter kun det fysiske drev der indeholder dit system; "
-"eller ved at henvise til en midlertidig fil, som kan oprettes enten på "
-"opstartstidspunktet med et falsk indhold, eller efter anmodning med "
-"et opdateret indhold."
+"tilfælde kan dette føre til fejl, når GRUB-opstartsindlæsermenuen opdateres. "
+"For at undgå dette, er det muligt at erstatte enhedsoversættelsen med en "
+"falsk, der oversætter kun det fysiske drev der indeholder dit system; eller "
+"ved at henvise til en midlertidig fil, som kan oprettes enten på "
+"opstartstidspunktet med et falsk indhold, eller efter anmodning med et "
+"opdateret indhold."
 
 #. Type: select
 #. Description
@@ -278,8 +280,8 @@ msgid ""
 "work in all cases."
 msgstr ""
 "Hvis dit eksterne system er indlejret på en enhed som kan starte op fra "
-"forskellige udstyrsporttyper (USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), "
-"så anbefales det ikke at bruge et statisk enhedskort. Det dynamiske falske "
+"forskellige udstyrsporttyper (USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), så "
+"anbefales det ikke at bruge et statisk enhedskort. Det dynamiske falske "
 "enhedskort bør fungere i alle tilfælde."
 
 #. Type: select
@@ -341,8 +343,8 @@ msgstr ""
 "Disse filer er kumulative og kan lagre forældet information, som muligvis "
 "kan føre til uventet opførsel i din netværksstyring eller cd-brænderprogram. "
 "Det er muligt at erstatte dem med symbolske henvisninger til midlertidige "
-"filer for altid at have dem opdateret. Bemærk at det er muligt at gøre "
-"dette eller fortryde dette på ethvert tidspunkt ved at køre"
+"filer for altid at have dem opdateret. Bemærk at det er muligt at gøre dette "
+"eller fortryde dette på ethvert tidspunkt ved at køre"
 
 #. Type: boolean
 #. Description
@@ -361,10 +363,10 @@ msgid ""
 "external drives plugged on the same computer."
 msgstr ""
 "Det ser ud til, at drevet som dit system er installeret på indeholder "
-"logiske diskenheder. Det er muligt at sætte LVM til kun at aktivere "
-"de fysiske diskenehder, som dit system behøver. Dette kan undgå "
-"navnekonflikter mellem diskenhederne brugt af dit system og dem som "
-"kan findes på interne eller eksterne drev tilsluttet den samme computer."
+"logiske diskenheder. Det er muligt at sætte LVM til kun at aktivere de "
+"fysiske diskenehder, som dit system behøver. Dette kan undgå navnekonflikter "
+"mellem diskenhederne brugt af dit system og dem som kan findes på interne "
+"eller eksterne drev tilsluttet den samme computer."
 
 #. Type: boolean
 #. Description
@@ -374,41 +376,33 @@ msgid ""
 "and you should read 'README.Debian' in the documentation of the package. "
 "Otherwise, you can do it later with"
 msgstr ""
-"Hvis du vælger at bruge denne funktion, så vil det overskrive »/etc/lvm/lvm.conf«, "
-"og du bør læse »README.Debian« i dokumentationen for denne pakke. Ellers kan "
-"du gøre det senere med"
+"Hvis du vælger at bruge denne funktion, så vil det overskrive »/etc/lvm/lvm."
+"conf«, og du bør læse »README.Debian« i dokumentationen for denne pakke. "
+"Ellers kan du gøre det senere med"
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid "Physical Volumes Filter will not be applied."
 msgstr "Fysiske diskenhedsfilter vil ikke blive anvendt."
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid ""
 "Probably due to an error in '66-bilibop.rules', the following device(s) have "
 "not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
 msgstr ""
-"Muligvis på grund af en fejl i »66-bilibop.rules« er de følgende "
-"enheder ikke blevet mærket »BILIBOP« af udev, eller de har ikke nogen "
-"brugbar symbolsk henvisning håndteret af udev:"
+"Muligvis på grund af en fejl i »66-bilibop.rules« er de følgende enheder "
+"ikke blevet mærket »BILIBOP« af udev, eller de har ikke nogen brugbar "
+"symbolsk henvisning håndteret af udev:"
 
 #. Type: error
 #. Description
-#. Type: error
-#. Description
-#: ../bilibop-rules.templates:14001 ../bilibop-rules.templates:15001
+#: ../bilibop-rules.templates:14001
 msgid ""
 "This means some variables in '/etc/lvm/lvm.conf' will be left or reset to "
 "their initial values:"
 msgstr ""
-"Dette betyder, at nogle variabler i »/etc/lvm/lvm.conf« vil blive "
-"efterladt eller nulstillet til deres oprindelige værdier:"
-
-
+"Dette betyder, at nogle variabler i »/etc/lvm/lvm.conf« vil blive efterladt "
+"eller nulstillet til deres oprindelige værdier:"
