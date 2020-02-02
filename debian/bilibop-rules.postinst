@@ -6,7 +6,7 @@ set -e
 . /usr/share/debconf/confmodule
 
 # Source bilibop library:
-. /lib/bilibop/common.sh
+. /usr/lib/bilibop/common.sh
 get_udev_root
 
 PATH="${PATH}:/usr/share/bilibop"

@@ -8,7 +8,7 @@ belongs_to_floppy_group() {
 
 case "${1}" in
     configure)
-        . /lib/bilibop/common.sh
+        . /usr/lib/bilibop/common.sh
         get_udev_root
 
         # Be sure the needed virtual filesystems are mounted, and udev is

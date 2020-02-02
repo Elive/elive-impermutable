@@ -91,7 +91,7 @@ update some of their udev properties. It should be used each time the
 BILIBOP_RULES_* variables are modified in /etc/bilibop/bilibop.conf.
 
 For the case the devices have not been tagged (a simple case: override
-/lib/udev/rules.d/66-bilibop.rules by an empty rules file in /etc), you
+/usr/lib/udev/rules.d/66-bilibop.rules by an empty rules file in /etc), you
 may use the -l option: it allows lsbilibop to not rely on the 'BILIBOP'
 udev tag, and makes it lists bilibop devices by using the shell library
 provided by bilibop-common.
@@ -153,7 +153,7 @@ manually, but by running 'dpkg-reconfigure bilibop-rules' instead.
 ----------------------------
 
 This program generates a udev rules file /etc/udev/rules.d/66-bilibop.rules
-doing the same things than the file with the same name in /lib/udev/rules.d.
+doing the same things than the file with the same name in /usr/lib/udev/rules.d.
 The main difference is that rules in /lib are generic and can take more time
 if a lot of removable devices are plugged onto the computer. Rules in /etc
 use the sysfs attributes of the device hosting the system and run faster.

@@ -36,7 +36,7 @@ Default: keep
 _Description: What do you want to do with your custom rules ?
  The file '/etc/udev/rules.d/66-bilibop.rules' exists. It is specific to the
  drive on which your system is installed and overrides the one, more generic,
- that is provided by the bilibop-rules package (in '/lib/udev/rules.d').
+ that is provided by the bilibop-rules package (in '/usr/lib/udev/rules.d').
  .
  If the device hosting the running system is able to boot from different
  hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD-card, etc.), you

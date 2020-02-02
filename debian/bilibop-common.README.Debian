@@ -26,7 +26,7 @@ disk or in RAM.
 Functions that just output information about devices/filesystems can be
 called by any unprivileged user. Some of the main functions can be called
 from the commandline (or from a script) with:
-$ . /lib/bilibop/common.sh
+$ . /usr/lib/bilibop/common.sh
 $ get_udev_root
 $ underlying_device /
 $ underlying_partition /
@@ -155,15 +155,15 @@ SCRIPTS
 
 Bilibop-common is shipped with three shell scripts:
 
-/lib/bilibop/disk
------------------
+/usr/lib/bilibop/disk
+---------------------
 
 This script is very small; it just outputs the physical disk name that
 contains the root filesystem (or the disk name containing a file, device
 or directory given as argument). This is a kind of 'proof of concept'.
 
-/lib/bilibop/test
------------------
+/usr/lib/bilibop/test
+---------------------
 
 This script tests if the argument (file/directory/device) is on the same
 physical disk than the root filesystem. If it is the case and -q is not

@@ -1,7 +1,7 @@
-bin/lsbilibop							bin
-lib/bilibop/pvfilter.sh						lib/bilibop
-lib/bilibop/rules.sh						lib/bilibop
-lib/udev/bilibop_disk						lib/udev
+usr/bin/lsbilibop						usr/bin
+usr/lib/bilibop/pvfilter.sh					usr/lib/bilibop
+usr/lib/bilibop/rules.sh					usr/lib/bilibop
+usr/lib/udev/bilibop_disk					usr/lib/udev
 usr/share/bilibop/bilibop_rules_generator			usr/share/bilibop
 usr/share/bilibop/grub_device_map_manager			usr/share/bilibop
 usr/share/bilibop/make_unpersistent_rules			usr/share/bilibop
