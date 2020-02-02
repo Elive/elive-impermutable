@@ -117,19 +117,11 @@ ENV{DM_LV_NAME}=="?*", ENV{DM_VG_NAME}=="?*", ENV{DM_LV_LAYER}=="", \
 LABEL="bilibop_dm_end"
 
 # The following rules are for the desktop environment; they make sense only if
-# udisks and/or udisks2 are installed:
-TEST!="/lib/udev/rules.d/80-udisks.rules", GOTO="bilibop_udisks_end"
-PROGRAM=="bilibop_disk --lock %r/%k", ENV{UDISKS_SYSTEM_INTERNAL}:="1"
-PROGRAM=="bilibop_disk --hide %r/%k", ENV{UDISKS_PRESENTATION_HIDE}:="1", GOTO="bilibop_udisks_end"
-PROGRAM=="bilibop_disk --icon %r/%k", ENV{UDISKS_PRESENTATION_ICON_NAME}:="%c"
-PROGRAM=="bilibop_disk --name %r/%k", ENV{UDISKS_PRESENTATION_NAME}:="%c"
-LABEL="bilibop_udisks_end"
-
-TEST!="/lib/udev/rules.d/80-udisks2.rules", GOTO="bilibop_udisks2_end"
+# udisks2 is installed:
+TEST!="/lib/udev/rules.d/80-udisks2.rules", GOTO="bilibop_end"
 PROGRAM=="bilibop_disk --lock %r/%k", ENV{UDISKS_SYSTEM}:="1"
-PROGRAM=="bilibop_disk --hide %r/%k", ENV{UDISKS_IGNORE}:="1", GOTO="bilibop_udisks2_end"
+PROGRAM=="bilibop_disk --hide %r/%k", ENV{UDISKS_IGNORE}:="1", GOTO="bilibop_end"
 PROGRAM=="bilibop_disk --icon %r/%k", ENV{UDISKS_ICON_NAME}:="%c"
 PROGRAM=="bilibop_disk --name %r/%k", ENV{UDISKS_NAME}:="%c"
-LABEL="bilibop_udisks2_end"
 
 LABEL="bilibop_end"
