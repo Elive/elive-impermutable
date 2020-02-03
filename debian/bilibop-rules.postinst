@@ -296,16 +296,15 @@ case "${1}" in
                         if [ "${RET}" = "true" ]; then
                             db_reset bilibop-rules/${HELPER}/system-only
 
-                            warning="with_global_filter/warning"
                             db_get bilibop-rules/${HELPER}/global_filter
-                            db_subst bilibop-rules/${HELPER}/${warning} GLOBAL_FILTER "${RET}"
-                            db_subst bilibop-rules/${HELPER}/${warning} UNTAGGED "${untagged}"
-                            db_subst bilibop-rules/${HELPER}/${warning} UNLINKED "${unlinked}"
+                            db_subst bilibop-rules/${HELPER}/warning GLOBAL_FILTER "${RET}"
+                            db_subst bilibop-rules/${HELPER}/warning UNTAGGED "${untagged}"
+                            db_subst bilibop-rules/${HELPER}/warning UNLINKED "${unlinked}"
                             db_get bilibop-rules/${HELPER}/obtain_device_list_from_udev
-                            db_subst bilibop-rules/${HELPER}/${warning} FROMUDEV "${RET}"
+                            db_subst bilibop-rules/${HELPER}/warning FROMUDEV "${RET}"
                             db_get bilibop-rules/${HELPER}/filter
-                            db_subst bilibop-rules/${HELPER}/${warning} FILTER "${RET}"
-                            db_input critical bilibop-rules/${HELPER}/${warning} || true
+                            db_subst bilibop-rules/${HELPER}/warning FILTER "${RET}"
+                            db_input critical bilibop-rules/${HELPER}/warning || true
                             db_go || true
                         fi
                         for lvmvar in ${lvm_variables}; do
