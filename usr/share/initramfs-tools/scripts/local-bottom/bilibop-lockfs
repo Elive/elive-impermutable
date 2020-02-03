@@ -389,10 +389,6 @@ lock_file "/etc/fstab"
 # too):
 parse_and_modify_fstab
 
-# Be sure the lockfs mount helper script will be executed when needed:
-grep -q '[[:blank:]]lockfs[[:blank:]]' ${FSTAB} &&
-check_mount_lockfs "${rootmnt}"
-
 # Avoid breakage of read-only settings by LVM tools:
 if	[ -f "/etc/lvm/bilibop" ] &&
 	[ "${BILIBOP_LOCKFS_POLICY}" != "soft" ]
