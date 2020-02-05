@@ -39,13 +39,6 @@ ATTR{removable}=="?*", \
 	SYMLINK+="%c", \
 	ENV{BILIBOP_DISK}="%r/%k"
 
-# The disk - say Udisks to not detach the drive from its bus,
-# and set it as 'system internal':
-ATTR{removable}=="?*", \
-	TEST=="/usr/lib/udev/rules.d/80-udisks.rules", \
-	ENV{ID_DRIVE_DETACHABLE}:="0", \
-	ENV{UDISKS_SYSTEM_INTERNAL}:="1"
-
 # The disk - do the same for Udisks 2.x:
 ATTR{removable}=="?*", \
 	TEST=="/usr/lib/udev/rules.d/80-udisks2.rules", \
