@@ -2,8 +2,10 @@
 
 set -e
 
-belongs_to_floppy_group() {
-    stat -c %G ${1}* | grep -q '^floppy$'
+belong_to_disk_group() {
+    for g in $(stat -c %G ${1}*); do
+        [ "${g}" = "disk" ] || return 1
+    done
 }
 
 case "${1}" in
@@ -25,12 +27,12 @@ case "${1}" in
 
             # But it can happen that this doesn't work and new rules must be
             # explicitly loaded before triggering uevents:
-            if belongs_to_floppy_group ${BILIBOP_DISK}; then
+            if ! belong_to_disk_group ${BILIBOP_DISK}; then
                 udevadm control --reload-rules
                 udevadm trigger --sysname-match=${BILIBOP_DISK##*/}*
                 udevadm settle
 
-                if belongs_to_floppy_group ${BILIBOP_DISK}; then
+                if ! belong_to_disk_group ${BILIBOP_DISK}; then
                     [ -f /etc/udev/rules.d/66-bilibop.rules ] || exit 2
                 fi
             fi
