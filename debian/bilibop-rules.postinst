@@ -221,7 +221,7 @@ case "${1}" in
                 udevadm settle
 
                 # Now do something if the drive and its partitions still belong
-                # to the floppy group.
+                # to another group than disk (floppy, plugdev, ...).
                 if ! belong_to_disk_group ${BILIBOP_DISK}; then
                     for dev in $(find ${BILIBOP_DISK}* ! -group disk); do
                         flop="${flop:+${flop} }${dev}"
