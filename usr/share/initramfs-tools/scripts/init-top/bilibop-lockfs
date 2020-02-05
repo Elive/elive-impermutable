@@ -43,7 +43,7 @@ done
 
 # Load functions:
 . /scripts/functions
-. /lib/bilibop/lockfs.sh
+. /usr/lib/bilibop/lockfs.sh
 
 udev_root="/dev"
 BILIBOP_LOCKFS="true"

@@ -33,7 +33,7 @@ FILE=""
 ALREADY_DONE=""
 _opts_=""
 
-. /lib/bilibop/drivemap.sh
+. /usr/lib/bilibop/drivemap.sh
 _drivemap_initial_indent
 
 short_usage() {

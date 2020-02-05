@@ -1,4 +1,4 @@
-# /lib/bilibop/common.sh
+# /usr/lib/bilibop/common.sh
 #
 # Copyright (C) 2011-2017, Yann Amar <quidame@poivron.org>
 # License GPL-3.0+
@@ -48,7 +48,7 @@
 #    or /usr/lib/klibc/bin/sh.shared, etc.):
 # ----------
 # #!${SHELL}
-# . /lib/bilibop/common.sh ; get_udev_root ; physical_hard_disk
+# . /usr/lib/bilibop/common.sh ; get_udev_root ; physical_hard_disk
 # ----------
 # 3. by running the previous script with /bin/sh as ${SHELL} and linking
 #    /bin/sh successively to dash, bash, sash, posh, busybox, ksh, zsh, or

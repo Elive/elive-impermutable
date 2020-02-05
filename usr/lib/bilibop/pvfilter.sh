@@ -1,8 +1,8 @@
-# /lib/bilibop/pvfilter.sh
+# /usr/lib/bilibop/pvfilter.sh
 # vim: set et sw=4 sts=4 ts=4 fdm=marker fcl=all:
 
 # The pvfilter functions need those of bilibop-common:
-. /lib/bilibop/common.sh
+. /usr/lib/bilibop/common.sh
 
 # See also lvm.conf(5) manpage for details.
 

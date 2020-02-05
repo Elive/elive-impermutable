@@ -21,7 +21,7 @@ PROG="${0##*/}"
 SOPTS="fhlrsu"
 LOPTS="fake,help,link,remove,show,update"
 
-. /lib/bilibop/common.sh
+. /usr/lib/bilibop/common.sh
 get_udev_root
 get_bilibop_variables
 

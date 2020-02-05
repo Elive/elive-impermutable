@@ -38,7 +38,7 @@ done
 
 # Load functions:
 . /scripts/functions
-. /lib/bilibop/lockfs.sh
+. /usr/lib/bilibop/lockfs.sh
 get_bilibop_variables ${rootmnt}
 
 

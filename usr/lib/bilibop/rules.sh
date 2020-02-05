@@ -1,8 +1,8 @@
-# /lib/bilibop/rules.sh
+# /usr/lib/bilibop/rules.sh
 # vim: set et sw=4 sts=4 ts=4 fdm=marker fcl=all:
 
 # The bilibop-rules functions need those of bilibop-common:
-. /lib/bilibop/common.sh
+. /usr/lib/bilibop/common.sh
 get_bilibop_variables
 
 # See bilibop.conf(5) and udisks(7) manpage for details.
@@ -28,7 +28,7 @@ _udisks_system_internal() {
 # (especially the file managers) based on Udisks: this includes Nautilus,
 # Thunar, PCManFM and Konkeror. Only the whitelisted filesystems will be
 # shown to the user.
-# NOTE: this function must be called from /lib/udev/bilibop_disk. The ID_FS_*
+# NOTE: this function must be called from /usr/lib/udev/bilibop_disk. The ID_FS_*
 # variables should be exported by udev, and so this functions don't need an
 # argument. The same rule applies to the two following functions.
 _udisks_presentation_hide() {

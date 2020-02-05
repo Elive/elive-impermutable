@@ -28,7 +28,7 @@ EOF
 
 
 # Load functions and get other variables:
-. /lib/bilibop/lockfs.sh
+. /usr/lib/bilibop/lockfs.sh
 get_udev_root
 get_bilibop_variables
 

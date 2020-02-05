@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-# /lib/bilibop/lockfs_mount_helper {{{
+# /usr/lib/bilibop/lockfs_mount_helper {{{
 # Mount helper script for 'lockfs' filesystem type entries in /etc/fstab.
 # This script cannot be run manually. The expected way to run it is the
 # following:
@@ -12,12 +12,7 @@ set -e
 #    temporary /etc/fstab is modified to replace filesystem types (third field)
 #    of some entries by 'lockfs' (options are modified too to remember the
 #    original fstype).
-# 3. /sbin/mount.lockfs is created if it doesn't already exist. This can be a
-#    symlink to /lib/bilibop/lockfs_mount_helper if this helper is executable,
-#    or a copy of the helper (followed by chmod +x) if the helper is not
-#    executable. If the helper is missing, /sbin/mount.lockfs will be a
-#    poor fallback to call mount normally.
-# 4. /etc/fstab is parsed by 'mount -a', and then mount calls mount.lockfs
+# 3. /etc/fstab is parsed by 'mount -a', and then mount calls mount.lockfs
 #    with the proper arguments when a 'lockfs' fstype is encountered.
 # }}}
 
@@ -68,7 +63,7 @@ case "$(readlink -f /proc/${PPID}/exe)" in
         ;;
 esac
 
-. /lib/bilibop/common.sh
+. /usr/lib/bilibop/common.sh
 get_bilibop_variables
 get_udev_root
 

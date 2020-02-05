@@ -1,8 +1,8 @@
-# /lib/bilibop/drivemap.sh
+# /usr/lib/bilibop/drivemap.sh
 # vim: set et sw=4 sts=4 ts=4 fdm=marker fcl=all:
 
 # The _drivemap_* functions need some more common functions:
-. /lib/bilibop/common.sh
+. /usr/lib/bilibop/common.sh
 get_udev_root
 
 ### DRIVEMAP FUNCTIONS ###

@@ -1,8 +1,8 @@
-# /lib/bilibop/lockfs.sh
+# /usr/lib/bilibop/lockfs.sh
 # vim: set et sw=4 sts=4 ts=4 fdm=marker fcl=all:
 
 # The bilibop-lockfs functions need those of bilibop-common:
-. /lib/bilibop/common.sh
+. /usr/lib/bilibop/common.sh
 
 # lock_file() ==============================================================={{{
 # What we want is: add a filename to the list of files that have been modified

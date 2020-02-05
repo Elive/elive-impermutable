@@ -39,7 +39,7 @@ EOF
 }
 
 bilibop_list() {
-	. /lib/bilibop/common.sh
+	. /usr/lib/bilibop/common.sh
 	get_udev_root
 	BILIBOP_DISK="$(physical_hard_disk /)"
 	for node in $(device_nodes); do

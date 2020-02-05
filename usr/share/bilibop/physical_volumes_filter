@@ -48,7 +48,7 @@ reject_block=""     # not empty if /dev/block is already rejected
 FILTER_STRING=""    # final result of all -a, -r or -x options
 ALREADY_DONE=""     # list of already treated devices
 
-. /lib/bilibop/pvfilter.sh
+. /usr/lib/bilibop/pvfilter.sh
 get_udev_root
 
 # short_usage() ============================================================={{{

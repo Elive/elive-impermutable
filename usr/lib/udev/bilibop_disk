@@ -50,7 +50,7 @@ node_name="${device##*/}"    # basename
 
 
 # Load bilibop shell functions
-. /lib/bilibop/rules.sh
+. /usr/lib/bilibop/rules.sh
 
 # Avoid running some functions if not necessary; take care with the exit code.
 case "${option}" in
