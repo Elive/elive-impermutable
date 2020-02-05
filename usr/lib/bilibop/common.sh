@@ -171,6 +171,10 @@ is_overlay_mountpoint [-q] <MOUNTPOINT>
 is_removable <DEVICE>
 mapper_name_from_dm_node <DEVICE>
 major_minor_from_device_node <DEVICE>
+overlay_mountpoints
+overlay_lowerdir <MOUNTPOINT>
+overlay_upperdir <MOUNTPOINT>
+overlay_workdir <MOUNTPOINT>
 physical_hard_disk [FILE|DIR|DEVICE]
 query_sysfs_attrs <DEVICE>
 query_udev_envvar <DEVICE>
