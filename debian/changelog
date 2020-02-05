@@ -1,3 +1,7 @@
+bilibop (unreleased) unstable; urgency=low
+
+ -- Yann Amar <quidame@poivron.org>  Wed, 05 Feb 2020 23:54:46 +0000
+
 bilibop (0.5.6) unstable; urgency=high
 
   * bilibop-lockfs:
