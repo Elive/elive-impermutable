@@ -240,6 +240,9 @@ fi
 
 log_begin_msg "${0##*/}: Setting up ${METHOD} branches"
 
+# Protect ${rootmnt}/usr if it is a mountpoint.
+preserve_usr
+
 # Prepare directories. This is a key point. The goal is to get a
 # directory tree easy to understand: with the readonly branch beside
 # the writable one, in a directory with explicit name. Also, since
@@ -265,18 +268,7 @@ UNIONFS="/tmp/union"
 BASEDIR="/${BILIBOP_LOCKFS_PATH_PREFIX:-${METHOD}}"
 HOSTDIR="${BASEDIR}/ro"
 
-if	[ "${METHOD}" = "aufs" ]
-then	TEMPDIR="${BASEDIR}/rw"
-elif	[ "${METHOD}" = "overlay" ]
-then	TEMPDIR="${BASEDIR}"
-	LOWERDIR="${HOSTDIR}"
-	UPPERDIR="${BASEDIR}/rw"
-	WORKDIR="${BASEDIR}/.rw"
-fi
-
-[ -d "${UNIONFS}" ] || mkdir "${UNIONFS}"
-[ -d "${BASEDIR}" ] || mkdir "${BASEDIR}"
-[ -d "${TEMPDIR}" ] || mkdir "${TEMPDIR}"
+preset_branches ${METHOD}
 
 if	! mount -t tmpfs -o mode=0755${SIZE:+,size=${SIZE}} tmpfs ${TEMPDIR}
 then
@@ -310,27 +302,7 @@ if	mount -t ${METHOD} -o ${UNIONFS_OPTS} ${METHOD} ${UNIONFS}
 then
 	umount ${rootmnt}
 	mount -o move ${UNIONFS} ${rootmnt}
-	[ -d "${rootmnt}${BASEDIR}" ] || mkdir ${rootmnt}${BASEDIR}
-
-	if	[ "${METHOD}" = "aufs" ]
-	then	# Quite simple: move a mount to another directory which will
-		# have the same absolute path than the initial mount after
-		# $rootmnt becomes /. Do the same with another mountpoint that
-		# is independent of the first one:
-		[ -d "${rootmnt}${HOSTDIR}" ] || mkdir ${rootmnt}${HOSTDIR}
-		[ -d "${rootmnt}${TEMPDIR}" ] || mkdir ${rootmnt}${TEMPDIR}
-		mount -o move ${HOSTDIR} ${rootmnt}${HOSTDIR}
-		mount -o move ${TEMPDIR} ${rootmnt}${TEMPDIR}
-
-	elif	[ "${METHOD}" = "overlay" ]
-	then	# Not so complicated: move a mount to free the parent mount,
-		# then move the parent mount (in the right place, as explained
-		# above), and finally move the first mount again (in the right
-		# place too):
-		mount -o move ${HOSTDIR} ${UNIONFS}
-		mount -o move ${TEMPDIR} ${rootmnt}${TEMPDIR}
-		mount -o move ${UNIONFS} ${rootmnt}${HOSTDIR}
-	fi
+	move_mounts
 else
 	# Again, don't forget to undo what has been done before:
 	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ] ||
@@ -400,6 +372,29 @@ then
 	blacklist_bilibop_devices
 	>>${LVM_CONF}
 	lock_file "${LVM_SYSTEM_DIR}/lvm.conf"
+fi
+
+
+# Process /usr related stuff
+if	[ "${HAS_USR}" = "true" ]
+then	mount -o move /tmp/preserve_usr ${rootmnt}/usr
+fi
+
+if	[ "${HAS_USR}" = "true" -a "${LOCK_USR}" = "true" ]
+then
+	BASEDIR="${BASEDIR}/usr"
+	HOSTDIR="${BASEDIR}/ro"
+
+	preset_branches ${METHOD}
+	mount -t tmpfs -o mode=0755${SIZE:+,size=${SIZE}} tmpfs ${TEMPDIR}
+	preset_options ${METHOD}
+	mount -o move ${rootmnt}/usr ${HOSTDIR}
+
+	if	mount -t ${METHOD} -o ${UNIONFS_OPTS} ${METHOD} ${UNIONFS}
+	then	mount -o move ${UNIONFS} ${rootmnt}/usr
+		move_mounts
+	else	mount -o move ${HOSTDIR} ${rootmnt}/usr
+	fi
 fi
 
 

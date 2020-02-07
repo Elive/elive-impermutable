@@ -258,7 +258,7 @@ parse_and_modify_fstab() {
                 ;;
         esac
 
-        # Don't modify the "noauto" mount lines nor the binded mounts:
+        # Don't modify the "noauto" mount lines nor the bound mounts:
         echo "${option}" | grep -q '\<\(noauto\|r\?bind\)\>' && continue
 
         # Skip what we are sure that it is not a local block device (or a
@@ -549,4 +549,102 @@ is_physically_locked() {
     return 1
 }
 # ===========================================================================}}}
+# move_mounts() ============================================================={{{
+# What we want is: move mounts that have been set in a way that mount options
+# are relative to the initramfs and will still work in running system. For /
+# and /usr.
+move_mounts() {
+    ${DEBUG} && echo "> move_mounts $@" >&2
 
+    [ -d "${rootmnt}${BASEDIR}" ] || mkdir ${rootmnt}${BASEDIR}
+
+	if [ "${METHOD}" = "aufs" ]; then
+	    # Quite simple: move a mount to another directory which will
+		# have the same absolute path than the initial mount after
+		# $rootmnt becomes /. Do the same with another mountpoint that
+		# is independent of the first one:
+		[ -d "${rootmnt}${HOSTDIR}" ] || mkdir ${rootmnt}${HOSTDIR}
+		[ -d "${rootmnt}${TEMPDIR}" ] || mkdir ${rootmnt}${TEMPDIR}
+		mount -o move ${HOSTDIR} ${rootmnt}${HOSTDIR}
+		mount -o move ${TEMPDIR} ${rootmnt}${TEMPDIR}
+
+	elif [ "${METHOD}" = "overlay" ]; then
+        # Not so complicated: move a mount to free the parent mount,
+		# then move the parent mount (in the right place, as explained
+		# above), and finally move the first mount again (in the right
+		# place too):
+		mount -o move ${HOSTDIR} ${UNIONFS}
+		mount -o move ${TEMPDIR} ${rootmnt}${TEMPDIR}
+		mount -o move ${UNIONFS} ${rootmnt}${HOSTDIR}
+	fi
+}
+# ===========================================================================}}}
+# preserve_usr() ============================================================{{{
+# What we want is: protect ${rootmnt}/usr, if mounted, before playing with
+# ${rootmnt}. We just move it to not have to parse /etc/fstab again to get
+# device, fstype and mount options.
+preserve_usr() {
+    ${DEBUG} && echo "> preserve_usr $@" >&2
+
+    if grep -q " ${rootmnt}/usr " /proc/mounts; then
+        HAS_USR="true"
+        LOCK_USR="true"
+
+        mkdir /tmp/preserve_usr
+        mount -o move ${rootmnt}/usr /tmp/preserve_usr
+
+        for w in ${BILIBOP_LOCKFS_WHITELIST:-}; do
+            if [ "${w}" = "/usr" ]; then
+                LOCK_USR="false"
+                break
+            fi
+        done
+
+    else
+        HAS_USR="false"
+    fi
+}
+# ===========================================================================}}}
+# preset_branches() ========================================================={{{
+# What we want is: set directory structure depending on the union module given
+# as argument.
+preset_branches() {
+    ${DEBUG} && echo "> preset_branches $@" >&2
+
+    case "${1}" in
+        "aufs")
+            TEMPDIR="${BASEDIR}/rw"
+            ;;
+        "overlay")
+            TEMPDIR="${BASEDIR}"
+            LOWERDIR="${HOSTDIR}"
+            UPPERDIR="${BASEDIR}/rw"
+            WORKDIR="${BASEDIR}/.rw"
+            ;;
+    esac
+
+    [ -d "${UNIONFS}" ] || mkdir "${UNIONFS}"
+    [ -d "${BASEDIR}" ] || mkdir "${BASEDIR}"
+    [ -d "${TEMPDIR}" ] || mkdir "${TEMPDIR}"
+}
+# ===========================================================================}}}
+# preset_options() =========================================================={{{
+# What we want is: set directory structure in mount options depending on the
+# union module given as argument.
+preset_options() {
+    ${DEBUG} && echo "> preset_options $@" >&2
+
+    [ -d "${HOSTDIR}" ] || mkdir "${HOSTDIR}"
+
+    case "${1}" in
+        "aufs")
+            UNIONFS_OPTS="br:${TEMPDIR}=rw:${HOSTDIR}=${RO}"
+            ;;
+        "overlay")
+            UNIONFS_OPTS="lowerdir=${LOWERDIR},upperdir=${UPPERDIR},workdir=${WORKDIR}"
+            [ -d "${UPPERDIR}" ] || mkdir "${UPPERDIR}"
+            [ -d "${WORKDIR}" ] || mkdir "${WORKDIR}"
+            ;;
+    esac
+}
+# ===========================================================================}}}

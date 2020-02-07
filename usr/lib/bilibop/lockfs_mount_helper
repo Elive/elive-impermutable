@@ -37,6 +37,8 @@ mount_fallback() {
             fstype=*)
                 eval "${opt}"
                 ;;
+            remount)
+                ;;
             rw)
                 [ "${BILIBOP_LOCKFS_FALLBACK_POLICY}" = "asis" ] ||
                 options="${options:+${options},}ro"
@@ -208,7 +210,7 @@ for opt in $(IFS=','; echo ${options}); do
         fstype=*)
             eval "${opt}"
             ;;
-        rw)
+        rw|remount)
             ;;
         ro)
             union_opts="${union_opts:+${union_opts},}${opt}"
