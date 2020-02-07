@@ -380,7 +380,9 @@ if	[ "${HAS_USR}" = "true" ]
 then	mount -o move /tmp/preserve_usr ${rootmnt}/usr
 fi
 
-if	[ "${HAS_USR}" = "true" -a "${LOCK_USR}" = "true" ]
+# fstab has already been parsed and modified, so if /usr is whitelisted with
+# an obvious token (matching its fstab record), it should be skipped there.
+if	grep -Eq '\s/usr\s+lockfs\s' ${rootmnt}/etc/fstab
 then
 	BASEDIR="${BASEDIR}/usr"
 	HOSTDIR="${BASEDIR}/ro"

@@ -588,18 +588,8 @@ preserve_usr() {
 
     if grep -q " ${rootmnt}/usr " /proc/mounts; then
         HAS_USR="true"
-        LOCK_USR="true"
-
         mkdir /tmp/preserve_usr
         mount -o move ${rootmnt}/usr /tmp/preserve_usr
-
-        for w in ${BILIBOP_LOCKFS_WHITELIST:-}; do
-            if [ "${w}" = "/usr" ]; then
-                LOCK_USR="false"
-                break
-            fi
-        done
-
     else
         HAS_USR="false"
     fi
