@@ -110,7 +110,10 @@ commandline overrides the previous ones):
 
 - 'lockfs=:prefix' - enable bilibop-lockfs features and use /prefix/ro
   and /prefix/rw as the branches to be merged as /. The colon (:) is a
-  marker, and the prefix is automatically prepended with /.
+  marker, and the prefix is automatically prepended with /. The default
+  is the name of the module in use (aufs or overlay).
+  BILIBOP_LOCKFS="true"
+  BILIBOP_LOCKFS_PATH_PREFIX="prefix"
 
 - 'lockfs=isolated' - enable bilibop-lockfs features, with a dedicated
   subtree per mount, making readonly branches of unions isolated between
@@ -130,12 +133,14 @@ commandline overrides the previous ones):
   BILIBOP_LOCKFS_PATH_SCHEME="hybrid"
 
 - 'lockfs=ro' - enable bilibop-lockfs features, and fallback to a read-
-  only flat mount in case of mount.lockfs failure.
+  only flat mount in case of mount.lockfs failure. This may happen for
+  example when a filesystem type is not supported by the union module.
   BILIBOP_LOCKFS="true"
   BILIBOP_LOCKFS_FALLBACK_POLICY="ro"
 
 - 'lockfs=asis' - enable bilibop-lockfs features, and mount fs 'as is',
-  i.e. unprotected, in case of mount.lockfs failure.
+  i.e. with the options as found in fstab, in case of mount.lockfs
+  failure.
   BILIBOP_LOCKFS="true"
   BILIBOP_LOCKFS_FALLBACK_POLICY="asis"
 
@@ -210,6 +215,10 @@ are not updated, and block devices are set readonly).
 After what, when the root of the system has been discovered and mounted
 from the initramfs, another initramfs script (the main) is used to lock
 the root filesystem and all its (virtual or physical) parent block devices.
+
+/usr mountpoint is also managed by bilibop-lockfs initramfs script since
+it is now mounted from initramfs right after the system /.
+
 Other mountpoints are managed by a mount helper script. Here is an example
 of a partition scheme on a USB stick of 16GB (those are the outputs of the
 drivemap(1) command, when bilibop-lockfs is disabled):
@@ -508,3 +517,4 @@ is writable, other block devices are read-only.
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
  -- bilibop project <quidame@poivron.org>  Tue, 14 Jul 2015 13:24:22 +0000
  -- bilibop project <quidame@poivron.org>  Thu, 15 Aug 2019 05:39:09 +0000
+ -- bilibop project <quidame@poivron.org>  Fri, 07 Feb 2020 19:16:26 +0000
