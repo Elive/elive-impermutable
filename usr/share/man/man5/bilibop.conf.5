@@ -1,4 +1,4 @@
-.TH BILIBOP.CONF 5 2019\-08\-15 bilibop "Bilibop Project"
+.TH BILIBOP.CONF 5 2020\-02\-07 bilibop "Bilibop Project"
 
 .SH NAME
 bilibop.conf \- configuration file of bilibop packages
@@ -234,7 +234,7 @@ with overlay.
 Default is unset.
 
 .SS BILIBOP_LOCKFS_WHITELIST
-One time the root filesystem is locked as the readonly branch of an aufs or
+Once the root filesystem is locked as the readonly branch of an aufs or
 overlay filesystem, the
 .I /etc/fstab
 file is modified on the writable branch to lock all other local filesystems
@@ -263,11 +263,21 @@ for
 .I ID_FS_LABEL
 and
 .I ID_FS_TYPE
-variables. Note that whitelist a mountpoint, a device name or any token
+variables. Note that whitelisting a mountpoint, a device name or any token
 matching the corresponding fstab entry makes the device is whitelisted
 by the initramfs script, that is faster. Otherwise,
 .BR mount.lockfs (8)
 will query metadata about the device to check if it must skip it or not.
+.PP
+Note that since mounting of
+.I /usr
+is now done into the initramfs, locking it must be done into the initramfs
+too. It means that only the simple and early parser is available at this
+time, and the simplest way to whitelist
+.I /usr
+is to call it
+.BR /usr ,
+and nothing else, to avoid boot failures or unexpected results.
 .PP
 Also note that it is possible to override (and blank) the value of this
 variable by adding
