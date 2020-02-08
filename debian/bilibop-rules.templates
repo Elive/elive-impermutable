@@ -88,45 +88,6 @@ _Description: Internal error
  .
  You should send a bug report to the maintainer of the package.
 
-Template: bilibop-rules/grub_device_map_manager
-Type: select
-__Choices: the existing one, a static device map (not recommended), a static fake device map, a dynamic fake device map, a dynamically updated device map
-Choices-C: keep, static, fake, dynamic, ondemand
-Default: keep
-_Description: What kind of GRUB device map do you want to use ?
- The '/boot/grub/device.map' file can store obsolete information. In some cases,
- this can lead to failures when the GRUB bootloader menu is updated. To avoid
- that, it is possible to replace the device map by a fake one, mapping only
- the physical drive hosting your system; or by a link to a temporary file,
- which may be created either at boot time with a fake content, or on demand
- with an updated content.
- .
- If your external system is embedded on a device able to boot from different
- hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), it is not
- recommended to use a static device map. The dynamic fake device map should
- work in all cases.
-
-Template: bilibop-rules/make_unpersistent_rules
-Type: select
-__Choices: keep them in their current state, make unpersistent cd rules only, make unpersistent net rules only, make unpersistent rules for all (recommended), make persistent rules for all
-Choices-C: keep, cd, net, all, none
-Default: keep
-#flag:translate!:3,5
-_Description: What persistent rules do you want to make unpersistent ?
- Some udev rules files can store information about components of the computer
- your system is plugged on:
- .
-  /etc/udev/rules.d/70-persistent-cd.rules
-  /etc/udev/rules.d/70-persistent-net.rules
- .
- These files are cumulative and can store obsolete information, possibly
- leading to unexpected behaviour of your network manager or CD burner
- application. It is possible to replace them by symlinks to temporary files
- to keep them always up to date. Note that it is possible to do or undo that
- at any time by running
- .
-  dpkg-reconfigure bilibop-rules
-
 Template: bilibop-rules/physical_volumes_filter/system-only
 Type: boolean
 Default: false
@@ -172,4 +133,3 @@ _Description: Physical Volumes Filter will not be applied.
   obtain_device_list_from_udev = ${FROMUDEV}
   filter = ${FILTER}
   global_filter = ${GLOBAL_FILTER}
-

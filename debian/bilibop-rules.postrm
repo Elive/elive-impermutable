@@ -10,14 +10,6 @@ case "${1}" in
         # Remove custom rules:
         rm -f /etc/udev/rules.d/66-bilibop.rules
 
-        # Restore GRUB device.map
-        DEVICE_MAP="/boot/grub/device.map"
-        if [ -f "${DEVICE_MAP}.bak" -a -s "${DEVICE_MAP}.bak" ]; then
-            rm -f ${DEVICE_MAP}
-            cat ${DEVICE_MAP}.bak >${DEVICE_MAP}
-            rm -f ${DEVICE_MAP}.bak
-        fi
-
         # Comment bilibop-rules specific configuration variables in
         # the common bilibop config file:
         CONFIGFILE="/etc/bilibop/bilibop.conf"

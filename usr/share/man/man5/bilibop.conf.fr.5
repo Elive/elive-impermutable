@@ -530,35 +530,6 @@ de la même session en éxécutant
 Voir
 .BR lsbilibop (8).
 
-.SS BILIBOP_RULES_FAKE_DEVICE_MAP
-Par défaut, les règles
-.BR bilibop (7)
-construisent un fichier de style
-.I /boot/grub/device.map
-appelé
-.I grub\-device.map
-dans un sous\-répertoire de
-.I /run
-(et défini par la variable BILIBOP_COMMON_BASENAME).
-Le but est de mapper le périphérique amovible hébergeant le système en cours
-d'éxécution comme
-.BR (hd0) ,
-c'est à dire comme premier disque dans la séquence de démarrage du BIOS.
-Pour rendre ce faux utilisable par
-.BR update\-grub (8),
-le fichier
-.I /boot/grub/device.map
-doit être remplacé par un lien symbolique pointant dessus. Si c'est le cas,
-mais que vous ne voulez pas construire ce faux, mais utiliser plutôt un
-fichier construit à la volée par
-.BR grub\-mkdevicemap (8),
-vous devez explicitement fixer cette variable à
-.I false
-(les autres valeurs n'ont aucun effet, c'est à dire ont le même effet que
-.IR true ).
-.PP
-Par défaut, la valeur de cette variable n'est pas fixée.
-
 .SS BILIBOP_RULES_SYSTEM_INTERNAL
 Par défaut, les règles bilibop utilisent les capacités de
 .B udisks

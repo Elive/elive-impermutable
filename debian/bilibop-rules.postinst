@@ -21,16 +21,6 @@ belong_to_disk_group() {
 case "${1}" in
     configure|reconfigure)
 
-        # GRUB device.map management
-        # ==========================
-
-        # Backup device.map; it will be restored when (if) the package will be
-        # purged.
-        DEVICE_MAP="/boot/grub/device.map"
-        if [ ! -f "${DEVICE_MAP}.bak" -a -s "${DEVICE_MAP}" -a ! -h "${DEVICE_MAP}" ]; then
-            cat ${DEVICE_MAP} >${DEVICE_MAP}.bak
-        fi
-
         # Debconf specific configuration
         # ==============================
 
@@ -49,89 +39,6 @@ case "${1}" in
                 # 'filter' and 'global_filter' are stored in the debconf
                 # db. They will be restored if the package is purged.
             done
-        fi
-
-        # Modify system settings only if the package is not intended to be
-        # installed on a Live System.
-        db_get bilibop-rules/on-live-system
-        if [ "${RET}" = "false" ]; then
-
-            # make_unpersistent_rules
-            # -----------------------
-
-            # Replace persistent rules files by symlinks in a per-file basis
-            # (this can be useful if the external system travels with a PCMCIA
-            # ethernet card or an external CD/DVD burner)
-            HELPER="make_unpersistent_rules"
-            db_get bilibop-rules/${HELPER}
-            case "${RET}" in
-                keep)
-                    ;;
-                cd|net)
-                    ${HELPER} --only ${RET}
-                    ;;
-                none)
-                    ${HELPER} --restore
-                    ;;
-                all)
-                    ${HELPER}
-                    ;;
-            esac
-
-            # grub_device_map_manager
-            # -----------------------
-
-            # Set GRUB device map only if GRUB is installed (both as package
-            # and as bootloader):
-            # This is for MBR/ms-dos partition tables:
-            #GRUB="$(dd if=${BILIBOP_DISK} bs=1 skip=384 count=4 2>/dev/null)"
-            HELPER="grub_device_map_manager"
-            if [ -d "/boot/grub" -a -x "/usr/sbin/grub-mkdevicemap" ]; then
-                db_get bilibop-rules/${HELPER}
-                if [ "${RET}" != "keep" ]; then
-                    CONFIGFILE="/etc/bilibop/bilibop.conf"
-                    KEY="BILIBOP_RULES_FAKE_DEVICE_MAP"
-                    case "${RET}" in
-                        static)
-                            opt="--update"
-                            if [ -h "${DEVICE_MAP}" ]; then
-                                opt="--remove ${opt}"
-                            fi
-                            ;;
-                        fake)
-                            opt="--fake"
-                            if [ -h "${DEVICE_MAP}" ]; then
-                                opt="--remove ${opt}"
-                            fi
-                            ;;
-                        dynamic)
-                            opt="--link"
-                            if [ -f "${CONFIGFILE}" ]; then
-                                # Override the variable ?
-                                #echo "${KEY}=\"true\"" >>${CONFIGFILE}
-                                # Change the value ?
-                                #sed -i "s:^\(\s*${KEY}\)=\([\"\']\?\)false\2:\1=\2true\2:" ${CONFIGFILE}
-                                # Comment the line ?
-                                #sed -i "s:^\(\s*${KEY}\)=\([\"\']\?\)false\2:#&:" ${CONFIGFILE}
-                                # Delete the line ?
-                                sed -ri "/^(\s*${KEY})=([\"\']?)false\2/d" ${CONFIGFILE}
-                            fi
-                            ;;
-                        ondemand)
-                            opt="--link --update"
-                            if grep -qs "^[[:blank:]]*${KEY}=" ${CONFIGFILE}; then
-                                grep -Eq "^[[:blank:]]*${KEY}=([\"\']?)false\1" ${CONFIGFILE} ||
-                                sed -ri "s:^(\s*${KEY})=.*:\1=\"false\":" ${CONFIGFILE}
-                            elif grep -Eqs "^[[:blank:]]*(#[[:blank:]]*)+${KEY}=([\"\']?)false\2" ${CONFIGFILE}; then
-                                sed -ri "s:^(\s*)(#\s*)+(${KEY})=([\"\']?)false\4:\1\3=\"false\":" ${CONFIGFILE}
-                            else
-                                echo "${KEY}=\"false\"" >>${CONFIGFILE}
-                            fi
-                            ;;
-                    esac
-                    ${HELPER} ${opt}
-                fi
-            fi
         fi
 
         # Now we have to take care of the order of the processes:

@@ -49,7 +49,7 @@ a Logical Volume.
 2.1. Udisks facilities
 ----------------------
 
-Bilibop rules include rules to set udisks/udisks2 environment variables
+Bilibop rules include rules to set udisks2 environment variables
 for the devices hosted on the same disk than the root filesystem. If one
 of the Gnome, KDE, Xfce or LXDE desktop environment is installed, and then
 Udisks is used to mount/unmount removable devices from the file manager
@@ -57,12 +57,6 @@ or the desktop (which is an instance of the file manager), it is possible
 to hide some devices, or show them with a different name or icon than the
 default, or prompt the user for su/sudo password when she attempts to
 manage them. The udisks variables bilibop rules can set are:
-
-* For udisks (see udisks(7) manpage):
-    UDISKS_SYSTEM_INTERNAL
-    UDISKS_PRESENTATION_HIDE
-    UDISKS_PRESENTATION_ICON_NAME
-    UDISKS_PRESENTATION_NAME
 
 * For udisks2 (see udisks(8) manpage):
     UDISKS_SYSTEM
@@ -114,8 +108,6 @@ To preconfigure bilibop-rules from a preseed file, you can include something
 like:
 
     bilibop-rules bilibop-rules/on-live-system boolean false
-    bilibop-rules bilibop-rules/make_unpersistent_rules select all
-    bilibop-rules bilibop-rules/grub_device_map_manager select dynamic
     bilibop-rules bilibop-rules/bilibop_rules_generator/customize boolean false
     bilibop-rules bilibop-rules/physical_volumes_filter/system-only boolean true
 
@@ -196,55 +188,7 @@ want to build the rules file, use this command:
     /usr/share/bilibop/bilibop_rules_generator --attribute vendor,model
 
 
-4.2. grub_device_map_manager
-----------------------------
-
-This program can be used in association with BILIBOP_RULES_FAKE_DEVICE_MAP
-variable to set the location and contents of the GRUB device.map. The
-standard path of this file is /boot/grub/device.map; its content is
-generally written the first time 'update-grub' is run. After what it can
-be considered as a static file with a static content. But when the system
-runs from a removable drive on a different computer than during its
-installation, update-grub can complain and fail because the drives actually
-connected to the computer don't match the device map created in other
-conditions.
-
-To avoid that, it is possible - and highly recommended - to use either an
-always-up-to-date device map, or a fake one. It is the goal of this helper
-script, by modifying either the location of /boot/grub/device.map or its
-content. If device.map already is a symlink, it is replaced by a new symlink
-to /run/bilibop/grub-device.map; otherwise its content is modified to map
-the system drive as the first disk (hd0).
-
-As for 'bilibop_rules_generator', if you plan to plug the drive hosting
-your system on different interfaces (USB, FireWire, etc.), it is not
-recommended to use a static fake device map. On the other hand, the use
-of a symlink can imply to rerun the script if BILIBOP_COMMON_BASENAME has
-been modified in bilibop.conf(5).
-
-
-4.3. make_unpersistent_rules
-----------------------------
-
-This program replaces some persistent and cumulative rules files in
-/etc/udev/rules.d by symlinks to unpersistent and always-up-to-date files
-in /run/udev/rules.d. This concerns:
-
-    70-persistent-cd.rules
-    70-persistent-net.rules
-
-For example, for 70-persistent-net.rules, each time you run your system
-on a different computer, with ethernet or wifi interfaces that are not
-already registered in this file, a new rule will be added to match the
-not-already-registered MAC addresses, and set new interface names
-corresponding to the given MAC addresses. After your system has traveled
-on several computers, you may have to use eth12 or wlan4, what is not
-very convenient. Additionally, this kind of cumulative and sorted data
-may allow adversaries to track your activities and make correlations.
-The helper script 'make_unpersistent_rules' simply avoids all that.
-
-
-4.4. physical_volumes_filter
+4.2. physical_volumes_filter
 ----------------------------
 
 This script can be used to display the LVM 'filter' settings actually in
@@ -306,3 +250,4 @@ See /usr/share/doc/bilibop-common/misc/*
 
  -- bilibop project <quidame@poivron.org>  Tue, 17 Apr 2012 03:03:52 +0200
  -- bilibop project <quidame@poivron.org>  Sun, 24 Nov 2013 03:19:27 +0000
+ -- bilibop project <quidame@poivron.org>  Sat, 08 Feb 2020 19:48:41 +0000

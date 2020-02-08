@@ -482,33 +482,6 @@ applied during a same session by running
 See
 .BR lsbilibop (8).
 
-.SS BILIBOP_RULES_FAKE_DEVICE_MAP
-By default,
-.BR bilibop (7)
-rules build a
-.I /boot/grub/device.map
-style\-file named
-.I grub\-device.map
-in the bilibop subdirectory in
-.I /run
-(defined by the BILIBOP_COMMON_BASENAME variable).
-The goal is to map the removable device hosting the running system as
-.BR (hd0) ,
-i.e. as the first disk in the BIOS boot sequence. To make this faked map
-usable by
-.BR update\-grub (8),
-the file
-.I /boot/grub/device.map
-must be replaced by a symlink to it. If it is the case, but you don't
-want to build this map, and then use a real map built on the fly by
-.BR grub\-mkdevicemap (8),
-explicitly set this to
-.I false
-(all other values have no effect, i.e. have the same effect than
-.IR true ).
-.PP
-Default is unset.
-
 .SS BILIBOP_RULES_SYSTEM_INTERNAL
 By default, bilibop rules use
 .B udisks

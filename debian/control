@@ -73,8 +73,8 @@ Description: lock filesystems and write changes into RAM
 
 Package: bilibop-rules
 Architecture: linux-any
-Depends: bilibop-common (= ${binary:Version}), initramfs-tools, udev (>= 242-6), ${misc:Depends}
-Recommends: lvm2 (>= 2.02.98)
+Depends: bilibop-common (= ${binary:Version}), udev (>= 242-6), ${misc:Depends}
+Recommends: initramfs-tools, lvm2 (>= 2.02.98)
 Suggests: bilibop-lockfs, cryptsetup, policykit-1, udisks2
 Conflicts: bilibop-udev
 Provides: bilibop-device-policy
@@ -92,9 +92,8 @@ Description: device management rules for OS running from external media
  .
  To ease device management, bilibop-rules also provides helper scripts to:
   * build custom bilibop udev rules running faster than the generic ones
-  * make some persistent and cumulative udev rules files unpersistent
-  * use either a fake or an always-up-to-date grub device map
   * filter Physical Volumes, to activate only those needed by the system
+  * use either a fake or an always-up-to-date grub device map
  .
  This package is not designed to be used on internal disks. It works only
  for OS installed on removable and writable media, including LiveUSB systems.
