@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bilibop 0.4.21\n"
 "Report-Msgid-Bugs-To: bilibop@packages.debian.org\n"
-"POT-Creation-Date: 2020-02-02 22:51+0000\n"
+"POT-Creation-Date: 2020-02-08 18:15+0000\n"
 "PO-Revision-Date: 2014-07-26 07:50+0400\n"
 "Last-Translator: Yuri Kozlov <yuray@komyakino.ru>\n"
 "Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
@@ -217,146 +217,15 @@ msgstr "Внутренняя ошибка"
 msgid "You should send a bug report to the maintainer of the package."
 msgstr "Отправьте сообщение об ошибке сопровождающему пакета."
 
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "the existing one"
-msgstr "существующий"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a static device map (not recommended)"
-msgstr "статическая карта устройств (не рекомендуется)"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a static fake device map"
-msgstr "статическая фиктивная карта устройств"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a dynamic fake device map"
-msgstr "динамическая фиктивная карта устройств"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a dynamically updated device map"
-msgstr "динамическая обновляемая карта устройств"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:8002
-msgid "What kind of GRUB device map do you want to use ?"
-msgstr "Тип карты устройств GRUB:"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:8002
-msgid ""
-"The '/boot/grub/device.map' file can store obsolete information. In some "
-"cases, this can lead to failures when the GRUB bootloader menu is updated. "
-"To avoid that, it is possible to replace the device map by a fake one, "
-"mapping only the physical drive hosting your system; or by a link to a "
-"temporary file, which may be created either at boot time with a fake "
-"content, or on demand with an updated content."
-msgstr ""
-"Файл «/boot/grub/device.map» может содержать устаревшую информацию. В "
-"некоторых случаях это может приводить к ошибкам при обновлении меню "
-"системного загрузчика GRUB. Чтобы этого избежать возможно заменить карту "
-"устройств фиктивной, отражающей только физическое устройство хостящей "
-"системы — или сделав ссылку на временный файл, который можно создавать с "
-"фиктивным содержимым при загрузке системы или по требованию с обновлённым "
-"содержимым."
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:8002
-msgid ""
-"If your external system is embedded on a device able to boot from different "
-"hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), it is not "
-"recommended to use a static device map. The dynamic fake device map should "
-"work in all cases."
-msgstr ""
-"Если внешняя система установлена на устройстве, способном подключаться к "
-"аппаратным портам различных типов (USB/Firewire, USB/eSATA, USB/MMC/SD и т. "
-"д.), то не рекомендуется использовать статическую карту устройств. "
-"Динамическая фиктивная карта устройств будет работать во всех случаях."
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "keep them in their current state"
-msgstr "оставить их в текущем состоянии"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make unpersistent cd rules only"
-msgstr "сделать только непостоянные правила cd"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make unpersistent net rules only"
-msgstr "сделать только непостоянные правила net"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make unpersistent rules for all (recommended)"
-msgstr "сделать непостоянные правила для всего (рекомендуется)"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make persistent rules for all"
-msgstr "сделать постоянные правила для всего"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:9002
-msgid "What persistent rules do you want to make unpersistent ?"
-msgstr "Какие постоянные правила вы хотите сделать непостоянными?"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:9002
-msgid ""
-"Some udev rules files can store information about components of the computer "
-"your system is plugged on:"
-msgstr ""
-"Некоторые файлы с правилами udev могут содержать информацию о компонентах "
-"компьютера, в который вы вставили устройство:"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:9002
-msgid ""
-"These files are cumulative and can store obsolete information, possibly "
-"leading to unexpected behaviour of your network manager or CD burner "
-"application. It is possible to replace them by symlinks to temporary files "
-"to keep them always up to date. Note that it is possible to do or undo that "
-"at any time by running"
-msgstr ""
-"Эти файлы накапливают информацию и могут содержать устаревшие данные, что "
-"может привести к непредсказуемому поведению менеджера сети или программы "
-"прожига CD. Чтобы они всегда были актуальными, возможно заменить их "
-"символическими ссылками на временные файлы. Заметим, что это можно отменить "
-"в любой момент с помощью"
-
 #. Type: boolean
 #. Description
-#: ../bilibop-rules.templates:10001
+#: ../bilibop-rules.templates:8001
 msgid "Do you want to hide Physical Volumes your system does not need ?"
 msgstr "Скрыть ненужные физические тома системы?"
 
 #. Type: boolean
 #. Description
-#: ../bilibop-rules.templates:10001
+#: ../bilibop-rules.templates:8001
 msgid ""
 "It seems that the drive on which your system is installed contains Logical "
 "Volumes. It is possible to set LVM to activate only the Physical Volumes "
@@ -372,7 +241,7 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../bilibop-rules.templates:10001
+#: ../bilibop-rules.templates:8001
 msgid ""
 "If you choose to use this feature, this will overwrite '/etc/lvm/lvm.conf', "
 "and you should read 'README.Debian' in the documentation of the package. "
@@ -384,13 +253,13 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:14001
+#: ../bilibop-rules.templates:12001
 msgid "Physical Volumes Filter will not be applied."
 msgstr "Фильтр физических томов не будет применён."
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:14001
+#: ../bilibop-rules.templates:12001
 msgid ""
 "Probably due to an error in '66-bilibop.rules', the following device(s) have "
 "not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
@@ -401,10 +270,93 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:14001
+#: ../bilibop-rules.templates:12001
 msgid ""
 "This means some variables in '/etc/lvm/lvm.conf' will be left or reset to "
 "their initial values:"
 msgstr ""
 "Это указывает на некоторые отсутствующие переменные в «/etc/lvm/lvm.conf» "
 "или их сброс в первоначальные значения:"
+
+#~ msgid "the existing one"
+#~ msgstr "существующий"
+
+#~ msgid "a static device map (not recommended)"
+#~ msgstr "статическая карта устройств (не рекомендуется)"
+
+#~ msgid "a static fake device map"
+#~ msgstr "статическая фиктивная карта устройств"
+
+#~ msgid "a dynamic fake device map"
+#~ msgstr "динамическая фиктивная карта устройств"
+
+#~ msgid "a dynamically updated device map"
+#~ msgstr "динамическая обновляемая карта устройств"
+
+#~ msgid "What kind of GRUB device map do you want to use ?"
+#~ msgstr "Тип карты устройств GRUB:"
+
+#~ msgid ""
+#~ "The '/boot/grub/device.map' file can store obsolete information. In some "
+#~ "cases, this can lead to failures when the GRUB bootloader menu is "
+#~ "updated. To avoid that, it is possible to replace the device map by a "
+#~ "fake one, mapping only the physical drive hosting your system; or by a "
+#~ "link to a temporary file, which may be created either at boot time with a "
+#~ "fake content, or on demand with an updated content."
+#~ msgstr ""
+#~ "Файл «/boot/grub/device.map» может содержать устаревшую информацию. В "
+#~ "некоторых случаях это может приводить к ошибкам при обновлении меню "
+#~ "системного загрузчика GRUB. Чтобы этого избежать возможно заменить карту "
+#~ "устройств фиктивной, отражающей только физическое устройство хостящей "
+#~ "системы — или сделав ссылку на временный файл, который можно создавать с "
+#~ "фиктивным содержимым при загрузке системы или по требованию с обновлённым "
+#~ "содержимым."
+
+#~ msgid ""
+#~ "If your external system is embedded on a device able to boot from "
+#~ "different hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD, "
+#~ "etc.), it is not recommended to use a static device map. The dynamic fake "
+#~ "device map should work in all cases."
+#~ msgstr ""
+#~ "Если внешняя система установлена на устройстве, способном подключаться к "
+#~ "аппаратным портам различных типов (USB/Firewire, USB/eSATA, USB/MMC/SD и "
+#~ "т. д.), то не рекомендуется использовать статическую карту устройств. "
+#~ "Динамическая фиктивная карта устройств будет работать во всех случаях."
+
+#~ msgid "keep them in their current state"
+#~ msgstr "оставить их в текущем состоянии"
+
+#~ msgid "make unpersistent cd rules only"
+#~ msgstr "сделать только непостоянные правила cd"
+
+#~ msgid "make unpersistent net rules only"
+#~ msgstr "сделать только непостоянные правила net"
+
+#~ msgid "make unpersistent rules for all (recommended)"
+#~ msgstr "сделать непостоянные правила для всего (рекомендуется)"
+
+#~ msgid "make persistent rules for all"
+#~ msgstr "сделать постоянные правила для всего"
+
+#~ msgid "What persistent rules do you want to make unpersistent ?"
+#~ msgstr "Какие постоянные правила вы хотите сделать непостоянными?"
+
+#~ msgid ""
+#~ "Some udev rules files can store information about components of the "
+#~ "computer your system is plugged on:"
+#~ msgstr ""
+#~ "Некоторые файлы с правилами udev могут содержать информацию о компонентах "
+#~ "компьютера, в который вы вставили устройство:"
+
+#~ msgid ""
+#~ "These files are cumulative and can store obsolete information, possibly "
+#~ "leading to unexpected behaviour of your network manager or CD burner "
+#~ "application. It is possible to replace them by symlinks to temporary "
+#~ "files to keep them always up to date. Note that it is possible to do or "
+#~ "undo that at any time by running"
+#~ msgstr ""
+#~ "Эти файлы накапливают информацию и могут содержать устаревшие данные, что "
+#~ "может привести к непредсказуемому поведению менеджера сети или программы "
+#~ "прожига CD. Чтобы они всегда были актуальными, возможно заменить их "
+#~ "символическими ссылками на временные файлы. Заметим, что это можно "
+#~ "отменить в любой момент с помощью"

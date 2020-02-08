@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bilibop\n"
 "Report-Msgid-Bugs-To: bilibop@packages.debian.org\n"
-"POT-Creation-Date: 2020-02-02 22:51+0000\n"
+"POT-Creation-Date: 2020-02-08 18:15+0000\n"
 "PO-Revision-Date: 2014-10-15 20:58+0200\n"
 "Last-Translator: Frans Spiesschaert <Frans.Spiesschaert@yucom.be>\n"
 "Language-Team: Debian Dutch l10n Team <debian-l10n-dutch@lists.debian.org>\n"
@@ -223,150 +223,16 @@ msgstr "Interne fout"
 msgid "You should send a bug report to the maintainer of the package."
 msgstr "U zou een bugrapport moeten opsturen naar de pakketbeheerder."
 
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "the existing one"
-msgstr "het bestaande"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a static device map (not recommended)"
-msgstr "een statisch apparatenoverzicht (niet aanbevolen)"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a static fake device map"
-msgstr "een statisch pseudo-overzicht van apparaten"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a dynamic fake device map"
-msgstr "een dynamisch pseudo-overzicht van apparaten"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a dynamically updated device map"
-msgstr "een apparatenoverzicht dat dynamisch bijgewerkt wordt"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:8002
-msgid "What kind of GRUB device map do you want to use ?"
-msgstr "Welk soort GRUB-apparatenoverzicht (GRUB device map) wilt u gebruiken?"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:8002
-msgid ""
-"The '/boot/grub/device.map' file can store obsolete information. In some "
-"cases, this can lead to failures when the GRUB bootloader menu is updated. "
-"To avoid that, it is possible to replace the device map by a fake one, "
-"mapping only the physical drive hosting your system; or by a link to a "
-"temporary file, which may be created either at boot time with a fake "
-"content, or on demand with an updated content."
-msgstr ""
-"Het bestand '/boot/grub/device.map' kan verouderde informatie bevatten. In "
-"sommige gevallen kan dit aanleiding geven tot fouten als het menu van de "
-"GRUB-opstartlader bijgewerkt wordt. Om dit te vermijden kan het "
-"apparatenoverzicht (device map) vervangen worden door een pseudo-overzicht, "
-"waarin enkel de fysieke schijf waarop uw systeem staat, opgenomen is, ofwel "
-"kan er een koppeling gemaakt worden naar een tijdelijk bestand, dat ofwel "
-"bij de start van de computer gemaakt wordt en pseudo-inhoud bevat, ofwel op "
-"aanvraag gemaakt wordt met een bijgewerkte inhoud."
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:8002
-msgid ""
-"If your external system is embedded on a device able to boot from different "
-"hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), it is not "
-"recommended to use a static device map. The dynamic fake device map should "
-"work in all cases."
-msgstr ""
-"Indien uw extern systeem ingebed is in een apparaat dat vanaf verschillende "
-"types hardwarepoorten (USB/Firewire, USB/eSATA, USB/MMC/SD, enz.) opgestart "
-"kan worden, is het niet aanbevolen om een statisch apparatenoverzicht te "
-"gebruiken. Het dynamisch pseudo-overzicht van apparaten zou in alle gevallen "
-"moeten werken."
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "keep them in their current state"
-msgstr "behoud ze in hun huidige toestand"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make unpersistent cd rules only"
-msgstr "maak niet-persistente regels enkel voor cd-apparaten"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make unpersistent net rules only"
-msgstr "maak niet-persistente regels enkel voor netwerk-apparaten"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make unpersistent rules for all (recommended)"
-msgstr "maak niet-persistente regels voor alle apparaten (aanbevolen)"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make persistent rules for all"
-msgstr "maak persistente regels voor alle apparaten"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:9002
-msgid "What persistent rules do you want to make unpersistent ?"
-msgstr "Welke van de persistente regels wilt u niet-persistent maken?"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:9002
-msgid ""
-"Some udev rules files can store information about components of the computer "
-"your system is plugged on:"
-msgstr ""
-"Sommige bestanden met udev-regels kunnen informatie bevatten over "
-"componenten van de computer waaraan uw systeem aangekoppeld werd:"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:9002
-msgid ""
-"These files are cumulative and can store obsolete information, possibly "
-"leading to unexpected behaviour of your network manager or CD burner "
-"application. It is possible to replace them by symlinks to temporary files "
-"to keep them always up to date. Note that it is possible to do or undo that "
-"at any time by running"
-msgstr ""
-"Deze bestanden zijn cumulatief en kunnen verouderde informatie bevatten. Die "
-"kan mogelijks leiden tot onverwacht gedrag van het programma dat voor uw "
-"netwerkbeheer zorgt of uw CD's brandt. Het is mogelijk om die bestanden te "
-"vervangen door symbolische koppelingen naar tijdelijke bestanden, zodat die "
-"steeds actueel blijven. Merk op dat u dit op ieder ogenblik kunt instellen "
-"of ongedaan maken met het commando"
-
 #. Type: boolean
 #. Description
-#: ../bilibop-rules.templates:10001
+#: ../bilibop-rules.templates:8001
 msgid "Do you want to hide Physical Volumes your system does not need ?"
 msgstr ""
 "Wilt u de Fysieke Volumes die uw systeem niet nodig heeft, verborgen houden?"
 
 #. Type: boolean
 #. Description
-#: ../bilibop-rules.templates:10001
+#: ../bilibop-rules.templates:8001
 msgid ""
 "It seems that the drive on which your system is installed contains Logical "
 "Volumes. It is possible to set LVM to activate only the Physical Volumes "
@@ -383,7 +249,7 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../bilibop-rules.templates:10001
+#: ../bilibop-rules.templates:8001
 msgid ""
 "If you choose to use this feature, this will overwrite '/etc/lvm/lvm.conf', "
 "and you should read 'README.Debian' in the documentation of the package. "
@@ -395,13 +261,13 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:14001
+#: ../bilibop-rules.templates:12001
 msgid "Physical Volumes Filter will not be applied."
 msgstr "De Filter Fysieke Volumes wordt niet gebruikt."
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:14001
+#: ../bilibop-rules.templates:12001
 msgid ""
 "Probably due to an error in '66-bilibop.rules', the following device(s) have "
 "not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
@@ -412,10 +278,98 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:14001
+#: ../bilibop-rules.templates:12001
 msgid ""
 "This means some variables in '/etc/lvm/lvm.conf' will be left or reset to "
 "their initial values:"
 msgstr ""
 "Dit betekent dat sommige variabelen in '/etc/lvm/lvm.conf' onaangeroerd "
 "zullen blijven of teruggeplaatst naar hun oorspronkelijke waarde:"
+
+#~ msgid "the existing one"
+#~ msgstr "het bestaande"
+
+#~ msgid "a static device map (not recommended)"
+#~ msgstr "een statisch apparatenoverzicht (niet aanbevolen)"
+
+#~ msgid "a static fake device map"
+#~ msgstr "een statisch pseudo-overzicht van apparaten"
+
+#~ msgid "a dynamic fake device map"
+#~ msgstr "een dynamisch pseudo-overzicht van apparaten"
+
+#~ msgid "a dynamically updated device map"
+#~ msgstr "een apparatenoverzicht dat dynamisch bijgewerkt wordt"
+
+#~ msgid "What kind of GRUB device map do you want to use ?"
+#~ msgstr ""
+#~ "Welk soort GRUB-apparatenoverzicht (GRUB device map) wilt u gebruiken?"
+
+#~ msgid ""
+#~ "The '/boot/grub/device.map' file can store obsolete information. In some "
+#~ "cases, this can lead to failures when the GRUB bootloader menu is "
+#~ "updated. To avoid that, it is possible to replace the device map by a "
+#~ "fake one, mapping only the physical drive hosting your system; or by a "
+#~ "link to a temporary file, which may be created either at boot time with a "
+#~ "fake content, or on demand with an updated content."
+#~ msgstr ""
+#~ "Het bestand '/boot/grub/device.map' kan verouderde informatie bevatten. "
+#~ "In sommige gevallen kan dit aanleiding geven tot fouten als het menu van "
+#~ "de GRUB-opstartlader bijgewerkt wordt. Om dit te vermijden kan het "
+#~ "apparatenoverzicht (device map) vervangen worden door een pseudo-"
+#~ "overzicht, waarin enkel de fysieke schijf waarop uw systeem staat, "
+#~ "opgenomen is, ofwel kan er een koppeling gemaakt worden naar een "
+#~ "tijdelijk bestand, dat ofwel bij de start van de computer gemaakt wordt "
+#~ "en pseudo-inhoud bevat, ofwel op aanvraag gemaakt wordt met een "
+#~ "bijgewerkte inhoud."
+
+#~ msgid ""
+#~ "If your external system is embedded on a device able to boot from "
+#~ "different hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD, "
+#~ "etc.), it is not recommended to use a static device map. The dynamic fake "
+#~ "device map should work in all cases."
+#~ msgstr ""
+#~ "Indien uw extern systeem ingebed is in een apparaat dat vanaf "
+#~ "verschillende types hardwarepoorten (USB/Firewire, USB/eSATA, USB/MMC/SD, "
+#~ "enz.) opgestart kan worden, is het niet aanbevolen om een statisch "
+#~ "apparatenoverzicht te gebruiken. Het dynamisch pseudo-overzicht van "
+#~ "apparaten zou in alle gevallen moeten werken."
+
+#~ msgid "keep them in their current state"
+#~ msgstr "behoud ze in hun huidige toestand"
+
+#~ msgid "make unpersistent cd rules only"
+#~ msgstr "maak niet-persistente regels enkel voor cd-apparaten"
+
+#~ msgid "make unpersistent net rules only"
+#~ msgstr "maak niet-persistente regels enkel voor netwerk-apparaten"
+
+#~ msgid "make unpersistent rules for all (recommended)"
+#~ msgstr "maak niet-persistente regels voor alle apparaten (aanbevolen)"
+
+#~ msgid "make persistent rules for all"
+#~ msgstr "maak persistente regels voor alle apparaten"
+
+#~ msgid "What persistent rules do you want to make unpersistent ?"
+#~ msgstr "Welke van de persistente regels wilt u niet-persistent maken?"
+
+#~ msgid ""
+#~ "Some udev rules files can store information about components of the "
+#~ "computer your system is plugged on:"
+#~ msgstr ""
+#~ "Sommige bestanden met udev-regels kunnen informatie bevatten over "
+#~ "componenten van de computer waaraan uw systeem aangekoppeld werd:"
+
+#~ msgid ""
+#~ "These files are cumulative and can store obsolete information, possibly "
+#~ "leading to unexpected behaviour of your network manager or CD burner "
+#~ "application. It is possible to replace them by symlinks to temporary "
+#~ "files to keep them always up to date. Note that it is possible to do or "
+#~ "undo that at any time by running"
+#~ msgstr ""
+#~ "Deze bestanden zijn cumulatief en kunnen verouderde informatie bevatten. "
+#~ "Die kan mogelijks leiden tot onverwacht gedrag van het programma dat voor "
+#~ "uw netwerkbeheer zorgt of uw CD's brandt. Het is mogelijk om die "
+#~ "bestanden te vervangen door symbolische koppelingen naar tijdelijke "
+#~ "bestanden, zodat die steeds actueel blijven. Merk op dat u dit op ieder "
+#~ "ogenblik kunt instellen of ongedaan maken met het commando"

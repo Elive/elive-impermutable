@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bilibop 0.5.1\n"
 "Report-Msgid-Bugs-To: bilibop@packages.debian.org\n"
-"POT-Creation-Date: 2020-02-02 22:51+0000\n"
+"POT-Creation-Date: 2020-02-08 18:15+0000\n"
 "PO-Revision-Date: 2019-03-25 21:13+0100\n"
 "Last-Translator: Jonatan Nyberg <jonatan.nyberg.karl@gmail.com>\n"
 "Language-Team: \n"
@@ -215,145 +215,15 @@ msgstr "Internt fel"
 msgid "You should send a bug report to the maintainer of the package."
 msgstr "Du bör skicka en felrapport till den som underhåller paketet."
 
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "the existing one"
-msgstr "den befintliga"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a static device map (not recommended)"
-msgstr "en statisk enhetskarta (rekommenderas inte)"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a static fake device map"
-msgstr "en falsk statisk enhetskarta"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a dynamic fake device map"
-msgstr "en dynamisk falsk enhetskarta"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a dynamically updated device map"
-msgstr "en dynamiskt uppdaterad enhetskarta"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:8002
-msgid "What kind of GRUB device map do you want to use ?"
-msgstr "Vilken typ av GRUB-enhetskarta vill du använda?"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:8002
-msgid ""
-"The '/boot/grub/device.map' file can store obsolete information. In some "
-"cases, this can lead to failures when the GRUB bootloader menu is updated. "
-"To avoid that, it is possible to replace the device map by a fake one, "
-"mapping only the physical drive hosting your system; or by a link to a "
-"temporary file, which may be created either at boot time with a fake "
-"content, or on demand with an updated content."
-msgstr ""
-"Filen '/boot/grub/device.map' kan lagra föråldrad information. I vissa fall "
-"kan detta leda till fel när GRUB-menyn uppdateras. För att undvika detta är "
-"det möjligt att ersätta enhetskartan med en falsk, som kartlägger bara den "
-"fysiska enhetens värd system; eller genom en länk till en temporär fil, som "
-"kan skapas antingen vid uppstart med ett falskt innehåll, eller på begäran "
-"med ett uppdaterat innehåll."
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:8002
-msgid ""
-"If your external system is embedded on a device able to boot from different "
-"hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), it is not "
-"recommended to use a static device map. The dynamic fake device map should "
-"work in all cases."
-msgstr ""
-"Om ditt externa system är inbäddat på en enhet som kan starta från olika "
-"hårdvaruporttyper (USB/Firewire, USB/eSATA, USB/MMC/SD, osv.), är det inte "
-"rekommenderat att använda en statisk enhetskarta. Den dynamiska falska "
-"enhetskartan ska fungera i alla fall."
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "keep them in their current state"
-msgstr "behåll kvar dem i deras nuvarande tillstånd"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make unpersistent cd rules only"
-msgstr "gör endast icke ihållande cd-regler"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make unpersistent net rules only"
-msgstr "göra endast icke ihållande net-regler"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make unpersistent rules for all (recommended)"
-msgstr "göra icke-ihållande regler för alla (rekommenderas)"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make persistent rules for all"
-msgstr "gör ihållande regler för alla"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:9002
-msgid "What persistent rules do you want to make unpersistent ?"
-msgstr "Vilka ihållande regler vill du göra icke-ihållande?"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:9002
-msgid ""
-"Some udev rules files can store information about components of the computer "
-"your system is plugged on:"
-msgstr ""
-"Vissa udev-regelfiler kan lagra information om komponenterna i datorn "
-"systemet är ansluten till:"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:9002
-msgid ""
-"These files are cumulative and can store obsolete information, possibly "
-"leading to unexpected behaviour of your network manager or CD burner "
-"application. It is possible to replace them by symlinks to temporary files "
-"to keep them always up to date. Note that it is possible to do or undo that "
-"at any time by running"
-msgstr ""
-"Dessa filer är kumulativa och kan lagra föråldrad information, detta kan "
-"leda till oväntade beteenden för nätverkshanteraren eller CD-brännar-"
-"programmet. Det är möjligt att ersätta dem med symboliska länkar till "
-"temporära filer för att alltid hålla dem uppdaterade. Observera att det är "
-"möjligt att göra om eller ångra det när som helst genom att köra"
-
 #. Type: boolean
 #. Description
-#: ../bilibop-rules.templates:10001
+#: ../bilibop-rules.templates:8001
 msgid "Do you want to hide Physical Volumes your system does not need ?"
 msgstr "Vill du dölja fysiska volymer ditt system inte behöver?"
 
 #. Type: boolean
 #. Description
-#: ../bilibop-rules.templates:10001
+#: ../bilibop-rules.templates:8001
 msgid ""
 "It seems that the drive on which your system is installed contains Logical "
 "Volumes. It is possible to set LVM to activate only the Physical Volumes "
@@ -369,7 +239,7 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../bilibop-rules.templates:10001
+#: ../bilibop-rules.templates:8001
 msgid ""
 "If you choose to use this feature, this will overwrite '/etc/lvm/lvm.conf', "
 "and you should read 'README.Debian' in the documentation of the package. "
@@ -381,13 +251,13 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:14001
+#: ../bilibop-rules.templates:12001
 msgid "Physical Volumes Filter will not be applied."
 msgstr "Fysiska volym filter kommer inte att tillämpas."
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:14001
+#: ../bilibop-rules.templates:12001
 msgid ""
 "Probably due to an error in '66-bilibop.rules', the following device(s) have "
 "not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
@@ -398,10 +268,92 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:14001
+#: ../bilibop-rules.templates:12001
 msgid ""
 "This means some variables in '/etc/lvm/lvm.conf' will be left or reset to "
 "their initial values:"
 msgstr ""
 "Detta innebär att vissa variabler i '/etc/lvm/lvm.conf' kommer att lämnas "
 "eller återställs till sitt utgångsvärde:"
+
+#~ msgid "the existing one"
+#~ msgstr "den befintliga"
+
+#~ msgid "a static device map (not recommended)"
+#~ msgstr "en statisk enhetskarta (rekommenderas inte)"
+
+#~ msgid "a static fake device map"
+#~ msgstr "en falsk statisk enhetskarta"
+
+#~ msgid "a dynamic fake device map"
+#~ msgstr "en dynamisk falsk enhetskarta"
+
+#~ msgid "a dynamically updated device map"
+#~ msgstr "en dynamiskt uppdaterad enhetskarta"
+
+#~ msgid "What kind of GRUB device map do you want to use ?"
+#~ msgstr "Vilken typ av GRUB-enhetskarta vill du använda?"
+
+#~ msgid ""
+#~ "The '/boot/grub/device.map' file can store obsolete information. In some "
+#~ "cases, this can lead to failures when the GRUB bootloader menu is "
+#~ "updated. To avoid that, it is possible to replace the device map by a "
+#~ "fake one, mapping only the physical drive hosting your system; or by a "
+#~ "link to a temporary file, which may be created either at boot time with a "
+#~ "fake content, or on demand with an updated content."
+#~ msgstr ""
+#~ "Filen '/boot/grub/device.map' kan lagra föråldrad information. I vissa "
+#~ "fall kan detta leda till fel när GRUB-menyn uppdateras. För att undvika "
+#~ "detta är det möjligt att ersätta enhetskartan med en falsk, som "
+#~ "kartlägger bara den fysiska enhetens värd system; eller genom en länk "
+#~ "till en temporär fil, som kan skapas antingen vid uppstart med ett falskt "
+#~ "innehåll, eller på begäran med ett uppdaterat innehåll."
+
+#~ msgid ""
+#~ "If your external system is embedded on a device able to boot from "
+#~ "different hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD, "
+#~ "etc.), it is not recommended to use a static device map. The dynamic fake "
+#~ "device map should work in all cases."
+#~ msgstr ""
+#~ "Om ditt externa system är inbäddat på en enhet som kan starta från olika "
+#~ "hårdvaruporttyper (USB/Firewire, USB/eSATA, USB/MMC/SD, osv.), är det "
+#~ "inte rekommenderat att använda en statisk enhetskarta. Den dynamiska "
+#~ "falska enhetskartan ska fungera i alla fall."
+
+#~ msgid "keep them in their current state"
+#~ msgstr "behåll kvar dem i deras nuvarande tillstånd"
+
+#~ msgid "make unpersistent cd rules only"
+#~ msgstr "gör endast icke ihållande cd-regler"
+
+#~ msgid "make unpersistent net rules only"
+#~ msgstr "göra endast icke ihållande net-regler"
+
+#~ msgid "make unpersistent rules for all (recommended)"
+#~ msgstr "göra icke-ihållande regler för alla (rekommenderas)"
+
+#~ msgid "make persistent rules for all"
+#~ msgstr "gör ihållande regler för alla"
+
+#~ msgid "What persistent rules do you want to make unpersistent ?"
+#~ msgstr "Vilka ihållande regler vill du göra icke-ihållande?"
+
+#~ msgid ""
+#~ "Some udev rules files can store information about components of the "
+#~ "computer your system is plugged on:"
+#~ msgstr ""
+#~ "Vissa udev-regelfiler kan lagra information om komponenterna i datorn "
+#~ "systemet är ansluten till:"
+
+#~ msgid ""
+#~ "These files are cumulative and can store obsolete information, possibly "
+#~ "leading to unexpected behaviour of your network manager or CD burner "
+#~ "application. It is possible to replace them by symlinks to temporary "
+#~ "files to keep them always up to date. Note that it is possible to do or "
+#~ "undo that at any time by running"
+#~ msgstr ""
+#~ "Dessa filer är kumulativa och kan lagra föråldrad information, detta kan "
+#~ "leda till oväntade beteenden för nätverkshanteraren eller CD-brännar-"
+#~ "programmet. Det är möjligt att ersätta dem med symboliska länkar till "
+#~ "temporära filer för att alltid hålla dem uppdaterade. Observera att det "
+#~ "är möjligt att göra om eller ångra det när som helst genom att köra"

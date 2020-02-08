@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bilibop 0.4.20\n"
 "Report-Msgid-Bugs-To: bilibop@packages.debian.org\n"
-"POT-Creation-Date: 2020-02-02 22:51+0000\n"
+"POT-Creation-Date: 2020-02-08 18:15+0000\n"
 "PO-Revision-Date: 2014-02-09 17:11+0100\n"
 "Last-Translator: Chris Leick <c.leick@vollbio.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
@@ -220,147 +220,10 @@ msgstr "Interner Fehler"
 msgid "You should send a bug report to the maintainer of the package."
 msgstr "Sie sollten einen Fehlerbericht an den Betreuer des Pakets senden."
 
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "the existing one"
-msgstr "das existierende"
-
-# Die Datei heißt /boot/grub/device.map
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a static device map (not recommended)"
-msgstr ""
-"eine statische Device Map (Gerätenamenzuordnungsdatei, nicht empfohlen)"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a static fake device map"
-msgstr "eine statische Pseudo-Device-Map"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a dynamic fake device map"
-msgstr "eine dynamische Pseudo-Device-Map"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a dynamically updated device map"
-msgstr "eine dynamisch aktualisierte Device Map"
-
-# FIXME s/ ?/?/
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:8002
-msgid "What kind of GRUB device map do you want to use ?"
-msgstr "Welche Art einer GRUB-Device-Map möchten Sie benutzen?"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:8002
-msgid ""
-"The '/boot/grub/device.map' file can store obsolete information. In some "
-"cases, this can lead to failures when the GRUB bootloader menu is updated. "
-"To avoid that, it is possible to replace the device map by a fake one, "
-"mapping only the physical drive hosting your system; or by a link to a "
-"temporary file, which may be created either at boot time with a fake "
-"content, or on demand with an updated content."
-msgstr ""
-"Die Datei »/boot/grub/device.map« kann veraltete Informationen speichern. In "
-"einigen Fällen kann dies zu Ausfällen führen, wenn das GRUB-Bootloader-Menü "
-"aktualisiert wird. Um das zu verhindern, ist es möglich, die Device Map "
-"durch eine Pseudo-Device-Map zu ersetzen, die nur das physische Laufwerk "
-"zuordnet, das Ihr System beherbergt oder durch Verweis auf eine temporäre "
-"Datei, die entweder beim Systemstart mit Pseudo-Inhalt oder auf Anfrage mit "
-"einem aktualisierten Inhalt erstellt wird."
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:8002
-msgid ""
-"If your external system is embedded on a device able to boot from different "
-"hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), it is not "
-"recommended to use a static device map. The dynamic fake device map should "
-"work in all cases."
-msgstr ""
-"Falls Ihr externes System in ein Gerät eingebettet ist, das von "
-"verschiedenen Hardware-Anschlusstypen (USB/Firewire, USB/eSATA, USB/MMC/SD, "
-"etc.) hochfahren kann, wird die Verwendung einer statischen Device Map nicht "
-"empfohlen. Die dynamische Pseudo-Device-Map sollte auf jeden Fall "
-"funktionieren."
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "keep them in their current state"
-msgstr "sie in ihrem aktuellen Status belassen"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make unpersistent cd rules only"
-msgstr "nur flüchtige CD-Regeln erstellen"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make unpersistent net rules only"
-msgstr "nur flüchtige Netzregeln erstellen"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make unpersistent rules for all (recommended)"
-msgstr "flüchtige Regeln für alles erstellen (empfohlen)"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make persistent rules for all"
-msgstr "beständige Regeln für alles erstellen"
-
-# FIXME s/ ?/?/
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:9002
-msgid "What persistent rules do you want to make unpersistent ?"
-msgstr "Welche beständigen Regeln möchten Sie in flüchtige umwandeln?"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:9002
-msgid ""
-"Some udev rules files can store information about components of the computer "
-"your system is plugged on:"
-msgstr ""
-"Einige Udev-Regeldateien können Informationen über Bestandteile des Rechners "
-"speichern, an den Ihr System angeschlossen ist:"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:9002
-msgid ""
-"These files are cumulative and can store obsolete information, possibly "
-"leading to unexpected behaviour of your network manager or CD burner "
-"application. It is possible to replace them by symlinks to temporary files "
-"to keep them always up to date. Note that it is possible to do or undo that "
-"at any time by running"
-msgstr ""
-"Diese Dateien sind anwachsend und können veraltete Informationen enthalten. "
-"Dies führt möglicherweise zu unerwartetem Verhalten Ihrer Netzwerkverwaltung "
-"oder Ihres CD-Brennprogramms. Es ist möglich, sie durch symbolische Verweise "
-"auf temporäre Dateien zu ersetzen, um sie immer aktuell zu halten. Beachten "
-"Sie, dass Sie dies durch Ausführung jederzeit aktivieren oder rückgängig "
-"machen können."
-
 # s/ ?/?/
 #. Type: boolean
 #. Description
-#: ../bilibop-rules.templates:10001
+#: ../bilibop-rules.templates:8001
 msgid "Do you want to hide Physical Volumes your system does not need ?"
 msgstr ""
 "Möchten Sie die von Ihrem System nicht benötigten physischen Datenträger "
@@ -368,7 +231,7 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../bilibop-rules.templates:10001
+#: ../bilibop-rules.templates:8001
 msgid ""
 "It seems that the drive on which your system is installed contains Logical "
 "Volumes. It is possible to set LVM to activate only the Physical Volumes "
@@ -385,7 +248,7 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../bilibop-rules.templates:10001
+#: ../bilibop-rules.templates:8001
 msgid ""
 "If you choose to use this feature, this will overwrite '/etc/lvm/lvm.conf', "
 "and you should read 'README.Debian' in the documentation of the package. "
@@ -397,13 +260,13 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:14001
+#: ../bilibop-rules.templates:12001
 msgid "Physical Volumes Filter will not be applied."
 msgstr "Filter physicher Datenträger werden nicht angewandt."
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:14001
+#: ../bilibop-rules.templates:12001
 msgid ""
 "Probably due to an error in '66-bilibop.rules', the following device(s) have "
 "not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
@@ -414,10 +277,99 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:14001
+#: ../bilibop-rules.templates:12001
 msgid ""
 "This means some variables in '/etc/lvm/lvm.conf' will be left or reset to "
 "their initial values:"
 msgstr ""
 "Dies bedeutet, dass einige Variablen in »/etc/lvm/lvm.conf« auf Ihren "
 "Ursprungswerten belassen oder auf diese geändert werden:"
+
+#~ msgid "the existing one"
+#~ msgstr "das existierende"
+
+# Die Datei heißt /boot/grub/device.map
+#~ msgid "a static device map (not recommended)"
+#~ msgstr ""
+#~ "eine statische Device Map (Gerätenamenzuordnungsdatei, nicht empfohlen)"
+
+#~ msgid "a static fake device map"
+#~ msgstr "eine statische Pseudo-Device-Map"
+
+#~ msgid "a dynamic fake device map"
+#~ msgstr "eine dynamische Pseudo-Device-Map"
+
+#~ msgid "a dynamically updated device map"
+#~ msgstr "eine dynamisch aktualisierte Device Map"
+
+# FIXME s/ ?/?/
+#~ msgid "What kind of GRUB device map do you want to use ?"
+#~ msgstr "Welche Art einer GRUB-Device-Map möchten Sie benutzen?"
+
+#~ msgid ""
+#~ "The '/boot/grub/device.map' file can store obsolete information. In some "
+#~ "cases, this can lead to failures when the GRUB bootloader menu is "
+#~ "updated. To avoid that, it is possible to replace the device map by a "
+#~ "fake one, mapping only the physical drive hosting your system; or by a "
+#~ "link to a temporary file, which may be created either at boot time with a "
+#~ "fake content, or on demand with an updated content."
+#~ msgstr ""
+#~ "Die Datei »/boot/grub/device.map« kann veraltete Informationen speichern. "
+#~ "In einigen Fällen kann dies zu Ausfällen führen, wenn das GRUB-Bootloader-"
+#~ "Menü aktualisiert wird. Um das zu verhindern, ist es möglich, die Device "
+#~ "Map durch eine Pseudo-Device-Map zu ersetzen, die nur das physische "
+#~ "Laufwerk zuordnet, das Ihr System beherbergt oder durch Verweis auf eine "
+#~ "temporäre Datei, die entweder beim Systemstart mit Pseudo-Inhalt oder auf "
+#~ "Anfrage mit einem aktualisierten Inhalt erstellt wird."
+
+#~ msgid ""
+#~ "If your external system is embedded on a device able to boot from "
+#~ "different hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD, "
+#~ "etc.), it is not recommended to use a static device map. The dynamic fake "
+#~ "device map should work in all cases."
+#~ msgstr ""
+#~ "Falls Ihr externes System in ein Gerät eingebettet ist, das von "
+#~ "verschiedenen Hardware-Anschlusstypen (USB/Firewire, USB/eSATA, USB/MMC/"
+#~ "SD, etc.) hochfahren kann, wird die Verwendung einer statischen Device "
+#~ "Map nicht empfohlen. Die dynamische Pseudo-Device-Map sollte auf jeden "
+#~ "Fall funktionieren."
+
+#~ msgid "keep them in their current state"
+#~ msgstr "sie in ihrem aktuellen Status belassen"
+
+#~ msgid "make unpersistent cd rules only"
+#~ msgstr "nur flüchtige CD-Regeln erstellen"
+
+#~ msgid "make unpersistent net rules only"
+#~ msgstr "nur flüchtige Netzregeln erstellen"
+
+#~ msgid "make unpersistent rules for all (recommended)"
+#~ msgstr "flüchtige Regeln für alles erstellen (empfohlen)"
+
+#~ msgid "make persistent rules for all"
+#~ msgstr "beständige Regeln für alles erstellen"
+
+# FIXME s/ ?/?/
+#~ msgid "What persistent rules do you want to make unpersistent ?"
+#~ msgstr "Welche beständigen Regeln möchten Sie in flüchtige umwandeln?"
+
+#~ msgid ""
+#~ "Some udev rules files can store information about components of the "
+#~ "computer your system is plugged on:"
+#~ msgstr ""
+#~ "Einige Udev-Regeldateien können Informationen über Bestandteile des "
+#~ "Rechners speichern, an den Ihr System angeschlossen ist:"
+
+#~ msgid ""
+#~ "These files are cumulative and can store obsolete information, possibly "
+#~ "leading to unexpected behaviour of your network manager or CD burner "
+#~ "application. It is possible to replace them by symlinks to temporary "
+#~ "files to keep them always up to date. Note that it is possible to do or "
+#~ "undo that at any time by running"
+#~ msgstr ""
+#~ "Diese Dateien sind anwachsend und können veraltete Informationen "
+#~ "enthalten. Dies führt möglicherweise zu unerwartetem Verhalten Ihrer "
+#~ "Netzwerkverwaltung oder Ihres CD-Brennprogramms. Es ist möglich, sie "
+#~ "durch symbolische Verweise auf temporäre Dateien zu ersetzen, um sie "
+#~ "immer aktuell zu halten. Beachten Sie, dass Sie dies durch Ausführung "
+#~ "jederzeit aktivieren oder rückgängig machen können."

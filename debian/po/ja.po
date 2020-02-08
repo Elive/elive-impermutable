@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bilibop 0.4.17\n"
 "Report-Msgid-Bugs-To: bilibop@packages.debian.org\n"
-"POT-Creation-Date: 2020-02-02 22:51+0000\n"
+"POT-Creation-Date: 2020-02-08 18:15+0000\n"
 "PO-Revision-Date: 2013-10-10 22:37+0900\n"
 "Last-Translator: victory <victory.deb@gmail.com>\n"
 "Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
@@ -210,145 +210,15 @@ msgstr "内部エラー"
 msgid "You should send a bug report to the maintainer of the package."
 msgstr "パッケージのメンテナにバグ報告を送ってください。"
 
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "the existing one"
-msgstr "既存のデバイスマップを選択"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a static device map (not recommended)"
-msgstr "静的デバイスマップ (非推奨)"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a static fake device map"
-msgstr "静的、偽デバイスマップ"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a dynamic fake device map"
-msgstr "動的、偽デバイスマップ"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:8001
-msgid "a dynamically updated device map"
-msgstr "動的に更新したデバイスマップ"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:8002
-msgid "What kind of GRUB device map do you want to use ?"
-msgstr "どの種類の GRUB デバイスマップを使いますか?"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:8002
-msgid ""
-"The '/boot/grub/device.map' file can store obsolete information. In some "
-"cases, this can lead to failures when the GRUB bootloader menu is updated. "
-"To avoid that, it is possible to replace the device map by a fake one, "
-"mapping only the physical drive hosting your system; or by a link to a "
-"temporary file, which may be created either at boot time with a fake "
-"content, or on demand with an updated content."
-msgstr ""
-"「/boot/grub/device.map」ファイルには古くなった情報を残しておくことができま"
-"す。状況によってはこれが GRUB ブートローダのメニュー更新時の失敗につながる可"
-"能性があります。それを避けるため、システムのホストとなっている実際のドライブ"
-"の割り当てだけを記述した、偽のデバイスマップに置き換える、あるいは一時ファイ"
-"ルをブート時に偽の内容によりまたは更新した内容をオンデマンドにより作成し、そ"
-"の一時ファイルへのリンクを作成することができます。"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:8002
-msgid ""
-"If your external system is embedded on a device able to boot from different "
-"hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD, etc.), it is not "
-"recommended to use a static device map. The dynamic fake device map should "
-"work in all cases."
-msgstr ""
-"外部システムが異なる種類のハードウェアポート (USB/Firewire や USB/eSATA、USB/"
-"MMC/SD 等) からブートできるデバイスに組み込まれている場合、静的デバイスマップ"
-"を使うことは勧めません。どの場合でも動的な偽のデバイスマップが機能するはずで"
-"す。"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "keep them in their current state"
-msgstr "現在の状態を維持"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make unpersistent cd rules only"
-msgstr "cd 規則だけを維持しないようにする"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make unpersistent net rules only"
-msgstr "net 規則だけを維持しないようにする"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make unpersistent rules for all (recommended)"
-msgstr "規則を全て維持しないようにする (推奨)"
-
-#. Type: select
-#. Choices
-#: ../bilibop-rules.templates:9001
-msgid "make persistent rules for all"
-msgstr "規則を全て維持するようにする"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:9002
-msgid "What persistent rules do you want to make unpersistent ?"
-msgstr "どの規則を維持しないようにしますか?"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:9002
-msgid ""
-"Some udev rules files can store information about components of the computer "
-"your system is plugged on:"
-msgstr ""
-"udev 規則ファイルの一部には、システムが接続しているコンピュータの構成要素につ"
-"いての情報を残しておけるものがあります:"
-
-#. Type: select
-#. Description
-#: ../bilibop-rules.templates:9002
-msgid ""
-"These files are cumulative and can store obsolete information, possibly "
-"leading to unexpected behaviour of your network manager or CD burner "
-"application. It is possible to replace them by symlinks to temporary files "
-"to keep them always up to date. Note that it is possible to do or undo that "
-"at any time by running"
-msgstr ""
-"こういった古くなった情報を残しておけるファイルが貯まっていくことで、ネット"
-"ワーク管理プログラムやCD書き込みアプリケーションの予期しない挙動につながる可"
-"能性があります。一時ファイルへのシンボリックリンクに置き換えることで常に最新"
-"を保つことができるようになります。以下を実行することでいつでも実行や差し戻し"
-"ができることに注意してください。"
-
 #. Type: boolean
 #. Description
-#: ../bilibop-rules.templates:10001
+#: ../bilibop-rules.templates:8001
 msgid "Do you want to hide Physical Volumes your system does not need ?"
 msgstr "システムに必要のない物理ボリュームを非表示にしますか?"
 
 #. Type: boolean
 #. Description
-#: ../bilibop-rules.templates:10001
+#: ../bilibop-rules.templates:8001
 msgid ""
 "It seems that the drive on which your system is installed contains Logical "
 "Volumes. It is possible to set LVM to activate only the Physical Volumes "
@@ -364,7 +234,7 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../bilibop-rules.templates:10001
+#: ../bilibop-rules.templates:8001
 msgid ""
 "If you choose to use this feature, this will overwrite '/etc/lvm/lvm.conf', "
 "and you should read 'README.Debian' in the documentation of the package. "
@@ -375,13 +245,13 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:14001
+#: ../bilibop-rules.templates:12001
 msgid "Physical Volumes Filter will not be applied."
 msgstr "物理ボリュームのフィルタは適用されません。"
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:14001
+#: ../bilibop-rules.templates:12001
 msgid ""
 "Probably due to an error in '66-bilibop.rules', the following device(s) have "
 "not been tagged 'BILIBOP' by udev, or have no usable symlink managed by udev:"
@@ -392,10 +262,92 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../bilibop-rules.templates:14001
+#: ../bilibop-rules.templates:12001
 msgid ""
 "This means some variables in '/etc/lvm/lvm.conf' will be left or reset to "
 "their initial values:"
 msgstr ""
 "これは「/etc/lvm/lvm.conf」中の設定値の一部がそのままにされるか初期値にリセッ"
 "トされるということです:"
+
+#~ msgid "the existing one"
+#~ msgstr "既存のデバイスマップを選択"
+
+#~ msgid "a static device map (not recommended)"
+#~ msgstr "静的デバイスマップ (非推奨)"
+
+#~ msgid "a static fake device map"
+#~ msgstr "静的、偽デバイスマップ"
+
+#~ msgid "a dynamic fake device map"
+#~ msgstr "動的、偽デバイスマップ"
+
+#~ msgid "a dynamically updated device map"
+#~ msgstr "動的に更新したデバイスマップ"
+
+#~ msgid "What kind of GRUB device map do you want to use ?"
+#~ msgstr "どの種類の GRUB デバイスマップを使いますか?"
+
+#~ msgid ""
+#~ "The '/boot/grub/device.map' file can store obsolete information. In some "
+#~ "cases, this can lead to failures when the GRUB bootloader menu is "
+#~ "updated. To avoid that, it is possible to replace the device map by a "
+#~ "fake one, mapping only the physical drive hosting your system; or by a "
+#~ "link to a temporary file, which may be created either at boot time with a "
+#~ "fake content, or on demand with an updated content."
+#~ msgstr ""
+#~ "「/boot/grub/device.map」ファイルには古くなった情報を残しておくことができ"
+#~ "ます。状況によってはこれが GRUB ブートローダのメニュー更新時の失敗につなが"
+#~ "る可能性があります。それを避けるため、システムのホストとなっている実際のド"
+#~ "ライブの割り当てだけを記述した、偽のデバイスマップに置き換える、あるいは一"
+#~ "時ファイルをブート時に偽の内容によりまたは更新した内容をオンデマンドにより"
+#~ "作成し、その一時ファイルへのリンクを作成することができます。"
+
+#~ msgid ""
+#~ "If your external system is embedded on a device able to boot from "
+#~ "different hardware port types (USB/Firewire, USB/eSATA, USB/MMC/SD, "
+#~ "etc.), it is not recommended to use a static device map. The dynamic fake "
+#~ "device map should work in all cases."
+#~ msgstr ""
+#~ "外部システムが異なる種類のハードウェアポート (USB/Firewire や USB/eSATA、"
+#~ "USB/MMC/SD 等) からブートできるデバイスに組み込まれている場合、静的デバイ"
+#~ "スマップを使うことは勧めません。どの場合でも動的な偽のデバイスマップが機能"
+#~ "するはずです。"
+
+#~ msgid "keep them in their current state"
+#~ msgstr "現在の状態を維持"
+
+#~ msgid "make unpersistent cd rules only"
+#~ msgstr "cd 規則だけを維持しないようにする"
+
+#~ msgid "make unpersistent net rules only"
+#~ msgstr "net 規則だけを維持しないようにする"
+
+#~ msgid "make unpersistent rules for all (recommended)"
+#~ msgstr "規則を全て維持しないようにする (推奨)"
+
+#~ msgid "make persistent rules for all"
+#~ msgstr "規則を全て維持するようにする"
+
+#~ msgid "What persistent rules do you want to make unpersistent ?"
+#~ msgstr "どの規則を維持しないようにしますか?"
+
+#~ msgid ""
+#~ "Some udev rules files can store information about components of the "
+#~ "computer your system is plugged on:"
+#~ msgstr ""
+#~ "udev 規則ファイルの一部には、システムが接続しているコンピュータの構成要素"
+#~ "についての情報を残しておけるものがあります:"
+
+#~ msgid ""
+#~ "These files are cumulative and can store obsolete information, possibly "
+#~ "leading to unexpected behaviour of your network manager or CD burner "
+#~ "application. It is possible to replace them by symlinks to temporary "
+#~ "files to keep them always up to date. Note that it is possible to do or "
+#~ "undo that at any time by running"
+#~ msgstr ""
+#~ "こういった古くなった情報を残しておけるファイルが貯まっていくことで、ネット"
+#~ "ワーク管理プログラムやCD書き込みアプリケーションの予期しない挙動につながる"
+#~ "可能性があります。一時ファイルへのシンボリックリンクに置き換えることで常に"
+#~ "最新を保つことができるようになります。以下を実行することでいつでも実行や差"
+#~ "し戻しができることに注意してください。"
