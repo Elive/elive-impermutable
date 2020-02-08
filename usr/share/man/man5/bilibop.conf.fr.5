@@ -1,4 +1,4 @@
-.TH BILIBOP.CONF 5 2019\-08\-15 bilibop "Bilibop Project"
+.TH BILIBOP.CONF 5 2020\-02\-08 bilibop "Bilibop Project"
 
 .SH NOM
 bilibop.conf \- fichier de configuration des paquets bilibop
@@ -176,6 +176,7 @@ Essaie d'utiliser d'abord \(aqoverlay\(aq, sinon \(aqaufs\(aq.
 Si cette variable est vide ou non définie, ou vaut n'importe quoi d'autre,
 sa valeur retombera à
 .IR aufs .
+Ainsi l'installation du paquet aufs-dkms le rend immédiatement utilisable.
 .PP
 Par défaut, la valeur de cette variable n'est pas fixée.
 
@@ -294,6 +295,18 @@ ce qui est plus rapide. Autrement,
 .BR mount.lockfs (8)
 cherchera à partir des métadonnées du périphérique s'il doit le sauter ou
 pas.
+.PP
+Notez que le montage sur
+.I /usr
+étant maintenant effectué dans l'initramfs, son verrouillage doit être
+fait aussi dans l'initramfs. Cela signifie que seul l'analyseur simpliste
+de cette phase du démarrage est disponible à ce moment, et que le moyen le
+plus simple de lister
+.I /usr
+est de l'appeler
+.BR /usr ,
+et rien d'autre, pour éviter des erreurs de démarrage et des résultats
+inattendus.
 .PP
 Notez aussi qu'il est possible d'écraser (et de vider) la valeur de cette
 variable en ajoutant
