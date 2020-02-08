@@ -4,5 +4,4 @@ usr/lib/bilibop/rules.sh					usr/lib/bilibop
 usr/lib/udev/bilibop_disk					usr/lib/udev
 usr/share/bilibop/bilibop_rules_generator			usr/share/bilibop
 usr/share/bilibop/grub_device_map_manager			usr/share/bilibop
-usr/share/bilibop/make_unpersistent_rules			usr/share/bilibop
 usr/share/bilibop/physical_volumes_filter			usr/share/bilibop
