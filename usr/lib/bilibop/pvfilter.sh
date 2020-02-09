@@ -54,7 +54,7 @@ _pvfilter_find_dev_links() {
         udevadm info --query symlink --name ${1} |
         sed 's, ,\n,g'
     else
-        cd ${udev_root}
+        cd /dev
         find -L * -path fd -prune -o -samefile ${1} |
         grep -v "^\(${1}\|fd\)$"
         cd ${OLDPWD}
@@ -137,7 +137,7 @@ _pvfilter_list_devices() {
             _pvfilter_list_tagged_devices "BILIBOP" ;;
         other)
             _pvfilter_list_other_devices "BILIBOP" "INSIDEV" ;;
-        ${udev_root}/*)
+        /dev/*)
             for i in ${*} ; do readlink -f ${i} ; done ;;
     esac
 }
@@ -286,10 +286,10 @@ _pvfilter_list_pv() {
         ID_FS_TYPE=
         eval $(query_udev_envvar ${node})
         [ "${ID_FS_TYPE}" = "LVM2_member" ] || continue
-        echo ${udev_root}/${node}
+        echo /dev/${node}
         [ "${show}" = "true" -o "${udev}" = "true" ] &&
             _pvfilter_find_dev_links ${node} | grep -v '^$' |
-            sed "s,^,\t${udev_root}/,"
+            sed "s,^,\t/dev/,"
     done
 }
 # ===========================================================================}}}

@@ -42,14 +42,6 @@ done
 get_bilibop_variables ${rootmnt}
 
 
-# The bilibop functions assume that udev_root can be different from /dev; but
-# this applies only for the running system, not for the initramfs. So, we have
-# to fix it here:
-get_udev_root
-UDEV_ROOT="${udev_root}"
-udev_root="/dev"
-
-
 # Check if BILIBOP_LOCKFS is overridden from the boot commandline. To use
 # lockfs in single-user mode, it is necessary to use 'lockfs=force'.
 for	param in ${CMDLINE}
@@ -367,7 +359,7 @@ if	[ -f "/etc/lvm/bilibop" ] &&
 then
 	eval $(grep '^[[:blank:]]*LVM_SYSTEM_DIR=' ${rootmnt}/etc/environment)
 	LVM_CONF="${rootmnt}${LVM_SYSTEM_DIR:=/etc/lvm}/lvm.conf"
-	initialize_lvm_conf "${UDEV_ROOT}"
+	initialize_lvm_conf
 	set_readonly_lvm_settings
 	blacklist_bilibop_devices
 	>>${LVM_CONF}

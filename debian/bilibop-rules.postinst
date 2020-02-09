@@ -7,7 +7,6 @@ set -e
 
 # Source bilibop library:
 . /usr/lib/bilibop/common.sh
-get_udev_root
 
 PATH="${PATH}:/usr/share/bilibop"
 ETC_RULES_DIR="/etc/udev/rules.d"
@@ -50,8 +49,8 @@ case "${1}" in
         # 4. Update initramfs by including the (modified or not)
         #    lvm.conf
 
-        if [ -h /proc/mounts -a -d /sys/block -a -c ${udev_root}/null ] &&
-            invoke-rc.d udev status >${udev_root}/null 2>&1 &&
+        if [ -h /proc/mounts -a -d /sys/block -a -c /dev/null ] &&
+            invoke-rc.d udev status >/dev/null 2>&1 &&
             BILIBOP_DISK="$(physical_hard_disk /)" &&
             query_sysfs_attrs ${BILIBOP_DISK} | grep -Eq '^[[:blank:]]*SUBSYSTEMS=="(usb|firewire|memstick|mmc)"'; then
             db_get bilibop-rules/on-live-system
@@ -89,7 +88,7 @@ case "${1}" in
                 # Build the custom rules:
                 if [ "${CUSTOM_RULES}" = "true" ]; then
                     db_get bilibop-rules/${HELPER}/options
-                    if ${HELPER} ${RET} -t ${BILIBOP_DISK} 2>${udev_root}/null; then
+                    if ${HELPER} ${RET} -t ${BILIBOP_DISK} 2>/dev/null; then
                         # Custom rules file has been successfully created;
                         # so say debconf to keep it the next time the package
                         # is configured:
@@ -187,14 +186,14 @@ case "${1}" in
                                 esac
                             done
                             [ "${linked}" = "true" ] ||
-                                unlinked="${unlinked:+${unlinked} }${udev_root}/${dev}"
-                            [ "$(lsbilibop ${udev_root}/${dev})" = "${udev_root}/${dev}" ] ||
-                                untagged="${untagged:+${untagged} }${udev_root}/${dev}"
+                                unlinked="${unlinked:+${unlinked} }/dev/${dev}"
+                            [ "$(lsbilibop /dev/${dev})" = "/dev/${dev}" ] ||
+                                untagged="${untagged:+${untagged} }/dev/${dev}"
                         done
                     fi
 
                     if [ "${RET}" = "true" -a -z "${untagged}" -a -z "${unlinked}" ]; then
-                        if ! ${HELPER} --udev --accept bilibop --reject all >${udev_root}/null 2>&1; then
+                        if ! ${HELPER} --udev --accept bilibop --reject all >/dev/null 2>&1; then
                             ${HELPER} --init
                         fi
                         ${HELPER} --overwrite --udev --accept bilibop --reject all

@@ -40,11 +40,10 @@ EOF
 
 bilibop_list() {
 	. /usr/lib/bilibop/common.sh
-	get_udev_root
 	BILIBOP_DISK="$(physical_hard_disk /)"
 	for node in $(device_nodes); do
-		if [ "$(physical_hard_disk ${udev_root}/${node})" = "${BILIBOP_DISK}" ]; then
-			echo "${udev_root}/${node}"
+		if [ "$(physical_hard_disk /dev/${node})" = "${BILIBOP_DISK}" ]; then
+			echo "/dev/${node}"
 		fi
 	done
 }
@@ -131,12 +130,6 @@ if [ "${trigger}" = "true" ]; then
 	fi
 fi
 
-# Get/set udev_root variable. It should be '/dev', but...
-if [ -f /etc/udev/udev.conf ]; then
-	. /etc/udev/udev.conf
-fi
-udev_root="${udev_root:-/dev}"
-
 # Store device names given as arguments, if any:
 for arg; do
 	if [ -b "${arg}" ]; then
@@ -166,13 +159,13 @@ while read major minor size node; do
 	# Filter by device names given as arguments:
 	if [ -n "${DEVICE}" ]; then
 		for device in ${DEVICE}; do
-			[ "${device}" = "${udev_root}/${node}" ] && break
+			[ "${device}" = "/dev/${node}" ] && break
 		done
-		[ "${device}" = "${udev_root}/${node}" ] || continue
+		[ "${device}" = "/dev/${node}" ] || continue
 	fi
 
 	if [ "${info}" = "true" ]; then
-		echo "DEVNAME='${udev_root}/${node}'"
+		echo "DEVNAME='/dev/${node}'"
 		udevadm info --query property --export --name ${node} |
 		grep -E '^(BILIBOP_(DISK|(UNDERLYING_)?PARTITION)|DEVLINKS|UDISKS_(IGNORE|SYSTEM(_INTERNAL)?|(PRESENTATION_)?(ICON_)?NAME|PRESENTATION_HIDE|CAN_POWER_OFF)|ID_(FS_(UUID|LABEL|TYPE|USAGE)|DRIVE_DETACHABLE))='
 		echo
@@ -180,7 +173,7 @@ while read major minor size node; do
 	elif [ "${trigger}" = "true" ]; then
 		udevadm trigger --sysname-match="${node}" --action="${action}"
 	else
-		echo "${udev_root}/${node}"
+		echo "/dev/${node}"
 	fi
 done
 

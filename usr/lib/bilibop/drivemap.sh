@@ -3,13 +3,12 @@
 
 # The _drivemap_* functions need some more common functions:
 . /usr/lib/bilibop/common.sh
-get_udev_root
 
 ### DRIVEMAP FUNCTIONS ###
 
 # _drivemap_initial_indent() ================================================{{{
 # What we want is: initialize the indentation values to show the disk map as
-# a tree. We use the length of the $udev_root string to align indentations on
+# a tree. We use the length (4) of the /dev string to align indentations on
 # the path separator (/). We will have to consider two types of indentation:
 # the absolute one is N times the indent unit, N being the indentation level;
 # the relative one is the addition of an indent unit to the previous
@@ -20,7 +19,7 @@ get_udev_root
 # terminated.
 _drivemap_initial_indent() {
     ${DEBUG} && echo "> _drivemap_initial_indent $@" >&2
-    I="$(echo ${udev_root} | sed 's;.; ;g')"
+    I="    "
     indent=""
 }
 # ===========================================================================}}}
@@ -30,7 +29,7 @@ _drivemap_initial_indent() {
 _drivemap_max_mp_length() {
     ${DEBUG} && echo "> _drivemap_max_mp_length $@" >&2
     local   length=1
-    for	mp in $(grep "^${udev_root}/" /proc/mounts | sed 's,^[^ ]\+ \([^ ]\+\) .*,\1,')
+    for	mp in $(grep "^/dev/" /proc/mounts | sed 's,^[^ ]\+ \([^ ]\+\) .*,\1,')
     do  [ ${#mp} -gt ${length} ] && length=${#mp}
     done
     echo ${length}
@@ -76,7 +75,7 @@ _drivemap_mount_point() {
         if      [ "${1}" = "$(cat ${dev})" ]
         then
                 dev="${dev%/loop/backing_file}"
-                dev="${udev_root}/${dev##*/}"
+                dev="/dev/${dev##*/}"
                 eval set -- ${dev}
                 break
         fi
@@ -265,9 +264,9 @@ _drivemap_loopback_device() {
         # other:
         echo "${ALREADY_DONE}" | grep -qw "${loop}" && continue
 
-        if      [ "$(underlying_device_from_loop ${udev_root}/${loop})" = "${udev_root}/${1}" ]
+        if      [ "$(underlying_device_from_loop /dev/${loop})" = "/dev/${1}" ]
         then
-                dev="${udev_root}/${loop}"
+                dev="/dev/${loop}"
         fi
         [ -b "${dev}" ] || continue
         ALREADY_DONE="${ALREADY_DONE:+${ALREADY_DONE} }${loop}"
@@ -286,7 +285,7 @@ _drivemap_loopback_device() {
                 LOOP_INFO="${ID_FS_TYPE:+${ID_FS_TYPE} | }${LOOP_SIZE}"
         fi
 
-        [ "${DEVICE}" = "${udev_root}/${loop}" ] &&
+        [ "${DEVICE}" = "/dev/${loop}" ] &&
             [ "${_mark_}" = "true" ] &&
             device="${lofile}(*)" ||
             device="${lofile}"
@@ -312,7 +311,7 @@ _drivemap_dmdevice_holder() {
     for	holder in /sys/class/block/${1}/holders/*
     do
         holder="${holder##*/}"
-        device="${udev_root}/${holder}"
+        device="/dev/${holder}"
         if      [ "${_info_}" = "true" ]
         then
                 ID_FS_TYPE=
@@ -323,11 +322,11 @@ _drivemap_dmdevice_holder() {
         [ "${_dm_name_}" = "true" ] &&
         case "${holder}" in
             dm-*)
-                device="${udev_root}/mapper/$(mapper_name_from_dm_node ${holder})"
+                device="/dev/mapper/$(mapper_name_from_dm_node ${holder})"
                 ;;
         esac
 
-        [ "${DEVICE}" = "${udev_root}/${holder}" ] &&
+        [ "${DEVICE}" = "/dev/${holder}" ] &&
             [ "${_mark_}" = "true" ] &&
             device="${device}(*)"
 

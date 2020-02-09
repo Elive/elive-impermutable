@@ -81,14 +81,14 @@ get_device_node() {
     ${DEBUG} && echo "> get_device_node $@" >&2
     local symlink
     case "${1}" in
-        ${UDEV_ROOT}/*)
-            symlink="$(echo "${1}" | sed "s,^${UDEV_ROOT},${udev_root},")"
+        /dev/*)
+            symlink="$(echo "${1}" | sed "s,^/dev,/dev,")"
             ;;
         UUID=*)
-            symlink="${udev_root}/disk/by-uuid/${1#UUID=}"
+            symlink="/dev/disk/by-uuid/${1#UUID=}"
             ;;
         LABEL=*)
-            symlink="${udev_root}/disk/by-label/$(echo "${1#LABEL=}" | sed -e 's,/,\\x2f,g')"
+            symlink="/dev/disk/by-label/$(echo "${1#LABEL=}" | sed -e 's,/,\\x2f,g')"
             ;;
     esac
     if [ -e "${symlink}" ]; then
@@ -146,7 +146,7 @@ is_encrypted() {
     while   true
     do
         case    "${dev}" in
-            ${udev_root}/dm-*)
+            /dev/dm-*)
                 # This may be an encrypted swap device, but also a Logical Volume
                 # containing a swap filesystem. In the last case, is the Volume
                 # Group inside an encrypted container?
@@ -175,7 +175,7 @@ is_randomly_encrypted() {
             then    unset TARGET SOURCE KEY_FILE CRYPT_OPTS
             else
                     case "${KEY_FILE}" in
-                        ${UDEV_ROOT}/random|${UDEV_ROOT}/urandom)
+                        /dev/random|/dev/urandom)
                             return 0
                             ;;
                         *)
@@ -310,8 +310,6 @@ initialize_lvm_conf() {
 # Build on the fly by ${0##*/} from the initramfs.
 # See lvm.conf(5) and bilibop(7) for details.
 devices {
-    dir = "${1}"
-    scan = [ "${1}" ]
     obtain_device_list_from_udev = 1
     filter = [ "a|.*|" ]
     global_filter = [ "a|.*|" ]
@@ -399,9 +397,9 @@ blacklist_bilibop_devices() {
     local   node
     for node in $(device_nodes)
     do
-        [ "${udev_root}/${node}" = "${BILIBOP_DISK}" ] &&
+        [ "/dev/${node}" = "${BILIBOP_DISK}" ] &&
             continue
-        [ "$(physical_hard_disk ${udev_root}/${node})" != "${BILIBOP_DISK}" ] &&
+        [ "$(physical_hard_disk /dev/${node})" != "${BILIBOP_DISK}" ] &&
             continue
 
         blacklist=
@@ -412,8 +410,8 @@ blacklist_bilibop_devices() {
         [ "${ID_FS_TYPE}" = "LVM2_member" ] ||
             continue
 
-        DEVLINKS="$(echo ${DEVLINKS} | sed "s,${udev_root}/,,g")"
-        [ "${udev_root}/${node}" = "${BILIBOP_PART}" ] &&
+        DEVLINKS="$(echo ${DEVLINKS} | sed "s,/dev/,,g")"
+        [ "/dev/${node}" = "${BILIBOP_PART}" ] &&
             DEVLINKS="${BILIBOP_COMMON_BASENAME}/part ${DEVLINKS}"
         [ -n "${ID_FS_UUID_ENC}" ] &&
             if ! echo ${DEVLINKS} | grep -q "/lvm-pv-uuid-${ID_FS_UUID_ENC}\>"; then
@@ -421,7 +419,7 @@ blacklist_bilibop_devices() {
             fi
         blacklist="$(echo ${node} ${DEVLINKS} | sed 's, \+,|,g')"
 
-        sed -i "s;^\s*\(global_\)\?filter\s*=\s*\[\s*;&\"r#^${UDEV_ROOT}/(${blacklist})\$#\", ;" ${LVM_CONF}
+        sed -i "s;^\s*\(global_\)\?filter\s*=\s*\[\s*;&\"r#^/dev/(${blacklist})\$#\", ;" ${LVM_CONF}
     done
 }
 # ===========================================================================}}}
@@ -469,7 +467,7 @@ undo_readonly_dm_settings() {
     [ -f /etc/lvm/bilibop ] || return 0
     [ -f /etc/lvm/lvm.conf.bak ] || return 0
     mv /etc/lvm/lvm.conf.bak /etc/lvm/lvm.conf
-    for dev in ${udev_root}/dm-*; do
+    for dev in /dev/dm-*; do
         [ -b ${dev} ] &&
         blockdev --setrw ${dev}
     done
@@ -487,7 +485,7 @@ activate_bilibop_lv() {
     [ -f /etc/lvm/bilibop ] || return 0
     local vg_lv
     for vg_lv in $(cat /etc/lvm/bilibop); do
-        if [ ! -e "${udev_root}/${vg_lv}" ]; then
+        if [ ! -e "/dev/${vg_lv}" ]; then
             lvm lvchange -a y --sysinit ${vg_lv}
         fi
     done
@@ -505,8 +503,8 @@ unlock_logical_volume() {
 
     for lvm in $(cat /etc/lvm/bilibop)
     do
-        [ -e "${udev_root}/${lvm}" ] || continue
-        if [ "$(readlink -f ${udev_root}/${lvm})" = "${dev}" ]
+        [ -e "/dev/${lvm}" ] || continue
+        if [ "$(readlink -f /dev/${lvm})" = "${dev}" ]
         then
             sed -i "s,^${lvm}$,," /etc/lvm/bilibop
             blockdev --setrw ${dev}

@@ -67,7 +67,6 @@ esac
 
 . /usr/lib/bilibop/common.sh
 get_bilibop_variables
-get_udev_root
 
 # Works only if the root filesystem is already managed by bilibop-lockfs:
 if is_aufs_mountpoint -q / && [ -f "${BILIBOP_RUNDIR}/lock" ]; then

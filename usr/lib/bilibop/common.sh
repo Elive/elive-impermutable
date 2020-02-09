@@ -27,14 +27,10 @@
 
 # README {{{
 #
-#> We assume that the commands in /usr/bin are not available (awk, cut, tail,
-#  and others), and then are replaced by grep and sed heuristics.
-#> We assume, even if it is not often, that /etc/udev/udev.conf can have been
-#  modified and that 'udev_root' can be something else than '/dev'.
 #> dm-crypt/LUKS, LVM, loopback, and aufs root filesystems (and combinations
 #  of them) are now fully supported. Btrfs and overlay filesystems are also
 #  partially supported (not fully tested).
-#> Functions that just output informations about devices/filesystems can be
+#> Functions that just output information about devices/filesystems can be
 #  called by any unprivileged user.
 
 # Shell compatibility ======================================================={{{
@@ -48,7 +44,7 @@
 #    or /usr/lib/klibc/bin/sh.shared, etc.):
 # ----------
 # #!${SHELL}
-# . /usr/lib/bilibop/common.sh ; get_udev_root ; physical_hard_disk
+# . /usr/lib/bilibop/common.sh ; physical_hard_disk
 # ----------
 # 3. by running the previous script with /bin/sh as ${SHELL} and linking
 #    /bin/sh successively to dash, bash, sash, posh, busybox, ksh, zsh, or
@@ -117,7 +113,7 @@
 # To run correctly, the bilibop functions need to read informations into some
 # virtual files or directory, especially:
 #
-# /dev/* (or ${udev_root}/*)
+# /dev/* (or /dev/*)
 # /dev/block/*
 # /proc/cmdline
 # /proc/filesystems
@@ -153,7 +149,6 @@
 # What we want is: output a list of useful bilibop functions, to use them
 # manually.
 bilibop_common_functions() {
-    get_udev_root
     cat >&2 <<EOF
 aufs_dirs <MOUNTPOINT>
 aufs_mountpoints
@@ -327,7 +322,7 @@ find_mountpoint() {
 device_node_from_major_minor() {
     ${DEBUG} && echo "> device_node_from_major_minor $@" >&2
     local dev="$(readlink -f /sys/dev/block/${1})"
-    [ -b "${udev_root}/${dev##*/}" ] && echo "${udev_root}/${dev##*/}"
+    [ -b "/dev/${dev##*/}" ] && echo "/dev/${dev##*/}"
 }
 # ===========================================================================}}}
 # device_id_of_file() ======================================================={{{
@@ -594,13 +589,13 @@ underlying_device_from_dm() {
     do
         case    "${dev}" in
             dm-*)
-                #slave="$(parent_device_from_dm ${udev_root}/${dev})"
+                #slave="$(parent_device_from_dm /dev/${dev})"
                 slave="$(echo /sys/block/${dev}/slaves/*)"
                 [ "${slave}" = "/sys/block/${dev}/slaves/*" ] && return 3
                 dev="${slave##*/}"
                 ;;
             *)
-                echo "${udev_root}/${dev}"
+                echo "/dev/${dev}"
                 return 0
                 ;;
         esac
@@ -615,13 +610,13 @@ underlying_device_from_device() {
     ${DEBUG} && echo "> underlying_device_from_device $@" >&2
     local   dev="${1}"
     case    "${dev}" in
-        ${udev_root}/dm-[0-9]*)
+        /dev/dm-[0-9]*)
             underlying_device_from_dm "${dev}"
             ;;
-        ${udev_root}/loop[0-9]*)
+        /dev/loop[0-9]*)
             underlying_device_from_loop "${dev}"
             ;;
-        ${udev_root}/*)
+        /dev/*)
             readlink -f "${dev}"
             ;;
         *)
@@ -700,7 +695,7 @@ underlying_partition() {
             "")
                 return 1
                 ;;
-            "${udev_root}"/sd[a-z]*)
+            "/dev"/sd[a-z]*)
                 echo "${new}"
                 return 0
                 ;;
@@ -738,8 +733,8 @@ physical_hard_disk() {
         esac
 
         case    "${dev}" in
-            ${udev_root}/${blk}*)
-                disk="${udev_root}/${blk}"
+            /dev/${blk}*)
+                disk="/dev/${blk}"
                 break
                 ;;
         esac
@@ -748,9 +743,7 @@ physical_hard_disk() {
     if      [ -b "${disk}" ]
     then    echo "${disk}"
     elif    [ "${1}" = "/" ]
-    then    # Maybe you have forgotten to get/set the udev_root variable before
-            # to run this function ? Run 'get_udev_root' and retry
-            return 127
+    then    return 127
     else    # If the argument is a file/directory in a virtual fs, there is no
             # way to find its hosting block device name. It don't exist. This
             # seems simple, but how to manage other cases?
@@ -783,19 +776,6 @@ EOF
 }
 # ===========================================================================}}}
 
-# get_udev_root() ==========================================================={{{
-# What we want is: get the 'udev_root' variable from the udev configuration
-# file, or set it to its default value. This function must not be called from
-# into the initramdisk, where '/dev' is always used.
-get_udev_root() {
-    ${DEBUG} && echo "> get_udev_root $@" >&2
-    if      [ -f /etc/udev/udev.conf ]
-    then    . /etc/udev/udev.conf
-    fi
-    udev_root="${udev_root%/}"
-    udev_root="${udev_root:-/dev}"
-}
-# ===========================================================================}}}
 # get_bilibop_variables() ==================================================={{{
 # What we want is: get bilibop variables from its configuration file if it
 # exists, and set/overwrite the most important of them (BILIBOP_RUNDIR). If not
@@ -971,7 +951,7 @@ parent_device_from_dm() {
     local   dev="$(readlink -f "${1}")"
     local   slave="$(echo /sys/block/${dev##*/}/slaves/*)"
     [ "${slave}" = "/sys/block/${dev##*/}/slaves/*" ] && return 3
-    echo "${udev_root}/${slave##*/}"
+    echo "/dev/${slave##*/}"
 }
 # ===========================================================================}}}
 # mapper_name_from_dm_node() ================================================{{{

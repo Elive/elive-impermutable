@@ -5,7 +5,6 @@ set -e
 # device than the root filesystem; if this is the case and -q option is
 # not used, then output something.
 . /usr/lib/bilibop/common.sh
-get_udev_root
 DISK="$(physical_hard_disk /)" || exit $?
 
 if [ "${1}" = "-q" ]; then

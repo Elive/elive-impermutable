@@ -56,7 +56,6 @@ else
 fi
 
 . /usr/lib/bilibop/common.sh
-get_udev_root
 
 mkdir -p ${DESTDIR}/etc/lvm
 LV_LIST="${DESTDIR}/etc/lvm/bilibop"
@@ -94,9 +93,9 @@ do
 	for dev in ${devlist}
 	do
 		case "${dev}" in
-			${udev_root}/dm-*)
-				if	[ "$(readlink -f ${udev_root}/${VG}/${LV})" = "${dev}" ] ||
-					[ "$(readlink -f ${udev_root}/mapper/${VG}-${LV})" = "${dev}" ]
+			/dev/dm-*)
+				if	[ "$(readlink -f /dev/${VG}/${LV})" = "${dev}" ] ||
+					[ "$(readlink -f /dev/mapper/${VG}-${LV})" = "${dev}" ]
 				then	touch ${LV_LIST}
 					echo ${VG}/${LV} >>${LV_LIST}
 					break

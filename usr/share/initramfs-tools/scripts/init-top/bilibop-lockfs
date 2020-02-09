@@ -45,7 +45,6 @@ done
 . /scripts/functions
 . /usr/lib/bilibop/lockfs.sh
 
-udev_root="/dev"
 BILIBOP_LOCKFS="true"
 BILIBOP_LOCKFS_POLICY="hard"
 
@@ -115,7 +114,7 @@ fi
 # Now modify 'metadata_read_only' and 'read_only_volume_list'
 # variables in (initramfs)/etc/lvm/lvm.conf:
 LVM_CONF="/etc/lvm/lvm.conf"
-initialize_lvm_conf "${udev_root}"
+initialize_lvm_conf
 set_readonly_lvm_settings
 
 # Also skip root filesystem check

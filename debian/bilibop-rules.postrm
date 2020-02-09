@@ -50,16 +50,9 @@ case "${1}" in
             update-initramfs -u
         fi
 
-        # Trigger uevents for block devices owned by 'disk' group.
-        if [ -f /etc/udev/udev.conf ]; then
-            . /etc/udev/udev.conf
-        fi
-        udev_root="${udev_root:-/dev}"
-        udev_root="${udev_root%/}"
-
-        if [ -f /proc/partitions -a -d /sys/block -a -c ${udev_root}/null ] &&
-            invoke-rc.d udev status >${udev_root}/null 2>&1; then
-            cd ${udev_root}
+        if [ -f /proc/partitions -a -d /sys/block -a -c /dev/null ] &&
+            invoke-rc.d udev status >/dev/null 2>&1; then
+            cd /dev
             for dev in $(find * -type b -group disk); do
                 grep -q "[[:blank:]]${dev}$" /proc/partitions &&
                 opt="${opt} --sysname-match=${dev}"

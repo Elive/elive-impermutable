@@ -6,19 +6,13 @@ case "${1}" in
     purge|remove)
         # Trigger uevents for external, physical block devices owned by
         # 'disk' group.
-        if [ -f /etc/udev/udev.conf ]; then
-            . /etc/udev/udev.conf
-        fi
-        udev_root="${udev_root:-/dev}"
-        udev_root="${udev_root%/}"
-
-        if [ -d /sys/block -a -c ${udev_root}/null ] &&
-            invoke-rc.d udev status >${udev_root}/null 2>&1; then
+        if [ -d /sys/block -a -c /dev/null ] &&
+            invoke-rc.d udev status >/dev/null 2>&1; then
             opt=
             for dev in $(ls /sys/block | grep -Ev '^(loop|dm-)'); do
                 udevadm info --attribute-walk --name ${dev} |
                 grep -Eq '^[[:blank:]]*SUBSYSTEMS=="(usb|firewire|memstick|mmc)"' || continue
-                ls -l ${udev_root}/${dev} |
+                ls -l /dev/${dev} |
                 grep -Eq '^([^[:blank:]]+[[:blank:]]+){3}disk\s' || continue
                 opt="${opt} --sysname-match=${dev}*"
             done

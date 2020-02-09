@@ -3,5 +3,4 @@
 # file/device/directory given as argument.
 set -e
 . /usr/lib/bilibop/common.sh
-get_udev_root
 physical_hard_disk ${1}

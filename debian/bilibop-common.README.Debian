@@ -5,16 +5,16 @@ OVERVIEW
 ========
 
 This package mainly provides shell functions that can be called by any user,
-either manually or from a shell script. Some of them require Linux kernel
-2.6.37 or higher to work properly: this requirement can be bypassed if you
-don't use loop devices. One of the main goals of these functions is to
-easily find the device name of the disk hosting the running system.
+either manually or from a shell script. One of the main goals of these
+functions is to easily find the device name of the disk hosting the running
+system.
 
-We assume that the commands in /usr/bin (awk, cut, tail, and others) can be
-unavailable, and then are replaced by grep and sed heuristics.
-
-We assume, even if it is not often, that /etc/udev/udev.conf can have been
-modified and that 'udev_root' can be something else than '/dev'.
+In the first age of these programs, we assumed that the commands in /usr/bin
+(awk, cut, tail, and others) could be unavailable, and then were replaced by
+grep and sed heuristics. Such assumption is not true anymore since modern
+initramfs provide stuff to mount /usr in this early step, and first level
+directories /bin, /sbin and /lib necessary to mount /usr from the operating
+system have started to be replaced by symlinks to /usr subdirectories.
 
 dm-crypt/LUKS, LVM, loopback and aufs or overlay root filesystems (and
 combinations of them) are now _fully_ supported, with the following
@@ -27,13 +27,11 @@ Functions that just output information about devices/filesystems can be
 called by any unprivileged user. Some of the main functions can be called
 from the commandline (or from a script) with:
 $ . /usr/lib/bilibop/common.sh
-$ get_udev_root
 $ underlying_device /
 $ underlying_partition /
 $ physical_hard_disk /
-The second line (get_udev_root) is mandatory. For the three last functions,
-/ can be replaced by any (symlink to a) directory (even if it is not a mount
-point), regular file or block device.
+For the three functions, / can be replaced by any (symlink to a) directory
+(even if it is not a mount point), regular file or block device.
 
 If something goes wrong or gives unexpected result, set DEBUG to true and
 retry:
@@ -114,7 +112,7 @@ NEEDED FILES
 To run correctly, the bilibop functions need to read information into some
 virtual files or directories, especially:
 
-${udev_root}/* (commonly /dev/*)
+/dev/*
 /proc/cmdline
 /proc/filesystems
 /proc/mounts

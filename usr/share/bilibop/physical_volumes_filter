@@ -49,7 +49,6 @@ FILTER_STRING=""    # final result of all -a, -r or -x options
 ALREADY_DONE=""     # list of already treated devices
 
 . /usr/lib/bilibop/pvfilter.sh
-get_udev_root
 
 # short_usage() ============================================================={{{
 # Print short help in case of error.
@@ -387,13 +386,13 @@ while true; do
 					[ -n "${verbatim}" ] &&
 					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }\"a${B}${verbatim}${E}\""
 					;;
-				bilibop|insidev|other|${udev_root}/*)
+				bilibop|insidev|other|/dev/*)
 					_pvfilter_list_filter_devices "${2}"
 					[ -n "${diskid}" ] &&
 					diskid="$(_pvfilter_accept_string "" ${diskid})" &&
 					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${diskid:+\"${diskid}\"}"
 					[ -n "${dmname}" ] &&
-					dmname="$(_pvfilter_accept_string ${udev_root}/mapper ${dmname})" &&
+					dmname="$(_pvfilter_accept_string /dev/mapper ${dmname})" &&
 					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${dmname:+\"${dmname}\"}"
 					[ -n "${lvname}" ] &&
 					lvname="$(_pvfilter_accept_string "" ${lvname})" &&
@@ -421,14 +420,14 @@ while true; do
 					[ -n "${verbatim}" ] &&
 					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }\"r${B}${verbatim}${E}\""
 					;;
-				bilibop|insidev|other|${udev_root}/*)
+				bilibop|insidev|other|/dev/*)
 					if [ "${accept_all}" = "true" ]; then
 						_pvfilter_list_exclude_devices "${2}"
 						[ -n "${devlist}" ] &&
 						devlist="$(_pvfilter_reject_string "" ${devlist} -f)" &&
 						FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${devlist:+\"${devlist}\"}"
 						[ -n "${dirlist}" ] &&
-						dirlist="$(_pvfilter_reject_string ${udev_root} ${dirlist} -d)" &&
+						dirlist="$(_pvfilter_reject_string /dev ${dirlist} -d)" &&
 						FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${dirlist:+\"${dirlist}\"}"
 					else
 						_pvfilter_list_filter_devices "${2}"
@@ -436,7 +435,7 @@ while true; do
 						diskid="$(_pvfilter_reject_string "" ${diskid})" &&
 						FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${diskid:+\"${diskid}\"}"
 						[ -n "${dmname}" ] &&
-						dmname="$(_pvfilter_reject_string ${udev_root}/mapper ${dmname})" &&
+						dmname="$(_pvfilter_reject_string /dev/mapper ${dmname})" &&
 						FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${dmname:+\"${dmname}\"}"
 						[ -n "${lvname}" ] &&
 						lvname="$(_pvfilter_accept_string "" ${lvname})" &&
@@ -454,13 +453,13 @@ while true; do
 			;;
 		-x|--exclude)
 			case "${2}" in
-				bilibop|insidev|other|${udev_root}/*)
+				bilibop|insidev|other|/dev/*)
 					_pvfilter_list_exclude_devices "${2}"
 					[ -n "${devlist}" ] &&
 					devlist="$(_pvfilter_reject_string "" ${devlist} -f)" &&
 					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${devlist:+\"${devlist}\"}"
 					[ -n "${dirlist}" ] &&
-					dirlist="$(_pvfilter_reject_string ${udev_root} ${dirlist} -d)" &&
+					dirlist="$(_pvfilter_reject_string /dev ${dirlist} -d)" &&
 					FILTER_STRING="${FILTER_STRING:+${FILTER_STRING}, }${dirlist:+\"${dirlist}\"}"
 					;;
 				*)

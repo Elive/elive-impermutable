@@ -39,8 +39,6 @@ RULE="$(ls ${LIB_RULES_DIR}/??-bilibop.rules 2>/dev/null || echo 20-bilibop.rule
 RULE="${RULE##*/}"
 
 . /usr/lib/bilibop/common.sh
-
-get_udev_root
 get_bilibop_variables
 
 # Other variables
@@ -268,7 +266,7 @@ else
 fi
 
 case "${target}" in
-	${udev_root}/sd[a-z]|${udev_root}/mmcblk[0-9]|${udev_root}/mspblk[0-9])
+	/dev/sd[a-z]|/dev/mmcblk[0-9]|/dev/mspblk[0-9])
 		NODE="${target}"
 		;;
 	*)
@@ -277,7 +275,7 @@ case "${target}" in
 esac
 
 case "${NODE}" in
-	${udev_root}/sd*|${udev_root}/mmcblk*|${udev_root}/mspblk*)
+	/dev/sd*|/dev/mmcblk*|/dev/mspblk*)
 		;;
 	*)
 		cat >&2 <<EOF

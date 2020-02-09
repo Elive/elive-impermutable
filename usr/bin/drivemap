@@ -212,7 +212,7 @@ then
 
 		# For each whole disk, run the same command with the same
 		# options.
-		${0} ${_opts_} "${udev_root}/${node}"
+		${0} ${_opts_} "/dev/${node}"
 		[ "${_drive_}" = "true" ] || echo
 	done
 	exit $?

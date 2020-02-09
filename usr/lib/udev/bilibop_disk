@@ -45,7 +45,6 @@ done
 # Check if the block device given as argument exists, or go away.
 [ -b "${device}" ] || exit 3
 
-udev_root="${device%/*}"     # dirname
 node_name="${device##*/}"    # basename
 
 
@@ -65,8 +64,8 @@ esac
 
 # Set BILIBOP_DISK. If a link to the physical hard disk already exists, follow
 # it to know the device name. Otherwise, find it with the bilibop functions.
-[ -h ${udev_root}/${BILIBOP_COMMON_BASENAME}/disk ] &&
-BILIBOP_DISK="$(readlink -f ${udev_root}/${BILIBOP_COMMON_BASENAME}/disk)" ||
+[ -h /dev/${BILIBOP_COMMON_BASENAME}/disk ] &&
+BILIBOP_DISK="$(readlink -f /dev/${BILIBOP_COMMON_BASENAME}/disk)" ||
 BILIBOP_DISK="$(physical_hard_disk /)"
 
 
@@ -80,14 +79,14 @@ case "${option}" in
         echo "${BILIBOP_COMMON_BASENAME}/disk"
         ;;
     root)
-        [ -h ${udev_root}/${BILIBOP_COMMON_BASENAME}/part ] &&
-        BILIBOP_PART="$(readlink -f ${udev_root}/${BILIBOP_COMMON_BASENAME}/part)" ||
+        [ -h /dev/${BILIBOP_COMMON_BASENAME}/part ] &&
+        BILIBOP_PART="$(readlink -f /dev/${BILIBOP_COMMON_BASENAME}/part)" ||
         BILIBOP_PART="$(underlying_partition /)"
         [ "${BILIBOP_PART}" = "${device}" ] &&
         echo "${BILIBOP_COMMON_BASENAME}/part"
 
-        [ -h ${udev_root}/${BILIBOP_COMMON_BASENAME}/root ] &&
-        BILIBOP_ROOT="$(readlink -f ${udev_root}/${BILIBOP_COMMON_BASENAME}/root)" ||
+        [ -h /dev/${BILIBOP_COMMON_BASENAME}/root ] &&
+        BILIBOP_ROOT="$(readlink -f /dev/${BILIBOP_COMMON_BASENAME}/root)" ||
         BILIBOP_ROOT="$(underlying_device_from_file /)"
         [ "${BILIBOP_ROOT}" = "${device}" ] &&
         echo "${BILIBOP_COMMON_BASENAME}/root"

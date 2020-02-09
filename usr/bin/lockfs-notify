@@ -29,7 +29,6 @@ EOF
 
 # Load functions and get other variables:
 . /usr/lib/bilibop/lockfs.sh
-get_udev_root
 get_bilibop_variables
 
 
@@ -105,7 +104,7 @@ then	echo "${0##*/}: no DISPLAY found." >&2
 	exit 99
 else
 	case	"$(tty)" in
-		${udev_root}/console|${udev_root}/tty?*)
+		/dev/console|/dev/tty?*)
 			echo "${0##*/}: must be run from X." >&2
 			exit 99
 			;;

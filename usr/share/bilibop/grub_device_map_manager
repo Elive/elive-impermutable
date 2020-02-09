@@ -22,7 +22,6 @@ SOPTS="fhlrsu"
 LOPTS="fake,help,link,remove,show,update"
 
 . /usr/lib/bilibop/common.sh
-get_udev_root
 get_bilibop_variables
 
 GRUB_DEVICE_MAP="/boot/grub/device.map"
@@ -70,7 +69,7 @@ link_device_map() {
 fake_device_map() {
 	for symlink in $(udevadm info --root --query symlink --name "$(physical_hard_disk /boot)"); do
 		case "${symlink}" in
-			${udev_root}/disk/by-id/*)
+			/dev/disk/by-id/*)
 				echo "(hd0)	${symlink}"
 				break
 				;;

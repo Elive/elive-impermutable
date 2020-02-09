@@ -11,12 +11,11 @@ belong_to_disk_group() {
 case "${1}" in
     configure)
         . /usr/lib/bilibop/common.sh
-        get_udev_root
 
         # Be sure the needed virtual filesystems are mounted, and udev is
         # running; or do nothing:
-        if [ -h /proc/mounts -a -d /sys/block -a -c ${udev_root}/null ] &&
-            invoke-rc.d udev status >${udev_root}/null 2>&1 &&
+        if [ -h /proc/mounts -a -d /sys/block -a -c /dev/null ] &&
+            invoke-rc.d udev status >/dev/null 2>&1 &&
             BILIBOP_DISK="$(physical_hard_disk /)" &&
             query_sysfs_attrs ${BILIBOP_DISK} | grep -Eq '^[[:blank:]]*SUBSYSTEMS=="(usb|firewire|memstick|mmc)"'; then
 
