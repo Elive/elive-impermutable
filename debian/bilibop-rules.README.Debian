@@ -134,8 +134,7 @@ know how to use it.
 If BILIBOP_COMMON_BASENAME is modified in bilibop.conf(5) (i.e. set to
 something else than 'bilibop' or ''), then it may be necessary to run
 'bilibop_rules_generator' (if /etc/udev/rules.d/66-bilibop.rules exists)
-and 'grub_device_map_manager' (if /boot/grub/device.map is a symlink to
-/run/bilibop/grub-device.map) to reflect the new setting.
+to reflect the new setting.
 
 Unless you know what you are doing, you should not run these scripts
 manually, but by running 'dpkg-reconfigure bilibop-rules' instead.
