@@ -93,11 +93,10 @@ Description: device management rules for OS running from external media
  To ease device management, bilibop-rules also provides helper scripts to:
   * build custom bilibop udev rules running faster than the generic ones
   * filter Physical Volumes, to activate only those needed by the system
-  * use either a fake or an always-up-to-date grub device map
  .
  This package is not designed to be used on internal disks. It works only
- for OS installed on removable and writable media, including LiveUSB systems.
- See also the bilibop-udev package.
+ for OS installed on removable and writable media, including LiveUSB as well
+ as native systems. See also the bilibop-udev package.
 
 Package: bilibop-udev
 Architecture: linux-any
