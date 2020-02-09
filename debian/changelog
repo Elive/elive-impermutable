@@ -1,6 +1,50 @@
-bilibop (unreleased) unstable; urgency=low
+bilibop (0.6.0) unstable; urgency=low
 
- -- Yann Amar <quidame@poivron.org>  Wed, 05 Feb 2020 23:54:46 +0000
+  * Move to /usr
+    - source tree: move lib/ and bin/ into usr/
+    - debian: install files into /usr subdirectories.
+    - bilibop-lockfs: add support to lock /usr into initramfs and so support
+      /usr as a mountpoint again. Update bilibop.conf(5) manpage about /usr
+      whitelisting.
+
+  * Drop obsolete code and related documentation
+    - debian/control: drop requirements about old kernel version (2.6.37).
+    - bilibop-common: drop support for udev.conf's udev_root parameter.
+    - bilibop-lockfs: drop support for lvm.conf's locking_type parameter.
+    - bilibop-rules: drop support for udisks 1.
+    - bilibop-rules: drop support for udev 70-*-persistent.rules management.
+      Closes: #929891.
+    - bilibop-rules: drop support for GRUB device.map management.
+    - bilibop-rules: update extended description and debconf templates
+      accordingly.
+
+  * bilibop-lockfs:
+    - Add variable BILIBOP_LOCKFS_FALLBACK_POLICY to control how to mount
+      a filesystem that can't be locked as expected. Closes: #929892.
+    - Add variable BILIBOP_LOCKFS_UNION_METHOD to choose between aufs and
+      overlay (defaults to aufs if available). Fallback to the other one
+      if the selected module is not loadable.
+    - Skip early root filesystem check to not fsck read-only device.
+    - Update package documentation.
+
+  * debian/control:
+    - Add Rules-Requires-Root field (lintian hint).
+    - Bump Standards-Version to 4.5.0: no changes needed.
+    - Add a version to the dependency upon udev, to at least 242-6, due to
+      net.ifnames improperly set for block devices in previous versions.
+      Closes: #929893.
+    - Add a version to the dependency upon lvm2, to at least 2.02.98, i.e.
+      assume lvm config global_filter is supported. Update postinst script
+      (closes: #929890), debconf templates and lintian-overrides accordingly.
+
+  * debian:
+    - Remove lockfs_mount_helper manpages/symlinks (lintian hint).
+    - Update debconf swedish (sv) translation, thanks to Jonatan Nyberg.
+      Closes: #925494.
+    - Update debian/po/templates.pot and debian/po/*.po files.
+    - Add a simple test in debian/tests/control (targets bilibop-common).
+
+ -- Yann Amar <quidame@poivron.org>  Sun, 09 Feb 2020 21:59:34 +0000
 
 bilibop (0.5.6) unstable; urgency=high
 
