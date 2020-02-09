@@ -51,11 +51,11 @@ ${PROG}: show block devices in a tree of dependencies
 usage:
   ${PROG} [OPTIONS] -- [FILE]
 options:
-  --debug		Output debug informations on stderr.
+  --debug		Output debug information on stderr.
   -d, --drive		Display only physical disk names.
   -f, --backing-file	Replace each loop device by its backing file.
   -h, --help		Print this message on stdout and exit.
-  -i, --info		Give more informations about devices.
+  -i, --info		Give more information about devices.
   -m, --mark		Mark the device hosting the FILE given as argument.
   -n, --dm-name		Replace each device-mapper node by its name.
   -p, --mountpoint	Show the mountpoints or swap devices in use.
@@ -63,7 +63,7 @@ options:
   -x, --set-x		Set shell option -x.
 
 FILE can be either a regular file, a directory or a block device. If FILE
-is not specified, then ${PROG} will display informations about all disks.
+is not specified, then ${PROG} will display information about all disks.
 EOF
 }
 

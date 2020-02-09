@@ -110,7 +110,7 @@
 #
 # }}}
 # Needed files: ============================================================={{{
-# To run correctly, the bilibop functions need to read informations into some
+# To run correctly, the bilibop functions need to read information into some
 # virtual files or directory, especially:
 #
 # /dev/* (or /dev/*)
@@ -369,7 +369,7 @@ is_aufs_mountpoint() {
 }
 # ===========================================================================}}}
 # aufs_si_directory() ======================================================={{{
-# What we want is: output the sysfs directory where informations can be found
+# What we want is: output the sysfs directory where information can be found
 # about an aufs mount point given as argument.
 aufs_si_directory() {
     ${DEBUG} && echo "> aufs_si_directory $@" >&2

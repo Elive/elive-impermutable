@@ -136,7 +136,7 @@ else
 				--urgency="normal" \
 				--icon="changes-allow" \
 				"bilibop-lockfs is disabled" \
-				"All informations about the current\nsession can be written on the disk.\nYou have been warned."
+				"Any information about the current\nsession can be written on the disk.\nYou have been warned."
 			;;
 	esac
 	# Nothing else to do:

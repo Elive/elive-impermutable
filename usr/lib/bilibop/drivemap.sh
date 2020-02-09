@@ -37,7 +37,7 @@ _drivemap_max_mp_length() {
 # ===========================================================================}}}
 # _drivemap_volume_size() ==================================================={{{
 # What we want is: output the size of a device given as argument. This size
-# will be added to the informations about the device, and must be human
+# will be added to the information about the device, and must be human
 # readable. To avoid some kind of confusion, we use the same units than the
 # vendors, i.e powers of 10 instead of powers of 2 (factor 1000 instead of
 # factor 1024). This size string is formated to be right-aligned into a six
@@ -209,10 +209,10 @@ _drivemap_dotline() {
 # it. The line can be indented, formated for 70 columns, and filled with
 # dots to make it more readable. The first argument is the indentation
 # string and the device name. It is mandatory. The second argument consists
-# in informations about the device (device id and size, or fstype and size)
+# in information about the device (device id and size, or fstype and size)
 # between square brackets. It can be empty. If not, this information will
 # be right-aligned. The last argument, optional, is a flag to say: fill
-# the line between the device name and the informations with dots. Of
+# the line between the device name and the information with dots. Of
 # course, this flag is ignored if the information block is not provided.
 _drivemap_print_line() {
     ${DEBUG} && echo "> _drivemap_print_line $@" >&2
@@ -298,7 +298,7 @@ _drivemap_loopback_device() {
 # ===========================================================================}}}
 # _drivemap_dmdevice_holder() ==============================================={{{
 # What we want is: find the dm devices hosted by the dm device or the partition
-# given as argument, query informations about it (optional), output the result
+# given as argument, query information about it (optional), output the result
 # and continue by calling this function from inside itself.
 _drivemap_dmdevice_holder() {
     ${DEBUG} && echo "> _drivemap_dmdevice_holder $@" >&2
