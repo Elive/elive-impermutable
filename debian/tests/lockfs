@@ -1,0 +1,65 @@
+#!/bin/sh
+
+. /usr/lib/bilibop/common.sh
+
+ROOTFSPART="$(underlying_device_from_file /)"
+if [ ! -b "${ROOTFSPART}" ]; then
+    echo "ROOTFSPART (${ROOTFSPART}) is not a block device." >&2
+    exit 10
+fi
+
+ROOTFSREAL="$(findmnt --noheadings --output=target ${ROOTFSPART})"
+if [ ! -d "${ROOTFSREAL}" ]; then
+    echo "ROOTFSREAL (${ROOTFSREAL}) is not a directory." >&2
+    exit 11
+fi
+
+
+provide_the_proof() {
+    echo "$ ${@}"
+    eval "${@}"
+    echo
+}
+
+# This will allow comparisons between locked/unlocked states.
+provide_the_proof "grep -E ' / |overlay' /proc/mounts"
+provide_the_proof "lsblk --output=name,ro,mountpoint"
+provide_the_proof "df --output=source,fstype,target"
+
+
+case "${AUTOPKGTEST_REBOOT_MARK}" in
+    "")
+        if [ "${ROOTFSREAL}" = "/" ]; then
+            echo "root filesystem is not locked. Enable bilibop-lockfs and reboot."
+            echo
+            echo "BILIBOP_LOCKFS='true'" >/etc/bilibop/bilibop.conf
+            sync
+            /tmp/autopkgtest-reboot lockfs
+        else
+            echo "unexpected error" >&2
+            exit 2
+        fi ;;
+
+    lockfs)
+        if [ "${ROOTFSREAL}" = "/" ]; then
+            echo "root filesystem is not locked." >&2
+            exit 3
+        else
+            echo "root filesystem is successfully locked. Disable bilibop-lockfs and reboot."
+            echo
+            blockdev --setrw ${ROOTFSPART}
+            mount -o remount,rw ${ROOTFSREAL}
+            echo "BILIBOP_LOCKFS='false'" >${ROOTFSREAL}/etc/bilibop/bilibop.conf
+            sync
+            /tmp/autopkgtest-reboot nolockfs
+        fi ;;
+
+    nolockfs)
+        if [ "${ROOTFSREAL}" = "/" ]; then
+            echo "root filesystem is successfully unlocked. End of test."
+            exit 0
+        else
+            echo "root filesystem is still locked." >&2
+            exit 4
+        fi ;;
+esac

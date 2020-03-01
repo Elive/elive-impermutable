@@ -1,3 +1,7 @@
 Test-Command: /usr/lib/bilibop/disk
 Depends: bilibop-common
 Restrictions: isolation-machine
+
+Tests: lockfs
+Depends: bilibop-lockfs
+Restrictions: isolation-machine, needs-reboot, needs-root
