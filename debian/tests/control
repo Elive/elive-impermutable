@@ -1,2 +1,3 @@
 Test-Command: /usr/lib/bilibop/disk
 Depends: bilibop-common
+Restrictions: isolation-machine
