@@ -1,65 +1,103 @@
-#!/bin/sh
+#!/bin/sh -e
 
 . /usr/lib/bilibop/common.sh
 
 ROOTFSPART="$(underlying_device_from_file /)"
 if [ ! -b "${ROOTFSPART}" ]; then
-    echo "ROOTFSPART (${ROOTFSPART}) is not a block device." >&2
-    exit 10
+    echo "${AUTOPKGTEST_REBOOT_MARK}: ROOTFSPART (${ROOTFSPART}) is not a block device." >&2
+    exit 80
 fi
 
 ROOTFSREAL="$(findmnt --noheadings --output=target ${ROOTFSPART})"
 if [ ! -d "${ROOTFSREAL}" ]; then
-    echo "ROOTFSREAL (${ROOTFSREAL}) is not a directory." >&2
-    exit 11
+    echo "${AUTOPKGTEST_REBOOT_MARK}: ROOTFSREAL (${ROOTFSREAL}) is not a directory." >&2
+    exit 81
 fi
 
 
-provide_the_proof() {
-    echo "$ ${@}"
+display_command_and_run_it() {
+    echo "# ${@}"
     eval "${@}"
     echo
 }
 
-# This will allow comparisons between locked/unlocked states.
-provide_the_proof "grep -E ' / |overlay' /proc/mounts"
-provide_the_proof "lsblk --output=name,ro,mountpoint"
-provide_the_proof "df --output=source,fstype,target"
+# This will allow humans to compare locked/unlocked states.
+display_command_and_run_it "grep -E ' / |overlay|lockfs' /proc/mounts"
+display_command_and_run_it "lsblk --output=name,ro,mountpoint"
+display_command_and_run_it "df --output=source,fstype,target"
 
 
 case "${AUTOPKGTEST_REBOOT_MARK}" in
     "")
         if [ "${ROOTFSREAL}" = "/" ]; then
-            echo "root filesystem is not locked. Enable bilibop-lockfs and reboot."
+            echo "STAGE 0: root filesystem is not locked."
+            echo "STAGE 0: enable bilibop-lockfs and reboot."
             echo
-            echo "BILIBOP_LOCKFS='true'" >/etc/bilibop/bilibop.conf
-            sync
+            display_command_and_run_it "echo BILIBOP_LOCKFS='true' | tee /etc/bilibop/bilibop.conf"
+            display_command_and_run_it "sync"
             /tmp/autopkgtest-reboot lockfs
         else
-            echo "unexpected error" >&2
-            exit 2
-        fi ;;
+            echo "STAGE 0: unexpected error" >&2
+            exit 90
+        fi
+        ;;
 
     lockfs)
         if [ "${ROOTFSREAL}" = "/" ]; then
-            echo "root filesystem is not locked." >&2
-            exit 3
-        else
-            echo "root filesystem is successfully locked. Disable bilibop-lockfs and reboot."
+            echo "STAGE 1: root filesystem is not locked." >&2
+            exit 11
+        fi
+        if [ $(blockdev --getro ${ROOTFSPART}) -eq 1 ] && [ "${ROOTFSREAL}" = "/overlay/ro" ]; then
+            echo "STAGE 1: root filesystem is successfully locked with hard policy."
+            echo "STAGE 1: change lockfs settings and reboot."
             echo
-            blockdev --setrw ${ROOTFSPART}
-            mount -o remount,rw ${ROOTFSREAL}
-            echo "BILIBOP_LOCKFS='false'" >${ROOTFSREAL}/etc/bilibop/bilibop.conf
-            sync
+            display_command_and_run_it "blockdev -v --setrw ${ROOTFSPART}"
+            display_command_and_run_it "mount -v -o remount,rw ${ROOTFSREAL}"
+            display_command_and_run_it "echo BILIBOP_LOCKFS_PATH_PREFIX='.lockfs' | tee -a ${ROOTFSREAL}/etc/bilibop/bilibop.conf"
+            display_command_and_run_it "echo BILIBOP_LOCKFS_POLICY='soft' | tee -a ${ROOTFSREAL}/etc/bilibop/bilibop.conf"
+            display_command_and_run_it "sync"
+            display_command_and_run_it "mount -v -o remount,ro ${ROOTFSREAL}"
+            display_command_and_run_it "blockdev -v --setro ${ROOTFSPART}"
+            /tmp/autopkgtest-reboot relockfs
+        else
+            echo "STAGE 1: unexpected error" >&2
+            exit 91
+        fi
+        ;;
+
+    relockfs)
+        if [ "${ROOTFSREAL}" = "/" ]; then
+            echo "STAGE 2: root filesystem is not locked." >&2
+            exit 12
+        fi
+        if [ $(blockdev --getro ${ROOTFSPART}) -eq 0 ] && [ "${ROOTFSREAL}" = "/.lockfs/ro" ]; then
+            echo "STAGE 2: root filesystem is successfully locked with soft policy."
+            echo "STAGE 2: disable bilibop-lockfs and reboot."
+            echo
+            display_command_and_run_it "mount -v -o remount,rw ${ROOTFSREAL}"
+            display_command_and_run_it "echo BILIBOP_LOCKFS='false' | tee ${ROOTFSREAL}/etc/bilibop/bilibop.conf"
+            display_command_and_run_it "sync"
+            display_command_and_run_it "mount -v -o remount,ro ${ROOTFSREAL}"
             /tmp/autopkgtest-reboot nolockfs
-        fi ;;
+        else
+            echo "STAGE 2: unexpected error" >&2
+            exit 92
+        fi
+        ;;
 
     nolockfs)
         if [ "${ROOTFSREAL}" = "/" ]; then
-            echo "root filesystem is successfully unlocked. End of test."
+            echo "STAGE 3: root filesystem is successfully unlocked."
+            echo "STAGE 3: end of test."
             exit 0
         else
-            echo "root filesystem is still locked." >&2
-            exit 4
-        fi ;;
+            echo "STAGE 3: root filesystem is still locked." >&2
+            exit 13
+        fi
+        ;;
+
+    *)
+        echo "unsupported value (AUTOPKGTEST_REBOOT_MARK='${AUTOPKGTEST_REBOOT_MARK}')" >&2
+        exit 100
+        ;;
 esac
