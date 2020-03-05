@@ -1,3 +1,11 @@
+bilibop (0.6.1) unstable; urgency=low
+
+  * debian/tests
+    - Fix existing test: restrict to qemu backend.
+    - Test root filesystem locking/unlocking, with reboots between.
+
+ -- Yann Amar <quidame@poivron.org>  Thu, 05 Mar 2020 20:21:54 +0000
+
 bilibop (0.6.0) unstable; urgency=low
 
   * Move to /usr
