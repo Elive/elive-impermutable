@@ -1,4 +1,10 @@
-bilibop (unreleased) unreleased; urgency=low
+bilibop (UNRELEASED) unstable; urgency=high
+
+  * Fix missing support for aufs in autopkgtest test (lockfs).
+    Closes: #969606
+
+  * Move executable files from /usr/lib/bilibop to /usr/libexec/bilibop
+    according to FHS 3.0, Debian Policy and lintian (pedantic).
 
   * Update translations for debconf
     - nl: thanks to Frans Spiesschaert. Closes: #955504
@@ -6,7 +12,7 @@ bilibop (unreleased) unreleased; urgency=low
     - es: thanks to Camaleón. Closes: #958870
     - pt: thanks to Américo Moteiro. Closes: #962411
 
- -- Yann Amar <quidame@poivron.org>  Thu, 05 Mar 2020 20:21:54 +0000
+ -- Yann Amar <quidame@poivron.org>  Wed, 09 Sep 2020 22:36:04 +0000
 
 bilibop (0.6.1) unstable; urgency=low
 

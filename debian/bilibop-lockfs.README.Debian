@@ -499,7 +499,7 @@ $ drivemap -i /
 
 For all:
 
-$ lsblk -o kname,ro $(/usr/lib/bilibop/disk)
+$ lsblk -o kname,ro $(/usr/libexec/bilibop/disk)
 KNAME RO
 sdb    1
 sdb1   1

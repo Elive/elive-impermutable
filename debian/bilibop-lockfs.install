@@ -1,5 +1,5 @@
 etc/xdg/autostart/lockfs-notify.desktop				etc/xdg/autostart
-usr/lib/bilibop/lockfs_mount_helper				usr/lib/bilibop
+usr/libexec/bilibop/lockfs_mount_helper				usr/libexec/bilibop
 usr/lib/bilibop/lockfs.sh					usr/lib/bilibop
 usr/bin/lockfs-notify						usr/bin
 usr/share/initramfs-tools/hooks/bilibop-lockfs			usr/share/initramfs-tools/hooks

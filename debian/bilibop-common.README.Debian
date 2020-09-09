@@ -153,15 +153,15 @@ SCRIPTS
 
 Bilibop-common is shipped with three shell scripts:
 
-/usr/lib/bilibop/disk
----------------------
+/usr/libexec/bilibop/disk
+-------------------------
 
 This script is very small; it just outputs the physical disk name that
 contains the root filesystem (or the disk name containing a file, device
 or directory given as argument). This is a kind of 'proof of concept'.
 
-/usr/lib/bilibop/test
----------------------
+/usr/libexec/bilibop/test
+-------------------------
 
 This script tests if the argument (file/directory/device) is on the same
 physical disk than the root filesystem. If it is the case and -q is not

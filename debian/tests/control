@@ -1,4 +1,4 @@
-Test-Command: /usr/lib/bilibop/disk
+Test-Command: /usr/libexec/bilibop/disk
 Depends: bilibop-common
 Restrictions: isolation-machine
 

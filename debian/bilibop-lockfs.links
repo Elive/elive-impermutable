@@ -1,1 +1,1 @@
-usr/lib/bilibop/lockfs_mount_helper	usr/sbin/mount.lockfs
+usr/libexec/bilibop/lockfs_mount_helper usr/sbin/mount.lockfs

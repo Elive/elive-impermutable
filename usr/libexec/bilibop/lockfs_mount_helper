@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-# /usr/lib/bilibop/lockfs_mount_helper {{{
+# /usr/libexec/bilibop/lockfs_mount_helper {{{
 # Mount helper script for 'lockfs' filesystem type entries in /etc/fstab.
 # This script cannot be run manually. The expected way to run it is the
 # following:

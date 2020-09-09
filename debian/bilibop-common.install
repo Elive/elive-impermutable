@@ -1,6 +1,6 @@
 etc/bilibop/bilibop.conf	etc/bilibop
 usr/lib/bilibop/common.sh	usr/lib/bilibop
-usr/lib/bilibop/disk		usr/lib/bilibop
-usr/lib/bilibop/test		usr/lib/bilibop
 usr/lib/bilibop/drivemap.sh	usr/lib/bilibop
+usr/libexec/bilibop/disk	usr/libexec/bilibop
+usr/libexec/bilibop/test	usr/libexec/bilibop
 usr/bin/drivemap		usr/bin
