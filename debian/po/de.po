@@ -1,14 +1,14 @@
 # German debconf translation of bilibop.
 # This file is distributed under the same license as the bilibop package.
 # Copyright (C) 2011-2013 Yann Amar <quidame@poivron.org>.
-# Copyright (C) of this file 2014 Chris Leick <c.leick@vollbio.de>.
+# Copyright (C) of this file 2014, 2020 Chris Leick <c.leick@vollbio.de>.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: bilibop 0.4.20\n"
+"Project-Id-Version: bilibop 0.6.1\n"
 "Report-Msgid-Bugs-To: bilibop@packages.debian.org\n"
 "POT-Creation-Date: 2020-02-08 18:15+0000\n"
-"PO-Revision-Date: 2014-02-09 17:11+0100\n"
+"PO-Revision-Date: 2020-04-10 08:46+0100\n"
 "Last-Translator: Chris Leick <c.leick@vollbio.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
 "Language: de\n"
@@ -197,10 +197,8 @@ msgstr ""
 #. Type: error
 #. Description
 #: ../bilibop-rules.templates:6001 ../bilibop-rules.templates:7001
-#, fuzzy
-#| msgid "The following device(s) still belong to floppy group:"
 msgid "The following device(s) do not belong to disk group:"
-msgstr "Die folgenden Geräte gehören immer noch zur Floppy-Gruppe:"
+msgstr "Die folgenden Geräte gehören nicht zur Platten-Gruppe:"
 
 #. Type: error
 #. Description
