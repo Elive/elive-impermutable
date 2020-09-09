@@ -197,7 +197,6 @@ msgstr ""
 #. Type: error
 #. Description
 #: ../bilibop-rules.templates:6001 ../bilibop-rules.templates:7001
-#| msgid "The following device(s) still belong to floppy group:"
 msgid "The following device(s) do not belong to disk group:"
 msgstr "Os seguintes dispositivo(s) não pertencem ao grupo disk:"
 
@@ -280,4 +279,3 @@ msgid ""
 msgstr ""
 "Isto significa que algumas variáveis em '/etc/lvm/lvm.conf' serão "
 "abandonadas ou reiniciadas para os seus valores iniciais:"
-
