@@ -24,15 +24,13 @@ msgstr ""
 "Project-Id-Version: bilibop 0.4.20\n"
 "Report-Msgid-Bugs-To: bilibop@packages.debian.org\n"
 "POT-Creation-Date: 2020-02-08 18:15+0000\n"
-"PO-Revision-Date: 2013-12-21 13:50+0200\n"
+"PO-Revision-Date: 2020-04-14 13:58+0000\n"
 "Last-Translator: Camaleón <noelamac@gmail.com>\n"
 "Language-Team: Debian Spanish <debian-l10n-spanish@lists.debian.org>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Virtaal 0.7.1\n"
 
 #. Type: boolean
 #. Description
@@ -104,8 +102,8 @@ msgstr ""
 "(como USB/Firewire, USB/eSATA, USB/MMC/SD, etc.) debería comprobar las "
 "reglas generadas e iniciar el sistema desde uno de los tipos de puerto "
 "alternativos y si fuera necesario, ejecutar «dpkg-reconfigure bilibop-rules» "
-"de nuevo con las opciones adecuadas o incluso editar el archivo «/etc/udev/"
-"rules.d/66-bilibop.rules»."
+"de nuevo con las opciones adecuadas o incluso editar el archivo "
+"«/etc/udev/rules.d/66-bilibop.rules»."
 
 #. Type: select
 #. Choices
@@ -141,8 +139,8 @@ msgid ""
 msgstr ""
 "Actualmente existe el archivo «/etc/udev/rules.d/66-bilibop.rules». Este "
 "archivo es específico para el dispositivo donde se encuentra instalado el "
-"sistema y reemplaza al que proporciona el paquete bilibop-rules en «/usr/lib/"
-"udev/rules.d» que es más genérico."
+"sistema y reemplaza al que proporciona el paquete bilibop-rules en "
+"«/usr/lib/udev/rules.d» que es más genérico."
 
 #. Type: select
 #. Description
@@ -155,8 +153,8 @@ msgid ""
 "file."
 msgstr ""
 "Si el dispositivo donde se va a instalar el sistema «Live» puede iniciarse "
-"desde distintos tipos de puerto (USB/Firewire, USB/eSATA, USB/MC/tarjeta "
-"SD), etc.) debería iniciarlo desde un puerto alternativo y comprobar si las "
+"desde distintos tipos de puerto (USB/Firewire, USB/eSATA, USB/MC/tarjeta SD),"
+" etc.) debería iniciarlo desde un puerto alternativo y comprobar si las "
 "reglas personalizadas funcionan bien en todos los casos. Si tiene alguna "
 "duda, debería eliminar el archivo de reglas personalizadas."
 
@@ -205,18 +203,16 @@ msgid ""
 "not be written."
 msgstr ""
 "Puede volver atrás pulsando la tecla <Escape> y modificar las opciones. De "
-"lo contrario no se guardará el archivo de reglas personalizado «/etc/udev/"
-"rules.d/66-bilibop.rules»."
+"lo contrario no se guardará el archivo de reglas personalizado "
+"«/etc/udev/rules.d/66-bilibop.rules»."
 
 #. Type: error
 #. Description
 #. Type: error
 #. Description
 #: ../bilibop-rules.templates:6001 ../bilibop-rules.templates:7001
-#, fuzzy
-#| msgid "The following device(s) still belong to floppy group:"
 msgid "The following device(s) do not belong to disk group:"
-msgstr "El/los siguiente/s dispositivo/s todavía pertenece/n al grupo floppy:"
+msgstr "El/los siguiente/s dispositivo/s no pertenece/n al grupo disco:"
 
 #. Type: error
 #. Description
@@ -228,7 +224,7 @@ msgstr "Debería editar o eliminar el archivo de reglas personalizadas:"
 #. Description
 #: ../bilibop-rules.templates:7001
 msgid "Internal error"
-msgstr "Error intero"
+msgstr "Error interno"
 
 #. Type: error
 #. Description
