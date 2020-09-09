@@ -1,21 +1,21 @@
-# Translation of bilibop's debconf messages to european portuguese
+# Translation of bilibop's debconf messages to European Portuguese
 # This file is distributed under the same license as the bilibop package.
-# Américo Monteiro <a_monteiro@gmx.com>, 2013.
 #
+# Américo Monteiro <a_monteiro@gmx.com>, 2013 - 2020.
 msgid ""
 msgstr ""
-"Project-Id-Version: bilibop 0.4.19\n"
+"Project-Id-Version: bilibop 0.6.1\n"
 "Report-Msgid-Bugs-To: bilibop@packages.debian.org\n"
 "POT-Creation-Date: 2020-02-08 18:15+0000\n"
-"PO-Revision-Date: 2013-11-20 00:19+0000\n"
+"PO-Revision-Date: 2020-06-07 18:14+0000\n"
 "Last-Translator: Américo Monteiro <a_monteiro@gmx.com>\n"
-"Language-Team: Portuguese <traduz@debianpt.org>\n"
+"Language-Team: Portuguese <>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 1.4\n"
+"X-Generator: Lokalize 2.0\n"
 
 #. Type: boolean
 #. Description
@@ -138,7 +138,7 @@ msgid ""
 msgstr ""
 "Se o dispositivo que alberga o sistema que está em funcionamento é capaz de "
 "arrancar a partir de tipos de portos de hardware diferentes (USB/Firewire, "
-"USB/eSATA, USB/MMC/SD-card, etc.), você deve arrancá-lo a partir do tipo de "
+"USB/eSATA, USB/MMC/SD-card, etc.), você deve arranca-lo a partir do tipo de "
 "porto alternativo e verificar se as suas regras personalizadas funcionam bem "
 "em todos os casos. Em caso de dúvidas, deverá remover o ficheiro de regras "
 "personalizadas."
@@ -197,10 +197,9 @@ msgstr ""
 #. Type: error
 #. Description
 #: ../bilibop-rules.templates:6001 ../bilibop-rules.templates:7001
-#, fuzzy
 #| msgid "The following device(s) still belong to floppy group:"
 msgid "The following device(s) do not belong to disk group:"
-msgstr "Os seguintes dispositivo(s) ainda pertencem ao grupo floppy:"
+msgstr "Os seguintes dispositivo(s) não pertencem ao grupo disk:"
 
 #. Type: error
 #. Description
@@ -238,7 +237,7 @@ msgid ""
 "external drives plugged on the same computer."
 msgstr ""
 "Parece que a drive onde o seu sistema está instalado contem Volumes Lógicos. "
-"É possível configurar o LVM para activar apenas os Volumes Físicos de que o "
+"É possível configurar o LVM para ativar apenas os Volumes Físicos de que o "
 "seu sistema precisa. Isto pode principalmente evitar conflitos de nomes "
 "entre os Volumes usados pelo seu sistema e aqueles que poderão ser "
 "encontrados em drives internas ou externas ligadas ao mesmo computador."
@@ -281,3 +280,4 @@ msgid ""
 msgstr ""
 "Isto significa que algumas variáveis em '/etc/lvm/lvm.conf' serão "
 "abandonadas ou reiniciadas para os seus valores iniciais:"
+
