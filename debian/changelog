@@ -1,3 +1,13 @@
+bilibop (unreleased) unreleased; urgency=low
+
+  * Update translations for debconf
+    - nl: thanks to Frans Spiesschaert. Closes: #955504
+    - de: thanks to Chris Leick. Closes: #956344
+    - es: thanks to Camaleón. Closes: #958870
+    - pt: thanks to Américo Moteiro. Closes: #962411
+
+ -- Yann Amar <quidame@poivron.org>  Thu, 05 Mar 2020 20:21:54 +0000
+
 bilibop (0.6.1) unstable; urgency=low
 
   * debian/tests
