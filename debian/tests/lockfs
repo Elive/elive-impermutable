@@ -22,7 +22,7 @@ display_command_and_run_it() {
 }
 
 # This will allow humans to compare locked/unlocked states.
-display_command_and_run_it "grep -E ' / |overlay|lockfs' /proc/mounts"
+display_command_and_run_it "grep -E ' / |overlay|lockfs|aufs' /proc/mounts"
 display_command_and_run_it "lsblk --output=name,ro,mountpoint"
 display_command_and_run_it "df --output=source,fstype,target"
 
@@ -47,7 +47,8 @@ case "${AUTOPKGTEST_REBOOT_MARK}" in
             echo "STAGE 1: root filesystem is not locked." >&2
             exit 11
         fi
-        if [ $(blockdev --getro ${ROOTFSPART}) -eq 1 ] && [ "${ROOTFSREAL}" = "/overlay/ro" ]; then
+        if [ $(blockdev --getro ${ROOTFSPART}) -eq 1 ] &&
+            [ "${ROOTFSREAL}" = "/overlay/ro" -o "${ROOTFSREAL}" = "/aufs/ro" ]; then
             echo "STAGE 1: root filesystem is successfully locked with hard policy."
             echo "STAGE 1: change lockfs settings and reboot."
             echo
