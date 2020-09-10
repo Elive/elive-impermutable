@@ -12,7 +12,9 @@ bilibop (UNRELEASED) unstable; urgency=high
     - es: thanks to Camaleón. Closes: #958870
     - pt: thanks to Américo Moteiro. Closes: #962411
 
- -- Yann Amar <quidame@poivron.org>  Wed, 09 Sep 2020 22:36:04 +0000
+  * debian/control: bump debhelper-compat version to 13
+
+ -- Yann Amar <quidame@poivron.org>  Thu, 10 Sep 2020 19:31:30 +0000
 
 bilibop (0.6.1) unstable; urgency=low
 
