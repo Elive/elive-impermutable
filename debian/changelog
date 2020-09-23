@@ -1,4 +1,4 @@
-bilibop (UNRELEASED) unstable; urgency=high
+bilibop (0.6.2) unstable; urgency=high
 
   * Fix missing support for aufs in autopkgtest test (lockfs).
     Closes: #969606
@@ -10,7 +10,7 @@ bilibop (UNRELEASED) unstable; urgency=high
     - nl: thanks to Frans Spiesschaert. Closes: #955504
     - de: thanks to Chris Leick. Closes: #956344
     - es: thanks to Camaleón. Closes: #958870
-    - pt: thanks to Américo Moteiro. Closes: #962411
+    - pt: thanks to Américo Monteiro. Closes: #962411
 
   * debian/control: bump debhelper-compat version to 13
 
