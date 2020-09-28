@@ -13,8 +13,9 @@ bilibop (0.6.2) unstable; urgency=high
     - pt: thanks to Américo Monteiro. Closes: #962411
 
   * debian/control: bump debhelper-compat version to 13
+  * debian/rules: update dh_gencontrol override (option's syntax)
 
- -- Yann Amar <quidame@poivron.org>  Thu, 10 Sep 2020 19:31:30 +0000
+ -- Yann Amar <quidame@poivron.org>  Sun, 27 Sep 2020 23:59:07 +0000
 
 bilibop (0.6.1) unstable; urgency=low
 
