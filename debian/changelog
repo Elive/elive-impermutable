@@ -16,8 +16,11 @@ bilibop (0.6.2) unstable; urgency=high
     - Bump debhelper-compat version to 13.
     - Bump Standards-Version to 4.5.1: no changes needed.
   * debian/rules: update dh_gencontrol override (option's syntax)
+  * debian/source/lintian-overrides: override lintian warning
+    (source-contains-debian-substvars) since debian/substvars is a static file
+    (used but not modified by debian/rules targets)
 
- -- Yann Amar <quidame@poivron.org>  Wed, 30 Dec 2020 18:57:24 +0000
+ -- Yann Amar <quidame@poivron.org>  Wed, 30 Dec 2020 19:41:39 +0000
 
 bilibop (0.6.1) unstable; urgency=low
 
