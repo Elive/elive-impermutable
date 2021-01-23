@@ -1,3 +1,0 @@
-# /debian/substvars is a static file here (not generated nor dynamically
-# modified by debian/rules targets)
-bilibop source: source-contains-debian-substvars debian/substvars

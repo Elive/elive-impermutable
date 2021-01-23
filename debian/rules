@@ -20,9 +20,9 @@ override_dh_installdebconf:
 	dh_installdebconf --noscripts
 
 # Include the same text at the beginning of the extended description of
-# each package, and the same requirement at the end.
+# each package.
 override_dh_gencontrol:
-	dh_gencontrol -- -Tdebian/substvars
+	dh_gencontrol -- -Tdebian/description
 
 # The provided hooks aren't lintian-clean (use absolute path of the command).
 override_dh_installinitramfs:
