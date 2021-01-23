@@ -1,4 +1,4 @@
-bilibop (0.6.2) unstable; urgency=high
+bilibop (0.6.3) unstable; urgency=high
 
   * Fix missing support for aufs in autopkgtest test (lockfs).
     Closes: #969606
@@ -15,12 +15,12 @@ bilibop (0.6.2) unstable; urgency=high
   * debian/control:
     - Bump debhelper-compat version to 13.
     - Bump Standards-Version to 4.5.1: no changes needed.
-  * debian/rules: update dh_gencontrol override (option's syntax)
-  * debian/source/lintian-overrides: override lintian warning
-    (source-contains-debian-substvars) since debian/substvars is a static file
-    (used but not modified by debian/rules targets)
+  * debian/substvars: move to debian/description to avoid lintian warning
+    (source-contains-debian-substvars).
+  * debian/rules: update dh_gencontrol override accordingly (+fix syntax).
+  * debian/copyright: update GPL license URL to https.
 
- -- Yann Amar <quidame@poivron.org>  Wed, 30 Dec 2020 19:41:39 +0000
+ -- Yann Amar <quidame@poivron.org>  Sat, 23 Jan 2021 11:23:33 +0000
 
 bilibop (0.6.1) unstable; urgency=low
 
