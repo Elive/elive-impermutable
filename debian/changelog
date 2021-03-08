@@ -1,3 +1,10 @@
+bilibop (0.6.4) unstable; urgency=high
+
+  * Update brazilian (pt_BR) translations for debconf; thanks to Adriano
+    Rafael Gomes. Closes: #983396
+
+ -- Yann Amar <quidame@poivron.org>  Mon, 08 Mar 2021 23:08:14 +0000
+
 bilibop (0.6.3) unstable; urgency=high
 
   * Fix missing support for aufs in autopkgtest test (lockfs).
