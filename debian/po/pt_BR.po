@@ -1,14 +1,15 @@
-# Translation of bilibop's debconf messages to brazilian portuguese
+# Debconf translations for bilibop.
+# Copyright (C) 2016 THE bilibop'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the bilibop package.
-# Adriano Rafael Gomes <adrianorg@arg.eti.br>, 2016.
+# Adriano Rafael Gomes <adrianorg@arg.eti.br>, 2016-2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: bilibop@packages.debian.org\n"
 "POT-Creation-Date: 2020-02-08 18:15+0000\n"
-"PO-Revision-Date: 2016-02-16 11:17-0200\n"
-"Last-Translator: Adriano Rafael Gomes <adrianorg@arg.eti.br>\n"
+"PO-Revision-Date: 2020-12-26 17:04-0300\n"
+"Last-Translator: Adriano Rafael Gomes <adrianorg@debian.org>\n"
 "Language-Team: Brazilian Portuguese <debian-l10n-portuguese@lists.debian."
 "org>\n"
 "Language: pt_BR\n"
@@ -193,10 +194,8 @@ msgstr ""
 #. Type: error
 #. Description
 #: ../bilibop-rules.templates:6001 ../bilibop-rules.templates:7001
-#, fuzzy
-#| msgid "The following device(s) still belong to floppy group:"
 msgid "The following device(s) do not belong to disk group:"
-msgstr "O(s) seguinte(s) dispositivo(s) ainda pertence(m) ao grupo floppy:"
+msgstr "O(s) seguinte(s) dispositivo(s) não pertence(m) ao grupo disk:"
 
 #. Type: error
 #. Description
