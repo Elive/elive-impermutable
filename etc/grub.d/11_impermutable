@@ -369,6 +369,8 @@ while [ "x$list" != "x" ] ; do
     fi
   fi
 
+  GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT lockfs"
+
   if [ "x$is_top_level" = xtrue ] && [ "x${GRUB_DISABLE_SUBMENU}" != xy ]; then
     linux_entry "Impermutable ${OS}" "${version}" simple \
     "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}"
@@ -392,10 +394,10 @@ while [ "x$list" != "x" ] ; do
 		  "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT} init=${init_path}"
     fi
   done
-  if [ "x${GRUB_DISABLE_RECOVERY}" != "xtrue" ]; then
-    linux_entry "Impermutable ${OS}" "${version}" recovery \
-                "${GRUB_CMDLINE_LINUX_RECOVERY} ${GRUB_CMDLINE_LINUX}"
-  fi
+  # if [ "x${GRUB_DISABLE_RECOVERY}" != "xtrue" ]; then
+  #   linux_entry "Impermutable ${OS}" "${version}" recovery \
+  #               "${GRUB_CMDLINE_LINUX_RECOVERY} ${GRUB_CMDLINE_LINUX}"
+  # fi
 
   list=`echo $list | tr ' ' '\n' | fgrep -vx "$linux" | tr '\n' ' '`
 done
