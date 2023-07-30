@@ -178,6 +178,21 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
             --expire-time=14000 \
 			"Impermutability is enabled" \
 			"${locked} mounted as ${perm_or_temp_fs} (${METHOD}).\nAll changes on ${this_fs} will be lost at shutdown.\nYou have been warned."
+
+        # run a FM so the user can see his changes on realtime
+        if [ -d "/overlay/rw/home/$USER" ] ; then
+            if [ -x "$( which thunar )" ] ; then
+                thunar "/overlay/rw/home/$USER" &
+            else
+                if [ -x "$( which pcmanfm )" ] ; then
+                    pcmanfm "/overlay/rw/home/$USER" &
+                fi
+            fi
+        fi
+
+        # add a readme file for the user
+        echo -e "This is a special directory relative to your User Home. Every modification different than your original state will appear here. For example if you download a file or if you modify an existing one. All changes will be DELETED after you reboot the computer." > "$USER/where-is-my-files.txt"
+
 		;;
 esac
 
