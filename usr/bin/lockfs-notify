@@ -175,6 +175,7 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 		notify-send ${EXPIRE_TIME:+--expire-time=${EXPIRE_TIME}} \
 			--urgency="normal" \
 			--icon="changes-prevent" \
+            --expire-time=14000 \
 			"Impermutability is enabled" \
 			"${locked} mounted as ${perm_or_temp_fs} (${METHOD}).\nAll changes on ${this_fs} will be lost at shutdown.\nYou have been warned."
 		;;
