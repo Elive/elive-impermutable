@@ -34,6 +34,9 @@ export TEXTDOMAINDIR="${datarootdir}/locale"
 CLASS="--class gnu-linux --class gnu --class os"
 SUPPORTED_INITS="sysvinit:/lib/sysvinit/init systemd:/lib/systemd/systemd upstart:/sbin/upstart"
 
+# simplify name
+GRUB_DISTRIBUTOR="Elive"
+
 if [ "x${GRUB_DISTRIBUTOR}" = "x" ] ; then
   OS=GNU/Linux
 else
