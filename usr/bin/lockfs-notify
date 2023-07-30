@@ -135,7 +135,7 @@ else
 			notify-send ${EXPIRE_TIME:+--expire-time=${EXPIRE_TIME}} \
 				--urgency="normal" \
 				--icon="changes-allow" \
-				"bilibop-lockfs is disabled" \
+				"Impermutability is disabled" \
 				"Any information about the current\nsession can be written on the disk.\nYou have been warned."
 			;;
 	esac
@@ -175,7 +175,7 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 		notify-send ${EXPIRE_TIME:+--expire-time=${EXPIRE_TIME}} \
 			--urgency="normal" \
 			--icon="changes-prevent" \
-			"bilibop-lockfs is enabled" \
+			"Impermutability is enabled" \
 			"${locked} mounted as ${perm_or_temp_fs} (${METHOD}).\nAll changes on ${this_fs} will be lost at shutdown.\nYou have been warned."
 		;;
 esac
