@@ -137,30 +137,30 @@ fi
 # check the sysfs 'removable' flag to know what to do.
 case	"${BILIBOP_LOCKFS}" in
 	true)
-		log_warning_msg "${0##*/}: Locking filesystem."
+		log_warning_msg "Impermutability: Locking filesystem."
 		;;
 	false)
 		# Undo what has been done before (in the init-top script)
 		# and exit
 		undo_readonly_dm_settings
-		log_warning_msg "${0##*/}: Nothing to do."
+		log_warning_msg "Impermutability: Nothing to do."
 		case "${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 			never|lockfs) ;;
-			*) plymouth_message "${0##*/} is disabled" ;;
+			*) plymouth_message "Impermutability is disabled" ;;
 		esac
 		exit 0
 		;;
 	*)
 		if	is_removable ${BILIBOP_DISK}
-		then	log_warning_msg "${0##*/}: Locking filesystem."
+		then	log_warning_msg "Impermutability: Locking filesystem."
 		else
 			# Undo what has been done before (in the init-top script)
 			# and exit
 			undo_readonly_dm_settings
-			log_warning_msg "${0##*/}: Nothing to do."
+			log_warning_msg "Impermutability: Nothing to do."
 			case "${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 				never|lockfs) ;;
-				*) plymouth_message "${0##*/} is disabled" ;;
+				*) plymouth_message "Impermutability is disabled" ;;
 			esac
 			exit 0
 		fi
@@ -170,14 +170,14 @@ esac
 
 # Exit if ${rootmnt} is already mounted as an aufs/overlayfs branch (by fsprotect, overlayroot?):
 if	is_aufs_mountpoint -q "${rootmnt}"
-then	log_warning_msg "${0##*/}: Root filesystem is already mounted as aufs..."
-	log_failure_msg "${0##*/}: Exit."
-	plymouth_message "${0##*/}: ERROR"
+then	log_warning_msg "Impermutability: Root filesystem is already mounted as aufs..."
+	log_failure_msg "Impermutability: Exit."
+	plymouth_message "Impermutability: ERROR"
 	exit 0
 elif	is_overlay_mountpoint -q "${rootmnt}"
-then	log_warning_msg "${0##*/}: Root filesystem is already mounted as overlayfs..."
-	log_failure_msg "${0##*/}: Exit."
-	plymouth_message "${0##*/}: ERROR"
+then	log_warning_msg "Impermutability: Root filesystem is already mounted as overlayfs..."
+	log_failure_msg "Impermutability: Exit."
+	plymouth_message "Impermutability: ERROR"
 	exit 0
 fi
 
@@ -199,9 +199,9 @@ elif	modprobe ${fallback} >/dev/null 2>&1 &&
 	grep -q "[[:blank:]]${fallback}$" /proc/filesystems
 then	METHOD="${fallback}"
 else
-	log_failure_msg "${0##*/}: No unionfs (${tryfirst}, ${fallback}) kernel support."
-	log_failure_msg "${0##*/}: Exit."
-	plymouth_message "${0##*/}: ERROR"
+	log_failure_msg "Impermutability: No unionfs (${tryfirst}, ${fallback}) kernel support."
+	log_failure_msg "Impermutability: Exit."
+	plymouth_message "Impermutability: ERROR"
 	exit 1
 fi
 
@@ -230,7 +230,7 @@ then
 	done
 fi
 
-log_begin_msg "${0##*/}: Setting up ${METHOD} branches"
+log_begin_msg "Impermutability: Setting up ${METHOD} branches"
 
 # Protect ${rootmnt}/usr if it is a mountpoint.
 preserve_usr
@@ -268,9 +268,9 @@ then
 	[ "${BILIBOP_LOCKFS_POLICY}" = "soft" ] ||
 	blockdev_root_subtree rw ${BILIBOP_ROOT} ${BILIBOP_DISK}
 
-	log_failure_msg "${0##*/}: Error occured when setting ${METHOD} writable branch."
-	log_failure_msg "${0##*/}: Exit."
-	plymouth_message "${0##*/}: ERROR"
+	log_failure_msg "Impermutability: Error occured when setting ${METHOD} writable branch."
+	log_failure_msg "Impermutability: Exit."
+	plymouth_message "Impermutability: ERROR"
 	exit 1
 fi
 
@@ -303,8 +303,8 @@ else
 	umount ${TEMPDIR}
 
 	_log_msg "failed.\n"
-	log_failure_msg "${0##*/}: Persistent root filesystem is writable."
-	plymouth_message "${0##*/}: ERROR"
+	log_failure_msg "Impermutability: Persistent root filesystem is writable."
+	plymouth_message "Impermutability: ERROR"
 	exit 1
 fi
 
@@ -313,10 +313,10 @@ fi
 >${BILIBOP_RUNDIR}/lock
 
 log_end_msg
-log_success_msg "${0##*/}: Root filesystem is now locked (${BILIBOP_LOCKFS_POLICY} policy)."
+log_success_msg "Impermutability: Root filesystem is now locked (${BILIBOP_LOCKFS_POLICY} policy)."
 case "${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 	never|nolockfs) ;;
-	*) plymouth_message "${0##*/}: ${BILIBOP_LOCKFS_POLICY} policy is enabled" ;;
+	*) plymouth_message "Impermutability: ${BILIBOP_LOCKFS_POLICY} policy is enabled" ;;
 esac
 
 # Avoid filesystems check:
@@ -332,11 +332,11 @@ activate_bilibop_lv
 
 # Rebuild fstab to automatically mount other filesystems as readonly aufs
 # branches:
-log_warning_msg "${0##*/}: Modifying temporary static filesystem table (fstab)."
+log_warning_msg "Impermutability: Modifying temporary static filesystem table (fstab)."
 FSTAB="${rootmnt}/etc/fstab"
 >>${FSTAB}			# touch the file
 
-comment="# Original line commented by ${0##*/}:"
+comment="# Original line commented by Impermutability:"
 replace="# ...and replaced by:"
 
 # Comment the line about the root filesystem, which must not be managed later
