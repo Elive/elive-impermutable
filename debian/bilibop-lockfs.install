@@ -1,4 +1,5 @@
 etc/xdg/autostart/lockfs-notify.desktop				etc/xdg/autostart
+etc/grub.d/*				etc/grub.d
 usr/libexec/bilibop/lockfs_mount_helper				usr/libexec/bilibop
 usr/lib/bilibop/lockfs.sh					usr/lib/bilibop
 usr/bin/lockfs-notify						usr/bin
