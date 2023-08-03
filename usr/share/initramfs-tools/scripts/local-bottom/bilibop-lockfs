@@ -36,6 +36,9 @@ do
 	esac
 done
 
+# do not enable lockfs by default unless the user requests it on the boot mode, also there's a bug that unless "nolockfs" is added on the boot parameters, an OS that has its root partition in encrypted luks mode will become unusable
+BILIBOP_LOCKFS="false"
+
 # Load functions:
 . /scripts/functions
 . /usr/lib/bilibop/lockfs.sh
