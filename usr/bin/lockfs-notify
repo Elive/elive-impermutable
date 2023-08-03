@@ -190,8 +190,22 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
             fi
         fi
 
+        # change the wallpaper
+        wallpaper="$( find /usr/share/bilibop-wallpaper/ -type f \( -iname '*'jpg -o -iname '*'jpeg -o -iname '*'png \) | tail -1 )"
+
+        if [ -s "$wallpaper" ] ; then
+            name="$( echo "$wallpaper" | sed -e 's|^.*/||g' -e 's|\.*$||g' )"
+            eesh bg xset "$name" 0 0 0 "$wallpaper" 0 0 0 0 1024 1024 "" 0 0 0 0 0
+            if eesh bg list | grep -qs "^${name}$" ; then
+                eesh bg use "$name" 0
+                eesh bg use "$name" 1
+            fi
+        fi
+
+
         # add a readme file for the user
         echo "This is a special directory relative to your User Home. Every modification different than your original state will appear here. For example if you download a file or if you modify an existing one. All changes will be DELETED after you reboot the computer." > "$HOME/where-is-my-files.txt"
+
 
 		;;
 esac
