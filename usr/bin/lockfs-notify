@@ -192,15 +192,7 @@ case	"${BILIBOP_LOCKFS_NOTIFY_POLICY}" in
 
         # change the wallpaper
         wallpaper="$( find /usr/share/bilibop-wallpaper/ -type f \( -iname '*'jpg -o -iname '*'jpeg -o -iname '*'png \) | tail -1 )"
-
-        if [ -s "$wallpaper" ] ; then
-            name="$( echo "$wallpaper" | sed -e 's|^.*/||g' -e 's|\.*$||g' )"
-            eesh bg xset "$name" 0 0 0 "$wallpaper" 0 0 0 0 1024 1024 "" 0 0 0 0 0
-            if eesh bg list | grep -qs "^${name}$" ; then
-                eesh bg use "$name" 0
-                eesh bg use "$name" 1
-            fi
-        fi
+        elive-wallpaper-set "$wallpaper"
 
 
         # add a readme file for the user
