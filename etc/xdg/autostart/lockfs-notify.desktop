@@ -2,7 +2,7 @@
 Version=1.0
 Encoding=UTF-8
 Type=Application
-Exec=lockfs-notify
+Exec=sleep 5 ; lockfs-notify
 Icon=changes-prevent
 Name=Elive Impermutable
 Comment=Notification of locking of the filesystems
